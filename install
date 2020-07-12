@@ -193,7 +193,7 @@ install_base() {
   pause_function
 }
 
-install_essentilas_pkgs() {
+install_essential_pkgs() {
   print_title "INSTALANDO PACOTES ESSENCIAIS..."
   pacstrap ${ROOT_MOUNTPOINT} \
     btrfs-progs \
@@ -240,7 +240,7 @@ install_essentilas_pkgs() {
   pause_function
 }
 
-install_utils_pkgs() {
+install_util_pkgs() {
   print_title "INSTALANDO PACOTES ESSENCIAIS..."
   pacstrap ${ROOT_MOUNTPOINT} \
     logrotate \
@@ -447,10 +447,6 @@ finish() {
       xdg-user-dirs-update
       wget stenioas.github.io/myarch/post-install /home/$NEW_USER/post-install
     "
-  print_warning " Difinindo teclado BR..."
-  arch-chroot ${ROOT_MOUNTPOINT} su - "${NEW_USER}" -c "
-      setxkbmap br
-    " 
   read_input_text "Reiniciar o sistema? [s/N]: "
   if [[ $OPTION == s ]]; then
     umount_partitions
@@ -527,7 +523,7 @@ format_partitions
 rank_mirrors
 install_base
 install_essential_pkgs
-install_utils_pkgs
+install_util_pkgs
 install_vga # MODIFICAR CONFORME A PLACA DE VIDEO
 install_xorg
 install_networkmanager
