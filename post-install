@@ -1,5 +1,30 @@
 #!/bin/bash
 
+# ======================================================================#
+# >>>           VARIÁVEIS
+# ----------------------------------------------------------------------#
+
+# --- COLORS
+  Bold=$(tput bold)
+  Underline=$(tput sgr 0 1)
+  Reset=$(tput sgr0)
+  # Regular Colors
+  Red=$(tput setaf 1)
+  Green=$(tput setaf 2)
+  Yellow=$(tput setaf 3)
+  Blue=$(tput setaf 4)
+  Purple=$(tput setaf 5)
+  Cyan=$(tput setaf 6)
+  White=$(tput setaf 7)
+  # Bold
+  BRed=${Bold}${Red}
+  BGreen=${Bold}${Green}
+  BYellow=${Bold}${Yellow}
+  BBlue=${Bold}${Blue}
+  BPurple=${Bold}${Purple}
+  BCyan=${Bold}${Cyan}
+  BWhite=${Bold}${White}
+
 # ====================================================================== #
 # >>>           FUNÇÕES PRINCIPAIS
 # ---------------------------------------------------------------------- #
