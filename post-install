@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ====================================================================== #
-# >>>           FUNÇÕES
+# >>>           FUNÇÕES PRINCIPAIS
 # ---------------------------------------------------------------------- #
 
 check_user() {
@@ -75,6 +75,32 @@ install_aur_pkgs() {
     wd719x-firmware
   print_warning " CONCLUÍDO!"
   pause_function
+}
+
+# ======================================================================#
+# >>>           OUTRAS FUNÇÕES
+# ----------------------------------------------------------------------#
+
+print_line() {
+  printf "%$(tput cols)s\n"|tr ' ' '-'
+}
+
+print_title() {
+  clear
+  print_line
+  echo -e "${BPurple}# $1${Reset}"
+  print_line
+  echo ""
+}
+
+print_warning() { #{{{
+  T_COLS=$(tput cols)
+  echo -e "\n${BGreen}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
+}
+
+pause_function() { #{{{
+  print_line
+  read -e -sn 1 -p "Pressione qualquer tecla para continuar..."
 }
 
 # ====================================================================== #

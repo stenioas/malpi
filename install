@@ -58,6 +58,7 @@ export LANG="${NEW_LANGUAGE}.UTF-8"
 initial() {
   print_title "PREPARANDO INSTALAÇÃO..."
   umount_partitions
+  print_warning " CONCLUÍDO!"
   pause_function
 }
 
@@ -481,10 +482,6 @@ print_title() {
 print_warning() { #{{{
   T_COLS=$(tput cols)
   echo -e "\n${BGreen}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
-}
-
-echo_byellow() {
-  echo -e " ${BYellow}$1${Reset}"
 }
 
 pause_function() { #{{{
