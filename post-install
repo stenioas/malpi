@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# ====================================================================== #
+# >>>           FUNÇÕES
+# ---------------------------------------------------------------------- #
+
+check_user() {
+  if [[ "$(id -u)" == "0" ]]; then
+    echo " ERRO! Você só pode executar esse script como usuário comum."
+    break
+    exit 0
+  fi
+}
+
+enable_multilib(){
+  print_title "HABILITANDO REPOSITÓRIO MULTILIB..."
+  ARCHI=$(uname -m)
+  if [[ $ARCHI == x86_64 ]]; then
+    local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
+    if [[ -z $_has_multilib ]]; then
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+      echo -e '\nMultilib repository added into pacman.conf file'
+    else
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+      local _has_multilib=$(( _has_multilib + 1 ))
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+    fi
+  fi
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_pacman_pkgs() {
+  print_title "INSTALANDO PACOTES EXTRAS..."
+  sudo pacman -S --needed --noconfirm \
+    libreoffice-fresh \
+    libreoffice-fresh-pt-br \
+    firefox \
+    firefox-i18n-pt-br \
+    steam \
+    gimp \
+    inkscape \
+    virtualbox \
+    virtualbox-host-dkms \
+    vlc \
+    transmission-gtk \
+    snapper \
+    telegram-desktop \
+    simplescreenrecorder \
+    redshift \
+    adapta-gtk-theme \
+    arc-gtk-theme \
+    papirus-icon-theme \
+    capitaine-cursors \
+    ttf-dejavu \
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_aur_pkgs() {
+  print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
+  yay -S --needed --noconfirm \
+    pamac-aur \
+    google-chrome \
+    spotify \
+    dropbox \
+    thunar-dropbox \
+    visual-studio-code-bin \
+    timeshift \
+    davinci-resolve \
+    brave \
+    stacer \
+    balena-etcher \
+    aic94xx-firmware \
+    wd719x-firmware
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+# ====================================================================== #
+# >>>           INSTALAÇÃO
+# ---------------------------------------------------------------------- #
+
+check_user
+xdg-user-dirs-update
+enable_multilib
+install_pacman_pkgs
+install_aur_pkgs
