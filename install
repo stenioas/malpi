@@ -55,6 +55,12 @@ export LANG="${NEW_LANGUAGE}.UTF-8"
 # >>>           FUNÇÕES PRICIPAIS
 # ----------------------------------------------------------------------#
 
+initial() {
+  print_title "PREPARANDO INSTALAÇÃO..."
+  umount_partitions
+  pause_function
+}
+
 time_sync() {
   print_title "SINCRONIZANDO RELÓGIO COM A INTERNET..."
   timedatectl set-ntp true
@@ -502,14 +508,12 @@ read_input_text() {
 }
 
 umount_partitions() {
-  print_title "DESMONTANDO AS PARTIÇÕES..."
+  print_warning "DESMONTANDO AS PARTIÇÕES..."
   mounted_partitions=($(lsblk | grep "${ROOT_MOUNTPOINT}" | awk '{print $7}' | sort -r))
   swapoff -a
   for i in "${mounted_partitions[@]}"; do
     umount "$i"
   done
-  print_warning " CONCLUÍDO!"
-  pause_function
 }
 
 # ======================================================================#
