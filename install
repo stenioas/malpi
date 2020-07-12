@@ -520,7 +520,7 @@ umount_partitions() {
 # >>>           INSTALAÇÃO
 # ----------------------------------------------------------------------#
 
-umount_partitions
+initial
 time_sync
 select_disk
 format_partitions
