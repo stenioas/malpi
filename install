@@ -425,35 +425,10 @@ install_desktop_envirounment() {
   pause_function
 }
 
-install_aur_helper() {
-  print_title "INSTALANDO YAY..."
-  arch-chroot ${ROOT_MOUNTPOINT} pacman -S --needed git go --noconfirm
-  arch-chroot ${ROOT_MOUNTPOINT} pacman -D --asdeps go
-  arch-chroot ${ROOT_MOUNTPOINT} su - "${NEW_USER}" -c "
-      xdg-user-dirs-update
-      if [[ -d /home/$NEW_USER/yay ]]; then
-        rm -rf /home/$NEW_USER/yay
-      else
-        git clone https://aur.archlinux.org/yay.git /home/$NEW_USER/yay
-        cd /home/$NEW_USER/yay
-        makepkg -csi --noconfirm
-        rm -rf /home/$NEW_USER/yay
-      fi
-    "
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
 finish() {
   print_title "INSTALAÇÃO COMPLETA!"
   print_warning " Copiando arquivo mirrorlist de backup..."
-  echo ""
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  print_warning " Baixando arquivo post-install para pasta do usuário ${BCyan}${NEW_USER}${BCyan}..."
-  arch-chroot ${ROOT_MOUNTPOINT} su - "${NEW_USER}" -c "
-      xdg-user-dirs-update
-      wget stenioas.github.io/myarch/post-install /home/$NEW_USER/post-install
-    "
   read_input_text "Reiniciar o sistema? [s/N]: "
   if [[ $OPTION == s ]]; then
     umount_partitions
@@ -537,5 +512,4 @@ generate_grub
 root_passwd
 create_new_user
 install_desktop_envirounment
-install_aur_helper
 finish

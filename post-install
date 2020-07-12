@@ -57,6 +57,23 @@ install_pacman_pkgs() {
   pause_function
 }
 
+install_aur_helper() {
+  print_title "INSTALANDO YAY..."
+  sudo pacman -S --needed git go --noconfirm
+  sudo pacman -D --asdeps go
+  xdg-user-dirs-update
+  if [[ -d /home/$USER/yay ]]; then
+    rm -rf /home/$USER/yay
+  else
+    git clone https://aur.archlinux.org/yay.git /home/$NEW_USER/yay
+    cd /home/$USER/yay
+    makepkg -csi --noconfirm
+    rm -rf /home/$USER/yay
+  fi
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
 install_aur_pkgs() {
   print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
   yay -S --needed --noconfirm \
@@ -111,4 +128,5 @@ check_user
 xdg-user-dirs-update
 enable_multilib
 install_pacman_pkgs
+install_aur_helper
 install_aur_pkgs
