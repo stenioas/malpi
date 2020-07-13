@@ -56,34 +56,6 @@ enable_multilib(){
   pause_function
 }
 
-install_pacman_pkgs() {
-  print_title "INSTALANDO PACOTES EXTRAS..."
-  sudo pacman -S --needed --noconfirm \
-    libreoffice-fresh \
-    libreoffice-fresh-pt-br \
-    firefox \
-    firefox-i18n-pt-br \
-    steam \
-    gimp \
-    inkscape \
-    virtualbox \
-    virtualbox-host-dkms \
-    vlc \
-    transmission-gtk \
-    snapper \
-    telegram-desktop \
-    simplescreenrecorder \
-    redshift \
-    adapta-gtk-theme \
-    arc-gtk-theme \
-    papirus-icon-theme \
-    capitaine-cursors \
-    ttf-dejavu \
-    ttf-hack
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
 install_aur_helper() {
   print_title "INSTALANDO YAY..."
   sudo pacman -S --needed git go --noconfirm
@@ -165,6 +137,5 @@ is_package_installed() {
 check_user
 xdg-user-dirs-update
 enable_multilib
-install_pacman_pkgs
 install_aur_helper
 install_aur_pkgs

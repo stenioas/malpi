@@ -268,9 +268,37 @@ install_util_pkgs() {
     cups \
     cups-pdf \
     ghostscript \
+    kvantum-qt5 \
     neofetch \
     bashtop
   arch-chroot ${ROOT_MOUNTPOINT} system_ctl enable org.cups.cupsd.service
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_extra_pkgs() {
+  print_title "INSTALANDO PACOTES EXTRAS..."
+  pacstrap ${ROOT_MOUNTPOINT} \
+    libreoffice-fresh \
+    libreoffice-fresh-pt-br \
+    firefox \
+    firefox-i18n-pt-br \
+    steam \
+    gimp \
+    inkscape \
+    virtualbox \
+    virtualbox-host-dkms \
+    vlc \
+    snapper \
+    telegram-desktop \
+    simplescreenrecorder \
+    redshift \
+    adapta-gtk-theme \
+    arc-gtk-theme \
+    papirus-icon-theme \
+    capitaine-cursors \
+    ttf-dejavu \
+    ttf-hack
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -376,7 +404,7 @@ create_new_user() {
   pause_function
 }
 
-install_desktop_envirounment() {
+install_desktop_envirounment_xfce() {
   print_title "INSTALANDO AMBIENTE DESKTOP..."
   arch-chroot ${ROOT_MOUNTPOINT} pacman -S --needed --noconfirm \
     xfce4 \
@@ -419,8 +447,42 @@ install_desktop_envirounment() {
     lightdm \
     lightdm-gtk-greeter \
     lightdm-gtk-greeter-settings \
-    network-manager-applet
+    network-manager-applet \
+    transmission-gtk
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable lightdm
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_desktop_envirounment_kde() {
+  print_title "INSTALANDO AMBIENTE DESKTOP..."
+  arch-chroot ${ROOT_MOUNTPOINT} pacman -S --needed --noconfirm \
+    plasma \
+    kf5 \
+    sddm \
+    ark \
+    dolphin \
+    dolphin-plugins \
+    kio-extras \
+    kdeconnect \
+    quota-tools \
+    gwenview \
+    kipi-plugins \
+    kate \
+    kcalc \
+    konsole \
+    spectacle \
+    okular \
+    sweeper \
+    packagekit-qt5 \
+    print-manager \
+    transmission-qt \
+    plasma-nm
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable sddm
+  arch-chroot ${ROOT_MOUNTPOINT} sddm --example-config > /etc/sddm.conf
+  sed -i 's/Current=/Current=breeze/' ${ROOT_MOUNTPOINT}/etc/sddm.conf
+  sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' ${ROOT_MOUNTPOINT}/etc/sddm.conf
+  sed -i 's/Numlock=none/Numlock=on/' ${ROOT_MOUNTPOINT}/etc/sddm.conf
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -500,6 +562,7 @@ rank_mirrors
 install_base
 install_essential_pkgs
 install_util_pkgs
+install_extra_pkgs
 install_vga # MODIFICAR CONFORME A PLACA DE VIDEO
 install_xorg
 install_networkmanager
@@ -511,5 +574,5 @@ generate_mkinitcpio
 generate_grub
 root_passwd
 create_new_user
-install_desktop_envirounment
+install_desktop_envirounment_kde
 finish
