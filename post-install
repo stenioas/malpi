@@ -29,12 +29,103 @@
 # >>>           FUNÇÕES PRINCIPAIS
 # ---------------------------------------------------------------------- #
 
-check_user() {
-  if [[ "$(id -u)" == "0" ]]; then
-    echo " ERRO! Você só pode executar esse script como usuário comum."
-    break
-    exit 0
-  fi
+create_new_user() {
+  print_title "CONFIGURANDO NOVO USUÁRIO..."
+  printf "%s" "Nome de usuário: "
+  read -r NEW_USER
+  NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
+  useradd -m -g users -G wheel ${NEW_USER}
+  echo "Usuário ${NEW_USER} criado..."
+  echo ""
+  echo "Definir senha do usuário..."
+  passwd ${NEW_USER}
+  print_warning " Adicionando privilégios ao usuário..."
+  sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_desktop_envirounment_xfce() {
+  print_title "INSTALANDO AMBIENTE DESKTOP XFCE..."
+  pacman -S --needed --noconfirm \
+    xfce4 \
+    mousepad \
+    orage \
+    ristretto \
+    thunar-archive-plugin \
+    thunar-media-tags-plugin \
+    xfce4-artwork \
+    xfce4-battery-plugin \
+    xfce4-clipman-plugin \
+    xfce4-cpufreq-plugin \
+    xfce4-cpugraph-plugin \
+    xfce4-datetime-plugin \
+    xfce4-dict \
+    xfce4-diskperf-plugin \
+    xfce4-eyes-plugin \
+    xfce4-fsguard-plugin \
+    xfce4-genmon-plugin \
+    xfce4-mailwatch-plugin \
+    xfce4-mount-plugin \
+    xfce4-mpc-plugin \
+    xfce4-netload-plugin \
+    xfce4-notes-plugin \
+    xfce4-notifyd \
+    xfce4-pulseaudio-plugin \
+    xfce4-screensaver \
+    xfce4-screenshooter \
+    xfce4-sensors-plugin \
+    xfce4-smartbookmark-plugin \
+    xfce4-systemload-plugin \
+    xfce4-taskmanager \
+    xfce4-time-out-plugin \
+    xfce4-timer-plugin \
+    xfce4-verve-plugin \
+    xfce4-wavelan-plugin \
+    xfce4-weather-plugin \
+    xfce4-whiskermenu-plugin \
+    xfce4-xkb-plugin \
+    lightdm \
+    lightdm-gtk-greeter \
+    lightdm-gtk-greeter-settings \
+    network-manager-applet \
+    transmission-gtk
+  systemctl enable lightdm
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_desktop_envirounment_kde() {
+  print_title "INSTALANDO AMBIENTE DESKTOP KDE PLASMA..."
+  pacman -S --needed --noconfirm \
+    plasma \
+    kf5 \
+    sddm \
+    ark \
+    dolphin \
+    dolphin-plugins \
+    kio-extras \
+    kdeconnect \
+    quota-tools \
+    gwenview \
+    kipi-plugins \
+    kate \
+    kcalc \
+    konsole \
+    spectacle \
+    okular \
+    sweeper \
+    packagekit-qt5 \
+    print-manager \
+    transmission-qt \
+    plasma-nm
+  systemctl enable sddm
+  sddm --example-config > /etc/sddm.conf
+  sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
+  sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
+  sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
+  print_warning " CONCLUÍDO!"
+  pause_function
 }
 
 enable_multilib(){
@@ -43,32 +134,59 @@ enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
-      sudo echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
       echo -e '\nRepositório Multilib adicionado ao arquivo pacman.conf'
     else
-      sudo sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
-      sudo sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
     fi
   fi
-  sudo pacman -Sy
+  pacman -Sy
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_extra_pkgs() {
+  print_title "INSTALANDO PACOTES EXTRAS..."
+  pacman -S --needed --noconfirm \
+    libreoffice-fresh \
+    libreoffice-fresh-pt-br \
+    firefox \
+    firefox-i18n-pt-br \
+    steam \
+    gimp \
+    inkscape \
+    virtualbox \
+    virtualbox-host-dkms \
+    vlc \
+    snapper \
+    telegram-desktop \
+    simplescreenrecorder \
+    redshift \
+    adapta-gtk-theme \
+    arc-gtk-theme \
+    papirus-icon-theme \
+    capitaine-cursors \
+    ttf-dejavu \
+    ttf-hack
   print_warning " CONCLUÍDO!"
   pause_function
 }
 
 install_aur_helper() {
   print_title "INSTALANDO YAY..."
-  sudo pacman -S --needed git go --noconfirm
-  sudo pacman -D --asdeps go
-  xdg-user-dirs-update
+  pacman -S --needed git go --noconfirm
+  pacman -D --asdeps go
+  su - "${NEW_USER}" -c "xdg-user-dirs-update"
   if ! is_package_installed "yay"; then
-    if [[ -d /home/$USER/yay ]]; then
-      rm -rf /home/$USER/yay
+    if [[ -d $(pwd)/yay ]]; then
+      rm -rf $(pwd)/yay
     else
-      git clone https://aur.archlinux.org/yay.git /home/$USER/yay
-      cd /home/$USER/yay
+      git clone https://aur.archlinux.org/yay.git $(pwd)/yay
+      cd $(pwd)/yay
       makepkg -csi --noconfirm
-      rm -rf /home/$USER/yay
+      rm -rf $(pwd)/yay
     fi
   else
     print_warning " O pacote já está instalado!"
@@ -79,7 +197,7 @@ install_aur_helper() {
 
 install_aur_pkgs() {
   print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
-  yay -S --needed --noconfirm \
+  su - "${NEW_USER}" -c "yay -S --needed --noconfirm \
     pamac-aur \
     google-chrome \
     spotify \
@@ -93,6 +211,7 @@ install_aur_pkgs() {
     balena-etcher \
     aic94xx-firmware \
     wd719x-firmware
+  "
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -134,8 +253,9 @@ is_package_installed() {
 # >>>           INSTALAÇÃO
 # ---------------------------------------------------------------------- #
 
-check_user
-xdg-user-dirs-update
+create_new_user
 enable_multilib
+install_desktop_envirounment_kde
+install_extra_pkgs
 install_aur_helper
 install_aur_pkgs

@@ -276,33 +276,6 @@ install_util_pkgs() {
   pause_function
 }
 
-install_extra_pkgs() {
-  print_title "INSTALANDO PACOTES EXTRAS..."
-  pacstrap ${ROOT_MOUNTPOINT} \
-    libreoffice-fresh \
-    libreoffice-fresh-pt-br \
-    firefox \
-    firefox-i18n-pt-br \
-    steam \
-    gimp \
-    inkscape \
-    virtualbox \
-    virtualbox-host-dkms \
-    vlc \
-    snapper \
-    telegram-desktop \
-    simplescreenrecorder \
-    redshift \
-    adapta-gtk-theme \
-    arc-gtk-theme \
-    papirus-icon-theme \
-    capitaine-cursors \
-    ttf-dejavu \
-    ttf-hack
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
 install_vga() {
   print_title "INSTALANDO DRIVER DE VÍDEO..."
   pacstrap ${ROOT_MOUNTPOINT} xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl
@@ -388,105 +361,6 @@ root_passwd() {
   pause_function
 }
 
-create_new_user() {
-  print_title "CONFIGURANDO NOVO USUÁRIO..."
-  printf "%s" "Nome de usuário: "
-  read -r NEW_USER
-  NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
-  arch-chroot ${ROOT_MOUNTPOINT} useradd -m -g users -G wheel ${NEW_USER}
-  echo "Usuário ${NEW_USER} criado..."
-  echo ""
-  echo "Definir senha do usuário..."
-  arch-chroot ${ROOT_MOUNTPOINT} passwd ${NEW_USER}
-  print_warning " Adicionando privilégios ao usuário..."
-  arch-chroot ${ROOT_MOUNTPOINT} sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_desktop_envirounment_xfce() {
-  print_title "INSTALANDO AMBIENTE DESKTOP..."
-  arch-chroot ${ROOT_MOUNTPOINT} pacman -S --needed --noconfirm \
-    xfce4 \
-    mousepad \
-    orage \
-    ristretto \
-    thunar-archive-plugin \
-    thunar-media-tags-plugin \
-    xfce4-artwork \
-    xfce4-battery-plugin \
-    xfce4-clipman-plugin \
-    xfce4-cpufreq-plugin \
-    xfce4-cpugraph-plugin \
-    xfce4-datetime-plugin \
-    xfce4-dict \
-    xfce4-diskperf-plugin \
-    xfce4-eyes-plugin \
-    xfce4-fsguard-plugin \
-    xfce4-genmon-plugin \
-    xfce4-mailwatch-plugin \
-    xfce4-mount-plugin \
-    xfce4-mpc-plugin \
-    xfce4-netload-plugin \
-    xfce4-notes-plugin \
-    xfce4-notifyd \
-    xfce4-pulseaudio-plugin \
-    xfce4-screensaver \
-    xfce4-screenshooter \
-    xfce4-sensors-plugin \
-    xfce4-smartbookmark-plugin \
-    xfce4-systemload-plugin \
-    xfce4-taskmanager \
-    xfce4-time-out-plugin \
-    xfce4-timer-plugin \
-    xfce4-verve-plugin \
-    xfce4-wavelan-plugin \
-    xfce4-weather-plugin \
-    xfce4-whiskermenu-plugin \
-    xfce4-xkb-plugin \
-    lightdm \
-    lightdm-gtk-greeter \
-    lightdm-gtk-greeter-settings \
-    network-manager-applet \
-    transmission-gtk
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable lightdm
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_desktop_envirounment_kde() {
-  print_title "INSTALANDO AMBIENTE DESKTOP..."
-  arch-chroot ${ROOT_MOUNTPOINT} pacman -S --needed --noconfirm \
-    plasma \
-    kf5 \
-    sddm \
-    ark \
-    dolphin \
-    dolphin-plugins \
-    kio-extras \
-    kdeconnect \
-    quota-tools \
-    gwenview \
-    kipi-plugins \
-    kate \
-    kcalc \
-    konsole \
-    spectacle \
-    okular \
-    sweeper \
-    packagekit-qt5 \
-    print-manager \
-    transmission-qt \
-    plasma-nm
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable sddm
-  arch-chroot ${ROOT_MOUNTPOINT} sddm --example-config > /etc/sddm.conf
-  sed -i 's/Current=/Current=breeze/' ${ROOT_MOUNTPOINT}/etc/sddm.conf
-  sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' ${ROOT_MOUNTPOINT}/etc/sddm.conf
-  sed -i 's/Numlock=none/Numlock=on/' ${ROOT_MOUNTPOINT}/etc/sddm.conf
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
 finish() {
   print_title "INSTALAÇÃO COMPLETA!"
   print_warning " Copiando arquivo mirrorlist de backup..."
@@ -562,7 +436,6 @@ rank_mirrors
 install_base
 install_essential_pkgs
 install_util_pkgs
-install_extra_pkgs
 install_vga # MODIFICAR CONFORME A PLACA DE VIDEO
 install_xorg
 install_networkmanager
@@ -573,6 +446,4 @@ set_keymap
 generate_mkinitcpio
 generate_grub
 root_passwd
-create_new_user
-install_desktop_envirounment_kde
 finish
