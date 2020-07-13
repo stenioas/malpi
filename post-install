@@ -51,6 +51,7 @@ enable_multilib(){
       sudo sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
     fi
   fi
+  pacman -Sy
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -88,13 +89,17 @@ install_aur_helper() {
   sudo pacman -S --needed git go --noconfirm
   sudo pacman -D --asdeps go
   xdg-user-dirs-update
-  if [[ -d /home/$USER/yay ]]; then
-    rm -rf /home/$USER/yay
+  if ! is_package_installed "yay"; then
+    if [[ -d /home/$USER/yay ]]; then
+      rm -rf /home/$USER/yay
+    else
+      git clone https://aur.archlinux.org/yay.git /home/$USER/yay
+      cd /home/$USER/yay
+      makepkg -csi --noconfirm
+      rm -rf /home/$USER/yay
+    fi
   else
-    git clone https://aur.archlinux.org/yay.git /home/$USER/yay
-    cd /home/$USER/yay
-    makepkg -csi --noconfirm
-    rm -rf /home/$USER/yay
+    print_warning " O pacote já está instalado!"
   fi
   print_warning " CONCLUÍDO!"
   pause_function
@@ -144,6 +149,13 @@ print_warning() {
 pause_function() { #{{{
   print_line
   read -e -sn 1 -p "Pressione qualquer tecla para continuar..."
+}
+
+is_package_installed() {
+  for PKG in $1; do
+    pacman -Q "$PKG" &> /dev/null && return 0;
+  done
+  return 1
 }
 
 # ====================================================================== #
