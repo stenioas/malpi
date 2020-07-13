@@ -51,7 +51,7 @@ enable_multilib(){
       sudo sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
     fi
   fi
-  pacman -Sy
+  sudo pacman -Sy
   print_warning " CONCLUÍDO!"
   pause_function
 }
