@@ -168,8 +168,7 @@ install_extra_pkgs() {
     arc-gtk-theme \
     papirus-icon-theme \
     capitaine-cursors \
-    ttf-dejavu \
-    ttf-hack
+    ttf-dejavu
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -179,14 +178,14 @@ install_aur_helper() {
   pacman -S --needed git go --noconfirm
   pacman -D --asdeps go
   if ! is_package_installed "yay"; then
-    su - ${NEW_USER} -c "
-    [[ ! -d yay ]] && mkdir yay
-    git clone https://aur.archlinux.org/yay.git yay
-    cd yay
-    makepkg -csi --noconfirm
-    cd ..
-    rm -rf yay
+    su - "${NEW_USER}" -c "
+      [[ ! -d yay ]] && mkdir yay
+      git clone https://aur.archlinux.org/yay.git yay
+      cd yay
+      makepkg -csi --noconfirm
     "
+    #cd ..
+    #rm -rf yay
   else
     print_warning " O pacote já está instalado!"
   fi
