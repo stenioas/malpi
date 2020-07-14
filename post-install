@@ -181,13 +181,14 @@ install_aur_helper() {
   if ! is_package_installed "yay"; then
     if [[ -d $(pwd)/yay ]]; then
       rm -rf $(pwd)/yay
-    else
+    fi
+    su - ${NEW_USER} -c "
       git clone https://aur.archlinux.org/yay.git $(pwd)/yay
       cd $(pwd)/yay
       makepkg -csi --noconfirm
-      cd ..
-      rm -rf $(pwd)/yay
-    fi
+    "
+    cd ..
+    rm -rf $(pwd)/yay
   else
     print_warning " O pacote já está instalado!"
   fi
