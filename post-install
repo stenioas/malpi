@@ -182,8 +182,8 @@ install_aur_helper() {
       [[ ! -d yay ]] && mkdir yay
       git clone https://aur.archlinux.org/yay.git yay
       cd yay
-      makepkg -csi --noconfirm
     "
+    su -c "makepkg -csi --noconfirm" -s /bin/sh ${NEW_USER}
     #cd ..
     #rm -rf yay
   else
