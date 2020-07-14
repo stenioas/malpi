@@ -187,6 +187,7 @@ install_aur_helper() {
         git clone https://aur.archlinux.org/yay.git $(pwd)/yay
         cd $(pwd)/yay
         makepkg -csi --noconfirm
+        cd ..
         rm -rf $(pwd)/yay
       fi
     else
