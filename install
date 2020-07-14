@@ -264,7 +264,6 @@ install_util_pkgs() {
     lzop \
     traceroute \
     openssh \
-    snapper \
     cups \
     cups-pdf \
     ghostscript \
