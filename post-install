@@ -178,17 +178,18 @@ install_aur_helper() {
   print_title "INSTALANDO YAY..."
   pacman -S --needed git go --noconfirm
   pacman -D --asdeps go
+  su - ${NEW_USER} -c "xdg-user-dirs-update"
   if ! is_package_installed "yay"; then
-    if [[ -d $(pwd)/yay ]]; then
-      rm -rf $(pwd)/yay
+    if [[ -d /home/${NEW_USER}/yay ]]; then
+      rm -rf /home/${NEW_USER}/yay
     else
-      git clone https://aur.archlinux.org/yay.git $(pwd)/yay
+      git clone https://aur.archlinux.org/yay.git /home/${NEW_USER}/yay
       su - "${NEW_USER}" -c "
-        cd $(pwd)/yay
+        cd /yay
         makepkg -csi --noconfirm
         cd ..
-        rm -rf $(pwd)/yay
       "
+      rm -rf /home/${NEW_USER}/yay
     fi
   else
     print_warning " O pacote já está instalado!"
