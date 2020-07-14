@@ -183,8 +183,8 @@ install_aur_helper() {
     if [[ -d /home/${NEW_USER}/yay ]]; then
       rm -rf /home/${NEW_USER}/yay
     else
-      git clone https://aur.archlinux.org/yay.git /home/${NEW_USER}/yay
       su - "${NEW_USER}" -c "
+        git clone https://aur.archlinux.org/yay.git /home/${NEW_USER}/yay
         cd /yay
         makepkg -csi --noconfirm
         cd ..
@@ -200,7 +200,20 @@ install_aur_helper() {
 
 install_aur_pkgs() {
   print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
-  su - "${NEW_USER}" -c "yay -S --needed --noconfirm pamac-aur google-chrome spotify dropbox visual-studio-code-bin timeshift davinci-resolve brave stacer balena-etcher aic94xx-firmware wd719x-firmware"
+  su - "${NEW_USER}" -c "yay -S --needed --noconfirm \
+    pamac-aur \
+    google-chrome \
+    spotify \
+    dropbox \
+    visual-studio-code-bin \
+    timeshift \
+    davinci-resolve \
+    brave \
+    stacer \
+    balena-etcher \
+    aic94xx-firmware \
+    wd719x-firmware
+  "
   print_warning " CONCLUÍDO!"
   pause_function
 }
