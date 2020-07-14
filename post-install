@@ -185,7 +185,7 @@ install_aur_helper() {
     else
       su - "${NEW_USER}" -c "
         git clone https://aur.archlinux.org/yay.git /home/${NEW_USER}/yay
-        cd /yay
+        cd /home/${NEW_USER}/yay
         makepkg -csi --noconfirm
         cd ..
       "
