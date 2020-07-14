@@ -179,13 +179,13 @@ install_aur_helper() {
   pacman -D --asdeps go
   if ! is_package_installed "yay"; then
     su - "${NEW_USER}" -c "
-      [[ ! -d yay ]] && mkdir yay
+      [[ -d yay ]] && rm -rf yay
       git clone https://aur.archlinux.org/yay.git yay
       cd yay
-    "
-    su -c "makepkg -csi --noconfirm" -s /bin/sh ${NEW_USER}
-    #cd ..
-    #rm -rf yay
+      makepkg -csi --noconfirm
+      cd ..
+      rm -rf yay
+    " 
   else
     print_warning " O pacote já está instalado!"
   fi
