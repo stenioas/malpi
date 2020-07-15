@@ -43,16 +43,16 @@ create_new_user() {
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
   #This config is especially helpful for those using terminal multiplexers like screen, tmux, or ratpoison, and those using sudo from scripts/cronjobs:
   {
-      echo ""
-      echo 'Defaults !requiretty, !tty_tickets, !umask'
-      echo 'Defaults visiblepw, path_info, insults, lecture=always'
-      echo 'Defaults loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, syslog=auth'
-      echo 'Defaults passwd_tries=3, passwd_timeout=1'
-      echo 'Defaults env_reset, always_set_home, set_home, set_logname'
-      echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"'
-      echo 'Defaults timestamp_timeout=15'
-      echo 'Defaults passprompt="[sudo] password for %u: "'
-      echo 'Defaults lecture=never'
+    echo ""
+    echo 'Defaults !requiretty, !tty_tickets, !umask'
+    echo 'Defaults visiblepw, path_info, insults, lecture=always'
+    echo 'Defaults loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, syslog=auth'
+    echo 'Defaults passwd_tries=3, passwd_timeout=1'
+    echo 'Defaults env_reset, always_set_home, set_home, set_logname'
+    echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"'
+    echo 'Defaults timestamp_timeout=15'
+    echo 'Defaults passprompt="[sudo] password for %u: "'
+    echo 'Defaults lecture=never'
   } >> /etc/sudoers
   print_warning " CONCLUÍDO!"
   pause_function
@@ -188,9 +188,9 @@ install_extra_pkgs() {
 
 install_aur_helper() {
   print_title "INSTALANDO YAY..."
-  pacman -S --needed git go --noconfirm
-  pacman -D --asdeps go
   if ! is_package_installed "yay"; then
+    pacman -S --needed git go --noconfirm
+    pacman -D --asdeps go
     su - "${NEW_USER}" -c "
       [[ -d yay ]] && rm -rf yay
       git clone https://aur.archlinux.org/yay.git yay
@@ -206,22 +206,30 @@ install_aur_helper() {
 
 install_aur_pkgs() {
   print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
-  su - "${NEW_USER}" -c "yay -S --needed --noconfirm \
-    pamac-aur \
-    google-chrome \
-    spotify \
-    dropbox \
-    visual-studio-code-bin \
-    timeshift \
-    davinci-resolve \
-    brave \
-    stacer \
-    balena-etcher \
-    aic94xx-firmware \
-    wd719x-firmware
-  "
+  print_warning "Pamac, Google Chrome, Spotify, VS Code, Etcher, Stacer, aic94xx-firmware e wd719x-firmware."
+  aur_package_install "pamac-aur"
+  aur_package_install "google-chrome"
+  aur_package_install "spotify"
+  aur_package_install "visual-studo-code-bin"
+  aur_package_install "balena-etcher"
+  aur_package_install "stacer"
+  aur_package_install "aic94xx-firmware"
+  aur_package_install "wd719x-firmware"
   print_warning " CONCLUÍDO!"
   pause_function
+}
+
+aur_package_install() {
+  print_title "INSTALANDO $1"
+  su - "${NEW_USER}" -c "sudo -v"
+  for PKG in $1; do
+    if ! is_package_installed "${PKG}" ; then
+      su - "${NEW_USER}" -c "yay --noconfirm -S ${PKG}"
+      echo -e "$PKG foi instalado com sucesso!"
+    else
+      echo -e "Alerta: ${PKG} está atualizado --pulando"
+    fi
+  done
 }
 
 # ======================================================================#
