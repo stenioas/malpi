@@ -115,7 +115,6 @@ install_desktop_envirounment_cinnamon() {
   gnome-terminal \
   gnome-control-center \
   gnome-system-monitor \
-  gnome-schedule \
   gnome-power-manager \
   lightdm \
   lightdm-gtk-greeter \
@@ -231,9 +230,9 @@ install_aur_pkgs() {
   aur_package_install "pamac-aur"
   aur_package_install "google-chrome"
   aur_package_install "spotify"
-  aur_package_install "visual-studo-code-bin"
-  aur_package_install "balena-etcher"
-  aur_package_install "stacer"
+  #aur_package_install "visual-studo-code-bin"
+  #aur_package_install "balena-etcher"
+  #aur_package_install "stacer"
   aur_package_install "aic94xx-firmware"
   aur_package_install "wd719x-firmware"
   print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
