@@ -318,6 +318,8 @@ set_locale() {
   print_title "CONFIGURANDO FUSO HORÁRIO..."
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime
+  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org\" >> /etc/systemd/timesyncd.conf
@@ -330,9 +332,7 @@ set_locale() {
 set_keymap() {
   print_title "CONFIGURANDO IDIOMA E TECLADO..."
   echo -e "LANG=pt_BR.UTF-8\nLANGUAGE=pt_BR.UTF-8\nLC_TIME=pt_BR.UTF-8\nLC_ALL=pt_BR.UTF-8\nLC_MESSAGES=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
-  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf
-  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen
+  echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
   print_warning " CONCLUÍDO!"
   pause_function  
 }

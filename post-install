@@ -108,6 +108,7 @@ install_desktop_envirounment_cinnamon() {
   print_title "INSTALANDO AMBIENTE DESKTOP CINNAMON..."
   pacman -S --needed --noconfirm \
   cinnamon \
+  cinnamon-translations \
   nemo-fileroller \
   nemo-preview \
   gnome-screenshot \
@@ -242,7 +243,8 @@ install_aur_pkgs() {
 }
 
 aur_package_install() {
-  print_title "INSTALANDO $1"
+  PKG_NAME=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+  print_title "INSTALANDO $PKG_NAME"
   su - "${NEW_USER}" -c "sudo -v"
   for PKG in $1; do
     if ! is_package_installed "${PKG}" ; then
@@ -252,6 +254,7 @@ aur_package_install() {
       echo -e "Alerta: ${PKG} está atualizado --pulando"
     fi
   done
+  print_warning " CONCLUÍDO"
   pause_function
 }
 
