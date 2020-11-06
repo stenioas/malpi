@@ -69,6 +69,25 @@ time_sync() {
   pause_function
 }
 
+rank_mirrors() {
+  print_title "RANKEANDO ESPELHOS DE REDE..."
+  #pacman -Sy --needed pacman-contrib --noconfirm
+  if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
+    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+  fi
+  #curl -so "/etc/pacman.d/mirrorlist.tmp" "https://www.archlinux.org/mirrorlist/?country=BR&use_mirror_status=on"
+  #sed -i 's/^#Server/Server/g' "/etc/pacman.d/mirrorlist.tmp"
+  #rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist
+  #rm /etc/pacman.d/mirrorlist.tmp
+  reflector -c Brazil --sort rate --save /etc/pacman.d/mirrorlist
+  chmod +r /etc/pacman.d/mirrorlist
+  nano /etc/pacman.d/mirrorlist
+  pacman -Syy
+  print_title "RANKEANDO ESPELHOS DE REDE..."
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
 select_disk() {
   print_title "PARTICIONANDO DISCOS..."
   PS3="$prompt1"
@@ -180,127 +199,17 @@ format_partitions() {
   pause_function
 }
 
-rank_mirrors() {
-  print_title "RANKEANDO ESPELHOS DE REDE..."
-  pacman -Sy --needed pacman-contrib --noconfirm
-  if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
-    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-  fi
-  curl -so "/etc/pacman.d/mirrorlist.tmp" "https://www.archlinux.org/mirrorlist/?country=BR&use_mirror_status=on"
-  sed -i 's/^#Server/Server/g' "/etc/pacman.d/mirrorlist.tmp"
-  rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist
-  rm /etc/pacman.d/mirrorlist.tmp
-  chmod +r /etc/pacman.d/mirrorlist
-  nano /etc/pacman.d/mirrorlist
-  print_title "RANKEANDO ESPELHOS DE REDE..."
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
 install_base() {
   print_title "INSTALANDO BASE DO SISTEMA..."
   pacstrap ${ROOT_MOUNTPOINT} \
-    base base-devel \
+    base \
     linux-lts \
-    linux-lts-headers \
-    linux-firmware
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_essential_pkgs() {
-  print_title "INSTALANDO PACOTES ESSENCIAIS..."
-  pacstrap ${ROOT_MOUNTPOINT} \
-    btrfs-progs \
-    f2fs-tools \
-    inetutils \
-    dosfstools \
-    mtools \
-    udisks2 \
-    wpa_supplicant \
-    wireless_tools \
-    bluez \
-    bluez-utils \
-    nano \
-    dialog \
-    bash-completion \
-    wget \
-    xdg-user-dirs \
-    acpid \
-    alsa \
-    alsa-utils \
-    alsa-plugins \
-    pulseaudio \
-    pulseaudio-alsa \
-    dmidecode \
-    lsof \
-    cronie \
+    linux-firmware \
+    nano vim \
     intel-ucode \
-    avahi \
-    nss-mdns \
-    ntfs-3g \
-    exfat-utils \
-    gptfdisk \
-    autofs \
-    fuse \
-    fuse2 \
-    fuse3 \
-    fuseiso \
-    fuse-exfat \
-    mtpfs \
-    gvfs \
-    gvfs-afc
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth.service
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_util_pkgs() {
-  print_title "INSTALANDO PACOTES ESSENCIAIS..."
-  pacstrap ${ROOT_MOUNTPOINT} \
-    logrotate \
-    sysfsutils \
-    usbutils \
-    git \
-    rsync \
-    mlocate \
-    pkgstats \
-    zip \
-    unzip \
-    unrar \
-    p7zip \
-    lzop \
-    traceroute \
-    openssh \
-    cups \
-    cups-pdf \
-    ghostscript \
-    kvantum-qt5 \
-    neofetch \
-    bashtop
-  arch-chroot ${ROOT_MOUNTPOINT} system_ctl enable org.cups.cupsd.service
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_vga() {
-  print_title "INSTALANDO DRIVER DE VÍDEO..."
-  pacstrap ${ROOT_MOUNTPOINT} xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_xorg() {
-  print_title "INSTALANDO SERVIDOR GRÁFICO XORG..."
-  pacstrap ${ROOT_MOUNTPOINT} xorg-server xorg-apps xorg-xinit xorg-xkill xorg-xinput xf86-input-synaptics xf86-input-libinput xterm
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_networkmanager() {
-  print_title "INSTALANDO NETWORKMANAGER..."
-  pacstrap ${ROOT_MOUNTPOINT} networkmanager
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
+    btrfs-progs
+    #linux-lts-headers \
+    #base-devel \
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -312,27 +221,17 @@ generate_fstab() {
   pause_function
 }
 
-set_hostname() {
-  print_title "DEFININDO NOME DA MÁQUINA E CONFIGURANDO IP'S..."
-  printf "%s" "Hostname [ex: archlinux]: " 
-  read -r NEW_HOSTNAME
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/NEW_HOSTNAME
-  echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
-  print_warning " CONCLUÍDO!"
-  pause_function  
-}
-
 set_locale() {
   print_title "CONFIGURANDO FUSO HORÁRIO..."
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime
-  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org\" >> /etc/systemd/timesyncd.conf
+  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc
+  sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -345,18 +244,12 @@ set_keymap() {
   pause_function  
 }
 
-generate_mkinitcpio() {
-  print_title "GERANDO MKINITCPIO..."
-  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -p linux-lts
-  print_warning " CONCLUÍDO!"
-  pause_function  
-}
-
-generate_grub() {
-  print_title "INSTALANDO E CONFIGURANDO O GRUB..."
-  pacstrap ${ROOT_MOUNTPOINT} grub-efi-x86_64 efibootmgr os-prober
-  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
-  arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
+set_hostname() {
+  print_title "DEFININDO NOME DA MÁQUINA E CONFIGURANDO IP'S..."
+  printf "%s" "Hostname [ex: archlinux]: " 
+  read -r NEW_HOSTNAME
+  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/NEW_HOSTNAME
+  echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
   print_warning " CONCLUÍDO!"
   pause_function  
 }
@@ -366,6 +259,58 @@ root_passwd() {
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   print_warning " CONCLUÍDO!"
   pause_function
+}
+
+generate_grub() {
+  print_title "INSTALANDO E CONFIGURANDO O GRUB..."
+  pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
+  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
+  arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
+  print_warning " CONCLUÍDO!"
+  pause_function  
+}
+
+install_essential_pkgs() {
+  print_title "INSTALANDO PACOTES ESSENCIAIS..."
+  pacstrap ${ROOT_MOUNTPOINT} \
+    base-devel \
+    linux-lts-headers \
+    dosfstools \
+    mtools \
+    udisks2 \
+    wpa_supplicant \
+    wireless_tools \
+    bluez \
+    bluez-utils \
+    nano vim \
+    dialog \
+    git \
+    reflector \
+    bash-completion \
+    wget \
+    xdg-utils \
+    xdg-user-dirs \
+    alsa-utils \
+    pulseaudio \
+    pulseaudio-alsa
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_networkmanager() {
+  print_title "INSTALANDO NETWORKMANAGER..."
+  pacstrap ${ROOT_MOUNTPOINT} networkmanager
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+generate_mkinitcpio() {
+  print_title "GERANDO MKINITCPIO..."
+  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -p linux-lts
+  print_warning " CONCLUÍDO!"
+  pause_function  
 }
 
 finish() {
@@ -441,16 +386,13 @@ select_disk
 format_partitions
 rank_mirrors
 install_base
-#install_essential_pkgs
-#install_util_pkgs
-install_vga # MODIFICAR CONFORME A PLACA DE VIDEO
-install_xorg
-install_networkmanager
 generate_fstab
-set_hostname
 set_locale
 set_keymap
-generate_mkinitcpio
-generate_grub
+set_hostname
 root_passwd
+generate_grub
+install_essential_pkgs
+install_networkmanager
+generate_mkinitcpio
 finish
