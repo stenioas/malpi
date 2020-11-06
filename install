@@ -107,7 +107,7 @@ format_partitions() {
   fi
 
   format_root_partition() {
-    print_title "FORMATANDO PARTIÇÃO RAIZ..."
+    print_title "FORMATANDO PARTIÇÃO BTRFS..."
     PS3="$prompt1"
     echo -e "Selecione a partição Raiz (/):"
     select partition in "${partitions_list[@]}"; do
@@ -116,6 +116,14 @@ format_partitions() {
         ROOT_PARTITION="$partition"
         mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION}
         mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
+        btrfs su cr ${ROOT_MOUNTPOINT}/@
+        btrfs su cr ${ROOT_MOUNTPOINT}/@home
+        btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots
+        umount ${ROOT_MOUNTPOINT}
+        mount -o noatime,compress=lzo,space_cache,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
+        mkdir -p ${ROOT_MOUNTPOINT}/{boot,boot/efi,home,.snapshots}
+        mount -o noatime,compress=lzo,space_cache,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
+        mount -o noatime,compress=lzo,space_cache,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
         check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
         print_warning " CONCLUÍDO!"
         break;
@@ -299,7 +307,7 @@ install_networkmanager() {
 
 generate_fstab() {
   print_title "GERANDO FSTAB..."
-  genfstab -t PARTUUID ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
+  genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -433,8 +441,8 @@ select_disk
 format_partitions
 rank_mirrors
 install_base
-install_essential_pkgs
-install_util_pkgs
+#install_essential_pkgs
+#install_util_pkgs
 install_vga # MODIFICAR CONFORME A PLACA DE VIDEO
 install_xorg
 install_networkmanager
