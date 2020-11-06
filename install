@@ -109,7 +109,7 @@ format_partitions() {
   format_root_partition() {
     print_title "FORMATANDO PARTIÇÃO BTRFS..."
     PS3="$prompt1"
-    echo -e "Selecione a partição Raiz (/):"
+    echo -e "Selecione a partição para a criação dos volumes:"
     select partition in "${partitions_list[@]}"; do
       if contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
