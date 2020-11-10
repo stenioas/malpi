@@ -202,19 +202,44 @@ format_partitions() {
 install_base() {
   print_title "INSTALANDO BASE DO SISTEMA..."
   pacstrap ${ROOT_MOUNTPOINT} \
-    base \
+    base base-devel \
     linux-lts \
+    linux-lts-headers \
     linux-firmware \
-    nano vim \
+    nano \
     intel-ucode \
     btrfs-progs
-    #linux-lts-headers \
-    #base-devel \
   print_warning " CONCLUÍDO!"
   pause_function
 }
 
-generate_fstab() {
+install_essential_pkgs() {
+  print_title "INSTALANDO PACOTES ESSENCIAIS..."
+  pacstrap ${ROOT_MOUNTPOINT} \
+    dosfstools \
+    mtools \
+    udisks2 \
+    wpa_supplicant \
+    wireless_tools \
+    bluez \
+    bluez-utils \
+    dialog \
+    git \
+    reflector \
+    bash-completion \
+    wget \
+    xdg-utils \
+    xdg-user-dirs \
+    alsa-utils \
+    pulseaudio \
+    pulseaudio-alsa \
+    networkmanager
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth NetworkManager
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+fstab_generate() {
   print_title "GERANDO FSTAB..."
   genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
   print_warning " CONCLUÍDO!"
@@ -236,7 +261,7 @@ set_locale() {
   pause_function
 }
 
-set_keymap() {
+set_laguage() {
   print_title "CONFIGURANDO IDIOMA E TECLADO..."
   echo -e "LANG=pt_BR.UTF-8\nLANGUAGE=pt_BR.UTF-8\nLC_TIME=pt_BR.UTF-8\nLC_ALL=pt_BR.UTF-8\nLC_MESSAGES=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
@@ -261,7 +286,7 @@ root_passwd() {
   pause_function
 }
 
-generate_grub() {
+grub_generate() {
   print_title "INSTALANDO E CONFIGURANDO O GRUB..."
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
@@ -270,45 +295,9 @@ generate_grub() {
   pause_function  
 }
 
-install_essential_pkgs() {
-  print_title "INSTALANDO PACOTES ESSENCIAIS..."
-  pacstrap ${ROOT_MOUNTPOINT} \
-    base-devel \
-    linux-lts-headers \
-    dosfstools \
-    mtools \
-    udisks2 \
-    wpa_supplicant \
-    wireless_tools \
-    bluez \
-    bluez-utils \
-    nano vim \
-    dialog \
-    git \
-    reflector \
-    bash-completion \
-    wget \
-    xdg-utils \
-    xdg-user-dirs \
-    alsa-utils \
-    pulseaudio \
-    pulseaudio-alsa
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_networkmanager() {
-  print_title "INSTALANDO NETWORKMANAGER..."
-  pacstrap ${ROOT_MOUNTPOINT} networkmanager
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-generate_mkinitcpio() {
+mkinitcpio_generate() {
   print_title "GERANDO MKINITCPIO..."
-  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -p linux-lts
+  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   print_warning " CONCLUÍDO!"
   pause_function  
 }
@@ -386,13 +375,12 @@ select_disk
 format_partitions
 rank_mirrors
 install_base
-generate_fstab
+install_essential_pkgs
+fstab_generate
 set_locale
-set_keymap
+set_language
 set_hostname
 root_passwd
-generate_grub
-install_essential_pkgs
-install_networkmanager
-generate_mkinitcpio
+grub_generate
+mkinitcpio_generate
 finish
