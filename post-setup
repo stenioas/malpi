@@ -94,7 +94,7 @@ install_desktop() {
     lightdm \
     lightdm-gtk-greeter \
     lightdm-gtk-greeter-settings \
-    network-manager-applet \
+    network-manager-applet
   systemctl enable lightdm
   print_warning " CONCLUÍDO!"
   pause_function
