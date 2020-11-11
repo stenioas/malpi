@@ -41,121 +41,6 @@ create_new_user() {
   passwd ${NEW_USER}
   print_warning " Adicionando privilégios ao usuário..."
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
-  #This config is especially helpful for those using terminal multiplexers like screen, tmux, or ratpoison, and those using sudo from scripts/cronjobs:
-  {
-    echo ""
-    echo 'Defaults !requiretty, !tty_tickets, !umask'
-    echo 'Defaults visiblepw, path_info, insults, lecture=always'
-    echo 'Defaults loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, syslog=auth'
-    echo 'Defaults passwd_tries=3, passwd_timeout=1'
-    echo 'Defaults env_reset, always_set_home, set_home, set_logname'
-    echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"'
-    echo 'Defaults timestamp_timeout=15'
-    echo 'Defaults passprompt="[sudo] senha para %u: "'
-    echo 'Defaults lecture=never'
-  } >> /etc/sudoers
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_desktop_envirounment_xfce() {
-  print_title "INSTALANDO AMBIENTE DESKTOP XFCE..."
-  pacman -S --needed --noconfirm \
-    xfce4 \
-    mousepad \
-    orage \
-    ristretto \
-    thunar-archive-plugin \
-    thunar-media-tags-plugin \
-    xfce4-artwork \
-    xfce4-battery-plugin \
-    xfce4-clipman-plugin \
-    xfce4-cpufreq-plugin \
-    xfce4-cpugraph-plugin \
-    xfce4-datetime-plugin \
-    xfce4-fsguard-plugin \
-    xfce4-genmon-plugin \
-    xfce4-mount-plugin \
-    xfce4-mpc-plugin \
-    xfce4-netload-plugin \
-    xfce4-notes-plugin \
-    xfce4-notifyd \
-    xfce4-pulseaudio-plugin \
-    xfce4-screensaver \
-    xfce4-screenshooter \
-    xfce4-sensors-plugin \
-    xfce4-smartbookmark-plugin \
-    xfce4-systemload-plugin \
-    xfce4-taskmanager \
-    xfce4-time-out-plugin \
-    xfce4-timer-plugin \
-    xfce4-verve-plugin \
-    xfce4-wavelan-plugin \
-    xfce4-weather-plugin \
-    xfce4-whiskermenu-plugin \
-    xfce4-xkb-plugin \
-    lightdm \
-    lightdm-gtk-greeter \
-    lightdm-gtk-greeter-settings \
-    network-manager-applet \
-    transmission-gtk
-  systemctl enable lightdm
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_desktop_envirounment_cinnamon() {
-  print_title "INSTALANDO AMBIENTE DESKTOP CINNAMON..."
-  pacman -S --needed --noconfirm \
-  cinnamon \
-  cinnamon-translations \
-  nemo-fileroller \
-  nemo-preview \
-  gnome-screenshot \
-  gedit \
-  gnome-terminal \
-  gnome-control-center \
-  gnome-system-monitor \
-  gnome-power-manager \
-  lightdm \
-  lightdm-gtk-greeter \
-  lightdm-gtk-greeter-settings \
-  network-manager-applet \
-  transmission-gtk
-  systemctl enable lightdm
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_desktop_envirounment_kde() {
-  print_title "INSTALANDO AMBIENTE DESKTOP KDE PLASMA..."
-  pacman -S --needed --noconfirm \
-    plasma \
-    kf5 \
-    sddm \
-    ark \
-    dolphin \
-    dolphin-plugins \
-    kio-extras \
-    kdeconnect \
-    quota-tools \
-    gwenview \
-    kipi-plugins \
-    kate \
-    kcalc \
-    konsole \
-    spectacle \
-    okular \
-    sweeper \
-    packagekit-qt5 \
-    print-manager \
-    transmission-qt \
-    plasma-nm
-  systemctl enable sddm
-  sddm --example-config > /etc/sddm.conf
-  sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
-  sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
-  sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -174,87 +59,35 @@ enable_multilib(){
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
     fi
   fi
-  pacman -Sy
+  pacman -Syy
   print_warning " CONCLUÍDO!"
   pause_function
 }
 
-install_extra_pkgs() {
-  print_title "INSTALANDO PACOTES EXTRAS..."
+install_xorg() {
+  print_title "INSTALANDO XORG..."
+  pacstrap ${ROOT_MOUNTPOINT} xorg xorg-apps xorg-xinit xf86-input-synaptics xf86-input-libinput xterm
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_vga() {
+  print_title "INSTALANDO DRIVER DE VÍDEO..."
+  pacstrap ${ROOT_MOUNTPOINT} xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
+install_desktop() {
+  print_title "INSTALANDO AMBIENTE DESKTOP XFCE..."
   pacman -S --needed --noconfirm \
-    libreoffice-fresh \
-    libreoffice-fresh-pt-br \
-    firefox \
-    firefox-i18n-pt-br \
-    steam \
-    gimp \
-    inkscape \
-    virtualbox \
-    virtualbox-host-dkms \
-    virtualbox-guest-iso \
-    vlc \
-    snapper \
-    telegram-desktop \
-    simplescreenrecorder \
-    redshift \
-    adapta-gtk-theme \
-    arc-gtk-theme \
-    papirus-icon-theme \
-    capitaine-cursors \
-    ttf-dejavu
+    xfce4 xfce4-goodies \
+    lightdm \
+    lightdm-gtk-greeter \
+    lightdm-gtk-greeter-settings \
+    network-manager-applet \
+  systemctl enable lightdm
   print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_aur_helper() {
-  print_title "INSTALANDO YAY..."
-  if ! is_package_installed "yay"; then
-    pacman -S --needed git go --noconfirm
-    pacman -D --asdeps go
-    su - "${NEW_USER}" -c "
-      [[ -d yay ]] && rm -rf yay
-      git clone https://aur.archlinux.org/yay.git yay
-      cd yay
-      makepkg -csi --noconfirm
-    " 
-  else
-    print_warning " O pacote já está instalado!"
-  fi
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_aur_pkgs() {
-  print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
-  print_warning "Pamac, Google Chrome, Spotify, VS Code, Etcher, Stacer, aic94xx-firmware e wd719x-firmware."
-  pause_function
-  aur_package_install "pamac-aur"
-  aur_package_install "google-chrome"
-  aur_package_install "spotify"
-  #aur_package_install "visual-studo-code-bin"
-  #aur_package_install "balena-etcher"
-  #aur_package_install "stacer"
-  aur_package_install "aic94xx-firmware"
-  aur_package_install "wd719x-firmware"
-  print_title "INSTALANDO PACOTES EXTRAS (AUR)..."
-  print_warning "Pamac, Google Chrome, Spotify, VS Code, Etcher, Stacer, aic94xx-firmware e wd719x-firmware."
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-aur_package_install() {
-  PKG_NAME=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-  print_title "INSTALANDO $PKG_NAME"
-  su - "${NEW_USER}" -c "sudo -v"
-  for PKG in $1; do
-    if ! is_package_installed "${PKG}" ; then
-      su - "${NEW_USER}" -c "yay --noconfirm -S ${PKG}"
-      echo -e "$PKG foi instalado com sucesso!"
-    else
-      echo -e "Alerta: ${PKG} está atualizado --pulando"
-    fi
-  done
-  print_warning " CONCLUÍDO"
   pause_function
 }
 
@@ -284,20 +117,12 @@ pause_function() { #{{{
   read -e -sn 1 -p "Pressione qualquer tecla para continuar..."
 }
 
-is_package_installed() {
-  for PKG in $1; do
-    pacman -Q "$PKG" &> /dev/null && return 0;
-  done
-  return 1
-}
-
 # ====================================================================== #
 # >>>           INSTALAÇÃO
 # ---------------------------------------------------------------------- #
 
 create_new_user
 enable_multilib
-install_desktop_envirounment_cinnamon
-install_extra_pkgs
-install_aur_helper
-install_aur_pkgs
+install_xorg
+install_vga
+install_desktop
