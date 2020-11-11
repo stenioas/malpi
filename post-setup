@@ -87,6 +87,14 @@ install_vga() {
   pause_function
 }
 
+finish() {
+  print_title "COPIANDO ARQUIVOS DE INSTALAÇÃO..."
+  cp -r /root/myarch /home/${NEW_USER}/myarch
+  chown -R ${NEW_USER}:${NEW_USER} /home/${NEW_USER}/myarch
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
+
 # ======================================================================#
 # >>>           OUTRAS FUNÇÕES
 # ----------------------------------------------------------------------#
@@ -121,4 +129,4 @@ create_new_user
 enable_multilib
 install_xorg
 install_vga
-install_desktop
+finish
