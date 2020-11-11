@@ -290,7 +290,7 @@ root_passwd() {
 grub_generate() {
   print_title "INSTALANDO E CONFIGURANDO O GRUB..."
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
-  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ArchLinux --recheck
+  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   print_warning " CONCLUÍDO!"
   pause_function  
