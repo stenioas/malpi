@@ -91,11 +91,7 @@ finish() {
   print_title "FINALIZANDO PÓS INSTALAÇÃO"
   print_warning " Copiando arquivos para o usuário concluir a instalação..."
   cp -r /root/myarch/ /home/${NEW_USER}/myarch/
-  su - "${NEW_USER}" -c "
-    xdg-user-dirs-update
-    exit
-  "
-  chown -R ${NEW_USER}:${NEW_USER} /home/${NEW_USER}/myarch 
+  chown -R ${NEW_USER} /home/${NEW_USER}/myarch 
 }
 
 # ======================================================================#
