@@ -90,7 +90,7 @@ install_vga() {
 finish() {
   print_title "FINALIZANDO PÓS INSTALAÇÃO"
   print_warning " Copiando arquivos para o usuário concluir a instalação..."
-  cp -r /root/myarch/ /home/${NEW_USER}/myarch/
+  mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch 
 }
 
