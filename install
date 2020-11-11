@@ -42,7 +42,7 @@ export LANG="${NEW_LANGUAGE}.UTF-8"
 
 # ---     MOUNTPOINTS
   EFI_PARTITION="/dev/sda1"
-  EFI_MOUNTPOINT="/boot"
+  EFI_MOUNTPOINT="/boot/efi"
   ROOT_PARTITION="/dev/sda3"
   ROOT_MOUNTPOINT="/mnt"
   BOOT_MOUNTPOINT="/boot"
@@ -166,6 +166,7 @@ format_partitions() {
           mkfs.fat -F32 ${EFI_PARTITION}
           echo "Partição EFI formatada!"
         fi
+        mkdir -p ${ROOT_MOUNTPOINT}${BOOT_MOUNTPOINT}
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
