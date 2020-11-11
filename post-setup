@@ -66,14 +66,23 @@ enable_multilib(){
 
 install_xorg() {
   print_title "INSTALANDO XORG..."
-  pacstrap ${ROOT_MOUNTPOINT} xorg xorg-apps xorg-xinit xf86-input-synaptics xf86-input-libinput xterm
+  pacman -S --needed --noconfirm \
+  xorg xorg-apps xorg-xinit \
+  xf86-input-synaptics \
+  xf86-input-libinput \
+  xterm
   print_warning " CONCLUÍDO!"
   pause_function
 }
 
 install_vga() {
   print_title "INSTALANDO DRIVER DE VÍDEO..."
-  pacstrap ${ROOT_MOUNTPOINT} xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl
+  pacman -S --needed --noconfirm \
+  xf86-video-vmware \
+  virtualbox-guest-utils \
+  virtualbox-guest-dkms \
+  mesa mesa-libgl \
+  libvdpau-va-gl
   print_warning " CONCLUÍDO!"
   pause_function
 }
