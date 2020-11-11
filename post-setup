@@ -92,6 +92,7 @@ finish() {
   print_warning " Copiando arquivos para o usuário concluir a instalação..."
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
+  cd /root
   print_warning " CONCLUÍDO!"
 }
 
