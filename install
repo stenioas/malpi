@@ -232,6 +232,7 @@ install_essential_pkgs() {
     alsa-utils \
     pulseaudio \
     pulseaudio-alsa \
+    pulseaudio-bluetooth \
     networkmanager
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth NetworkManager
   print_warning " CONCLUÍDO!"
