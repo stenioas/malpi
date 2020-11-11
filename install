@@ -42,7 +42,7 @@ export LANG="${NEW_LANGUAGE}.UTF-8"
 
 # ---     MOUNTPOINTS
   EFI_PARTITION="/dev/sda1"
-  EFI_MOUNTPOINT="/boot/efi"
+  EFI_MOUNTPOINT="/boot"
   ROOT_PARTITION="/dev/sda3"
   ROOT_MOUNTPOINT="/mnt"
   BOOT_MOUNTPOINT="/boot"
@@ -83,7 +83,7 @@ rank_mirrors() {
   chmod +r /etc/pacman.d/mirrorlist
   nano /etc/pacman.d/mirrorlist
   pacman -Syy
-  print_title "RANKEANDO ESPELHOS DE REDE..."
+  print_title "RANKEANDO ESPELHOS..."
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -139,10 +139,10 @@ format_partitions() {
         btrfs su cr ${ROOT_MOUNTPOINT}/@home
         btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots
         umount ${ROOT_MOUNTPOINT}
-        mount -o noatime,compress=lzo,space_cache,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
-        mkdir -p ${ROOT_MOUNTPOINT}/{boot,boot/efi,home,.snapshots}
-        mount -o noatime,compress=lzo,space_cache,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
-        mount -o noatime,compress=lzo,space_cache,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
+        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
+        mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots}
+        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
+        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
         check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
         print_warning " CONCLUÍDO!"
         break;
@@ -166,7 +166,6 @@ format_partitions() {
           mkfs.fat -F32 ${EFI_PARTITION}
           echo "Partição EFI formatada!"
         fi
-        mkdir -p ${ROOT_MOUNTPOINT}${BOOT_MOUNTPOINT}
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
@@ -261,7 +260,7 @@ set_locale() {
   pause_function
 }
 
-set_laguage() {
+set_language() {
   print_title "CONFIGURANDO IDIOMA E TECLADO..."
   echo -e "LANG=pt_BR.UTF-8\nLANGUAGE=pt_BR.UTF-8\nLC_TIME=pt_BR.UTF-8\nLC_ALL=pt_BR.UTF-8\nLC_MESSAGES=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
@@ -289,7 +288,7 @@ root_passwd() {
 grub_generate() {
   print_title "INSTALANDO E CONFIGURANDO O GRUB..."
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
-  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
+  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ArchLinux --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   print_warning " CONCLUÍDO!"
   pause_function  
@@ -306,6 +305,7 @@ finish() {
   print_title "INSTALAÇÃO COMPLETA!"
   print_warning " Copiando arquivo mirrorlist de backup..."
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
+  cp /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   read_input_text "Reiniciar o sistema? [s/N]: "
   if [[ $OPTION == s ]]; then
     umount_partitions
