@@ -45,7 +45,9 @@ install_desktop() {
     lxappearance
   mkdir ~/.config/{bspwm,sxhkd}
   mv ~/myarch/bspwmrc ~/.config/bspwm/bspwmrc
+  chmod +x ~/.config/bspwm/bspwmrc
   mv ~/myarch/sxhkdrc ~/.config/sxhkd/sxhkdrc
+  chmod +x ~/.config/sxhkd/sxhkdrc
   sudo systemctl enable lightdm
   print_warning " CONCLUÍDO!"
   pause_function
