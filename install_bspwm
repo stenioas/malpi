@@ -38,10 +38,10 @@ install_desktop() {
     nitrogen \
     picom \
     xfce4-terminal \
-    arand
+    arandr
   mkdir /home/$USER/.config/{bspwm,sxhkd}
-  mv /home/$USER/myarch/bspwmrc .config/bspwm/
-  mv /home/$USER/myarch/sxhkdrc .config/sxhkd/
+  mv /home/$USER/myarch/bspwmrc /home/$USER/.config/bspwm/
+  mv /home/$USER/myarch/sxhkdrc /home/$USER/.config/sxhkd/
   print_warning " CONCLUÍDO!"
   pause_function
 }
