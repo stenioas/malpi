@@ -306,7 +306,7 @@ finish() {
   print_title "INSTALAÇÃO COMPLETA!"
   print_warning " Copiando arquivo mirrorlist de backup..."
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  cp /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
+  cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   read_input_text "Reiniciar o sistema? [s/N]: "
   if [[ $OPTION == s ]]; then
     umount_partitions
