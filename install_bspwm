@@ -38,10 +38,15 @@ install_desktop() {
     nitrogen \
     picom \
     xfce4-terminal \
-    arandr
-  mkdir /home/$USER/.config/{bspwm,sxhkd}
-  mv /home/$USER/myarch/bspwmrc /home/$USER/.config/bspwm/
-  mv /home/$USER/myarch/sxhkdrc /home/$USER/.config/sxhkd/
+    arandr \
+    lightdm \
+    lightdm-gtk-greeter \
+    lightdm-gtk-greeter-settings \
+    lxappearance
+  mkdir ~/.config/{bspwm,sxhkd}
+  mv ~/myarch/bspwmrc ~/.config/bspwm/bspwmrc
+  mv ~/myarch/sxhkdrc ~/.config/sxhkd/sxhkdrc
+  sudo systemctl enable lightdm
   print_warning " CONCLUÍDO!"
   pause_function
 }
