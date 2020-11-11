@@ -39,9 +39,9 @@ install_desktop() {
     picom \
     xfce4-terminal \
     arand
-  mkdir .config/{bspwm,sxhkd}
-  mv myarch/bspwmrc .config/bspwm/
-  mv myarch/sxhkdrc .config/sxhkd/
+  mkdir /home/$USER/.config/{bspwm,sxhkd}
+  mv /home/$USER/myarch/bspwmrc .config/bspwm/
+  mv /home/$USER/myarch/sxhkdrc .config/sxhkd/
   print_warning " CONCLUÍDO!"
   pause_function
 }
