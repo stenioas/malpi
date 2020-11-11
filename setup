@@ -166,7 +166,6 @@ format_partitions() {
           mkfs.fat -F32 ${EFI_PARTITION}
           echo "Partição EFI formatada!"
         fi
-        mkdir -p ${ROOT_MOUNTPOINT}${BOOT_MOUNTPOINT}
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
@@ -232,7 +231,6 @@ install_essential_pkgs() {
     xdg-user-dirs \
     alsa-utils \
     pulseaudio \
-    pulseaudio-alsa \
     pulseaudio-bluetooth \
     networkmanager
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth NetworkManager
