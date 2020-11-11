@@ -87,6 +87,16 @@ install_vga() {
   pause_function
 }
 
+finish() {
+  print_title "FINALIZANDO PÓS INSTALAÇÃO"
+  print_warning " Copiando arquivos para o usuário concluir a instalação..."
+  cp -r /root/myarch/ /home/${NEW_USER}/myarch/
+  su - "${NEW_USER}"
+  xdg-user-dirs-update
+  exit
+  chown -R ${NEW_USER}:${NEW_USER} /home/${NEW_USER}/myarch 
+}
+
 # ======================================================================#
 # >>>           OUTRAS FUNÇÕES
 # ----------------------------------------------------------------------#
@@ -121,3 +131,4 @@ create_new_user
 enable_multilib
 install_xorg
 install_vga
+finish
