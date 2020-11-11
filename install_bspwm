@@ -37,7 +37,7 @@ install_desktop() {
     dmenu \
     nitrogen \
     picom \
-    xfce4-terminal \
+    urxvt-unicode \
     arandr \
     lightdm \
     lightdm-gtk-greeter \
