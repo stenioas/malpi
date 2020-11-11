@@ -4,7 +4,7 @@
 
 # terminal emulator
 super + Return
-	urxvt
+	xfce4-terminal
 
 # program launcher
 super + @space
