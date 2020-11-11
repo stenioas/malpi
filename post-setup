@@ -87,19 +87,6 @@ install_vga() {
   pause_function
 }
 
-install_desktop() {
-  print_title "INSTALANDO AMBIENTE DESKTOP XFCE..."
-  pacman -S --needed --noconfirm \
-    xfce4 xfce4-goodies \
-    lightdm \
-    lightdm-gtk-greeter \
-    lightdm-gtk-greeter-settings \
-    network-manager-applet
-  systemctl enable lightdm
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
 # ======================================================================#
 # >>>           OUTRAS FUNÇÕES
 # ----------------------------------------------------------------------#
