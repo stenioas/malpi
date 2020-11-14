@@ -31,7 +31,7 @@
 
 install_official_repo_pkgs() {
   print_title "INSTALANDO PACOTES EXTRAS DO REPOSITÓRIO OFICIAL..."
-  sudo pacman -S --needed --noconfirm \
+  sudo pacman -S --needed \
     libreoffice-fresh \
     libreoffice-fresh-pt-br \
     firefox \
