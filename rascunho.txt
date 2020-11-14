@@ -23,7 +23,8 @@
 16. Enable multilib
 17. Xorg install
 18. VGA install
+19. Pamac install
 --- END STEP 2 ---
 
-19. Desktop install
+20. Desktop install
 --- END STEP 3 ---
