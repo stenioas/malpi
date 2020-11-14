@@ -29,7 +29,40 @@
 # >>>           FUNÇÕES PRINCIPAIS
 # ---------------------------------------------------------------------- #
 
+install_official_repo_pkgs() {
+  print_title "INSTALANDO PACOTES EXTRAS DO REPOSITÓRIO OFICIAL..."
+  pacman -S --needed --noconfirm \
+    libreoffice-fresh \
+    libreoffice-fresh-pt-br \
+    firefox \
+    firefox-i18n-pt-br \
+    steam \
+    gimp \
+    inkscape \
+    virtualbox \
+    virtualbox-host-dkms \
+    virtualbox-guest-iso \
+    vlc \
+    telegram-desktop \
+    simplescreenrecorder \
+    redshift \
+    adapta-gtk-theme \
+    arc-gtk-theme \
+    papirus-icon-theme \
+    capitaine-cursors \
+    ttf-dejavu
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
 
+install_aur_pkgs() {
+  print_title "INSTALANDO PACOTES EXTRAS DO REPOSITÓRIO OFICIAL..."
+  pamac build --no-confirm \
+    google-chrome \
+    spotify    
+  print_warning " CONCLUÍDO!"
+  pause_function
+}
 
 # ======================================================================#
 # >>>           OUTRAS FUNÇÕES
