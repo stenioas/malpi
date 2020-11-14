@@ -1,0 +1,32 @@
+1. Sincroniza o relógio
+2. Rankear espelhos
+3. 
+1. Disks
+  a) Particionamento
+  b) Formatação
+  c) Montagem
+  
+2. Instalação da base
+  pkgs)
+
+3. fstab
+4. Timezone
+5. Locales
+6. Hostname
+7. Arquivo hosts
+8. Senha de root
+9. Instalação do bootloader
+10. Sair do chroot
+11. Desmontar
+12. Reiniciar
+--- END STEP 1 ---
+
+13. Ativar internet
+14. Criar novo usuário
+15. Habilitar multilib
+16. Instalar XORG
+17. Instalar driver de vídeo
+--- END STEP 2 ---
+
+18. Instalar desktop e login manager
+--- END STEP 3 ---
