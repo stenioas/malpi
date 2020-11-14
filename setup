@@ -272,7 +272,7 @@ set_hostname() {
   print_title "DEFININDO NOME DA MÁQUINA E CONFIGURANDO IP'S..."
   printf "%s" "Hostname [ex: archlinux]: " 
   read -r NEW_HOSTNAME
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/NEW_HOSTNAME
+  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
   print_warning " CONCLUÍDO!"
   pause_function  
