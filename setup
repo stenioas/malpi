@@ -294,16 +294,17 @@ grub_generate() {
   pause_function  
 }
 
-mkinitcpio_generate() {
-  print_title "GERANDO MKINITCPIO..."
-  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
-  print_warning " CONCLUÍDO!"
-  pause_function  
-}
+#mkinitcpio_generate() {
+#  print_title "GERANDO MKINITCPIO..."
+#  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
+#  print_warning " CONCLUÍDO!"
+#  pause_function  
+#}
 
 finish() {
   print_title "INSTALAÇÃO COMPLETA!"
-  print_warning " Copiando arquivo mirrorlist de backup..."
+  print_warning " Copiando arquivos..."
+  print_warning " CONCLUÍDO!"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   read_input_text "Reiniciar o sistema? [s/N]: "
