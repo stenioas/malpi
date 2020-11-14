@@ -41,19 +41,6 @@ create_new_user() {
   passwd ${NEW_USER}
   print_warning " Adicionando privilégios ao usuário..."
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
-  #This config is especially helpful for those using terminal multiplexers like screen, tmux, or ratpoison, and those using sudo from scripts/cronjobs:
-  {
-    echo ""
-    echo 'Defaults !requiretty, !tty_tickets, !umask'
-    echo 'Defaults visiblepw, path_info, insults, lecture=always'
-    echo 'Defaults loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, syslog=auth'
-    echo 'Defaults passwd_tries=3, passwd_timeout=1'
-    echo 'Defaults env_reset, always_set_home, set_home, set_logname'
-    echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"'
-    echo 'Defaults timestamp_timeout=15'
-    echo 'Defaults passprompt="[sudo] senha para %u: "'
-    echo 'Defaults lecture=never'
-  } >> /etc/sudoers
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -96,22 +83,6 @@ install_vga() {
   virtualbox-guest-dkms \
   mesa mesa-libgl \
   libvdpau-va-gl
-  print_warning " CONCLUÍDO!"
-  pause_function
-}
-
-install_aur_helper() {
-  print_title "INSTALANDO PAMAC..."
-  if ! is_package_installed "pamac"; then
-    su - "${NEW_USER}" -c "
-      [[ -d yay ]] && rm -rf pamac
-      git clone https://aur.archlinux.org/pamac-aur.git pamac
-      cd pamac
-      makepkg -csi --noconfirm
-    " 
-  else
-    print_warning " O pacote já está instalado!"
-  fi
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -165,5 +136,4 @@ create_new_user
 enable_multilib
 install_xorg
 install_vga
-install_aur_helper
 finish
