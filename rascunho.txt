@@ -1,32 +1,29 @@
-1. Sincroniza o relógio
-2. Rankear espelhos
-3. 
-1. Disks
-  a) Particionamento
-  b) Formatação
-  c) Montagem
-  
-2. Instalação da base
-  pkgs)
-
-3. fstab
-4. Timezone
-5. Locales
-6. Hostname
-7. Arquivo hosts
-8. Senha de root
-9. Instalação do bootloader
-10. Sair do chroot
-11. Desmontar
-12. Reiniciar
+1. Time and date sync
+2. Rank mirrors
+3. Select disks
+  a. Partitioning
+  b. Formating
+  c. Mounting
+4. Base install
+  pkgs) base base-devel base base-devel linux-lts linux-lts-headers linux-firmware nano intel-ucode btrfs-progs
+5. Essential packages install
+  pkgs) dosfstools mtools udisks2 wpa_supplicant wireless_tools bluez bluez-utils dialog git reflector bash-completion wget xdg-utils xdg-user-dirs alsa-utils pulseaudio pulseaudio-bluetooth networkmanager
+6. Generate fstab
+7. Locales
+8. Language
+9. Hostname and hostsfile
+10. Root password
+11. Grub install and generate
+12. Mkinitcpio generate
+13. Unmounting and restart
 --- END STEP 1 ---
 
-13. Ativar internet
-14. Criar novo usuário
-15. Habilitar multilib
-16. Instalar XORG
-17. Instalar driver de vídeo
+14. Activating network
+15. Adding new user
+16. Enable multilib
+17. Xorg install
+18. VGA install
 --- END STEP 2 ---
 
-18. Instalar desktop e login manager
+19. Desktop install
 --- END STEP 3 ---
