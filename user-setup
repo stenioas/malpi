@@ -39,9 +39,6 @@ install_official_repo_pkgs() {
     steam \
     gimp \
     inkscape \
-    virtualbox \
-    virtualbox-host-dkms \
-    virtualbox-guest-iso \
     vlc \
     telegram-desktop \
     simplescreenrecorder \
