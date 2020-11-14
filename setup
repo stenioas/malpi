@@ -310,7 +310,6 @@ finish() {
   read_input_text "Reiniciar o sistema? [s/N]: "
   if [[ $OPTION == s ]]; then
     umount_partitions
-    print_title "REINICIANDO..."
     reboot
   fi
   exit 0
