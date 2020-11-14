@@ -55,11 +55,16 @@ install_official_repo_pkgs() {
   pause_function
 }
 
-install_aur_pkgs() {
-  print_title "INSTALANDO PACOTES EXTRAS DO REPOSITÓRIO OFICIAL..."
-  pamac build --no-confirm \
-    google-chrome \
-    spotify    
+install_aur_helper() {
+  print_title "INSTALANDO PAMAC..."
+  if ! is_package_installed "pamac"; then
+    [[ -d yay ]] && rm -rf pamac
+    git clone https://aur.archlinux.org/pamac-aur.git pamac
+    cd pamac
+    makepkg -csi --noconfirm
+  else
+    print_warning " O pacote já está instalado!"
+  fi
   print_warning " CONCLUÍDO!"
   pause_function
 }
@@ -93,3 +98,6 @@ pause_function() { #{{{
 # ====================================================================== #
 # >>>           INSTALAÇÃO
 # ---------------------------------------------------------------------- #
+
+install_official_repo_pkgs
+install_aur_helper
