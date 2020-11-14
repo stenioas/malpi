@@ -121,13 +121,6 @@ pause_function() { #{{{
   read -e -sn 1 -p "Pressione qualquer tecla para continuar..."
 }
 
-is_package_installed() {
-  for PKG in $1; do
-    pacman -Q "$PKG" &> /dev/null && return 0;
-  done
-  return 1
-}
-
 # ====================================================================== #
 # >>>           INSTALAÇÃO
 # ---------------------------------------------------------------------- #
