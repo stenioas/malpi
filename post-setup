@@ -165,4 +165,5 @@ create_new_user
 enable_multilib
 install_xorg
 install_vga
+install_aur_helper
 finish
