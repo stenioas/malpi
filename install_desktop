@@ -31,7 +31,7 @@
 
 install_xfce_desktop() {
   print_title "INSTALANDO AMBIENTE DESKTOP XFCE..."
-  sudo pacman -S --needed --noconfirm \
+  sudo pacman -S --needed \
     xfce4 \
     mousepad \
     orage \
@@ -76,10 +76,12 @@ install_xfce_desktop() {
 
 install_bspwm_desktop() {
   print_title "INSTALANDO BSPWM..."
-  sudo pacman -S --needed --noconfirm \
+  sudo pacman -S --needed \
     bspwm \
     sxhkd \
     dmenu \
+    rofi \
+    feh \
     nitrogen \
     picom \
     xfce4-terminal \
