@@ -138,7 +138,7 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  echo -e "Discos disponíveis:\n"
+  echo -e "Available disks:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   echo ""
   echo -e "Select disk:\n"
@@ -206,9 +206,9 @@ _format_partitions() {
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
-        _read_input_text "Format EFI partition? [s/N]: "
+        _read_input_text "Format EFI partition? [y/N]: "
         echo ""
-        if [[ $OPTION == s ]]; then
+        if [[ $OPTION == y || $OPTION == Y ]]; then
           mkfs.fat -F32 ${EFI_PARTITION}
           echo "EFI partition formatted!"
         fi
@@ -246,6 +246,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "INSTALLING THE SYSTEM BASE..."
+  sleep 2
   pacstrap ${ROOT_MOUNTPOINT} \
     base base-devel \
     linux-lts \
@@ -260,6 +261,7 @@ _install_base() {
 
 _install_essential_pkgs() {
   _print_title "INSTALLING ESSENTIAL PACKAGES..."
+  sleep 2
   pacstrap ${ROOT_MOUNTPOINT} \
     dosfstools \
     mtools \
@@ -355,7 +357,7 @@ _finish_install() {
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
   _read_input_text "Reboot system ? [y/N]: "
-  if [[ $OPTION == "y" || $OPTION == "Y"]]; then
+  if [[ "$OPTION" == "y" || "$OPTION" == "Y" ]]; then
     _umount_partitions
     reboot
   fi
@@ -452,12 +454,17 @@ _print_title() {
   _print_line
   echo -e "${BCyan}# $1${Reset}"
   _print_line
-  echo ""
+  echo
 }
 
 _print_warning() { #{{{
   T_COLS=$(tput cols)
   echo -e "\n${BYellow}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_info() { #{{{
+  T_COLS=$(tput cols)
+  echo -e "\n${BPurple}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() { #{{{
@@ -471,7 +478,7 @@ _contains_element() {
 
 _invalid_option() {
     _print_line
-    echo "Invalid option. Try again..."
+    _print_warning "Invalid option. Try again..."
     _pause_function
 }
 
@@ -507,7 +514,7 @@ EOF
 
 while [[ "$1" ]]; do
     read -s -n 1 -p "Do you want to start?[y/N]: "
-    [[ "$REPLY" == "y" ||  "$REPLY" == "Y" ]] && {
+    [[ "$REPLY" == "y" || "$REPLY" == "Y" ]] && {
          echo
          case "$1" in
             --install|-i) _setup_install;;
