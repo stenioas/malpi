@@ -147,7 +147,7 @@ _select_disk() {
   INSTALL_DISK=${device}
   cfdisk ${INSTALL_DISK}
   echo "Selected disk: ${INSTALL_DISK}"
-  _print_title "DISK PARTITIONS..."
+  _print_title "DISK PARTITIONING..."
   _print_done " DONE!"
   _pause_function
 }
@@ -226,10 +226,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2"; then
-      echo "\nThe partition was successfully mounted!"
+      _print_info "\nThe partition was successfully mounted!"
       _disable_partition "$1"
     else
-      echo "WARNING: The partition was not successfully mounted!"
+      _print_warning "WARNING: The partition was not successfully mounted!"
     fi
   }
   _format_root_partition
