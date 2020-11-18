@@ -538,6 +538,7 @@ _setup_config(){
     _install_extra_pkgs
     _install_laptop_pkgs
     _finish_config
+    exit 0
 }
 
 _setup_user(){
@@ -545,22 +546,33 @@ _setup_user(){
         _print_warning " Only for 'normal user'.\n"
         exit 1
     }
-    echo 'xrdb ~/.Xresources' >> /home/$USER/.xinitrc
-    echo 'awesome' >> /home/$USER/.xinitrc
-    mkdir /home/$USER/.config
-    cp -r /etc/xdg/awesome  /home/$USER/.config
-    sed -i 's/xterm/urxvt/g' /home/$USER/.config/awesome/rc.lua
-    svn export https://github.com/terroo/fonts/trunk/fonts
-    mkdir -p ~/.local/share/
-    mv fonts ~/.local/share/
-    fc-cache -fv
-    git clone --recursive https://github.com/lcpz/awesome-copycats.git
-    mv awesome-copycats/* ~/.config/awesome && rm -rf awesome-copycats
-    cd ~/.config/awesome/
-    cp rc.lua bkp.rc.lua
-    cp rc.lua.template rc.lua # Super + Ctrl + r
+    _install_software_pkgs
+    _install_pamac
+    _finish_user
     exit 0
 }
+
+#_setup_user(){
+#    [[ $(id -u) != 1000 ]] && {
+#        _print_warning " Only for 'normal user'.\n"
+#        exit 1
+#    }
+#    echo 'xrdb ~/.Xresources' >> /home/$USER/.xinitrc
+#    echo 'awesome' >> /home/$USER/.xinitrc
+#    mkdir /home/$USER/.config
+#    cp -r /etc/xdg/awesome  /home/$USER/.config
+#    sed -i 's/xterm/urxvt/g' /home/$USER/.config/awesome/rc.lua
+#    svn export https://github.com/terroo/fonts/trunk/fonts
+#    mkdir -p ~/.local/share/
+#    mv fonts ~/.local/share/
+#    fc-cache -fv
+#    git clone --recursive https://github.com/lcpz/awesome-copycats.git
+#    mv awesome-copycats/* ~/.config/awesome && rm -rf awesome-copycats
+#    cd ~/.config/awesome/
+#    cp rc.lua bkp.rc.lua
+#    cp rc.lua.template rc.lua # Super + Ctrl + r
+#    exit 0
+#}
 
 _setup_desktop(){
     [[ $(id -u) != 1000 ]] && {
