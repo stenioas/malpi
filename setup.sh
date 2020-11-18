@@ -266,10 +266,6 @@ _install_essential_pkgs() {
     dosfstools \
     mtools \
     udisks2 \
-    wpa_supplicant \
-    wireless_tools \
-    bluez \
-    bluez-utils \
     dialog \
     git \
     reflector \
@@ -277,13 +273,26 @@ _install_essential_pkgs() {
     wget \
     xdg-utils \
     xdg-user-dirs \
-    alsa-utils \
-    pulseaudio \
-    pulseaudio-bluetooth \
     networkmanager
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth NetworkManager
   _print_done " DONE!"
   _pause_function
+}
+
+_install_notebook_pkgs() {
+  _print_title "INSTALLING LAPTOP PACKAGES..."
+  _read_input_text "Install laptop packages? [Y/n]: "
+  if [[ $OPTION == n || $OPTION == N ]]; then
+    pacstrap ${ROOT_MOUNTPOINT} \
+    wpa_supplicant \
+    wireless_tools \
+    bluez \
+    bluez-utils \
+    alsa-utils \
+    pulseaudio \
+    pulseaudio-bluetooth
+  fi
+  exit 0
 }
 
 _fstab_generate() {
@@ -356,8 +365,8 @@ _finish_install() {
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
-  _read_input_text "Reboot system ? [y/N]: "
-  if [[ "$OPTION" == "y" || "$OPTION" == "Y" ]]; then
+  _read_input_text "Reboot system? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
   fi
@@ -510,7 +519,7 @@ cat <<EOF
 EOF
 
 while [[ "$1" ]]; do
-    read -s -n 1 -p "Do you want to start?[y/N]: "
+    _read_input_text "Do you want to start? [y/N]: "
     [[ "$REPLY" == "y" || "$REPLY" == "Y" ]] && {
          echo
          case "$1" in
@@ -521,6 +530,6 @@ while [[ "$1" ]]; do
         esac
         shift
     } || {
-        _print_info "Bye!" && exit 0
+        _print_info "Byye!" && exit 0
     }
 done
