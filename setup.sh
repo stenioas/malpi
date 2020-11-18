@@ -276,7 +276,7 @@ _install_essential_pkgs() {
     xdg-utils \
     xdg-user-dirs \
     networkmanager
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth NetworkManager
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
   _print_done " DONE!"
   _pause_function
 }
@@ -291,6 +291,7 @@ _install_laptop_pkgs() {
     bluez \
     bluez-utils
   fi
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth 
   _print_done " DONE!"
   _pause_function
 }
@@ -611,7 +612,7 @@ while [[ "$1" ]]; do
   read -e -sn 1 -p "Press any key to start ARCH SETUP..."
   case "$1" in
     --install|-i) _setup_install;;
-    --config|-u) _setup_config;;
+    --config|-c) _setup_config;;
     --user|-u) _setup_user;;
     --desktop|-d) _setup_desktop;;
   esac
