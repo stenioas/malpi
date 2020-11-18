@@ -105,7 +105,7 @@ EOF
 
 # ----------------------------------------------------------------------#
 
-### FUNCTIONS
+### BASE FUNCTIONS
 
 # --- INSTALL SECTION --- >
 
@@ -133,10 +133,10 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  echo -e "Available disks:\n"
+  echo -e " Available disks:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   echo ""
-  echo -e "Select disk:\n"
+  echo -e " Select disk:\n"
   select device in "${devices_list[@]}"; do
     if _contains_element "${device}" "${devices_list[@]}"; then
       break
@@ -169,7 +169,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT..."
     PS3="$prompt1"
-    echo -e "Select partition to create subvolumes:"
+    echo -e " Select partition to create subvolumes:"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
@@ -197,7 +197,7 @@ _format_partitions() {
   _format_efi_partiton() {
     _print_title "FORMATTING EFI PARTITION..."
     PS3="$prompt1"
-    echo -e "Select EFI partition: "
+    echo -e " Select EFI partition: "
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
@@ -298,7 +298,7 @@ _set_locale() {
 
 _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
-  echo -e "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
+  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
   _print_done " DONE!"
   _pause_function  
@@ -403,13 +403,34 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "INSTALL VIDEO DRIVER..."
-  pacman -S --needed \
-  xf86-video-vmware \
-  virtualbox-guest-utils \
-  virtualbox-guest-dkms \
-  mesa mesa-libgl \
-  libvdpau-va-gl
+  _print_title "INSTALLING VIDEO DRIVER..."
+  PS3="$prompt1"
+  VIDEO_CARD_LIST=("Intel" "Virtualbox");
+  echo
+  echo -e " Select video card:\n"
+  select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
+    if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
+      break
+    else
+      _invalid_option
+    fi
+  done
+  if [[ $VIDEO_CARD == "Virtualbox" ]]; then
+    pacman -S --needed \
+      xf86-video-vmware \
+      virtualbox-guest-utils \
+      virtualbox-guest-dkms \
+      mesa mesa-libgl \
+      libvdpau-va-gl
+  elif [[ $VIDEO_CARD == "Intel" ]]; then
+    pacman -S --needed \
+      xf86-video-intel \
+      mesa mesa-libgl \
+      libvdpau-va-gl
+  else
+    _invalid_option
+    exit 0
+  fi
   _print_done " DONE!"
   _pause_function
 }
@@ -486,7 +507,7 @@ _install_software_pkgs() {
 
 _install_pamac() {
   _print_title "INSTALLING PAMAC..."
-  if ! is_package_installed "pamac"; then
+  if ! _is_package_installed "pamac"; then
     [[ -d pamac ]] && rm -rf pamac
     git clone https://aur.archlinux.org/pamac-aur.git pamac
     cd pamac
@@ -500,7 +521,7 @@ _install_pamac() {
 
 _finish_user() {
   _print_title "THIRD STEP FINISHED..."
-  _print_info " Proceed to the last step. To install a desktop environment or a window manager, use the installer's ${BYellow}-d${Reset} option.\nEx: sh setup.sh -d"
+  echo -e " 1. Proceed to the last step.\n 2. To install a desktop environment or a window manager, use the installer's ${BYellow}-d${Reset} option.\n\n ${BRed}Example:${Reset} sh setup.sh -d\n"
 }
 
 ### CORE FUNCTIONS
@@ -579,21 +600,7 @@ _setup_desktop(){
         _print_warning " Only for 'normal user'.\n"
         exit 1
     }
-    wget https://terminalroot.com.br/sh/files/Xresources -O ~/.Xresources
-    echo 'xrdb ~/.Xresources' >> /home/$USER/.xinitrc
-    echo 'awesome' >> /home/$USER/.xinitrc
-    mkdir /home/$USER/.config
-    cp -r /etc/xdg/awesome  /home/$USER/.config
-    sed -i 's/xterm/urxvt/g' /home/$USER/.config/awesome/rc.lua
-    svn export https://github.com/terroo/fonts/trunk/fonts
-    mkdir -p ~/.local/share/
-    mv fonts ~/.local/share/
-    fc-cache -fv
-    git clone --recursive https://github.com/lcpz/awesome-copycats.git
-    mv awesome-copycats/* ~/.config/awesome && rm -rf awesome-copycats
-    cd ~/.config/awesome/
-    cp rc.lua bkp.rc.lua
-    cp rc.lua.template rc.lua
+    
     exit 0
 }
 
