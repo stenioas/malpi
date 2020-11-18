@@ -201,7 +201,7 @@ _format_partitions() {
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
-        _read_input_text "Format EFI partition? [y/N]: "
+        _read_input_text " Format EFI partition? [y/N]: "
         echo ""
         if [[ $OPTION == y || $OPTION == Y ]]; then
           mkfs.fat -F32 ${EFI_PARTITION}
@@ -226,10 +226,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2"; then
-      _print_info "\nThe partition was successfully mounted!"
+      _print_info " The partition was successfully mounted!"
       _disable_partition "$1"
     else
-      _print_warning "WARNING: The partition was not successfully mounted!"
+      _print_warning " WARNING: The partition was not successfully mounted!"
     fi
   }
   _format_root_partition
@@ -344,7 +344,7 @@ _finish_install() {
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
-  _read_input_text "Reboot system? [y/N]: "
+  _read_input_text " Reboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -358,7 +358,7 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "CREATE NEW USER..."
-  printf "%s" "Nome de usuário: "
+  printf "%s" "Username: "
   read -r NEW_USER
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   useradd -m -g users -G wheel ${NEW_USER}
@@ -368,7 +368,7 @@ _create_new_user() {
   passwd ${NEW_USER}
   _print_warning " Added privileges."
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -434,9 +434,9 @@ _install_extra_pkgs() {
 
 _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
-  _read_input_text "Install laptop packages? [Y/n]: "
-  if [[ $OPTION == n || $OPTION == N ]]; then
-    pacstrap ${ROOT_MOUNTPOINT} \
+  _read_input_text "Install laptop packages? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    pacman -S --needed \
       wpa_supplicant \
       wireless_tools \
       bluez \
@@ -463,7 +463,7 @@ _finish_config() {
 
 _setup_install(){
     [[ $(id -u) != 0 ]] && {
-        printf "\nOnly for 'root'.\n" "%s"
+        _print_warning " Only for 'root'.\n"
         exit 1
     }
     _time_sync
@@ -484,7 +484,7 @@ _setup_install(){
 
 _setup_config(){
     [[ $(id -u) != 0 ]] && {
-        printf "\nOnly for 'root'.\n" "%s"
+        _print_warning " Only for 'root'.\n"
         exit 1
     }
     _create_new_user
@@ -498,7 +498,7 @@ _setup_config(){
 
 _setup_user(){
     [[ $(id -u) != 1000 ]] && {
-        printf "\nOnly for 'normal user'.\n" "%s"
+        _print_warning " Only for 'normal user'.\n"
         exit 1
     }
     echo 'xrdb ~/.Xresources' >> /home/$USER/.xinitrc
@@ -520,7 +520,7 @@ _setup_user(){
 
 _setup_desktop(){
     [[ $(id -u) != 1000 ]] && {
-        printf "\nOnly for 'normal user'.\n" "%s"
+        _print_warning " Only for 'normal user'.\n"
         exit 1
     }
     wget https://terminalroot.com.br/sh/files/Xresources -O ~/.Xresources
@@ -573,7 +573,7 @@ _print_info() { #{{{
 
 _pause_function() { #{{{
   _print_line
-  read -e -sn 1 -p "Press any key to continue..."
+  read -e -sn 1 -p " Press any key to continue..."
 }
 
 _contains_element() {
@@ -582,17 +582,17 @@ _contains_element() {
 
 _invalid_option() {
     _print_line
-    _print_warning "Invalid option. Try again..."
+    _print_warning " Invalid option. Try again..."
     _pause_function
 }
 
 _read_input_text() {
-  printf "%s" "${BYellow}$1${Reset}"
+  printf "%s" "${BRed}$1${Reset}"
   read -s -n 1 -r OPTION
 }
 
 _umount_partitions() {
-  _print_info "UNMOUNTING PARTITIONS..."
+  _print_info " UNMOUNTING PARTITIONS..."
   umount -R ${ROOT_MOUNTPOINT}
 }
 
