@@ -450,7 +450,7 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "FINISHING INSTALLATION..."
-  _print_warning " Copying files..."
+  _print_info " Copying files..."
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
@@ -458,6 +458,50 @@ _finish_config() {
 }
 
 # --- END CONFIG SECTION --- >
+
+# --- USER SECTION --- >
+
+_install_software_pkgs() {
+  _print_title "INSTALLING SOFTWARE PACKAGES..."
+  sudo pacman -S --needed \
+    libreoffice-fresh \
+    libreoffice-fresh-pt-br \
+    firefox \
+    firefox-i18n-pt-br \
+    steam \
+    gimp \
+    inkscape \
+    vlc \
+    telegram-desktop \
+    simplescreenrecorder \
+    redshift \
+    adapta-gtk-theme \
+    arc-gtk-theme \
+    papirus-icon-theme \
+    capitaine-cursors \
+    ttf-dejavu
+  _print_done " DONE!"
+  _pause_function
+}
+
+_install_pamac() {
+  _print_title "INSTALLING PAMAC..."
+  if ! is_package_installed "pamac"; then
+    [[ -d pamac ]] && rm -rf pamac
+    git clone https://aur.archlinux.org/pamac-aur.git pamac
+    cd pamac
+    makepkg -csi --noconfirm
+  else
+    _print_info " Pamac is already installed!"
+  fi
+  _print_done " DONE!"
+  _pause_function
+}
+
+_finish_user() {
+  _print_title "THIRD STEP FINISHED..."
+  _print_info " Proceed to the last step. To install a desktop environment or a window manager, use the installer's ${BYellow}-d${Reset} option.\nEx: sh setup.sh -d"
+}
 
 ### CORE FUNCTIONS
 
