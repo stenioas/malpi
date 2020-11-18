@@ -107,6 +107,8 @@ EOF
 
 ### FUNCTIONS
 
+# --- INSTALL SECTION --- >
+
 _initial_install() {
   _print_title "PREPARING INSTALLATION..."
     export LANG="pt_BR.UTF-8"
@@ -279,7 +281,7 @@ _install_essential_pkgs() {
   _pause_function
 }
 
-_install_notebook_pkgs() {
+_install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
   _read_input_text "Install laptop packages? [Y/n]: "
   if [[ $OPTION == n || $OPTION == N ]]; then
@@ -287,12 +289,10 @@ _install_notebook_pkgs() {
     wpa_supplicant \
     wireless_tools \
     bluez \
-    bluez-utils \
-    alsa-utils \
-    pulseaudio \
-    pulseaudio-bluetooth
+    bluez-utils
   fi
-  exit 0
+  _print_done " DONE!"
+  _pause_function
 }
 
 _fstab_generate() {
@@ -373,6 +373,89 @@ _finish_install() {
   exit 0
 }
 
+# --- END INSTALL SECTION --- >
+
+# --- CONFIG SECTION --- >
+
+_create_new_user() {
+  _print_title "CREATE NEW USER..."
+  printf "%s" "Nome de usuário: "
+  read -r NEW_USER
+  NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
+  useradd -m -g users -G wheel ${NEW_USER}
+  echo "User ${NEW_USER} created."
+  echo ""
+  echo "Setting password..."
+  passwd ${NEW_USER}
+  _print_warning " Added privileges."
+  sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+  _print_warning " DONE!"
+  _pause_function
+}
+
+_enable_multilib(){
+  _print_title "ENABLING MULTILIB..."
+  ARCHI=$(uname -m)
+  if [[ $ARCHI == x86_64 ]]; then
+    local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
+    if [[ -z $_has_multilib ]]; then
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+      _print_info "\nMultilib repository added to the pacman.conf file"
+    else
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+      local _has_multilib=$(( _has_multilib + 1 ))
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+    fi
+  fi
+  pacman -Syy
+  _print_done " DONE!"
+  _pause_function
+}
+
+_install_xorg() {
+  _print_title "INSTALLING XORG..."
+  pacman -S --needed \
+  xorg xorg-apps xorg-xinit \
+  xf86-input-synaptics \
+  xf86-input-libinput \
+  xterm
+  _print_done " DONE!"
+  _pause_function
+}
+
+_install_vga() {
+  _print_title "INSTALL VIDEO DRIVER..."
+  pacman -S --needed \
+  xf86-video-vmware \
+  virtualbox-guest-utils \
+  virtualbox-guest-dkms \
+  mesa mesa-libgl \
+  libvdpau-va-gl
+  _print_done " DONE!"
+  _pause_function
+}
+
+_install_extra_pkgs() {
+  __print_title "INSTALLING EXTRA PACKAGES..."
+  pacman -S --needed \
+    alsa-utils \
+    pulseaudio \
+    pulseaudio-bluetooth
+  _print_done " DONE!"
+  _pause_function
+}
+
+_finish_config() {
+  _print_title "FINALIZANDO PÓS INSTALAÇÃO"
+  _print_warning " Copiando arquivos para o usuário concluir a instalação..."
+  mv /root/myarch /home/${NEW_USER}/
+  chown -R ${NEW_USER} /home/${NEW_USER}/myarch
+  print_warning " DONE!"
+  exit 0
+}
+
+# --- END CONFIG SECTION --- >
+
 ### CORE FUNCTIONS
 
 _setup_install(){
@@ -387,6 +470,7 @@ _setup_install(){
     _format_partitions
     _install_base
     _install_essential_pkgs
+    _install_laptop_pkgs
     _fstab_generate
     _set_locale
     _set_language
@@ -402,7 +486,12 @@ _setup_config(){
         printf "Only for 'root'.\n" "%s"
         exit 1
     }
-    
+    _create_new_user
+    _enable_multilib
+    _install_xorg
+    _install_vga
+    _install_extra_pkgs
+    _finish_config
 }
 
 _setup_user(){
@@ -501,7 +590,7 @@ _read_input_text() {
 }
 
 _umount_partitions() {
-  _print_warning "UNMOUNTING PARTITIONS..."
+  _print_info "UNMOUNTING PARTITIONS..."
   umount -R ${ROOT_MOUNTPOINT}
 }
 
