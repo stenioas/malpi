@@ -202,7 +202,7 @@ _format_partitions() {
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
         _read_input_text " Format EFI partition? [y/N]: "
-        echo ""
+        echo
         if [[ $OPTION == y || $OPTION == Y ]]; then
           mkfs.fat -F32 ${EFI_PARTITION}
           echo "EFI partition formatted!"
@@ -346,6 +346,7 @@ _finish_install() {
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
   _read_input_text " Reboot system? [y/N]: "
+  echo
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -458,6 +459,7 @@ _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
   PS3="$prompt1"
   _read_input_text "Install laptop packages? [y/N]: "
+  echo
   if [[ $OPTION == y || $OPTION == Y ]]; then
     pacman -S --needed \
       wpa_supplicant \
