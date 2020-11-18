@@ -110,14 +110,14 @@ EOF
 _initial_install() {
   _print_title "PREPARING INSTALLATION..."
     export LANG="pt_BR.UTF-8"
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
 _time_sync() {
   _print_title "TIME SYNC..."
   timedatectl set-ntp true
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -130,7 +130,7 @@ _rank_mirrors() {
   nano /etc/pacman.d/mirrorlist
   pacman -Syy
   _print_title "RANKING MIRRORS..."
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -153,7 +153,7 @@ _select_disk() {
   cfdisk ${INSTALL_DISK}
   echo "Selected disk: ${INSTALL_DISK}"
   _print_title "DISK PARTITIONS..."
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -190,7 +190,7 @@ _format_partitions() {
         mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
         mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
         _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
-        _print_warning " DONE!"
+        _print_done " DONE!"
         break;
       else
         _invalid_option
@@ -215,7 +215,7 @@ _format_partitions() {
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
-        _print_warning " DONE!"
+        _print_done " DONE!"
         break;
       else
         _invalid_option
@@ -240,7 +240,7 @@ _format_partitions() {
   _format_root_partition
   _format_efi_partiton
   _print_title "FORMATTING AND MOUNTING PARTITIONS..."
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -255,7 +255,7 @@ _install_base() {
     nano \
     intel-ucode \
     btrfs-progs
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -282,14 +282,14 @@ _install_essential_pkgs() {
     pulseaudio-bluetooth \
     networkmanager
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth NetworkManager
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
 _fstab_generate() {
   _print_title "GENERATING FSTAB..."
   genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -304,7 +304,7 @@ _set_locale() {
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -312,7 +312,7 @@ _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
   echo -e "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function  
 }
 
@@ -322,14 +322,14 @@ _set_hostname() {
   read -r NEW_HOSTNAME
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function  
 }
 
 _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
   arch-chroot ${ROOT_MOUNTPOINT} passwd
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function
 }
 
@@ -338,21 +338,21 @@ _grub_generate() {
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function  
 }
 
 _mkinitcpio_generate() {
   _print_title "GENERATE MKINITCPIO..."
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
-  _print_warning " DONE!"
+  _print_done " DONE!"
   _pause_function  
 }
 
 _finish_install() {
   _print_title "CONGRATULATIONS! WELL DONE!"
   _print_warning " Copying files..."
-  _print_warning " DONE!"
+  _print_done " DONE!"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
@@ -459,12 +459,17 @@ _print_title() {
 
 _print_warning() { #{{{
   T_COLS=$(tput cols)
-  echo -e "\n${BYellow}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
+  echo -e "\n${BYellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_done() { #{{{
+  T_COLS=$(tput cols)
+  echo -e "\n${BPurple}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_info() { #{{{
   T_COLS=$(tput cols)
-  echo -e "\n${BPurple}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
+  echo -e "\n${BBlue}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() { #{{{
@@ -493,23 +498,15 @@ _umount_partitions() {
 }
 
 cat <<EOF
-┌──────────────────────────────────────────────────────────────────────────┐
-│                                                                          │
-│   █████╗ ██████╗  ██████╗██╗  ██╗██╗     ██╗███╗   ██╗██╗   ██╗██╗  ██╗  │
-│  ██╔══██╗██╔══██╗██╔════╝██║  ██║██║     ██║████╗  ██║██║   ██║╚██╗██╔╝  │
-│  ███████║██████╔╝██║     ███████║██║     ██║██╔██╗ ██║██║   ██║ ╚███╔╝   │
-│  ██╔══██║██╔══██╗██║     ██╔══██║██║     ██║██║╚██╗██║██║   ██║ ██╔██╗   │
-│  ██║  ██║██║  ██║╚██████╗██║  ██║███████╗██║██║ ╚████║╚██████╔╝██╔╝ ██╗  │
-│  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝  │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│       █████╗ ██╗    ██╗███████╗███████╗ ██████╗ ███╗   ███╗███████╗      │
-│      ██╔══██╗██║    ██║██╔════╝██╔════╝██╔═══██╗████╗ ████║██╔════╝      │
-│      ███████║██║ █╗ ██║█████╗  ███████╗██║   ██║██╔████╔██║█████╗        │
-│      ██╔══██║██║███╗██║██╔══╝  ╚════██║██║   ██║██║╚██╔╝██║██╔══╝        │
-│      ██║  ██║╚███╔███╔╝███████╗███████║╚██████╔╝██║ ╚═╝ ██║███████╗      │
-│      ╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝      │
-└──────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────ARCH-SETUP 0.1───────────────────────────────────┐
+│                                                                                 │
+│   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
+│  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
+│  ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝ │
+│  ██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝  │
+│  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
+│  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
+└─────────────────────────────────────────────────────────────────────────────────┘
 EOF
 
 while [[ "$1" ]]; do
@@ -524,6 +521,6 @@ while [[ "$1" ]]; do
         esac
         shift
     } || {
-        printf "\nBye\n" "%s" && exit 0
+        _print_info "Bye!" && exit 0
     }
 done
