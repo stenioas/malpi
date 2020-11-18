@@ -341,6 +341,7 @@ _finish_install() {
   _print_title "CONGRATULATIONS! WELL DONE!"
   _print_warning " Copying files..."
   _print_done " DONE!"
+  PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
@@ -455,6 +456,7 @@ _install_extra_pkgs() {
 
 _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
+  PS3="$prompt1"
   _read_input_text "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     pacman -S --needed \
@@ -463,7 +465,7 @@ _install_laptop_pkgs() {
       bluez \
       bluez-utils \
       pulseaudio-bluetooth
-    arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth
+    systemctl enable bluetooth
   fi
   _print_done " DONE!"
   _pause_function
