@@ -109,13 +109,6 @@ EOF
 
 # --- INSTALL SECTION --- >
 
-_initial_install() {
-  _print_title "PREPARING INSTALLATION..."
-    export LANG="pt_BR.UTF-8"
-  _print_done " DONE!"
-  _pause_function
-}
-
 _time_sync() {
   _print_title "TIME SYNC..."
   timedatectl set-ntp true
@@ -233,7 +226,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2"; then
-      echo "The partition was successfully mounted!"
+      echo "\nThe partition was successfully mounted!"
       _disable_partition "$1"
     else
       echo "WARNING: The partition was not successfully mounted!"
@@ -473,7 +466,6 @@ _setup_install(){
         printf "\nOnly for 'root'.\n" "%s"
         exit 1
     }
-    _initial_install
     _time_sync
     _rank_mirrors
     _select_disk
@@ -613,7 +605,9 @@ _is_package_installed() {
 
 clear
 cat <<EOF
-┌────────────────────────────────ARCH-SETUP 0.1───────────────────────────────────┐
+
+
+┌────────────────────────────────ARCH SETUP 0.1───────────────────────────────────┐
 │                                                                                 │
 │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
 │  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
@@ -622,6 +616,8 @@ cat <<EOF
 │  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
 │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
 └─────────────────────────────────────────────────────────────────────────────────┘
+
+
 EOF
 
 while [[ "$1" ]]; do
