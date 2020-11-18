@@ -463,7 +463,6 @@ _print_title() {
   _print_line
   echo -e "${BCyan}# $1${Reset}"
   _print_line
-  echo
 }
 
 _print_warning() { #{{{
@@ -498,7 +497,7 @@ _invalid_option() {
 
 _read_input_text() {
   printf "%s" "${BYellow}$1${Reset}"
-  read -s -n 1 -p OPTION
+  read -s -n 1 -r OPTION
 }
 
 _umount_partitions() {
@@ -506,6 +505,7 @@ _umount_partitions() {
   umount -R ${ROOT_MOUNTPOINT}
 }
 
+clear
 cat <<EOF
 ┌────────────────────────────────ARCH-SETUP 0.1───────────────────────────────────┐
 │                                                                                 │
@@ -519,17 +519,13 @@ cat <<EOF
 EOF
 
 while [[ "$1" ]]; do
-    _read_input_text "Do you want to start? [y/N]: "
-    [[ "$REPLY" == "y" || "$REPLY" == "Y" ]] && {
-         echo
-         case "$1" in
-            --install|-i) _setup_install;;
-            --config|-u) _setup_config;;
-            --user|-u) _setup_user;;
-            --desktop|-d) _setup_desktop;;
-        esac
-        shift
-    } || {
-        _print_info "Byye!" && exit 0
-    }
+  read -e -sn 1 -p "Press any key to start ARCH SETUP..."
+  case "$1" in
+    --install|-i) _setup_install;;
+    --config|-u) _setup_config;;
+    --user|-u) _setup_user;;
+    --desktop|-d) _setup_desktop;;
+  esac
+  shift
+  _print_info "\nByye!" && exit 0
 done
