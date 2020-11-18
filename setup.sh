@@ -248,7 +248,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "INSTALLING THE SYSTEM BASE..."
-  sleep 2
+  sleep 1
   pacstrap ${ROOT_MOUNTPOINT} \
     base base-devel \
     linux-lts \
@@ -263,35 +263,20 @@ _install_base() {
 
 _install_essential_pkgs() {
   _print_title "INSTALLING ESSENTIAL PACKAGES..."
-  sleep 2
+  sleep 1
   pacstrap ${ROOT_MOUNTPOINT} \
     dosfstools \
     mtools \
     udisks2 \
     dialog \
     git \
+    wget \
     reflector \
     bash-completion \
-    wget \
     xdg-utils \
     xdg-user-dirs \
     networkmanager
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
-  _print_done " DONE!"
-  _pause_function
-}
-
-_install_laptop_pkgs() {
-  _print_title "INSTALLING LAPTOP PACKAGES..."
-  _read_input_text "Install laptop packages? [Y/n]: "
-  if [[ $OPTION == n || $OPTION == N ]]; then
-    pacstrap ${ROOT_MOUNTPOINT} \
-    wpa_supplicant \
-    wireless_tools \
-    bluez \
-    bluez-utils
-  fi
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth 
   _print_done " DONE!"
   _pause_function
 }
@@ -437,21 +422,45 @@ _install_vga() {
 }
 
 _install_extra_pkgs() {
-  __print_title "INSTALLING EXTRA PACKAGES..."
+  _print_title "INSTALLING EXTRA PACKAGES..."
   pacman -S --needed \
-    alsa-utils \
-    pulseaudio \
-    pulseaudio-bluetooth
+    usbutils lsof dmidecode neofetch bashtop \
+    avahi nss-mdns logrotate sysfsutils mlocate
+  _print_info "Installing compression tools..."
+  pacman -S --needed \
+    zip unzip unrar p7zip lzop
+  _print_info "Installing extra filesystem tools..."
+  pacman -S --needed \
+    ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs
+  _print_info "Installing sound tools..."
+  pacman -S --needed \
+    alsa-utils alsa-plugins pulseaudio pulseaudio-alsa
+  _print_done " DONE!"
+  _pause_function
+}
+
+_install_laptop_pkgs() {
+  _print_title "INSTALLING LAPTOP PACKAGES..."
+  _read_input_text "Install laptop packages? [Y/n]: "
+  if [[ $OPTION == n || $OPTION == N ]]; then
+    pacstrap ${ROOT_MOUNTPOINT} \
+      wpa_supplicant \
+      wireless_tools \
+      bluez \
+      bluez-utils \
+      pulseaudio-bluetooth
+    arch-chroot ${ROOT_MOUNTPOINT} systemctl enable bluetooth
+  fi
   _print_done " DONE!"
   _pause_function
 }
 
 _finish_config() {
-  _print_title "FINALIZANDO PÓS INSTALAÇÃO"
-  _print_warning " Copiando arquivos para o usuário concluir a instalação..."
+  _print_title "FINISHING INSTALLATION..."
+  _print_warning " Copying files..."
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
-  print_warning " DONE!"
+  _print_done " DONE!"
   exit 0
 }
 
@@ -461,7 +470,7 @@ _finish_config() {
 
 _setup_install(){
     [[ $(id -u) != 0 ]] && {
-        printf "Only for 'root'.\n" "%s"
+        printf "\nOnly for 'root'.\n" "%s"
         exit 1
     }
     _initial_install
@@ -471,7 +480,6 @@ _setup_install(){
     _format_partitions
     _install_base
     _install_essential_pkgs
-    _install_laptop_pkgs
     _fstab_generate
     _set_locale
     _set_language
@@ -484,7 +492,7 @@ _setup_install(){
 
 _setup_config(){
     [[ $(id -u) != 0 ]] && {
-        printf "Only for 'root'.\n" "%s"
+        printf "\nOnly for 'root'.\n" "%s"
         exit 1
     }
     _create_new_user
@@ -492,12 +500,13 @@ _setup_config(){
     _install_xorg
     _install_vga
     _install_extra_pkgs
+    _install_laptop_pkgs
     _finish_config
 }
 
 _setup_user(){
     [[ $(id -u) != 1000 ]] && {
-        printf "Only for 'normal user'.\n" "%s"
+        printf "\nOnly for 'normal user'.\n" "%s"
         exit 1
     }
     echo 'xrdb ~/.Xresources' >> /home/$USER/.xinitrc
@@ -519,7 +528,7 @@ _setup_user(){
 
 _setup_desktop(){
     [[ $(id -u) != 1000 ]] && {
-        printf "Only for 'normal user'.\n" "%s"
+        printf "\nOnly for 'normal user'.\n" "%s"
         exit 1
     }
     wget https://terminalroot.com.br/sh/files/Xresources -O ~/.Xresources
@@ -593,6 +602,13 @@ _read_input_text() {
 _umount_partitions() {
   _print_info "UNMOUNTING PARTITIONS..."
   umount -R ${ROOT_MOUNTPOINT}
+}
+
+_is_package_installed() {
+  for PKG in $1; do
+    pacman -Q "$PKG" &> /dev/null && return 0;
+  done
+  return 1
 }
 
 clear
