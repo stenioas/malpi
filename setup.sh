@@ -498,7 +498,7 @@ _invalid_option() {
 
 _read_input_text() {
   printf "%s" "${BYellow}$1${Reset}"
-  read -r OPTION
+  read -s -n 1 -p OPTION
 }
 
 _umount_partitions() {
