@@ -427,7 +427,7 @@ _install_extra_pkgs() {
     ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs
   _print_info "Installing sound tools..."
   pacman -S --needed \
-    alsa-utils alsa-plugins pulseaudio pulseaudio-alsa
+    alsa-utils pulseaudio
   _print_done " DONE!"
   _pause_function
 }
