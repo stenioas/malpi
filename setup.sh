@@ -249,26 +249,8 @@ _install_base() {
     linux-firmware \
     nano \
     intel-ucode \
-    btrfs-progs
-  _print_done " DONE!"
-  _pause_function
-}
-
-_install_essential_pkgs() {
-  _print_title "INSTALLING ESSENTIAL PACKAGES..."
-  sleep 1
-  pacstrap ${ROOT_MOUNTPOINT} \
-    dosfstools \
-    mtools \
-    udisks2 \
-    dialog \
-    git \
-    wget \
-    reflector \
-    bash-completion \
-    xdg-utils \
-    xdg-user-dirs \
-    networkmanager
+    btrfs-progs \
+    networkmanager    
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
   _print_done " DONE!"
   _pause_function
@@ -393,13 +375,31 @@ _enable_multilib(){
   _pause_function
 }
 
+_install_essential_pkgs() {
+  _print_title "INSTALLING ESSENTIAL PACKAGES..."
+  sleep 1
+  pacman -S --needed \
+    dosfstools \
+    mtools \
+    udisks2 \
+    dialog \
+    git \
+    wget \
+    reflector \
+    bash-completion \
+    xdg-utils \
+    xdg-user-dirs
+  _print_done " DONE!"
+  _pause_function
+}
+
 _install_xorg() {
   _print_title "INSTALLING XORG..."
   pacman -S --needed \
-  xorg xorg-apps xorg-xinit \
-  xf86-input-synaptics \
-  xf86-input-libinput \
-  xterm
+    xorg xorg-apps xorg-xinit \
+    xf86-input-synaptics \
+    xf86-input-libinput \
+    xterm
   _print_done " DONE!"
   _pause_function
 }
@@ -540,7 +540,6 @@ _setup_install(){
     _select_disk
     _format_partitions
     _install_base
-    _install_essential_pkgs
     _fstab_generate
     _set_locale
     _set_language
@@ -558,6 +557,7 @@ _setup_config(){
     }
     _create_new_user
     _enable_multilib
+    _install_essential_pkgs
     _install_xorg
     _install_vga
     _install_extra_pkgs
