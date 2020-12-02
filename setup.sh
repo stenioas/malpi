@@ -530,6 +530,7 @@ _install_desktop() {
     _invalid_option
     exit 0
   fi
+  localectl set-x11-keymap br
   _print_done " DONE!"
   _pause_function
 }
