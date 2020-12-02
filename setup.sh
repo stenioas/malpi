@@ -488,20 +488,48 @@ _finish_config() {
 
 _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
-  sudo pacman -S --needed \
-    qtile \
-    dmenu \
-    rofi \
-    arandr \
-    feh \
-    nitrogen \
-    picom \
-    lxappearance \
-    termite \
-    lightdm \
-    lightdm-gtk-greeter \
-    lightdm-gtk-greeter-settings
-  sudo systemctl enable lightdm.service
+  PS3="$prompt1"
+  DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome");
+  echo
+  echo -e " Select your desktop or window manager:\n"
+  select DESKTOP in "${DESKTOP_LIST[@]}"; do
+    if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
+      break
+    else
+      _invalid_option
+    fi
+  done
+  if [[ $DESKTOP == "Gnome" ]]; then
+    _print_info " Developing"
+  elif [[ $DESKTOP == "Plasma" ]]; then
+    _print_info " Developing"
+  elif [[ $DESKTOP == "Xfce4" ]]; then
+    _print_info " Developing"
+  elif [[ $DESKTOP == "i3wm" ]]; then
+    _print_info " Developing"
+  elif [[ $DESKTOP == "Bspwm" ]]; then
+    _print_info " Developing"
+  elif [[ $DESKTOP == "Qtile" ]]; then
+    sudo pacman -S --needed \
+      qtile \
+      dmenu \
+      rofi \
+      arandr \
+      feh \
+      nitrogen \
+      picom \
+      lxappearance \
+      termite \
+      lightdm \
+      lightdm-gtk-greeter \
+      lightdm-gtk-greeter-settings
+    sudo systemctl enable lightdm.service
+  elif [[ $DESKTOP == "Awesome" ]]; then
+    _print_info " Developing"
+  else
+    _invalid_option
+    exit 0
+  fi
   _print_done " DONE!"
   _pause_function
 }
