@@ -613,7 +613,7 @@ _setup_desktop(){
 ### OTHER FUNCTIONS
 
 _print_line() {
-  printf "%$(tput cols)s\n"|tr ' ' '═'
+  printf "%$(tput cols)s\n"|tr ' ' '─'
 }
 
 _print_title() {
