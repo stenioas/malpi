@@ -484,11 +484,58 @@ _finish_config() {
 
 # --- END CONFIG SECTION --- >
 
+# --- DESKTOP SECTION --- >
+
+_install_desktop() {
+  _print_title "INSTALLING DESKTOP PACKAGES..."
+  sudo pacman -S --needed \
+    qtile \
+    dmenu \
+    rofi \
+    arandr \
+    feh \
+    nitrogen \
+    picom \
+    lxappearance \
+    termite \
+    lightdm \
+    lightdm-gtk-greeter \
+    lightdm-gtk-greeter-settings
+  sudo systemctl enable lightdm.service
+  _print_done " DONE!"
+  _pause_function
+}
+
+_finish_desktop() {
+  _print_title "THIRD STEP FINISHED..."
+  echo -e " 1. Proceed to the last step.\n 2. To install apps use the installer's ${BYellow}-u${Reset} option."
+  _print_done " DONE!"
+  exit 0
+}
+
+# --- END DESKTOP SECTION --- >
+
 # --- USER SECTION --- >
 
-_install_desktop_pkgs() {
-  _print_title "INSTALLING DESKTOP PACKAGES..."
-  _print_info " In development..."  
+_install_apps() {
+  sudo pacman -S --needed \
+    libreoffice-fresh \
+    libreoffice-fresh-pt-br \
+    firefox \
+    firefox-i18n-pt-br \
+    steam \
+    gimp \
+    inkscape \
+    vlc \
+    telegram-desktop \
+    transmission-gtk \
+    simplescreenrecorder \
+    redshift \
+    adapta-gtk-theme \
+    arc-gtk-theme \
+    papirus-icon-theme \
+    capitaine-cursors \
+    ttf-dejavu
   _print_done " DONE!"
   _pause_function
 }
@@ -507,39 +554,7 @@ _install_pamac() {
   _pause_function
 }
 
-_finish_user() {
-  _print_title "THIRD STEP FINISHED..."
-  echo -e " 1. Proceed to the last step.\n 2. To install a desktop environment or a window manager, use the installer's ${BYellow}-d${Reset} option.\n\n ${BRed}Example:${Reset} sh setup.sh -d\n"
-}
-
 # --- END USER SECTION --- >
-
-# --- APPS SECTION --- >
-
-_install_apps() {
-  sudo pacman -S --needed \
-    libreoffice-fresh \
-    libreoffice-fresh-pt-br \
-    firefox \
-    firefox-i18n-pt-br \
-    steam \
-    gimp \
-    inkscape \
-    vlc \
-    telegram-desktop \
-    simplescreenrecorder \
-    redshift \
-    adapta-gtk-theme \
-    arc-gtk-theme \
-    papirus-icon-theme \
-    capitaine-cursors \
-    ttf-dejavu
-  _print_done " DONE!"
-  _pause_function
-
-}
-
-# --- END APPS SECTION --- >
 
 ### CORE FUNCTIONS
 
@@ -561,6 +576,7 @@ _setup_install(){
     _grub_generate
     _mkinitcpio_generate
     _finish_install
+    exit 0
 }
 
 _setup_config(){
@@ -579,14 +595,13 @@ _setup_config(){
     exit 0
 }
 
-_setup_user(){
+_setup_desktop(){
     [[ $(id -u) != 1000 ]] && {
         _print_warning " Only for 'normal user'.\n"
         exit 1
     }
-    _install_desktop_pkgs
-    _install_pamac
-    _finish_user
+    _install_desktop
+    _finish_desktop
     exit 0
 }
 
@@ -612,12 +627,13 @@ _setup_user(){
 #    exit 0
 #}
 
-_setup_apps(){
+_setup_user(){
     [[ $(id -u) != 1000 ]] && {
         _print_warning " Only for 'normal user'.\n"
         exit 1
     }
     _install_apps
+    _install_pamac
     exit 0
 }
 
@@ -709,8 +725,8 @@ while [[ "$1" ]]; do
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
+    --desktop|-d) _setup_desktop;;
     --user|-u) _setup_user;;
-    --apps|-a) _setup_apps;;
   esac
   shift
   _print_info "\nByye!" && exit 0
