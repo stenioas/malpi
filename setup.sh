@@ -546,7 +546,7 @@ _install_desktop() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED..."
-  echo -e " 1. Proceed to the last step.\n 2. To install apps use the installer's ${BYellow}-u${Reset} option."
+  echo -e " 1. Proceed to the last step.\n 2. To install apps use the installer's ${Yellow}-u${Reset} option."
   _print_done " DONE!"
   exit 0
 }
@@ -559,7 +559,7 @@ _install_apps() {
   _print_title "INSTALLING CUSTOM APPS..."
   PS3="$prompt1"
   _read_input_text " Install my custom apps? [y/N]: "
-  echo
+  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
     _package_install "firefox firefox-i18n-pt-br"
@@ -593,7 +593,7 @@ _install_pamac() {
       cd pamac
       makepkg -csi --noconfirm
     else
-      _print_info " Pamac is already installed!"
+      echo -e " ${Cyan}Pamac${Reset} - ${BYellow}Is already installed!${Reset}"
     fi
   fi
   _print_done " DONE!"
@@ -669,34 +669,34 @@ _print_line() {
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
-_print_dline() {
-  printf "%$(tput cols)s\n"|tr ' ' '='
+_print_bline() {
+  printf "%$(tput cols)s\n"|tr ' ' '_'
 }
 
 _print_title() {
   clear
-  _print_dline
+  _print_line
   echo -e "${BCyan}# $1${Reset}"
-  _print_dline
+  _print_line
 }
 
-_print_warning() { #{{{
+_print_warning() {
   T_COLS=$(tput cols)
   echo -e "\n${BYellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
-_print_done() { #{{{
+_print_done() {
   T_COLS=$(tput cols)
-  echo -e "\n${BPurple}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "\n${BGreen}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
-_print_info() { #{{{
+_print_info() {
   T_COLS=$(tput cols)
   echo -e "\n${BBlue}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
-_pause_function() { #{{{
-  _print_line
+_pause_function() {
+  _print_bline
   read -e -sn 1 -p " Press any key to continue..."
 }
 
@@ -724,12 +724,10 @@ _package_install() {
   #install packages using pacman
   for PKG in ${1}; do
     if ! _is_package_installed "${PKG}" ; then
-      _print_info " ${BBlue}Installing${Reset} ${Cyan}${PKG}${Reset} ..."
-      pacman -S --noconfirm --needed "${PKG}" 2>&1
-      _print_line
+      echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
+      sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
     else
-      _print_info " ${BBlue}Installing${Reset} ${Cyan}${PKG}${Reset} - ${Yellow}Is already installed!${Reset}"
-      _print_line
+      echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
     fi
   done
 }
@@ -744,7 +742,7 @@ _is_package_installed() {
 clear
 cat <<EOF
 
-
+${BYellow}
 ┌────────────────────────────────ARCH SETUP 0.1───────────────────────────────────┐
 │                                                                                 │
 │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
@@ -754,12 +752,12 @@ cat <<EOF
 │  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
 │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
 └─────────────────────────────────────────────────────────────────────────────────┘
-
+${Reset}
 
 EOF
 
 while [[ "$1" ]]; do
-  read -e -sn 1 -p "Press any key to start ARCH SETUP..."
+  read -e -sn 1 -p " Press any key to start..."
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
