@@ -128,8 +128,8 @@ _rank_mirrors() {
   fi
   reflector -c Brazil --sort rate --save /etc/pacman.d/mirrorlist
   nano /etc/pacman.d/mirrorlist
-  pacman -Syy
   _print_title "RANKING MIRRORS..."
+  pacman -Syy
   _print_done " DONE!"
   _pause_function
 }
@@ -138,7 +138,7 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_info " Available disks and partitions:\n"
+  _print_info " Disks and partitions:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   _print_warning " Select disk:\n"
   select device in "${devices_list[@]}"; do
@@ -173,7 +173,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT..."
     PS3="$prompt1"
-    _print_warning " * Select partition to create btrfs subvolumes:\n"
+    _print_warning " * Select partition to create btrfs subvolumes:\n * Remember, this script will create 3 subvolumes:\n   - @ for /,\n   - @home for /home,\n   - @.snapshots for snapshots.\n"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
@@ -719,7 +719,7 @@ clear
 cat <<EOF
 
 ${BYellow}
-┌───────────────────────────────── Arch Setup ────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                 │
 │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
 │  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
