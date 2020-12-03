@@ -183,20 +183,22 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
     if mount | grep "${ROOT_PARTITION}"; then
-      umount -R ${ROOT_MOUNTPOINT} > /dev/null
+      umount -R ${ROOT_MOUNTPOINT} > /dev/null 2>&1
     fi
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} > /dev/null
-    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ > /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home > /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots > /dev/null
-    umount -R ${ROOT_MOUNTPOINT} > /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} > /dev/null 2>&1
+    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ > /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home > /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots > /dev/null 2>&1
+    umount -R ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} > /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home > /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots > /dev/null
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home > /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots > /dev/null 2>&1
+    _print_title "FORMATTING ROOT..."
+    _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
+    _print_info " Formatted!"
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
     _print_done " DONE!"
     _pause_function
@@ -217,12 +219,16 @@ _format_partitions() {
     echo ""
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
       mkfs.fat -F32 ${EFI_PARTITION} > /dev/null 2>&1
       _print_info " EFI partition formatted!"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
+    _print_title "FORMATTING EFI PARTITION..."
+    if [[ $OPTION == y || $OPTION == Y ]]; then
+      _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
+      _print_info " EFI partition formatted!"
+    fi
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
     _print_done " DONE!"
     _pause_function
