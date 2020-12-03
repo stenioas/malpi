@@ -151,7 +151,7 @@ _select_disk() {
   INSTALL_DISK=${device}
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
-  #_print_info " Selected disk: ${INSTALL_DISK}"
+  _print_info " Selected disk: ${Purple}${INSTALL_DISK}${Reset}"
   _print_done " DONE!"
   _pause_function
 }
@@ -178,6 +178,8 @@ _format_partitions() {
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
         ROOT_PARTITION="$partition"
+        _print_title "FORMATTING ROOT..."
+        _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
         umount -R ${ROOT_MOUNTPOINT}
         mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION}
         mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
@@ -209,6 +211,8 @@ _format_partitions() {
         echo ""
         _read_input_text " Format EFI partition? [y/N]: "
         if [[ $OPTION == y || $OPTION == Y ]]; then
+          _print_title "FORMATTING EFI PARTITION..."
+          _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
           mkfs.fat -F32 ${EFI_PARTITION}
           _print_info " EFI partition formatted!"
         fi
@@ -407,6 +411,8 @@ _install_vga() {
       _invalid_option
     fi
   done
+  _print_title "INSTALLING VIDEO DRIVER..."
+  _print_info " Installing ${Purple}[ ${VIDEO_CARD} ]${Reset} ${BBlue} video driver...${Reset}"
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
@@ -483,6 +489,8 @@ _install_desktop() {
       _invalid_option
     fi
   done
+  _print_title "INSTALLING DESKTOP PACKAGES..."
+  _print_info " Installing ${Purple}[ ${DESKTOP} ]${Reset}"
   if [[ "${DESKTOP}" == "Gnome" ]]; then
     _print_info "It's not working yet..."
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
