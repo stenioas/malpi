@@ -447,13 +447,13 @@ _install_extra_pkgs() {
   pacman -S --needed \
     usbutils lsof dmidecode neofetch bashtop htop \
     avahi nss-mdns logrotate sysfsutils mlocate
-  _print_info " Installing compression tools..."
+  _print_warning " Installing compression tools..."
   pacman -S --needed \
     zip unzip unrar p7zip lzop
-  _print_info " Installing extra filesystem tools..."
+  _print_warning " Installing extra filesystem tools..."
   pacman -S --needed \
     ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs
-  _print_info " Installing sound tools..."
+  _print_warning " Installing sound tools..."
   pacman -S --needed \
     alsa-utils pulseaudio
   _print_done " DONE!"
@@ -480,7 +480,7 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "FINISHING INSTALLATION..."
-  _print_info " Copying files..."
+  _print_warning " Copying files..."
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
@@ -496,7 +496,8 @@ _install_desktop() {
   PS3="$prompt1"
   DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack");
   echo
-  echo -e " Select your desktop or window manager:\n"
+  _print_info " Select Mypack to install Xfce + i3wm + Bspwm + Qtile + Awesome."
+  echo
   echo -e " Select your desktop or window manager:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
@@ -539,7 +540,6 @@ _install_desktop() {
     exit 0
   fi
   localectl set-x11-keymap br
-  setxkbmap br
   _print_done " DONE!"
   _pause_function
 }
@@ -692,7 +692,7 @@ _print_done() { #{{{
 
 _print_info() { #{{{
   T_COLS=$(tput cols)
-  echo -e "\n${BBlue} $1${Reset}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "\n${BBlue}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() { #{{{
@@ -716,7 +716,7 @@ _read_input_text() {
 }
 
 _umount_partitions() {
-  _print_info " UNMOUNTING PARTITIONS..."
+  _print_warning " UNMOUNTING PARTITIONS..."
   umount -R ${ROOT_MOUNTPOINT}
 }
 
