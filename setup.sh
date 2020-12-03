@@ -235,14 +235,14 @@ _format_partitions() {
   }
 
   _disable_partition() {
-    unset partitions_list["${partition_number}"]
+    unset partitions_list["${partition_number}"] > /dev/null 2>&1
     partitions_list=("${partitions_list[@]}")
   }
 
   _check_mountpoint() {
     if mount | grep "$2"; then
       _print_info " The partition(s) was successfully mounted!"
-      _disable_partition "$1"
+      _disable_partition "$1" > /dev/null 2>&1
     else
       _print_warning " * WARNING: The partition was not successfully mounted!"
     fi
