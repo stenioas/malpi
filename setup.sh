@@ -245,7 +245,7 @@ _format_partitions() {
 }
 
 _install_base() {
-  _print_title "INSTALLING THE SYSTEM BASE..."
+  _print_title "INSTALLING THE BASE..."
   sleep 1
   pacstrap ${ROOT_MOUNTPOINT} \
     base base-devel \
@@ -327,7 +327,7 @@ _mkinitcpio_generate() {
 _finish_install() {
   _print_title "CONGRATULATIONS! WELL DONE!"
   _print_warning " * Copying files to /root/myarch... "
-  _print_done " DONE!\n"
+  _print_done " DONE!"
   _print_bline
   PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -692,17 +692,17 @@ _package_install() {
   for PKG in $1; do
     if [[ $(id -u) == 0 ]]; then
       if ! _is_package_installed "${PKG}"; then
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
       else
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
     else
       if ! _is_package_installed "${PKG}"; then
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
       else
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
     fi
   done
