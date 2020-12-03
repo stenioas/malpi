@@ -399,7 +399,7 @@ _install_vga() {
   _print_title "INSTALLING VIDEO DRIVER..."
   PS3="$prompt1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_warning " * Select video card: "
+  _print_warning " * Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -408,7 +408,7 @@ _install_vga() {
     fi
   done
   if [[ $VIDEO_CARD == "Virtualbox" ]]; then
-    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl \libvdpau-va-gl"
+    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
   elif [[ $VIDEO_CARD == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   else
@@ -447,7 +447,7 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "FINISHING INSTALLATION..."
-  _print_warning " * Copying files..."
+  _print_warning " * Copying files to home $NEW_USER..."
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
@@ -676,15 +676,15 @@ _umount_partitions() {
 _package_install() {
   #install packages using pacman
   for PKG in $1; do
-    if [$(id -u) == 0] ; then
-      if ! _is_package_installed "${PKG}" ; then
+    if [[ $(id -u) == 0 ]]; then
+      if ! _is_package_installed "${PKG}"; then
         echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
     else
-      if ! _is_package_installed "${PKG}" ; then
+      if ! _is_package_installed "${PKG}"; then
         echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
         sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
       else
