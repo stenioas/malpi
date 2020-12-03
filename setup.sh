@@ -49,14 +49,14 @@ usage() {
 
 usage: ${0##*/} [flags]
 
-  Options:
+  Flag options:
 
     --install | -i         First step, only root user. THIS STEP MUST BE RUN IN LIVE MODE!
     --config  | -c         Second step, only root user.
     --desktop | -d         Third step, only normal user.
     --user    | -u         Last step, only normal user.
 
-* Stenio Silveira ARCH SETUP 0.1
+* Arch-Setup 0.1
 
 EOF
 }
@@ -719,7 +719,7 @@ clear
 cat <<EOF
 
 ${BYellow}
-┌─────────────────────────────── Arch setup 0.1 ──────────────────────────────────┐
+┌───────────────────────────────── Arch Setup ────────────────────────────────────┐
 │                                                                                 │
 │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
 │  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
