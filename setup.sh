@@ -219,14 +219,11 @@ _format_partitions() {
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       mkfs.fat -F32 ${EFI_PARTITION}
-      _print_info " EFI partition formatted!"
+      _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
+      _print_info " Formatted!"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
-    if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
-      _print_info " EFI partition formatted!"
-    fi
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
     _print_done " DONE!"
     _pause_function
@@ -311,6 +308,7 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
+  _print_warning " * Setting root password...\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done " DONE!"
   _pause_function
@@ -402,7 +400,7 @@ _install_essential_pkgs() {
 
 _install_xorg() {
   _print_title "INSTALLING XORG..."
-  _package_install "xorg xorg-apps xorg-xinit xf86-input-synaptics xf86-input-libinput xterm"
+  _package_install "xorg xorg-apps xorg-xinit xterm"
   _print_done " DONE!"
   _pause_function
 }
@@ -420,7 +418,7 @@ _install_vga() {
     fi
   done
   _print_title "INSTALLING VIDEO DRIVER..."
-  _print_info " Installing ${Purple}[ ${VIDEO_CARD} ]${Reset} ${BBlue} video driver...${Reset}"
+  _print_info " Installing ${Purple}${VIDEO_CARD}${Reset} ${BBlue}video driver...${Reset}\n"
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
@@ -444,7 +442,7 @@ _install_extra_pkgs() {
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
   _print_warning " Installing compression tools..."
   _print_line
-  _package_install "zip unzip unrar p7zip lzop"
+  _package_install "zip unzip unrar p7zip lzop xarchiver"
   _print_warning " Installing extra filesystem tools..."
   _print_line
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
@@ -461,7 +459,7 @@ _install_laptop_pkgs() {
   _read_input_text " Install laptop packages? [y/N]: "
   echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth"
+    _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     systemctl enable bluetooth
   fi
   _print_done " DONE!"
