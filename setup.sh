@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# arch-setup: Install and Config Archlinux and AwesomeWM
+# arch-setup: Install and Config Archlinux
 # 
 # ----------------------------------------------------------------------#
 #
@@ -12,6 +12,11 @@
 #   @home for /home
 #   @ .snapshots for /.snapshots.
 # The ESP partition can be formatted in FAT32 if the user wants to.
+#
+# References:
+#   Archfi script by Matmaoul - github.com/Matmoul
+#   Aui script by Helmuthdu - github.com/helmuthdu
+#   pos-alpine script by terminalroot - github.com/terroo
 #
 # ----------------------------------------------------------------------#
 #
@@ -48,10 +53,10 @@ usage: ${0##*/} [flags]
 
     --install | -i         First step, only root user. THIS STEP MUST BE RUN IN LIVE MODE!
     --config  | -c         Second step, only root user.
-    --user    | -u         Third step, only normal user.
-    --desktop | -d         Fourth step, only normal user.
+    --desktop | -d         Third step, only normal user.
+    --user    | -u         Last step, only normal user.
 
-* Stenio Silveira ARCH-SETUP 0.1
+* Stenio Silveira ARCH SETUP 0.1
 
 EOF
 }
@@ -440,7 +445,7 @@ _install_vga() {
 _install_extra_pkgs() {
   _print_title "INSTALLING EXTRA PACKAGES..."
   pacman -S --needed \
-    usbutils lsof dmidecode neofetch bashtop \
+    usbutils lsof dmidecode neofetch bashtop htop \
     avahi nss-mdns logrotate sysfsutils mlocate
   _print_info " Installing compression tools..."
   pacman -S --needed \
@@ -489,8 +494,9 @@ _finish_config() {
 _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   PS3="$prompt1"
-  DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome");
+  DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack");
   echo
+  echo -e " Select your desktop or window manager:\n"
   echo -e " Select your desktop or window manager:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
@@ -526,6 +532,8 @@ _install_desktop() {
     sudo systemctl enable lightdm.service
   elif [[ $DESKTOP == "Awesome" ]]; then
     _print_info " Developing"
+  elif [[ $DESKTOP == "Mypack" ]]; then
+    _print_info " Developing"
   else
     _invalid_option
     exit 0
@@ -548,37 +556,45 @@ _finish_desktop() {
 # --- USER SECTION --- >
 
 _install_apps() {
-  sudo pacman -S --needed \
-    libreoffice-fresh \
-    libreoffice-fresh-pt-br \
-    firefox \
-    firefox-i18n-pt-br \
-    steam \
-    gimp \
-    inkscape \
-    vlc \
-    telegram-desktop \
-    transmission-gtk \
-    simplescreenrecorder \
-    redshift \
-    adapta-gtk-theme \
-    arc-gtk-theme \
-    papirus-icon-theme \
-    capitaine-cursors \
-    ttf-dejavu
+  _print_title "INSTALLING CUSTOM APPS..."
+  PS3="$prompt1"
+  _read_input_text " Install  my custom apps? [y/N]: "
+  echo
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
+    _package_install "firefox firefox-i18n-pt-br"
+    _package_install "steam"
+    _package_install "gimp"
+    _package_install "inkscape"
+    _package_install "vlc"
+    _package_install "telegram-desktop"
+    _package_install "transmission-gtk"
+    _package_install "simplescreenrecorder"
+    _package_install "redshift"
+    _package_install "adapta-gtk-theme"
+    _package_install "arc-gtk-theme"
+    _package_install "papirus-icon-theme"
+    _package_install "capitaine-cursors"
+    _package_install "ttf-dejavu"
+  fi
   _print_done " DONE!"
   _pause_function
 }
 
 _install_pamac() {
   _print_title "INSTALLING PAMAC..."
-  if ! _is_package_installed "pamac"; then
-    [[ -d pamac ]] && rm -rf pamac
-    git clone https://aur.archlinux.org/pamac-aur.git pamac
-    cd pamac
-    makepkg -csi --noconfirm
-  else
-    _print_info " Pamac is already installed!"
+  PS3="$prompt1"
+  _read_input_text " Install pamac? [y/N]: "
+  echo
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    if ! _is_package_installed "pamac"; then
+      [[ -d pamac ]] && rm -rf pamac
+      git clone https://aur.archlinux.org/pamac-aur.git pamac
+      cd pamac
+      makepkg -csi --noconfirm
+    else
+      _print_info " Pamac is already installed!"
+    fi
   fi
   _print_done " DONE!"
   _pause_function
@@ -634,28 +650,6 @@ _setup_desktop(){
     _finish_desktop
     exit 0
 }
-
-#_setup_user(){
-#    [[ $(id -u) != 1000 ]] && {
-#        _print_warning " Only for 'normal user'.\n"
-#        exit 1
-#    }
-#    echo 'xrdb ~/.Xresources' >> /home/$USER/.xinitrc
-#    echo 'awesome' >> /home/$USER/.xinitrc
-#    mkdir /home/$USER/.config
-#    cp -r /etc/xdg/awesome  /home/$USER/.config
-#    sed -i 's/xterm/urxvt/g' /home/$USER/.config/awesome/rc.lua
-#    svn export https://github.com/terroo/fonts/trunk/fonts
-#    mkdir -p ~/.local/share/
-#    mv fonts ~/.local/share/
-#    fc-cache -fv
-#    git clone --recursive https://github.com/lcpz/awesome-copycats.git
-#    mv awesome-copycats/* ~/.config/awesome && rm -rf awesome-copycats
-#    cd ~/.config/awesome/
-#    cp rc.lua bkp.rc.lua
-#    cp rc.lua.template rc.lua # Super + Ctrl + r
-#    exit 0
-#}
 
 _setup_user(){
     [[ $(id -u) != 1000 ]] && {
@@ -724,6 +718,19 @@ _read_input_text() {
 _umount_partitions() {
   _print_info " UNMOUNTING PARTITIONS..."
   umount -R ${ROOT_MOUNTPOINT}
+}
+
+_package_install() {
+  #install packages using pacman
+  for PKG in ${1}; do
+    if ! is_package_installed "${PKG}" ; then
+      _print_info " Installing ${Bold}${PKG}${Reset}!"
+      pacman -S --noconfirm --needed "${PKG}" 2>&1
+      _print_done " DONE!"
+    else
+      _print_info " Installing ${Bold}${PKG}${Reset} - is already installed!"
+    fi
+  done
 }
 
 _is_package_installed() {
