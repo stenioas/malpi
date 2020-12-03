@@ -196,7 +196,6 @@ _format_partitions() {
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots}
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
-    _print_title "FORMATTING ROOT..."
     _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
     _print_info " Formatted!"
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
@@ -224,7 +223,6 @@ _format_partitions() {
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
-    _print_title "FORMATTING EFI PARTITION..."
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
       _print_info " EFI partition formatted!"
