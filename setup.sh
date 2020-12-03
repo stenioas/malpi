@@ -138,10 +138,10 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  echo -e " Available disks:\n"
+  _print_warning " Available disks:"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   echo ""
-  echo -e " Select disk:\n"
+  _print_warning " Select disk:"
   select device in "${devices_list[@]}"; do
     if _contains_element "${device}" "${devices_list[@]}"; then
       break
@@ -151,8 +151,8 @@ _select_disk() {
   done
   INSTALL_DISK=${device}
   cfdisk ${INSTALL_DISK}
-  echo "Selected disk: ${INSTALL_DISK}"
   _print_title "DISK PARTITIONING..."
+  _print_info " Selected disk: ${INSTALL_DISK}"
   _print_done " DONE!"
   _pause_function
 }
@@ -167,14 +167,14 @@ _format_partitions() {
   done
 
   if [[ ${#block_list[@]} -eq 0 ]]; then
-    echo "No partition found."
+    _print_warning " No partition found."
     exit 0
   fi
 
   _format_root_partition() {
     _print_title "FORMATTING ROOT..."
     PS3="$prompt1"
-    echo -e " Select partition to create subvolumes:"
+    _print_warning " Select partition to create subvolumes:"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
@@ -202,7 +202,7 @@ _format_partitions() {
   _format_efi_partiton() {
     _print_title "FORMATTING EFI PARTITION..."
     PS3="$prompt1"
-    echo -e " Select EFI partition: "
+    _print_warning " Select EFI partition: "
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
@@ -210,7 +210,7 @@ _format_partitions() {
         echo
         if [[ $OPTION == y || $OPTION == Y ]]; then
           mkfs.fat -F32 ${EFI_PARTITION}
-          echo "EFI partition formatted!"
+          _print_info "EFI partition formatted!"
         fi
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
@@ -231,7 +231,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2"; then
-      _print_info " The partition was successfully mounted!"
+      _print_info " The partition(s) was successfully mounted!"
       _disable_partition "$1"
     else
       _print_warning " WARNING: The partition was not successfully mounted!"
@@ -293,7 +293,7 @@ _set_language() {
 
 _set_hostname() {
   _print_title "SETTING HOSTNAME AND IP ADDRESS..."
-  printf "%s" "Hostname [ex: archlinux]: " 
+  printf "%s" "${BYellow}Hostname [ex: archlinux]:${Reset} " 
   read -r NEW_HOSTNAME
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
@@ -347,15 +347,15 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "CREATE NEW USER..."
-  printf "%s" "Username: "
+  printf "%s" "${BYellow}Username:${Reset} "
   read -r NEW_USER
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   useradd -m -g users -G wheel ${NEW_USER}
-  echo "User ${NEW_USER} created."
+  _print_info " User ${NEW_USER} created."
   echo ""
-  echo "Setting password..."
+  _print_warning " Setting password..."
   passwd ${NEW_USER}
-  _print_warning " Added privileges."
+  _print_info " Added privileges."
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
   _print_done " DONE!"
   _pause_function
@@ -368,7 +368,7 @@ _enable_multilib(){
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
-      _print_info "\nMultilib repository added to the pacman.conf file"
+      _print_info " Multilib repository added to pacman.conf."
     else
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
@@ -414,7 +414,7 @@ _install_vga() {
   PS3="$prompt1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   echo
-  echo -e " Select video card:\n"
+  _print_warning " Select video card: "
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -498,7 +498,7 @@ _install_desktop() {
   echo
   _print_info " Select 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
   echo
-  echo -e " Select your desktop or window manager:\n"
+  _print_warning " Select your desktop or window manager: "
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -507,17 +507,17 @@ _install_desktop() {
     fi
   done
   if [[ $DESKTOP == "Gnome" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   elif [[ $DESKTOP == "Plasma" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   elif [[ $DESKTOP == "Xfce4" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   elif [[ $DESKTOP == "i3wm" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   elif [[ $DESKTOP == "Bspwm" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   elif [[ $DESKTOP == "Qtile" ]]; then
-    sudo pacman -S --needed \
+    _package_install \
       qtile \
       dmenu \
       rofi \
@@ -532,9 +532,9 @@ _install_desktop() {
       lightdm-gtk-greeter-settings
     sudo systemctl enable lightdm.service
   elif [[ $DESKTOP == "Awesome" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   elif [[ $DESKTOP == "Mypack" ]]; then
-    _print_info " Developing"
+    _print_info " Developing..."
   else
     _invalid_option
     exit 0
@@ -546,7 +546,7 @@ _install_desktop() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED..."
-  echo -e " 1. Proceed to the last step.\n 2. To install apps use the installer's ${Yellow}-u${Reset} option."
+  _print_warning " 1. Proceed to the last step.\n 2. To install apps use the installer's ${Yellow}-u${Reset} option."
   _print_done " DONE!"
   exit 0
 }
@@ -593,7 +593,7 @@ _install_pamac() {
       cd pamac
       makepkg -csi --noconfirm
     else
-      echo -e " ${Cyan}Pamac${Reset} - ${BYellow}Is already installed!${Reset}"
+      echo -e " ${BCyan}Pamac${Reset} - ${BYellow}Is already installed!${Reset}"
     fi
   fi
   _print_done " DONE!"
@@ -723,11 +723,20 @@ _umount_partitions() {
 _package_install() {
   #install packages using pacman
   for PKG in ${1}; do
-    if ! _is_package_installed "${PKG}" ; then
-      echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
-      sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
+    if $(id -u) == 0 ; then
+      if ! _is_package_installed "${PKG}" ; then
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
+        pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
+      else
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
+      fi
     else
-      echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
+      if ! _is_package_installed "${PKG}" ; then
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
+        sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
+      else
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} - ${BYellow}Is already installed!${Reset}"
+      fi
     fi
   done
 }
