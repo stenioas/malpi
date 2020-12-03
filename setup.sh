@@ -183,8 +183,7 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    _print_title "FORMATTING ROOT..."
-    _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}\n"
+    _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
     if mount | grep "${ROOT_PARTITION}"; then
       umount -R ${ROOT_MOUNTPOINT} > /dev/null
     fi
@@ -218,7 +217,6 @@ _format_partitions() {
     echo ""
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_title "FORMATTING EFI PARTITION..."
       _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
       mkfs.fat -F32 ${EFI_PARTITION} > /dev/null 2>&1
       _print_info " EFI partition formatted!"
