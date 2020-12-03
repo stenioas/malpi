@@ -151,7 +151,7 @@ _select_disk() {
   INSTALL_DISK=${device}
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
-  _print_info " Selected disk: ${Purple}${INSTALL_DISK}${Reset}"
+  _print_info " Selected disk: ${Purple}${INSTALL_DISK}${Reset}" > /dev/null 2>&1
   _print_done " DONE!"
   _pause_function
 }
@@ -210,23 +210,23 @@ _format_partitions() {
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
-        echo ""
-        _read_input_text " Format EFI partition? [y/N]: "
-        if [[ $OPTION == y || $OPTION == Y ]]; then
-          _print_title "FORMATTING EFI PARTITION..."
-          _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}\n"
-          mkfs.fat -F32 ${EFI_PARTITION} > /dev/null 2>&1
-          _print_info " EFI partition formatted!"
-        fi
-        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
-        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
-        _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
-        _print_done " DONE!"
         break;
       else
         _invalid_option
       fi
     done
+    echo ""
+    _read_input_text " Format EFI partition? [y/N]: "
+    if [[ $OPTION == y || $OPTION == Y ]]; then
+      _print_title "FORMATTING EFI PARTITION..."
+      _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
+      mkfs.fat -F32 ${EFI_PARTITION} > /dev/null 2>&1
+      _print_info " EFI partition formatted!"
+    fi
+    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
+    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
+    _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
+    _print_done " DONE!"
     _pause_function
   }
 
