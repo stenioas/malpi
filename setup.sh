@@ -179,8 +179,10 @@ _format_partitions() {
         partition_number=$((REPLY -1))
         ROOT_PARTITION="$partition"
         _print_title "FORMATTING ROOT..."
-        _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
-        umount -R ${ROOT_MOUNTPOINT}
+        _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}\n"
+        if mount | grep "${ROOT_PARTITION}"; then
+          umount -R ${ROOT_MOUNTPOINT}
+        fi
         mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION}
         mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
         btrfs su cr ${ROOT_MOUNTPOINT}/@
