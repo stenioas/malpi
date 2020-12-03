@@ -459,7 +459,7 @@ _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
   PS3="$prompt1"
   _read_input_text " Install laptop packages? [y/N]: "
-  echo ""
+  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     systemctl enable bluetooth > /dev/null 2>&1
@@ -478,6 +478,7 @@ _finish_config() {
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
+  _print_bline
   exit 0
 }
 
@@ -499,7 +500,8 @@ _install_desktop() {
     fi
   done
   _print_title "INSTALLING DESKTOP PACKAGES..."
-  _print_info " Installing ${Purple}[ ${DESKTOP} ]${Reset}"
+  DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
+  echo -e " ${Purple}${DESKTOP_CHOICE}${Reset}\n"
   if [[ "${DESKTOP}" == "Gnome" ]]; then
     _print_info "It's not working yet..."
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
@@ -710,15 +712,15 @@ _package_install() {
   for PKG in $1; do
     if [[ $(id -u) == 0 ]]; then
       if ! _is_package_installed "${PKG}"; then
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
     else
       if ! _is_package_installed "${PKG}"; then
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
