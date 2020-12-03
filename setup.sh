@@ -183,16 +183,16 @@ _format_partitions() {
         if mount | grep "${ROOT_PARTITION}"; then
           umount -R ${ROOT_MOUNTPOINT}
         fi
-        mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION}
-        mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
+        mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} > /dev/null 2>&1
+        mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
         btrfs su cr ${ROOT_MOUNTPOINT}/@
         btrfs su cr ${ROOT_MOUNTPOINT}/@home
         btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots
         umount -R ${ROOT_MOUNTPOINT}
-        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
-        mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots}
-        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
-        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
+        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+        mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} > /dev/null 2>&1
+        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home > /dev/null 2>&1
+        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots > /dev/null 2>&1
         _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
         _print_done " DONE!"
         break;
@@ -214,12 +214,12 @@ _format_partitions() {
         _read_input_text " Format EFI partition? [y/N]: "
         if [[ $OPTION == y || $OPTION == Y ]]; then
           _print_title "FORMATTING EFI PARTITION..."
-          _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
-          mkfs.fat -F32 ${EFI_PARTITION}
+          _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}\n"
+          mkfs.fat -F32 ${EFI_PARTITION} > /dev/null 2>&1
           _print_info " EFI partition formatted!"
         fi
-        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
-        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
+        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
+        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} > /dev/null 2>&1
         _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
         _print_done " DONE!"
         break;
