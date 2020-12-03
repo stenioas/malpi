@@ -126,7 +126,7 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  reflector -c Brazil --sort rate --save /etc/pacman.d/mirrorlist
+  reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist
   nano /etc/pacman.d/mirrorlist
   _print_title "RANKING MIRRORS..."
   pacman -Syy
