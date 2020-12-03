@@ -178,28 +178,28 @@ _format_partitions() {
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
         ROOT_PARTITION="$partition"
-        _print_title "FORMATTING ROOT..."
-        _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}\n"
-        if mount | grep "${ROOT_PARTITION}"; then
-          umount -R ${ROOT_MOUNTPOINT} > /dev/null 2>&1
-        fi
-        mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} > /dev/null 2>&1
-        mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
-        btrfs su cr ${ROOT_MOUNTPOINT}/@ > /dev/null 2>&1
-        btrfs su cr ${ROOT_MOUNTPOINT}/@home > /dev/null 2>&1
-        btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots > /dev/null 2>&1
-        umount -R ${ROOT_MOUNTPOINT} > /dev/null 2>&1
-        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
-        mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} > /dev/null 2>&1
-        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home > /dev/null 2>&1
-        mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots > /dev/null 2>&1
-        _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
-        _print_done " DONE!"
         break;
       else
         _invalid_option
       fi
     done
+    _print_title "FORMATTING ROOT..."
+    _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}\n"
+    if mount | grep "${ROOT_PARTITION}"; then
+      umount -R ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+    fi
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} > /dev/null 2>&1
+    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ > /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home > /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots > /dev/null 2>&1
+    umount -R ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} > /dev/null 2>&1
+    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} > /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home > /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots > /dev/null 2>&1
+    _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
+    _print_done " DONE!"
     _pause_function
   }
 
