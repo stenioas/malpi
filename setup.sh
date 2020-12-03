@@ -261,7 +261,8 @@ _install_base() {
     intel-ucode \
     btrfs-progs \
     networkmanager    
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager > /dev/null 2>&1
+  _print_info " Networkmanager service enabled!"
   _print_done " DONE!"
   _pause_function
 }
@@ -461,7 +462,8 @@ _install_laptop_pkgs() {
   echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    systemctl enable bluetooth
+    systemctl enable bluetooth > /dev/null 2>&1
+    _print_info " Bluetooth service enabled!"
   fi
   _print_done " DONE!"
   _pause_function
@@ -510,7 +512,8 @@ _install_desktop() {
     _print_info "It's not working yet..."
   elif [[ "${DESKTOP}" == "Qtile" ]]; then
     _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance termite lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    sudo systemctl enable lightdm.service
+    sudo systemctl enable lightdm.service > /dev/null 2>&1
+    _print_info " Lightdm service enabled!"
   elif [[ "${DESKTOP}" == "Awesome" ]]; then
     _print_info "It's not working yet..."
   elif [[ "${DESKTOP}" == "Mypack" ]]; then
