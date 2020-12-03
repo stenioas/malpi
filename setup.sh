@@ -106,7 +106,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      prompt1="Option: "
+      prompt1=" ${Yellow}Option:${Reset} "
 
 # ----------------------------------------------------------------------#
 
