@@ -398,7 +398,7 @@ _install_xorg() {
 _install_vga() {
   _print_title "INSTALLING VIDEO DRIVER..."
   PS3="$prompt1"
-  VIDEO_CARD_LIST=("Intel" "Virtualbox");
+  VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
   _print_warning " * Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
@@ -407,10 +407,14 @@ _install_vga() {
       _invalid_option
     fi
   done
-  if [[ $VIDEO_CARD == "Virtualbox" ]]; then
-    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
-  elif [[ $VIDEO_CARD == "Intel" ]]; then
+  if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
+  elif [[ "$VIDEO_CARD" == "AMD" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "$VIDEO_CARD" == "Nvidia" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "$VIDEO_CARD" == "Virtualbox" ]]; then
+    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
   else
     _invalid_option
     exit 0
@@ -421,12 +425,17 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "INSTALLING EXTRA PACKAGES..."
+  _print_warning " Installing utils..."
+  _print_line
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
   _print_warning " Installing compression tools..."
+  _print_line
   _package_install "zip unzip unrar p7zip lzop"
   _print_warning " Installing extra filesystem tools..."
+  _print_line
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
   _print_warning " Installing sound tools..."
+  _print_line
   _package_install "alsa-utils pulseaudio"
   _print_done " DONE!"
   _pause_function
@@ -447,7 +456,10 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "FINISHING INSTALLATION..."
-  _print_warning " * Copying files to home $NEW_USER..."
+  _print_warning " * Copying files to home ${NEW_USER}..."
+  if [[ -d /home/${NEW_USER}/myarch ]]; then 
+    rm -rf /home/${NEW_USER}/myarch
+  fi
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
@@ -461,9 +473,9 @@ _finish_config() {
 _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   PS3="$prompt1"
-  DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack");
-  _print_info " Select 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
-  _print_warning " Select your desktop or window manager:\n"
+  DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack" "None");
+  _print_info " Choose 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
+  _print_warning " Select your option:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -471,23 +483,25 @@ _install_desktop() {
       _invalid_option
     fi
   done
-  if [[ $DESKTOP == "Gnome" ]]; then
-    _print_info " Developing..."
-  elif [[ $DESKTOP == "Plasma" ]]; then
-    _print_info " Developing..."
-  elif [[ $DESKTOP == "Xfce4" ]]; then
-    _print_info " Developing..."
-  elif [[ $DESKTOP == "i3wm" ]]; then
-    _print_info " Developing..."
-  elif [[ $DESKTOP == "Bspwm" ]]; then
-    _print_info " Developing..."
-  elif [[ $DESKTOP == "Qtile" ]]; then
+  if [[ "${DESKTOP}" == "Gnome" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "Plasma" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "Xfce4" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "i3wm" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "Bspwm" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "Qtile" ]]; then
     _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance termite lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     sudo systemctl enable lightdm.service
-  elif [[ $DESKTOP == "Awesome" ]]; then
-    _print_info " Developing..."
-  elif [[ $DESKTOP == "Mypack" ]]; then
-    _print_info " Developing..."
+  elif [[ "${DESKTOP}" == "Awesome" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "Mypack" ]]; then
+    _print_info "It's not working yet..."
+  elif [[ "${DESKTOP}" == "None" ]]; then
+    exit 0
   else
     _invalid_option
     exit 0
