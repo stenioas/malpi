@@ -353,7 +353,7 @@ _create_new_user() {
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   useradd -m -g users -G wheel ${NEW_USER}
   _print_info " User ${NEW_USER} created."
-  _print_warning " * Setting password..."
+  _print_warning " * Setting password...\n"
   passwd ${NEW_USER}
   _print_info " Added privileges."
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -675,8 +675,8 @@ _umount_partitions() {
 
 _package_install() {
   #install packages using pacman
-  for PKG in ${1}; do
-    if $(id -u) == 0 ; then
+  for PKG in $1; do
+    if [$(id -u) == 0] ; then
       if ! _is_package_installed "${PKG}" ; then
         echo -e " ${BBlue}Installing${Reset} ${BCyan}${PKG}${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
