@@ -355,12 +355,16 @@ _create_new_user() {
   printf "%s" " ${BYellow}Username:${Reset} "
   read -r NEW_USER
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
-  useradd -m -g users -G wheel ${NEW_USER}
-  _print_info " User ${NEW_USER} created."
-  _print_warning " * Setting password...\n"
-  passwd ${NEW_USER}
-  _print_info " Added privileges."
-  sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+  if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
+    useradd -m -g users -G wheel ${NEW_USER}
+    _print_info " User ${NEW_USER} created."
+    _print_warning " * Setting password...\n"
+    passwd ${NEW_USER}
+    _print_info " Added privileges."
+    sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+  else
+    _print_info " User ${NEW_USER} already exists!"
+  fi
   _print_done " DONE!"
   _pause_function
 }
