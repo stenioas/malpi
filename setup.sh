@@ -418,7 +418,8 @@ _install_vga() {
     fi
   done
   _print_title "INSTALLING VIDEO DRIVER..."
-  _print_info " Installing ${Purple}${VIDEO_CARD}${Reset} ${BBlue}video driver...${Reset}\n"
+  VIDEO_DRIVER=$(echo "${VIDEO_CARD}" | tr '[:lower:]' '[:upper:]')
+  echo -e " ${Purple}${VIDEO_DRIVER}${Reset}\n"
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
