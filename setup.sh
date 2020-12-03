@@ -138,7 +138,7 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_info " Available disks:\n"
+  _print_info " Available disks and partitions:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   _print_warning " Select disk:\n"
   select device in "${devices_list[@]}"; do
@@ -173,7 +173,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT..."
     PS3="$prompt1"
-    _print_warning " * Select partition to create subvolumes:"
+    _print_warning " * Select partition to create btrfs subvolumes:\n"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
@@ -202,12 +202,12 @@ _format_partitions() {
   _format_efi_partiton() {
     _print_title "FORMATTING EFI PARTITION..."
     PS3="$prompt1"
-    _print_warning " * Select EFI partition: "
+    _print_warning " * Select EFI partition:\n"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
-        _read_input_text " Format EFI partition? [y/N]: "
         echo ""
+        _read_input_text " Format EFI partition? [y/N]: "
         if [[ $OPTION == y || $OPTION == Y ]]; then
           mkfs.fat -F32 ${EFI_PARTITION}
           _print_info " EFI partition formatted!"
@@ -271,11 +271,11 @@ _fstab_generate() {
 _set_locale() {
   _print_title "SETTING TIME ZONE..."
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime > /dev/null 2>&1
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service
+  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service > /dev/null 2>&1
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen
@@ -326,8 +326,9 @@ _mkinitcpio_generate() {
 
 _finish_install() {
   _print_title "CONGRATULATIONS! WELL DONE!"
-  _print_warning " * Copying files..."
+  _print_warning " * Copying files to /root/myarch... "
   _print_done " DONE!\n"
+  _print_bline
   PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
