@@ -496,7 +496,7 @@ _install_desktop() {
   PS3="$prompt1"
   DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack");
   echo
-  _print_info " Select Mypack to install Xfce + i3wm + Bspwm + Qtile + Awesome."
+  _print_info " Select 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
   echo
   echo -e " Select your desktop or window manager:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -558,7 +558,7 @@ _finish_desktop() {
 _install_apps() {
   _print_title "INSTALLING CUSTOM APPS..."
   PS3="$prompt1"
-  _read_input_text " Install  my custom apps? [y/N]: "
+  _read_input_text " Install my custom apps? [y/N]: "
   echo
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -723,12 +723,13 @@ _umount_partitions() {
 _package_install() {
   #install packages using pacman
   for PKG in ${1}; do
-    if ! is_package_installed "${PKG}" ; then
-      _print_info " Installing ${Bold}${PKG}${Reset}!"
+    if ! _is_package_installed "${PKG}" ; then
+      _print_info " ${BBlue}Installing${Reset} ${Cyan}${PKG}${Reset} ..."
       pacman -S --noconfirm --needed "${PKG}" 2>&1
-      _print_done " DONE!"
+      _print_line
     else
-      _print_info " Installing ${Bold}${PKG}${Reset} - is already installed!"
+      _print_info " ${BBlue}Installing${Reset} ${Cyan}${PKG}${Reset} - ${Yellow}Is already installed!${Reset}"
+      _print_line
     fi
   done
 }
