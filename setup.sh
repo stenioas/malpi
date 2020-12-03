@@ -138,10 +138,9 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_warning " Available disks:"
+  _print_info " Available disks:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
-  echo ""
-  _print_warning " Select disk:"
+  _print_warning " Select disk:\n"
   select device in "${devices_list[@]}"; do
     if _contains_element "${device}" "${devices_list[@]}"; then
       break
@@ -152,7 +151,7 @@ _select_disk() {
   INSTALL_DISK=${device}
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
-  _print_info " Selected disk: ${INSTALL_DISK}"
+  #_print_info " Selected disk: ${INSTALL_DISK}"
   _print_done " DONE!"
   _pause_function
 }
@@ -174,17 +173,18 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT..."
     PS3="$prompt1"
-    _print_warning " Select partition to create subvolumes:"
+    _print_warning " * Select partition to create subvolumes:"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         partition_number=$((REPLY -1))
         ROOT_PARTITION="$partition"
+        umount -R ${ROOT_MOUNTPOINT}
         mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION}
         mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
         btrfs su cr ${ROOT_MOUNTPOINT}/@
         btrfs su cr ${ROOT_MOUNTPOINT}/@home
         btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots
-        umount ${ROOT_MOUNTPOINT}
+        umount -R ${ROOT_MOUNTPOINT}
         mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
         mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots}
         mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
@@ -202,15 +202,15 @@ _format_partitions() {
   _format_efi_partiton() {
     _print_title "FORMATTING EFI PARTITION..."
     PS3="$prompt1"
-    _print_warning " Select EFI partition: "
+    _print_warning " * Select EFI partition: "
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
         EFI_PARTITION="${partition}"
         _read_input_text " Format EFI partition? [y/N]: "
-        echo
+        echo ""
         if [[ $OPTION == y || $OPTION == Y ]]; then
           mkfs.fat -F32 ${EFI_PARTITION}
-          _print_info "EFI partition formatted!"
+          _print_info " EFI partition formatted!"
         fi
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
@@ -234,7 +234,7 @@ _format_partitions() {
       _print_info " The partition(s) was successfully mounted!"
       _disable_partition "$1"
     else
-      _print_warning " WARNING: The partition was not successfully mounted!"
+      _print_warning " * WARNING: The partition was not successfully mounted!"
     fi
   }
   _format_root_partition
@@ -293,7 +293,7 @@ _set_language() {
 
 _set_hostname() {
   _print_title "SETTING HOSTNAME AND IP ADDRESS..."
-  printf "%s" "${BYellow}Hostname [ex: archlinux]:${Reset} " 
+  printf "%s" " ${BYellow}Hostname [ex: archlinux]:${Reset} " 
   read -r NEW_HOSTNAME
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
@@ -309,7 +309,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "INSTALLING AND GENERATE GRUB..."
+  _print_title "GRUB INSTALLATION..."
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
@@ -326,14 +326,14 @@ _mkinitcpio_generate() {
 
 _finish_install() {
   _print_title "CONGRATULATIONS! WELL DONE!"
-  _print_warning " Copying files..."
-  _print_done " DONE!"
+  _print_warning " * Copying files..."
+  _print_done " DONE!\n"
   PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
   _read_input_text " Reboot system? [y/N]: "
-  echo
+  echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -347,13 +347,12 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "CREATE NEW USER..."
-  printf "%s" "${BYellow}Username:${Reset} "
+  printf "%s" " ${BYellow}Username:${Reset} "
   read -r NEW_USER
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   useradd -m -g users -G wheel ${NEW_USER}
   _print_info " User ${NEW_USER} created."
-  echo ""
-  _print_warning " Setting password..."
+  _print_warning " * Setting password..."
   passwd ${NEW_USER}
   _print_info " Added privileges."
   sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -383,28 +382,14 @@ _enable_multilib(){
 _install_essential_pkgs() {
   _print_title "INSTALLING ESSENTIAL PACKAGES..."
   sleep 1
-  pacman -S --needed \
-    dosfstools \
-    mtools \
-    udisks2 \
-    dialog \
-    git \
-    wget \
-    reflector \
-    bash-completion \
-    xdg-utils \
-    xdg-user-dirs
+  _package_install "dosfstools mtools udisks2 dialog git wget reflector bash-completion xdg-utils xdg-user-dirs"
   _print_done " DONE!"
   _pause_function
 }
 
 _install_xorg() {
   _print_title "INSTALLING XORG..."
-  pacman -S --needed \
-    xorg xorg-apps xorg-xinit \
-    xf86-input-synaptics \
-    xf86-input-libinput \
-    xterm
+  _package_install "xorg xorg-apps xorg-xinit xf86-input-synaptics xf86-input-libinput xterm"
   _print_done " DONE!"
   _pause_function
 }
@@ -413,8 +398,7 @@ _install_vga() {
   _print_title "INSTALLING VIDEO DRIVER..."
   PS3="$prompt1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  echo
-  _print_warning " Select video card: "
+  _print_warning " * Select video card: "
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -423,17 +407,9 @@ _install_vga() {
     fi
   done
   if [[ $VIDEO_CARD == "Virtualbox" ]]; then
-    pacman -S --needed \
-      xf86-video-vmware \
-      virtualbox-guest-utils \
-      virtualbox-guest-dkms \
-      mesa mesa-libgl \
-      libvdpau-va-gl
+    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl \libvdpau-va-gl"
   elif [[ $VIDEO_CARD == "Intel" ]]; then
-    pacman -S --needed \
-      xf86-video-intel \
-      mesa mesa-libgl \
-      libvdpau-va-gl
+    _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   else
     _invalid_option
     exit 0
@@ -444,18 +420,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "INSTALLING EXTRA PACKAGES..."
-  pacman -S --needed \
-    usbutils lsof dmidecode neofetch bashtop htop \
-    avahi nss-mdns logrotate sysfsutils mlocate
+  _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
   _print_warning " Installing compression tools..."
-  pacman -S --needed \
-    zip unzip unrar p7zip lzop
+  _package_install "zip unzip unrar p7zip lzop"
   _print_warning " Installing extra filesystem tools..."
-  pacman -S --needed \
-    ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs
+  _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
   _print_warning " Installing sound tools..."
-  pacman -S --needed \
-    alsa-utils pulseaudio
+  _package_install "alsa-utils pulseaudio"
   _print_done " DONE!"
   _pause_function
 }
@@ -464,14 +435,9 @@ _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
   PS3="$prompt1"
   _read_input_text " Install laptop packages? [y/N]: "
-  echo
+  echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    pacman -S --needed \
-      wpa_supplicant \
-      wireless_tools \
-      bluez \
-      bluez-utils \
-      pulseaudio-bluetooth
+    _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth"
     systemctl enable bluetooth
   fi
   _print_done " DONE!"
@@ -480,7 +446,7 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "FINISHING INSTALLATION..."
-  _print_warning " Copying files..."
+  _print_warning " * Copying files..."
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
@@ -495,10 +461,8 @@ _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   PS3="$prompt1"
   DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack");
-  echo
   _print_info " Select 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
-  echo
-  _print_warning " Select your desktop or window manager: "
+  _print_warning " Select your desktop or window manager:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -517,19 +481,7 @@ _install_desktop() {
   elif [[ $DESKTOP == "Bspwm" ]]; then
     _print_info " Developing..."
   elif [[ $DESKTOP == "Qtile" ]]; then
-    _package_install \
-      qtile \
-      dmenu \
-      rofi \
-      arandr \
-      feh \
-      nitrogen \
-      picom \
-      lxappearance \
-      termite \
-      lightdm \
-      lightdm-gtk-greeter \
-      lightdm-gtk-greeter-settings
+    _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance termite lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     sudo systemctl enable lightdm.service
   elif [[ $DESKTOP == "Awesome" ]]; then
     _print_info " Developing..."
@@ -585,7 +537,7 @@ _install_pamac() {
   _print_title "INSTALLING PAMAC..."
   PS3="$prompt1"
   _read_input_text " Install pamac? [y/N]: "
-  echo
+  echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "pamac"; then
       [[ -d pamac ]] && rm -rf pamac
