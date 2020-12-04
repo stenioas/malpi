@@ -279,6 +279,7 @@ _install_base() {
 _fstab_generate() {
   _print_title "GENERATING FSTAB..."
   genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
+  cat ${ROOT_MOUNTPOINT}/etc/fstab
   _print_done " DONE!"
   _pause_function
 }
@@ -352,7 +353,7 @@ _finish_install() {
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
   _read_input_text " Reboot system? [y/N]: "
-  echo -e "\n"
+  echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -525,7 +526,7 @@ _install_desktop() {
     _package_install "gnome gnome-extra gnome-tweaks"
 
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
-    _package_install "plasma kde-applications packagekit-qt5 nm-applet"
+    _package_install "plasma kde-applications packagekit-qt5"
 
   elif [[ "${DESKTOP}" == "Xfce" ]]; then
     _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
@@ -718,8 +719,8 @@ _setup_config(){
 }
 
 _setup_desktop(){
-    [[ $(id -u) != 1000 ]] && {
-        _print_warning " Only for 'normal user'.\n"
+    [[ $(id -u) != 0 ]] && {
+        _print_warning " Only for 'root'.\n"
         exit 1
     }
     _install_desktop
@@ -802,15 +803,17 @@ _package_install() {
   for PKG in $1; do
     if [[ $(id -u) == 0 ]]; then
       if ! _is_package_installed "${PKG}"; then
+        echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
+        echo -e " ${BBlue}Installed !!!"
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
     else
       if ! _is_package_installed "${PKG}"; then
+        echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
+        echo -e " ${BBlue}Installed !!!"
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
