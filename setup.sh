@@ -564,6 +564,8 @@ _install_apps() {
     _package_install "papirus-icon-theme"
     _package_install "capitaine-cursors"
     _package_install "ttf-dejavu"
+  else
+    echo -e " ${BYellow}Nothing to do!${Reset}"
   fi
   _print_done " DONE!"
   _pause_function
