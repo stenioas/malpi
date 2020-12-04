@@ -547,8 +547,8 @@ _install_apps() {
   _print_title "INSTALLING CUSTOM APPS..."
   PS3="$prompt1"
   _read_input_text " Install my custom apps? [y/N]: "
-  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo -e "\n"
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
     _package_install "firefox firefox-i18n-pt-br"
     _package_install "steam"
@@ -573,8 +573,8 @@ _install_pamac() {
   _print_title "INSTALLING PAMAC..."
   PS3="$prompt1"
   _read_input_text " Install pamac? [y/N]: "
-  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo -e "\n"
     if ! _is_package_installed "pamac"; then
       [[ -d pamac ]] && rm -rf pamac
       git clone https://aur.archlinux.org/pamac-aur.git pamac
