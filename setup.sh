@@ -159,7 +159,7 @@ _select_disk() {
   INSTALL_DISK=${device}
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
-  _print_info " Selected disk: ${Purple}${INSTALL_DISK}${Reset}"
+  _print_info " Selected: ${Purple}[ ${INSTALL_DISK} ]${Reset}"
   _print_done " DONE!"
   _pause_function
 }
