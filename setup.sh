@@ -115,6 +115,13 @@ EOF
 
 # --- INSTALL SECTION --- >
 
+_initial_info() {
+  _print_title "READ ME - IMPORTANT!!!"
+  _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script will only consider two partitions, ESP and root.\n 4. This script will format the root partition in btrfs format.\n 5. The ESP partition can be formatted if the user wants to.\n 6. This script does not support swap.\n 7. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots.\n 8. THIS SCRIPT IS NOT YET COMPLETE !!!"
+  _print_done " DONE!"
+  _pause_function
+}
+
 _time_sync() {
   _print_title "TIME SYNC..."
   timedatectl set-ntp true
@@ -674,6 +681,7 @@ _setup_install(){
         _print_warning " Only for 'root'.\n"
         exit 1
     }
+    _initial_info
     _time_sync
     _rank_mirrors
     _select_disk
@@ -828,14 +836,7 @@ ${Yellow}
 │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
 └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
 ${Reset}
-${BYellow}
-# This script supports UEFI only.
-# This script supports GRUB only.
-# This script will only consider two partitions, ESP and root.
-# This script will format the root partition in btrfs format.
-# The ESP partition can be formatted if the user wants to.
-# This script will create three subvolumes:
-${Reset}
+
 EOF
 
 while [[ "$1" ]]; do
