@@ -4,14 +4,15 @@
 # 
 # ----------------------------------------------------------------------#
 #
-# This script is for UEFI only.
+# This script supports UEFI only.
+# This script supports GRUB only.
 # This script will only consider two partitions, ESP and root.
 # This script will format the root partition in btrfs format.
-# It will create three subvolumes:
+# The ESP partition can be formatted if the user wants to.
+# This script will create three subvolumes:
 #   @ for /
 #   @home for /home
 #   @ .snapshots for /.snapshots.
-# The ESP partition can be formatted in FAT32 if the user wants to.
 #
 # References:
 #   Archfi script by Matmaoul - github.com/Matmoul
@@ -466,11 +467,12 @@ _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
   PS3="$prompt1"
   _read_input_text " Install laptop packages? [y/N]: "
-  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     systemctl enable bluetooth > /dev/null 2>&1
     _print_info " Bluetooth service ${BYellow}ENABLED!${Reset}"
+  else
+    echo -e " ${BBlue}Nothing to do!${Reset}"
   fi
   _print_done " DONE!"
   _pause_function
@@ -496,8 +498,7 @@ _finish_config() {
 _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   PS3="$prompt1"
-  DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack" "None");
-  _print_info " Choose 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
+  DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
   _print_warning " * Select your option:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
@@ -508,39 +509,34 @@ _install_desktop() {
   done
   _print_title "INSTALLING DESKTOP PACKAGES..."
   DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
-  echo -e " ${Purple}${DESKTOP_CHOICE}${Reset}\n"
-
+  echo -e " ${Purple}${DESKTOP_CHOICE}${Reset}"
+  
   if [[ "${DESKTOP}" == "Gnome" ]]; then
-    _print_info "It's not working yet..."
+    _package_install "gnome gnome-extra gnome-tweaks"
 
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
-    _print_info "It's not working yet..."
+    _package_install "plasma kde-applications packagekit-qt5 nm-applet"
 
   elif [[ "${DESKTOP}" == "Xfce" ]]; then
     _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
 
-  elif [[ "${DESKTOP}" == "i3wm" ]]; then
-    _print_info " It's not working yet..."
+  elif [[ "${DESKTOP}" == "i3-gaps" ]]; then
+    _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Bspwm" ]]; then
-    _package_install "bspwm sxhkd dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
-    mkdir ~/.config/{bspwm,sxhkd}
-    mv ~/myarch/bspwmrc ~/.config/bspwm/bspwmrc
-    chmod +x ~/.config/bspwm/bspwmrc
-    mv ~/myarch/sxhkdrc ~/.config/sxhkd/sxhkdrc
-    chmod +x ~/.config/sxhkd/sxhkdrc  
+    _print_info " It's not working yet..."
+
+  elif [[ "${DESKTOP}" == "Awesome" ]]; then
+    _print_info " It's not working yet..."
+
+  elif [[ "${DESKTOP}" == "Openbox" ]]; then
+    _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Qtile" ]]; then
     _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
-  elif [[ "${DESKTOP}" == "Awesome" ]]; then
-    _print_info "It's not working yet..."
-
-  elif [[ "${DESKTOP}" == "Mypack" ]]; then
-    _package_install "xfce4 xfce4-goodies bspwm sxhkd qtile awesome dmenu rofi arandr feh nitrogen picom lxappearance xarchiver network-manager-applet"
-
   elif [[ "${DESKTOP}" == "None" ]]; then
-    echo -e " ${BBlue}Nothing to do!${Reset}"
+    _print_info " Nothing to do!"
 
   else
     _invalid_option
@@ -554,7 +550,7 @@ _install_desktop() {
 _install_display_manager() {
   _print_title "INSTALLING DISPLAY MANAGER..."
   PS3="$prompt1"
-  DMANAGER_LIST=("LIGHTDM" "LXDM" "SLIM" "GDM" "SDDM");
+  DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
   _print_warning " * Select your option:\n"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -567,21 +563,28 @@ _install_display_manager() {
   DMANAGER_CHOICE=$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${Purple}${DMANAGER_CHOICE}${Reset}\n"
 
-  if [[ "${DMANAGER}" == "LIGHTDM" ]]; then
+  if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    sudo systemctl enable lightdm.service > /dev/null 2>&1
-    _print_info " Lightdm service ${BYellow}ENABLED!${Reset}"
+    sudo systemctl enable lightdm > /dev/null 2>&1
+    _print_info " LIGHTDM service ${BYellow}ENABLED!${Reset}"
 
-  elif [[ "${DMANAGER}" == "LXDM" ]]; then
+  elif [[ "${DMANAGER}" == "Lxdm" ]]; then
     _print_info "It's not working yet..."
 
-  elif [[ "${DMANAGER}" == "SLIM" ]]; then
+  elif [[ "${DMANAGER}" == "Slim" ]]; then
     _print_info " It's not working yet..."
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
-    _print_info " It's not working yet..."
+    _package_install "gdm"
+    sudo systemctl enable gdm > /dev/null 2>&1
+    _print_info " GDM service ${BYellow}ENABLED!${Reset}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
+    _package_install "sddm"
+    sudo systemctl enable sddm > /dev/null 2>&1
+    _print_info " SDDM service ${BYellow}ENABLED!${Reset}"
+
+  elif [[ "${DMANAGER}" == "Xinit" ]]; then
     _print_info " It's not working yet..."
 
   elif [[ "${DMANAGER}" == "None" ]]; then
@@ -620,7 +623,11 @@ _install_apps() {
     _package_install "inkscape"
     _package_install "vlc"
     _package_install "telegram-desktop"
-    _package_install "transmission-gtk"
+    if ${DESKTOP} == "Plasma" ; then
+      _package_install "transmission-qt"
+    else
+      _package_install "transmission-gtk"
+    fi
     _package_install "simplescreenrecorder"
     _package_install "redshift"
     _package_install "ranger"
@@ -810,7 +817,7 @@ _is_package_installed() {
 clear
 cat <<EOF
 
-${BYellow}
+${Yellow}
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                 │
 │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
@@ -821,7 +828,14 @@ ${BYellow}
 │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
 └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
 ${Reset}
-
+${BYellow}
+# This script supports UEFI only.
+# This script supports GRUB only.
+# This script will only consider two partitions, ESP and root.
+# This script will format the root partition in btrfs format.
+# The ESP partition can be formatted if the user wants to.
+# This script will create three subvolumes:
+${Reset}
 EOF
 
 while [[ "$1" ]]; do
