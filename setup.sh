@@ -262,7 +262,7 @@ _install_base() {
     btrfs-progs \
     networkmanager    
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager > /dev/null 2>&1
-  _print_info " Networkmanager service enabled!"
+  _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
   _print_done " DONE!"
   _pause_function
 }
@@ -317,8 +317,10 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB INSTALLATION..."
+  printf "%s" " ${BYellow}Grub entry name [ex: Archlinux]:${Reset} " 
+  read -r NEW_GRUB_NAME
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
-  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
+  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done " DONE!"
   _pause_function  
@@ -421,14 +423,19 @@ _install_vga() {
   _print_title "INSTALLING VIDEO DRIVER..."
   VIDEO_DRIVER=$(echo "${VIDEO_CARD}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${Purple}${VIDEO_DRIVER}${Reset}\n"
+
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
+
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
     _print_info "It's not working yet..."
+
   elif [[ "$VIDEO_CARD" == "Nvidia" ]]; then
     _print_info "It's not working yet..."
+
   elif [[ "$VIDEO_CARD" == "Virtualbox" ]]; then
     _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
+
   else
     _invalid_option
     exit 0
@@ -444,7 +451,7 @@ _install_extra_pkgs() {
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
   _print_warning " Installing compression tools..."
   _print_line
-  _package_install "zip unzip unrar p7zip lzop xarchiver"
+  _package_install "zip unzip unrar p7zip lzop"
   _print_warning " Installing extra filesystem tools..."
   _print_line
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
@@ -463,7 +470,7 @@ _install_laptop_pkgs() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     systemctl enable bluetooth > /dev/null 2>&1
-    _print_info " Bluetooth service enabled!"
+    _print_info " Bluetooth service ${BYellow}ENABLED!${Reset}"
   fi
   _print_done " DONE!"
   _pause_function
@@ -489,7 +496,7 @@ _finish_config() {
 _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   PS3="$prompt1"
-  DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack" "None");
+  DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack" "None");
   _print_info " Choose 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
   _print_warning " * Select your option:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -502,26 +509,39 @@ _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${Purple}${DESKTOP_CHOICE}${Reset}\n"
+
   if [[ "${DESKTOP}" == "Gnome" ]]; then
     _print_info "It's not working yet..."
+
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
     _print_info "It's not working yet..."
-  elif [[ "${DESKTOP}" == "Xfce4" ]]; then
-    _print_info "It's not working yet..."
+
+  elif [[ "${DESKTOP}" == "Xfce" ]]; then
+    _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
+
   elif [[ "${DESKTOP}" == "i3wm" ]]; then
-    _print_info "It's not working yet..."
+    _print_info " It's not working yet..."
+
   elif [[ "${DESKTOP}" == "Bspwm" ]]; then
-    _print_info "It's not working yet..."
+    _package_install "bspwm sxhkd dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+    mkdir ~/.config/{bspwm,sxhkd}
+    mv ~/myarch/bspwmrc ~/.config/bspwm/bspwmrc
+    chmod +x ~/.config/bspwm/bspwmrc
+    mv ~/myarch/sxhkdrc ~/.config/sxhkd/sxhkdrc
+    chmod +x ~/.config/sxhkd/sxhkdrc  
+
   elif [[ "${DESKTOP}" == "Qtile" ]]; then
-    _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance termite lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    sudo systemctl enable lightdm.service > /dev/null 2>&1
-    _print_info " Lightdm service enabled!"
+    _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+
   elif [[ "${DESKTOP}" == "Awesome" ]]; then
     _print_info "It's not working yet..."
+
   elif [[ "${DESKTOP}" == "Mypack" ]]; then
-    _print_info "It's not working yet..."
+    _package_install "xfce4 xfce4-goodies bspwm sxhkd qtile awesome dmenu rofi arandr feh nitrogen picom lxappearance xarchiver network-manager-applet"
+
   elif [[ "${DESKTOP}" == "None" ]]; then
-    exit 0
+    echo -e " ${BBlue}Nothing to do!${Reset}"
+
   else
     _invalid_option
     exit 0
@@ -531,9 +551,53 @@ _install_desktop() {
   _pause_function
 }
 
+_install_display_manager() {
+  _print_title "INSTALLING DISPLAY MANAGER..."
+  PS3="$prompt1"
+  DMANAGER_LIST=("LIGHTDM" "LXDM" "SLIM" "GDM" "SDDM");
+  _print_warning " * Select your option:\n"
+  select DMANAGER in "${DMANAGER_LIST[@]}"; do
+    if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
+      break
+    else
+      _invalid_option
+    fi
+  done
+  _print_title "INSTALLING DISPLAY MANAGER..."
+  DMANAGER_CHOICE=$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')
+  echo -e " ${Purple}${DMANAGER_CHOICE}${Reset}\n"
+
+  if [[ "${DMANAGER}" == "LIGHTDM" ]]; then
+    _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
+    sudo systemctl enable lightdm.service > /dev/null 2>&1
+    _print_info " Lightdm service ${BYellow}ENABLED!${Reset}"
+
+  elif [[ "${DMANAGER}" == "LXDM" ]]; then
+    _print_info "It's not working yet..."
+
+  elif [[ "${DMANAGER}" == "SLIM" ]]; then
+    _print_info " It's not working yet..."
+
+  elif [[ "${DMANAGER}" == "GDM" ]]; then
+    _print_info " It's not working yet..."
+
+  elif [[ "${DMANAGER}" == "SDDM" ]]; then
+    _print_info " It's not working yet..."
+
+  elif [[ "${DMANAGER}" == "None" ]]; then
+    echo -e " ${BBlue}Nothing to do!${Reset}"
+
+  else
+    _invalid_option
+    exit 0
+  fi
+  _print_done " DONE!"
+  _pause_function
+}
+
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED..."
-  _print_warning " 1. Proceed to the last step.\n 2. To install apps use the installer's ${Yellow}-u${Reset} option."
+  _print_warning " 1. Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
   _print_done " DONE!"
   _print_bline
   exit 0
@@ -546,7 +610,7 @@ _finish_desktop() {
 _install_apps() {
   _print_title "INSTALLING CUSTOM APPS..."
   PS3="$prompt1"
-  _read_input_text " Install my custom apps? [y/N]: "
+  _read_input_text " Install custom apps? [y/N]: "
   echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -559,6 +623,8 @@ _install_apps() {
     _package_install "transmission-gtk"
     _package_install "simplescreenrecorder"
     _package_install "redshift"
+    _package_install "ranger"
+    _package_install "cmatrix"
     _package_install "adapta-gtk-theme"
     _package_install "arc-gtk-theme"
     _package_install "papirus-icon-theme"
@@ -639,6 +705,7 @@ _setup_desktop(){
         exit 1
     }
     _install_desktop
+    _install_display_manager
     _finish_desktop
     exit 0
 }
