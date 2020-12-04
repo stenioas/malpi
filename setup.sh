@@ -491,7 +491,7 @@ _install_desktop() {
   PS3="$prompt1"
   DESKTOP_LIST=("Gnome" "Plasma" "XFCE" "i3wm" "Bspwm" "Qtile" "Awesome" "Mypack" "None");
   _print_info " Choose 'Mypack' to install Xfce + i3wm + Bspwm + Qtile + Awesome."
-  _print_warning " Select your option:\n"
+  _print_warning " * Select your option:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -535,6 +535,7 @@ _finish_desktop() {
   _print_title "THIRD STEP FINISHED..."
   _print_warning " 1. Proceed to the last step.\n 2. To install apps use the installer's ${Yellow}-u${Reset} option."
   _print_done " DONE!"
+  _print_bline
   exit 0
 }
 
