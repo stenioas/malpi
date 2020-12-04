@@ -116,7 +116,7 @@ EOF
 # --- INSTALL SECTION --- >
 
 _initial_info() {
-  _print_title "READ ME - IMPORTANT!!!"
+  _print_title "READ ME - IMPORTANT !!!"
   _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script will only consider two partitions, ESP and root.\n 4. This script will format the root partition in btrfs format.\n 5. The ESP partition can be formatted if the user wants to.\n 6. This script does not support swap.\n 7. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots.\n 8. THIS SCRIPT IS NOT YET COMPLETE !!!"
   _print_done " DONE!"
   _pause_function
@@ -148,7 +148,7 @@ _select_disk() {
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_info " Disks and partitions:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
-  _print_warning " Select disk:\n"
+  _print_warning " * Select disk:\n"
   select device in "${devices_list[@]}"; do
     if _contains_element "${device}" "${devices_list[@]}"; then
       break
@@ -226,6 +226,7 @@ _format_partitions() {
     echo ""
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
+      echo -e "\n"
       mkfs.fat -F32 ${EFI_PARTITION}
       _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
       _print_info " Formatted!"
@@ -342,7 +343,7 @@ _mkinitcpio_generate() {
 }
 
 _finish_install() {
-  _print_title "CONGRATULATIONS! WELL DONE!"
+  _print_title "FIRST STEP FINISHED !!!"
   _print_warning " * Copying files to /root/myarch... "
   _print_done " DONE!"
   _print_bline
@@ -351,7 +352,7 @@ _finish_install() {
   cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
   chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
   _read_input_text " Reboot system? [y/N]: "
-  echo ""
+  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -454,16 +455,16 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "INSTALLING EXTRA PACKAGES..."
-  _print_warning " Installing utils..."
+  _print_warning " * Installing utils..."
   _print_line
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_warning " Installing compression tools..."
+  _print_warning " * Installing compression tools..."
   _print_line
   _package_install "zip unzip unrar p7zip lzop"
-  _print_warning " Installing extra filesystem tools..."
+  _print_warning " * Installing extra filesystem tools..."
   _print_line
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_warning " Installing sound tools..."
+  _print_warning " * Installing sound tools..."
   _print_line
   _package_install "alsa-utils pulseaudio"
   _print_done " DONE!"
@@ -475,10 +476,12 @@ _install_laptop_pkgs() {
   PS3="$prompt1"
   _read_input_text " Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo -e "\n"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     systemctl enable bluetooth > /dev/null 2>&1
     _print_info " Bluetooth service ${BYellow}ENABLED!${Reset}"
   else
+    echo -e "\n"
     echo -e " ${BBlue}Nothing to do!${Reset}"
   fi
   _print_done " DONE!"
@@ -486,7 +489,7 @@ _install_laptop_pkgs() {
 }
 
 _finish_config() {
-  _print_title "FINISHING INSTALLATION..."
+  _print_title "SECOND STEP FINISHED !!!"
   _print_warning " * Copying files to home ${NEW_USER}..."
   if [[ -d /home/${NEW_USER}/myarch ]]; then 
     rm -rf /home/${NEW_USER}/myarch
@@ -606,7 +609,7 @@ _install_display_manager() {
 }
 
 _finish_desktop() {
-  _print_title "THIRD STEP FINISHED..."
+  _print_title "THIRD STEP FINISHED !!!"
   _print_warning " 1. Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
   _print_done " DONE!"
   _print_bline
