@@ -521,6 +521,7 @@ _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
   DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${Purple}${DESKTOP_CHOICE}${Reset}"
+  echo ""
   
   if [[ "${DESKTOP}" == "Gnome" ]]; then
     _package_install "gnome gnome-extra gnome-tweaks"
@@ -805,7 +806,7 @@ _package_install() {
       if ! _is_package_installed "${PKG}"; then
         echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        echo -e " ${BBlue}Installed !!!"
+        echo -e " ${BYellow}[ SUCCESS ]"
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
@@ -813,7 +814,7 @@ _package_install() {
       if ! _is_package_installed "${PKG}"; then
         echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        echo -e " ${BBlue}Installed !!!"
+        echo -e " ${BYellow}[ SUCCESS ]"
       else
         echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
       fi
