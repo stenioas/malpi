@@ -806,17 +806,25 @@ _package_install() {
       if ! _is_package_installed "${PKG}"; then
         echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        echo -e " ${BYellow}[ SUCCESS ]"
+        if ! _is_package_installed "${PKG}"; then
+          echo -e " ${BRed}[ ERROR ]"
+        else
+          echo -e " ${BYellow}[ SUCCESS ]"
+        fi
       else
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${BYellow}[ IS ALREADY INSTALLED ]${Reset}"
       fi
     else
       if ! _is_package_installed "${PKG}"; then
         echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
         sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        echo -e " ${BYellow}[ SUCCESS ]"
+        if ! _is_package_installed "${PKG}"; then
+          echo -e " ${BRed}[ ERROR ]"
+        else
+          echo -e " ${BYellow}[ SUCCESS ]"
+        fi
       else
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} - ${BYellow}Is already installed!${Reset}"
+        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${BYellow}[ IS ALREADY INSTALLED ]${Reset}"
       fi
     fi
   done
