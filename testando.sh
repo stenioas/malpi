@@ -24,4 +24,11 @@ _package_install() {
   done
 }
 
+_is_package_installed() {
+  for PKG in $1; do
+    pacman -Q "$PKG" &> /dev/null && return 0;
+  done
+  return 1
+}
+
 _package_install "neofetch nano vim testando"
