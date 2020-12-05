@@ -260,7 +260,6 @@ _format_partitions() {
 
 _install_base() {
   _print_title "INSTALLING THE BASE..."
-  sleep 1
   pacstrap ${ROOT_MOUNTPOINT} \
     base base-devel \
     linux-lts \
@@ -405,7 +404,6 @@ _enable_multilib(){
 
 _install_essential_pkgs() {
   _print_title "INSTALLING ESSENTIAL PACKAGES..."
-  sleep 1
   _package_install "dosfstools mtools udisks2 dialog git wget reflector bash-completion xdg-utils xdg-user-dirs"
   _print_done " DONE!"
   _pause_function
@@ -413,7 +411,8 @@ _install_essential_pkgs() {
 
 _install_xorg() {
   _print_title "INSTALLING XORG..."
-  _package_install "xorg xorg-apps xorg-xinit xterm"
+  _package_install "xorg-server xorg-xinit xterm"
+  _group_package_install "xorg-apps"
   _print_done " DONE!"
   _pause_function
 }
@@ -491,12 +490,6 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED !!!"
-  _print_warning " * Copying files to home ${NEW_USER}..."
-  if [[ -d /home/${NEW_USER}/myarch ]]; then 
-    rm -rf /home/${NEW_USER}/myarch
-  fi
-  mv /root/myarch /home/${NEW_USER}/
-  chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_done " DONE!"
   _print_bline
   exit 0
@@ -524,7 +517,9 @@ _install_desktop() {
   echo ""
   
   if [[ "${DESKTOP}" == "Gnome" ]]; then
-    _package_install "gnome gnome-extra gnome-tweaks"
+    _group_package_install "gnome"
+    _group_package_install "gnome-extra"
+    _package_install "gnome-tweaks"
 
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
     _package_install "plasma kde-applications packagekit-qt5"
@@ -612,6 +607,12 @@ _install_display_manager() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED !!!"
+  _print_warning " * Copying files to home ${NEW_USER}..."
+  if [[ -d /home/${NEW_USER}/myarch ]]; then 
+    rm -rf /home/${NEW_USER}/myarch
+  fi
+  mv /root/myarch /home/${NEW_USER}/
+  chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_warning " 1. Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
   _print_done " DONE!"
   _print_bline
@@ -799,42 +800,41 @@ _umount_partitions() {
   umount -R ${ROOT_MOUNTPOINT}
 }
 
-_package_install() {
-  #install packages using pacman
-  for PKG in $1; do
-    if [[ $(id -u) == 0 ]]; then
-      if ! _is_package_installed "${PKG}"; then
-        echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
-        pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        if ! _is_package_installed "${PKG}"; then
-          echo -e " ${BRed}[ ERROR ]"
-        else
-          echo -e " ${BYellow}[ SUCCESS ]"
-        fi
-      else
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${BYellow}[ IS ALREADY INSTALLED ]${Reset}"
-      fi
-    else
-      if ! _is_package_installed "${PKG}"; then
-        echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
-        sudo pacman -S --noconfirm --needed "${PKG}" > /dev/null 2>&1
-        if ! _is_package_installed "${PKG}"; then
-          echo -e " ${BRed}[ ERROR ]"
-        else
-          echo -e " ${BYellow}[ SUCCESS ]"
-        fi
-      else
-        echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${BYellow}[ IS ALREADY INSTALLED ]${Reset}"
-      fi
-    fi
-  done
-}
-
 _is_package_installed() {
   for PKG in $1; do
     pacman -Q "$PKG" &> /dev/null && return 0;
   done
   return 1
+}
+
+_package_install() {
+  #install packages using pacman
+  _package_was_installed() {
+    for PKG in $1; do
+      if [[ $(id -u) == 0 ]]; then
+        pacman -S --noconfirm --needed "${PKG}" 1> /dev/null && return 0;
+      else
+        sudo pacman -S --noconfirm --needed "${PKG}" 1> /dev/null && return 0;
+      fi
+    done
+    return 1
+  }
+  for PKG in $1; do
+    if ! _is_package_installed "${PKG}"; then
+      echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
+      if _package_was_installed "${PKG}"; then
+        echo -e " ${BYellow}[ SUCCESS! ]"
+      else
+        echo -e " ${BRed}[ ERROR! ]"
+      fi
+    else
+      echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${Yellow}[ It's already installed. ]${Reset}"
+    fi
+  done
+}
+
+_group_package_install() {
+  _package_install "$(pacman -Sqg ${1})"
 }
 
 clear
