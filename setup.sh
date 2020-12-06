@@ -215,14 +215,15 @@ _format_partitions() {
     _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} 1> /dev/null 2>&1 && _print_info " Formatted!"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ 1> /dev/null 2>&1 && _print_info " Subvolume /@ Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home 1> /dev/null 2>&1 && _print_info " Subvolume /@home Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots 1> /dev/null 2>&1 && _print_info " Subvolume /@.snapshots Created!"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ 1> /dev/null 2>&1 && echo -e " \n${Blue}Subvolume ${BWhite}/@${Reset} Created!${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home 1> /dev/null 2>&1 && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} Created!${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots 1> /dev/null 2>&1 && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} Created!${Reset}"
     umount -R ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} 1> /dev/null 2>&1
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home 1> /dev/null 2>&1
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots 1> /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null
+    _print_info "T E S T A N D O"
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
     _print_done " [ DONE ]"
     _pause_function
@@ -874,7 +875,6 @@ ${BCyan}
   │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
   └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
 ${Reset}
-
 EOF
 
 while [[ "$1" ]]; do
