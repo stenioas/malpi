@@ -119,7 +119,7 @@ _initial_info() {
   _print_title "READ ME - IMPORTANT !!!"
   _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script will only consider two partitions, ESP and root.\n 4. This script will format the root partition in btrfs format.\n 5. The ESP partition can be formatted if the user wants to.\n 6. This script does not support swap.\n 7. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots."
   _print_danger " 8. THIS SCRIPT IS NOT YET COMPLETE !!!"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -130,7 +130,7 @@ _check_connection() {
     }
     if _connection_test; then
       _print_warning " * [ SUCCESS ] - You are connected."
-      _print_done "[ DONE ]"
+      _print_done " [ DONE ]"
     else
       _print_danger " [ ERROR ] - You are not connected."
       _print_done " [ Exiting ]"
@@ -143,7 +143,7 @@ _check_connection() {
 _time_sync() {
   _print_title "TIME SYNC..."
   timedatectl set-ntp true
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -156,7 +156,7 @@ _rank_mirrors() {
   nano /etc/pacman.d/mirrorlist
   _print_title "RANKING MIRRORS..."
   pacman -Syy
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -178,7 +178,7 @@ _select_disk() {
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
   _print_info " Selected: ${Purple}[ ${INSTALL_DISK} ]${Reset}"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -225,7 +225,7 @@ _format_partitions() {
     _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
     _print_info " Formatted!"
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
-    _print_done "[ DONE ]"
+    _print_done " [ DONE ]"
     _pause_function
   }
 
@@ -252,7 +252,7 @@ _format_partitions() {
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
-    _print_done "[ DONE ]"
+    _print_done " [ DONE ]"
     _pause_function
   }
 
@@ -272,7 +272,7 @@ _format_partitions() {
   _format_root_partition
   _format_efi_partiton
   _print_title "FORMATTING AND MOUNTING PARTITIONS..."
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -289,7 +289,7 @@ _install_base() {
     networkmanager    
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager > /dev/null 2>&1
   _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -297,7 +297,7 @@ _fstab_generate() {
   _print_title "GENERATING FSTAB..."
   genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
   cat ${ROOT_MOUNTPOINT}/etc/fstab
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -312,7 +312,7 @@ _set_locale() {
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -320,7 +320,7 @@ _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function  
 }
 
@@ -330,7 +330,7 @@ _set_hostname() {
   read -r NEW_HOSTNAME
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function  
 }
 
@@ -338,7 +338,7 @@ _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
   _print_warning " * Setting root password...\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -349,21 +349,21 @@ _grub_generate() {
   pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function  
 }
 
 _mkinitcpio_generate() {
   _print_title "GENERATE MKINITCPIO..."
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function  
 }
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED !!!"
   _print_warning " * Copying files to /root/myarch... "
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _print_bline
   PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -397,7 +397,7 @@ _create_new_user() {
   else
     _print_info " User ${NEW_USER} already exists!"
   fi
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -416,14 +416,14 @@ _enable_multilib(){
     fi
   fi
   pacman -Syy
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
 _install_essential_pkgs() {
   _print_title "INSTALLING ESSENTIAL PACKAGES..."
   _package_install "dosfstools mtools udisks2 dialog git wget reflector bash-completion xdg-utils xdg-user-dirs"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -431,7 +431,7 @@ _install_xorg() {
   _print_title "INSTALLING XORG..."
   _package_install "xorg-server xorg-xinit xterm"
   _group_package_install "xorg-apps"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -467,7 +467,7 @@ _install_vga() {
     _invalid_option
     exit 0
   fi
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -485,7 +485,7 @@ _install_extra_pkgs() {
   _print_warning " * Installing sound tools..."
   _print_line
   _package_install "alsa-utils pulseaudio"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -502,13 +502,13 @@ _install_laptop_pkgs() {
     echo -e "\n"
     echo -e " ${BBlue}Nothing to do!${Reset}"
   fi
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED !!!"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _print_bline
   exit 0
 }
@@ -568,7 +568,7 @@ _install_desktop() {
     exit 0
   fi
   localectl set-x11-keymap br
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -619,7 +619,7 @@ _install_display_manager() {
     _invalid_option
     exit 0
   fi
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -632,7 +632,7 @@ _finish_desktop() {
   mv /root/myarch /home/${NEW_USER}/
   chown -R ${NEW_USER} /home/${NEW_USER}/myarch
   _print_warning " 1. Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _print_bline
   exit 0
 }
@@ -671,7 +671,7 @@ _install_apps() {
   else
     echo -e " ${BYellow}* Nothing to do!${Reset}"
   fi
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
@@ -692,7 +692,7 @@ _install_pamac() {
   else
     echo -e " ${BYellow}* Nothing to do!${Reset}"
   fi
-  _print_done "[ DONE ]"
+  _print_done " [ DONE ]"
   _pause_function
 }
 
