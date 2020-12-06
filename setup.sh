@@ -128,10 +128,11 @@ _check_connection() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
     if _connection_test; then
-      _print_warning " * SUCCESS! Connected!"
+      _print_warning " * SUCCESS! You are connected."
     else
-      _print_danger " * ERROR! Connection not found!"
-      _print_done " EXITING..."
+      _print_danger " * ERROR! You are not connected."
+      _print_done " [ Exiting... ]"
+      _print_bline
       exit 1
     fi
   _print_done " DONE!"
@@ -792,7 +793,7 @@ _print_warning() {
   echo -e "\n${BYellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
-_print_danger()
+_print_danger() {
   T_COLS=$(tput cols)
   echo -e "\n${BRed}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
