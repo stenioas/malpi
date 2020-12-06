@@ -130,11 +130,11 @@ _check_connection() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
     if _connection_test; then
-      _print_warning " * [ SUCCESS ] - You are connected."
+      _print_info " [ OK ] - You are connected."
       _print_done " [ DONE ]"
     else
       _print_danger " [ ERROR ] - You are not connected."
-      _print_done " [ Exiting ]"
+      _print_done " [ GOOD BYE ]"
       _print_bline
       exit 1
     fi
@@ -143,7 +143,8 @@ _check_connection() {
 
 _time_sync() {
   _print_title "TIME SYNC..."
-  timedatectl set-ntp true
+  echo -ne "${BBlue} Running:${Reset}\n timedatectl set-ntp true ..."
+  timedatectl set-ntp true && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -166,8 +167,8 @@ _select_disk() {
   PS3="$prompt1"
   devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_info " Disks and partitions:\n"
-  lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
-  _print_warning " * Select disk:\n"
+  lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | grep "disk" | awk '{print $1,$4,$6,$7}' | column -t
+  _print_info " Select disk:\n"
   select device in "${devices_list[@]}"; do
     if _contains_element "${device}" "${devices_list[@]}"; then
       break
