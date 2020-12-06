@@ -361,13 +361,15 @@ _mkinitcpio_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED !!!"
-  _print_warning " * Copying files to /root/myarch... "
+  _read_input_text " Save a copy of this script in root directory? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo ""
+    echo -ne "${BBlue} Downloading setup.sh to /root${Reset} ..."
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e " ${Green} [ SAVED ]"
+  fi
   _print_done " [ DONE ]"
   _print_bline
-  PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh"
-  chmod +x ${ROOT_MOUNTPOINT}/root/setup.sh
   _read_input_text " Reboot system? [y/N]: "
   echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
