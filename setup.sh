@@ -54,7 +54,7 @@ usage: ${0##*/} [flags]
 
     --install | -i         First step, only root user. THIS STEP MUST BE RUN IN LIVE MODE!
     --config  | -c         Second step, only root user.
-    --desktop | -d         Third step, only normal user.
+    --desktop | -d         Third step, only root user.
     --user    | -u         Last step, only normal user.
 
 * Arch-Setup 0.1
@@ -118,6 +118,22 @@ EOF
 _initial_info() {
   _print_title "READ ME - IMPORTANT !!!"
   _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script will only consider two partitions, ESP and root.\n 4. This script will format the root partition in btrfs format.\n 5. The ESP partition can be formatted if the user wants to.\n 6. This script does not support swap.\n 7. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots.\n 8. THIS SCRIPT IS NOT YET COMPLETE !!!"
+  _print_done " DONE!"
+  _pause_function
+}
+
+_check_connection() {
+  _print_title "TESTING CONNECTION..."
+    _connection_test() {
+      ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
+    }
+    if _connection_test; then
+      _print_warning " * SUCCESS! Connected!"
+    else
+      _print_danger " * ERROR! Connection not found!"
+      _print_done " EXITING..."
+      exit 1
+    fi
   _print_done " DONE!"
   _pause_function
 }
@@ -573,7 +589,7 @@ _install_display_manager() {
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     sudo systemctl enable lightdm > /dev/null 2>&1
-    _print_info " LIGHTDM service ${BYellow}ENABLED!${Reset}"
+    _print_info " Lightdm service ${BYellow}ENABLED!${Reset}"
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
     _print_info "It's not working yet..."
@@ -651,7 +667,7 @@ _install_apps() {
     _package_install "capitaine-cursors"
     _package_install "ttf-dejavu"
   else
-    echo -e " ${BYellow}Nothing to do!${Reset}"
+    echo -e " ${BYellow}* Nothing to do!${Reset}"
   fi
   _print_done " DONE!"
   _pause_function
@@ -672,7 +688,7 @@ _install_pamac() {
       echo -e " ${BCyan}Pamac${Reset} - ${BYellow}Is already installed!${Reset}"
     fi
   else
-    echo -e " ${BYellow}Nothing to do!${Reset}"
+    echo -e " ${BYellow}* Nothing to do!${Reset}"
   fi
   _print_done " DONE!"
   _pause_function
@@ -684,10 +700,11 @@ _install_pamac() {
 
 _setup_install(){
     [[ $(id -u) != 0 ]] && {
-        _print_warning " Only for 'root'.\n"
+        _print_warning " * Only for 'root'.\n"
         exit 1
     }
     _initial_info
+    _check_connection
     _time_sync
     _rank_mirrors
     _select_disk
@@ -706,7 +723,7 @@ _setup_install(){
 
 _setup_config(){
     [[ $(id -u) != 0 ]] && {
-        _print_warning " Only for 'root'.\n"
+        _print_warning " * Only for 'root'.\n"
         exit 1
     }
     _create_new_user
@@ -722,7 +739,7 @@ _setup_config(){
 
 _setup_desktop(){
     [[ $(id -u) != 0 ]] && {
-        _print_warning " Only for 'root'.\n"
+        _print_warning " * Only for 'root'.\n"
         exit 1
     }
     _install_desktop
@@ -733,7 +750,7 @@ _setup_desktop(){
 
 _setup_user(){
     [[ $(id -u) != 1000 ]] && {
-        _print_warning " Only for 'normal user'.\n"
+        _print_warning " * Only for 'normal user'.\n"
         exit 1
     }
     _install_apps
@@ -760,11 +777,6 @@ _print_title() {
   _print_line
 }
 
-_print_warning() {
-  T_COLS=$(tput cols)
-  echo -e "\n${BYellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
-}
-
 _print_done() {
   T_COLS=$(tput cols)
   echo -e "\n${BGreen}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
@@ -773,6 +785,16 @@ _print_done() {
 _print_info() {
   T_COLS=$(tput cols)
   echo -e "\n${BBlue}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_warning() {
+  T_COLS=$(tput cols)
+  echo -e "\n${BYellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_danger()
+  T_COLS=$(tput cols)
+  echo -e "\n${BRed}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
@@ -786,7 +808,7 @@ _contains_element() {
 
 _invalid_option() {
     _print_line
-    _print_warning " Invalid option. Try again..."
+    _print_warning " * Invalid option. Try again..."
     _pause_function
 }
 
@@ -796,7 +818,7 @@ _read_input_text() {
 }
 
 _umount_partitions() {
-  _print_warning " UNMOUNTING PARTITIONS..."
+  _print_warning " * UNMOUNTING PARTITIONS..."
   umount -R ${ROOT_MOUNTPOINT}
 }
 
@@ -812,9 +834,9 @@ _package_install() {
   _package_was_installed() {
     for PKG in $1; do
       if [[ $(id -u) == 0 ]]; then
-        pacman -S --noconfirm --needed "${PKG}" 1> /dev/null && return 0;
+        pacman -S --noconfirm --needed "${PKG}" 1> /dev/null 2>&1 && return 0;
       else
-        sudo pacman -S --noconfirm --needed "${PKG}" 1> /dev/null && return 0;
+        sudo pacman -S --noconfirm --needed "${PKG}" 1> /dev/null 2>&1 && return 0;
       fi
     done
     return 1
