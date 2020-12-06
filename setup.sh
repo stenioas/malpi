@@ -210,20 +210,19 @@ _format_partitions() {
       fi
     done
     if mount | grep "${ROOT_PARTITION}"; then
-      umount -R ${ROOT_MOUNTPOINT}
+      umount -R ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
     fi
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION}
-    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
-    btrfs su cr ${ROOT_MOUNTPOINT}/@
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots
-    umount -R ${ROOT_MOUNTPOINT}
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}
-    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots}
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots
     _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
-    _print_info " Formatted!"
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} 1> /dev/null 2>&1 && _print_info " Formatted!"
+    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ 1> /dev/null 2>&1 && _print_info " Subvolume /@ Created!"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home 1> /dev/null 2>&1 && _print_info " Subvolume /@home Created!"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots 1> /dev/null 2>&1 && _print_info " Subvolume /@.snapshots Created!"
+    umount -R ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
+    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} 1> /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home 1> /dev/null 2>&1
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots 1> /dev/null 2>&1
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
     _print_done " [ DONE ]"
     _pause_function
@@ -257,14 +256,14 @@ _format_partitions() {
   }
 
   _disable_partition() {
-    unset partitions_list["${partition_number}"]
-    partitions_list=("${partitions_list[@]}")
+    unset partitions_list["${partition_number}"] 1> /dev/null 2>&1
+    partitions_list=("${partitions_list[@]}") 1> /dev/null 2>&1
   }
 
   _check_mountpoint() {
     if mount | grep "$2"; then
       _print_info " The partition(s) was successfully mounted!"
-      _disable_partition "$1"
+      _disable_partition "$1" 1> /dev/null 2>&1
     else
       _print_warning " * WARNING: The partition was not successfully mounted!"
     fi
@@ -287,7 +286,7 @@ _install_base() {
     intel-ucode \
     btrfs-progs \
     networkmanager    
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager > /dev/null 2>&1
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager 1> /dev/null 2>&1
   _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -801,7 +800,7 @@ _print_danger() {
 
 _pause_function() {
   _print_bline
-  read -e -sn 1 -p " Press any key to continue..."
+  read -e -sn 1 -p " ${BWhite}Press any key to continue...${Reset}"
 }
 
 _contains_element() {
@@ -863,17 +862,16 @@ _group_package_install() {
 
 clear
 cat <<EOF
-
-${Yellow}
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                 │
-│   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
-│  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
-│  ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝ │
-│  ██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝  │
-│  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
-│  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
-└───────────────────────────── By Stenio Silveira ────────────────────────────────┘
+${BCyan}
+  ┌─────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                 │
+  │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
+  │  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
+  │  ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝ │
+  │  ██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝  │
+  │  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
+  │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
+  └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
 ${Reset}
 
 EOF
