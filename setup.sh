@@ -143,7 +143,9 @@ _check_connection() {
 
 _time_sync() {
   _print_title "TIME SYNC..."
-  echo -ne "${BBlue} Running:${Reset}\n timedatectl set-ntp true ..."
+  echo ""
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} timedatectl set-ntp true"
   timedatectl set-ntp true && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -154,10 +156,19 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist
-  nano /etc/pacman.d/mirrorlist
-  _print_title "RANKING MIRRORS..."
-  pacman -Syy
+  echo ""
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
+  reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYellow} [ OK ]${Reset}"
+  echo ""
+  _read_input_text " Check your mirrorlist file? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    nano /etc/pacman.d/mirrorlist
+  fi
+  _print_title "UPDATING MIRRORS..."
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} pacman -Syy"
+  pacman -Syy &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -773,7 +784,7 @@ _print_bline() {
 _print_title() {
   clear
   _print_line
-  echo -e "${BCyan}# $1${Reset}"
+  echo -e "${BWhite}# $1${Reset}"
   _print_line
 }
 
