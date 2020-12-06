@@ -800,6 +800,7 @@ _print_danger() {
 
 _pause_function() {
   _print_bline
+  echo ""
   read -e -sn 1 -p " ${BWhite}Press any key to continue...${Reset}"
 }
 
