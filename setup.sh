@@ -6,6 +6,7 @@
 #
 # This script supports UEFI only.
 # This script supports GRUB only.
+# This script, for now, only installs the lts kernel.
 # This script will only consider two partitions, ESP and root.
 # This script will format the root partition in btrfs format.
 # The ESP partition can be formatted if the user wants to.
@@ -54,7 +55,7 @@ usage: ${0##*/} [flags]
 
     --install | -i         First step, only root user. THIS STEP MUST BE RUN IN LIVE MODE!
     --config  | -c         Second step, only root user.
-    --desktop | -d         Third step, only root user.
+    --desktop | -d         Third step, only normal user.
     --user    | -u         Last step, only normal user.
 
 * Arch-Setup 0.1
@@ -117,8 +118,8 @@ EOF
 
 _initial_info() {
   _print_title "READ ME - IMPORTANT !!!"
-  _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script will only consider two partitions, ESP and root.\n 4. This script will format the root partition in btrfs format.\n 5. The ESP partition can be formatted if the user wants to.\n 6. This script does not support swap.\n 7. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots."
-  _print_danger " 8. THIS SCRIPT IS NOT YET COMPLETE !!!"
+  _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script, for now, only installs the lts kernel.\n 4. This script will only consider two partitions, ESP and root.\n 5. This script will format the root partition in btrfs format.\n 6. The ESP partition can be formatted if the user wants to.\n 7. This script does not support swap.\n 8. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots."
+  _print_danger " *** THIS SCRIPT IS NOT YET COMPLETE ***"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -197,7 +198,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_title "FORMATTING ROOT..."
+    _print_title "FORMATTING ROOT PARTITION..."
     PS3="$prompt1"
     _print_warning " * Select partition to create btrfs subvolumes:\n * Remember, this script will create 3 subvolumes:\n   - @ for /,\n   - @home for /home,\n   - @.snapshots for snapshots.\n"
     select partition in "${partitions_list[@]}"; do
@@ -213,7 +214,7 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_info " Formatted!"
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_info " FORMATTED!"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BWhite}/@${Reset} Created!${Reset}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} Created!${Reset}"
@@ -243,9 +244,9 @@ _format_partitions() {
     echo ""
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -e "\n"
+      echo ""
       _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_info " Formatted!"
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_info " FORMATTED!"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -365,8 +366,8 @@ _finish_install() {
   _print_bline
   PS3="$prompt1"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  cp -r /root/myarch/ ${ROOT_MOUNTPOINT}/root/myarch
-  chmod +x ${ROOT_MOUNTPOINT}/root/myarch/setup.sh
+  wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh"
+  chmod +x ${ROOT_MOUNTPOINT}/root/setup.sh
   _read_input_text " Reboot system? [y/N]: "
   echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -390,7 +391,7 @@ _create_new_user() {
     _print_info " User ${NEW_USER} created."
     _print_warning " * Setting password...\n"
     passwd ${NEW_USER}
-    _print_info " Added privileges."
+    _print_info " Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
   else
     _print_info " User ${NEW_USER} already exists!"
@@ -427,6 +428,7 @@ _install_essential_pkgs() {
 
 _install_xorg() {
   _print_title "INSTALLING XORG..."
+  echo -e " ${Purple}XORG${Reset}\n"
   _package_install "xorg-server xorg-xinit xterm"
   _group_package_install "xorg-apps"
   _print_done " [ DONE ]"
@@ -506,6 +508,7 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED !!!"
+  _print_warning " * Copying this script to home ${NEW_USER}..."
   _print_done " [ DONE ]"
   _print_bline
   exit 0
@@ -623,13 +626,7 @@ _install_display_manager() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED !!!"
-  _print_warning " * Copying files to home ${NEW_USER}..."
-  if [[ -d /home/${NEW_USER}/myarch ]]; then 
-    rm -rf /home/${NEW_USER}/myarch
-  fi
-  mv /root/myarch /home/${NEW_USER}/
-  chown -R ${NEW_USER} /home/${NEW_USER}/myarch
-  _print_warning " 1. Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
+  _print_warning " ${BCyan}[ OPTIONAL ]${BYellow} Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
   _print_done " [ DONE ]"
   _print_bline
   exit 0
@@ -738,8 +735,8 @@ _setup_config(){
 }
 
 _setup_desktop(){
-    [[ $(id -u) != 0 ]] && {
-        _print_warning " * Only for 'root'.\n"
+    [[ $(id -u) != 1000 ]] && {
+        _print_warning " * Only for 'normal user'.\n"
         exit 1
     }
     _install_desktop
@@ -846,12 +843,12 @@ _package_install() {
     if ! _is_package_installed "${PKG}"; then
       echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
       if _package_was_installed "${PKG}"; then
-        echo -e " ${BYellow}[ SUCCESS! ]"
+        echo -e " ${BYellow}[ SUCCESS ]"
       else
-        echo -e " ${BRed}[ ERROR! ]"
+        echo -e " ${BRed}[ ERROR ]"
       fi
     else
-      echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${Yellow}[ It's already installed. ]${Reset}"
+      echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${Yellow}[ EXISTS ]${Reset}"
     fi
   done
 }
