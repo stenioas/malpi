@@ -209,21 +209,20 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    if mount | grep "${ROOT_PARTITION}"; then
-      umount -R ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
+    if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
+      umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} 1> /dev/null 2>&1 && _print_info " Formatted!"
-    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ 1> /dev/null 2>&1 && echo -e " \n${Blue}Subvolume ${BWhite}/@${Reset} Created!${Reset}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home 1> /dev/null 2>&1 && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} Created!${Reset}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots 1> /dev/null 2>&1 && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} Created!${Reset}"
-    umount -R ${ROOT_MOUNTPOINT} 1> /dev/null 2>&1
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_info " Formatted!"
+    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BWhite}/@${Reset} Created!${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} Created!${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} Created!${Reset}"
+    umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} 1> /dev/null 2>&1
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null
-    _print_info "T E S T A N D O"
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
     _print_done " [ DONE ]"
     _pause_function
@@ -245,26 +244,25 @@ _format_partitions() {
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo -e "\n"
-      mkfs.fat -F32 ${EFI_PARTITION}
       _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
-      _print_info " Formatted!"
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_info " Formatted!"
     fi
-    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
-    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}
+    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
+    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
     _print_done " [ DONE ]"
     _pause_function
   }
 
   _disable_partition() {
-    unset partitions_list["${partition_number}"] 1> /dev/null 2>&1
-    partitions_list=("${partitions_list[@]}") 1> /dev/null 2>&1
+    unset partitions_list["${partition_number}"]
+    partitions_list=("${partitions_list[@]}")
   }
 
   _check_mountpoint() {
-    if mount | grep "$2"; then
+    if mount | grep "$2" &> /dev/null; then
       _print_info " The partition(s) was successfully mounted!"
-      _disable_partition "$1" 1> /dev/null 2>&1
+      _disable_partition "$1"
     else
       _print_warning " * WARNING: The partition was not successfully mounted!"
     fi
