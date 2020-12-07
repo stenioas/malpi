@@ -777,6 +777,8 @@ _setup_user(){
 _check_archlive() {
   [[ $(df | grep "airootfs" | awk '{print $6}') == "" ]] && {
     _print_danger " *** FIRST STEP MOST BE RUN IN LIVE MODE ***"
+    _print_done " [ DONE ]"
+    _print_bline
     exit 1
   }
 }
