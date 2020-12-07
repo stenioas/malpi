@@ -120,6 +120,7 @@ _setup_install(){
     }
     _check_archlive
     _initial_info
+    _initial_packages
     _check_connection
     _time_sync
     _rank_mirrors
