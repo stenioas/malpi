@@ -182,7 +182,7 @@ _setup_user(){
 
 _check_archlive() {
   [[ $(df | grep -w "/" | awk '{print $1}') != "airootfs" ]] && {
-    _print_danger " *** FIRST STEP MOST BE RUN IN LIVE MODE ***"
+    _print_danger " *** FIRST STEP MUST BE RUN IN LIVE MODE ***"
     _print_done " [ DONE ]"
     _print_bline
     exit 1
@@ -426,13 +426,13 @@ _set_hostname() {
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "SETTING HOSTNAME AND IP ADDRESS..."
-    _print_danger " You need to enter a hostname."
+    echo -e " ${BRed}You must be type a hostname.${Reset}"
     printf "%s" " ${BYellow}Type a hostname [ex: archlinux]:${Reset} "
     read -r NEW_HOSTNAME
   done
+  NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
-  if
   _print_done " [ DONE ]"
   _pause_function  
 }
@@ -451,7 +451,7 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB INSTALLATION..."
-    _print_danger " You need to enter a grub name entry."
+    echo -e " ${BRed}You must be type a grub name entry.${Reset}"
     printf "%s" " ${BYellow}Type a grub name entry [ex: Archlinux]:${Reset} "
     read -r NEW_GRUB_NAME
   done
@@ -496,12 +496,12 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "CREATE NEW USER..."
-  printf "%s" " ${BYellow}Username:${Reset} "
+  printf "%s" " ${BYellow}Type your username:${Reset} "
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "CREATE NEW USER..."
-    _print_warning " You need to enter a username."
-    printf "%s" " ${BYellow}Username:${Reset} "
+    echo -e " ${BRed}You must be type a username.${Reset}"
+    printf "%s" " ${BYellow}Type your username:${Reset} "
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
