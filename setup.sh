@@ -99,6 +99,7 @@ EOF
       NEW_SUBZONE="Fortaleza"
       NEW_USER="user"
       NEW_HOSTNAME="archlinux"
+      NEW_GRUB_NAME="Archlinux"
       TRIM=0
 
     # --- MOUNTPOINTS
@@ -380,23 +381,38 @@ _fstab_generate() {
 
 _set_locale() {
   _print_title "SETTING TIME ZONE..."
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null
+  echo ""
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} timedatectl set-ntp true"
+  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} hwclock --systohc --utc"
+  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} locale-gen"
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
+  timedatectl set-ntp true
   _print_done " [ DONE ]"
   _pause_function
 }
 
 _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
-  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf
-  echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf
+  echo ""
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function  
 }
@@ -423,6 +439,7 @@ _grub_generate() {
   _print_title "GRUB INSTALLATION..."
   printf "%s" " ${BYellow}Grub entry name [ex: Archlinux]:${Reset} " 
   read -r NEW_GRUB_NAME
+  echo ""
   _pacstrap_install "grub grub-btrfs efibootmgr"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
@@ -441,7 +458,7 @@ _finish_install() {
   _print_title "FIRST STEP FINISHED !!!"
   _read_input_text " Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    echo ""
+    _print_title "FIRST STEP FINISHED !!!"
     _package_install "wget"
     echo -ne "\n${BBlue} Downloading setup.sh to /root${Reset} ..."
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${Green} [ SAVED ]"
@@ -857,14 +874,14 @@ _package_install() {
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
+      echo -ne " ${BBlue}[ Installing ]${Reset} ${BCyan}${PKG}${Reset} ..."
       if _package_was_installed "${PKG}"; then
-        echo -e " ${BYellow}[ SUCCESS ]"
+        echo -e " ${BYellow}[ SUCCESS ]${Reset}"
       else
-        echo -e " ${BRed}[ ERROR ]"
+        echo -e " ${BRed}[ ERROR ]${Reset}"
       fi
     else
-      echo -e " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ... ${Yellow}[ EXISTS ]${Reset}"
+      echo -e " ${BBlue}[ Installing ]${Reset} ${BCyan}${PKG}${Reset} ... ${Yellow}[ EXISTS ]${Reset}"
     fi
   done
 }
@@ -882,11 +899,11 @@ _pacstrap_install() {
     return 1
   }
   for PKG in $1; do
-    echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
+    echo -ne " ${BBlue}[ Installing ]${Reset} ${BCyan}${PKG}${Reset} ..."
     if _pacstrap_was_installed "${PKG}"; then
-      echo -e " ${BYellow}[ OK ]"
+      echo -e " ${BYellow}[ OK ]${Reset}"
     else
-      echo -e " ${BRed}[ ERROR ]"
+      echo -e " ${BRed}[ ERROR ]${Reset}"
     fi
   done
 }
