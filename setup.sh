@@ -113,7 +113,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      prompt1=" ${Yellow}Option:${Reset} "
+      PROMPT1=" ${Yellow}Option:${Reset} "
 
 # ----------------------------------------------------------------------#
 
@@ -272,10 +272,8 @@ _rank_mirrors() {
 
 _select_disk() {
   _print_title "DISK PARTITIONING..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  #_print_info " Attached disks:\n"
-  #lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | grep "disk" | awk '{print $1,$4,$6,$7}' | column -t
   echo -e " ${BYellow}Select disk:${Reset}\n"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
@@ -286,12 +284,12 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   _print_title "DISK PARTITIONING..."
+  echo -e " ${BCyan}${INSTALL_DISK}${Reset} ... ${BYellow}[ SELECTED ]${Reset}"
   _read_input_text " Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
   _print_title "DISK PARTITIONING..."
-  echo -e " ${BCyan}${INSTALL_DISK}${Reset} ... ${BYellow}[ SELECTED ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -312,7 +310,7 @@ _format_partitions() {
 
   _format_root_partition() {
     _print_title "FORMATTING ROOT PARTITION..."
-    PS3="$prompt1"
+    PS3="$PROMPT1"
     _print_warning " * Select partition to create btrfs subvolumes:\n * Remember, this script will create 3 subvolumes:\n   - @ for /,\n   - @home for /home,\n   - @.snapshots for snapshots.\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -345,7 +343,7 @@ _format_partitions() {
 
   _format_efi_partition() {
     _print_title "FORMATTING EFI PARTITION..."
-    PS3="$prompt1"
+    PS3="$PROMPT1"
     _print_warning " * Select EFI partition:\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -602,7 +600,7 @@ _install_xorg() {
 
 _install_vga() {
   _print_title "INSTALLING VIDEO DRIVER..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
   _print_warning " * Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -656,7 +654,7 @@ _install_extra_pkgs() {
 
 _install_laptop_pkgs() {
   _print_title "INSTALLING LAPTOP PACKAGES..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   _read_input_text " Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo -e "\n"
@@ -685,7 +683,7 @@ _finish_config() {
 
 _install_desktop() {
   _print_title "INSTALLING DESKTOP PACKAGES..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
   _print_warning " * Select your option:\n"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -740,7 +738,7 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "INSTALLING DISPLAY MANAGER..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
   _print_warning " * Select your option:\n"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
@@ -809,7 +807,7 @@ _finish_desktop() {
 
 _install_apps() {
   _print_title "INSTALLING CUSTOM APPS..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   _read_input_text " Install custom apps? [y/N]: "
   echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -843,7 +841,7 @@ _install_apps() {
 
 _install_pamac() {
   _print_title "INSTALLING PAMAC..."
-  PS3="$prompt1"
+  PS3="$PROMPT1"
   _read_input_text " Install pamac? [y/N]: "
   echo -e "\n"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
