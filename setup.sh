@@ -205,10 +205,10 @@ _check_connection() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
     if _connection_test; then
-      _print_info " [ OK ] - You are connected."
+      echo -e "${BGreen}[ CONNECTED ]${Reset}"
       _print_done " [ DONE ]"
     else
-      _print_danger " [ ERROR ] - You are not connected."
+      echo -e " ${BRed}[ NO CONNECTION ]${Reset}"
       _print_done " [ GOOD BYE ]"
       _print_bline
       exit 1
@@ -218,7 +218,6 @@ _check_connection() {
 
 _time_sync() {
   _print_title "TIME SYNC..."
-  echo ""
   echo -ne "${BBlue} [ Running ]${Reset}"
   echo -ne "${BCyan} timedatectl set-ntp true"
   timedatectl set-ntp true && echo -e "${BYellow} [ OK ]${Reset}"
@@ -231,7 +230,6 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  echo ""
   echo -ne "${BBlue} [ Running ]${Reset}"
   echo -ne "${BCyan} reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYellow} [ OK ]${Reset}"
@@ -318,7 +316,7 @@ _format_partitions() {
 
   _format_efi_partiton() {
     _print_title "FORMATTING EFI PARTITION..."
-    #PS3="$prompt1"
+    PS3="$prompt1"
     _print_warning " * Select EFI partition:\n"
     select partition in "${partitions_list[@]}"; do
       if _contains_element "${partition}" "${partitions_list[@]}"; then
@@ -365,8 +363,8 @@ _format_partitions() {
 _install_base() {
   _print_title "INSTALLING THE BASE..."
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware nano intel-ucode btrfs-progs networkmanager"
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null
-  _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
+  echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}NetworkManager${Reset} ..."
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -594,8 +592,8 @@ _install_laptop_pkgs() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo -e "\n"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    systemctl enable bluetooth &> /dev/null
-    _print_info " Bluetooth service ${BYellow}ENABLED!${Reset}"
+    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}Bluetooth${Reset} ..."
+    systemctl enable bluetooth &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
   else
     echo -e "\n"
     echo -e " ${BBlue}Nothing to do!${Reset}"
@@ -689,8 +687,8 @@ _install_display_manager() {
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    sudo systemctl enable lightdm &> /dev/null
-    _print_info " Lightdm service ${BYellow}ENABLED!${Reset}"
+    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}Lightdm${Reset} ..."
+    sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
     _print_info "It's not working yet..."
@@ -700,13 +698,13 @@ _install_display_manager() {
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
-    sudo systemctl enable gdm &> /dev/null
-    _print_info " GDM service ${BYellow}ENABLED!${Reset}"
+    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}GDM${Reset} ..."
+    sudo systemctl enable gdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
-    sudo systemctl enable sddm &> /dev/null
-    _print_info " SDDM service ${BYellow}ENABLED!${Reset}"
+    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}SDDM${Reset} ..."
+    sudo systemctl enable sddm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
     _print_info " It's not working yet..."
@@ -724,7 +722,7 @@ _install_display_manager() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED !!!"
-  _print_warning " ${BCyan}[ OPTIONAL ]${BYellow} Proceed to the last step for install apps. Use ${BCyan}-u${BYellow} option.${Reset}"
+  _print_warning " ${BCyan}[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYellow}-u${BYellow} option.${Reset}"
   _print_done " [ DONE ]"
   _print_bline
   exit 0
