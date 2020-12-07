@@ -201,13 +201,16 @@ _initial_info() {
 
 _check_connection() {
   _print_title "TESTING CONNECTION..."
+    echo -ne " ${BBlue}[ Connecting ] ...${Reset}"
     _connection_test() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
     if _connection_test; then
-      echo -e "${BGreen}[ CONNECTED ]${Reset}"
+      _print_title "TESTING CONNECTION..."
+      echo -e " ${BGreen}[ CONNECTED ]${Reset}"
       _print_done " [ DONE ]"
     else
+      _print_title "TESTING CONNECTION..."
       echo -e " ${BRed}[ NO CONNECTION ]${Reset}"
       _print_done " [ GOOD BYE ]"
       _print_bline
