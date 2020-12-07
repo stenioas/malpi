@@ -297,7 +297,7 @@ _install_base() {
     nano \
     intel-ucode \
     btrfs-progs \
-    networkmanager    
+    networkmanager &> /ev/null &&
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager 1> /dev/null 2>&1
   _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
   _print_done " [ DONE ]"
@@ -711,8 +711,8 @@ _install_pamac() {
 
 _setup_install(){
     [[ $(id -u) != 0 ]] && {
-        _print_warning " * Only for 'root'.\n"
-        exit 1
+      _print_warning " * Only for 'root'.\n"
+      exit 1
     }
     _initial_info
     _check_connection
@@ -734,8 +734,8 @@ _setup_install(){
 
 _setup_config(){
     [[ $(id -u) != 0 ]] && {
-        _print_warning " * Only for 'root'.\n"
-        exit 1
+      _print_warning " * Only for 'root'.\n"
+      exit 1
     }
     _create_new_user
     _enable_multilib
@@ -750,8 +750,8 @@ _setup_config(){
 
 _setup_desktop(){
     [[ $(id -u) != 1000 ]] && {
-        _print_warning " * Only for 'normal user'.\n"
-        exit 1
+      _print_warning " * Only for 'normal user'.\n"
+      exit 1
     }
     _install_desktop
     _install_display_manager
@@ -761,8 +761,8 @@ _setup_desktop(){
 
 _setup_user(){
     [[ $(id -u) != 1000 ]] && {
-        _print_warning " * Only for 'normal user'.\n"
-        exit 1
+      _print_warning " * Only for 'normal user'.\n"
+      exit 1
     }
     _install_apps
     _install_pamac
@@ -772,6 +772,12 @@ _setup_user(){
 # ----------------------------------------------------------------------#
 
 ### OTHER FUNCTIONS
+
+_check_archlive() {
+  [[ $(df | grep "airootfs" | awk '{print $6}') != "" ]] && {
+    _print_danger " *** FIRST STEP MOST BE RUN IN LIVE MODE ***"
+  }
+}
 
 _print_line() {
   printf "%$(tput cols)s\n"|tr ' ' '-'
@@ -842,7 +848,6 @@ _is_package_installed() {
 }
 
 _package_install() {
-  #install packages using pacman
   _package_was_installed() {
     for PKG in $1; do
       if [[ $(id -u) == 0 ]]; then
@@ -868,14 +873,31 @@ _package_install() {
 }
 
 _group_package_install() {
+  # install a package group
   _package_install "$(pacman -Sqg ${1})"
+}
+
+_pacstrap_install() {
+  _pacstrap_was_installed() {
+    for PKG in $1; do
+      pacstrap "${ROOT_MOUNTPOINT}" "${PKG}" &> /dev/null && return 0;
+    done
+    return 1
+  }
+  for PKG in $1; do
+    echo -ne " ${BBlue}Installing${Reset} ${BCyan}[ ${PKG} ]${Reset} ..."
+    if _pacstrap_was_installed "${PKG}"; then
+      echo -e " ${BYellow}[ OK ]"
+    else
+      echo -e " ${BRed}[ ERROR ]"
+    fi
+  done
 }
 
 clear
 cat <<EOF
 ${BCyan}
   ┌─────────────────────────────────────────────────────────────────────────────────┐
-  │                                                                                 │
   │   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  │
   │  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ │
   │  ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝ │
