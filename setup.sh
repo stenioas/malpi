@@ -374,7 +374,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "INSTALLING THE BASE..."
-  _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware nano intel-ucode btrfs-progs networkmanager"
+  _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
   _print_warning " * Services"
   _print_line
   echo -ne "\n ${BBlue}[ Enabling ]${Reset} ${BCyan}NetworkManager${Reset} ..."
@@ -423,10 +423,10 @@ _set_locale() {
 _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
   echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  echo -ne "${BCyan} echo LANG=pt_BR.UTF-8 >> ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  echo -ne "${BCyan} echo KEYMAP=br-abnt2 >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function  
@@ -494,7 +494,7 @@ _finish_install() {
   _read_input_text " Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED !!!"
-    echo -ne "\n${BBlue} Downloading ${BCyan}setup.sh${Reset} ${BBlue}to /root${Reset} ..."
+    echo -ne " ${BBlue}[ Downloading ]${Reset} ${BCyan}setup.sh${Reset} ${BBlue}to /root${Reset} ..."
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BYellow} [ SAVED ]"
   fi
   _print_done " [ DONE ]"
