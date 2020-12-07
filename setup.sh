@@ -259,7 +259,7 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_info " Disks and partitions:\n"
+  _print_info " Attached disks:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | grep "disk" | awk '{print $1,$4,$6,$7}' | column -t
   _print_info " Select disk:\n"
   select DEVICE in "${DEVICES_LIST[@]}"; do
@@ -343,7 +343,7 @@ _format_partitions() {
       echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ..."
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     else
-      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ... ${BYellow}[ NOT FORMATTED ]${Reset}"
+      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ... ${BYellow}[ NOT FORMATTED ]${Reset}\n"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -378,16 +378,15 @@ _install_base() {
   _print_warning " * Services"
   _print_line
   echo -ne "\n ${BBlue}[ Enabling ]${Reset} ${BCyan}NetworkManager${Reset} ..."
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
 
 _fstab_generate() {
   _print_title "GENERATING FSTAB..."
-  echo -ne " ${BBlue}[ Running ]${Reset} ${BCyan}genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab${Reset} ..."
-  genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
-  echo ""
+  echo -ne " ${BBlue}[ Running ]${Reset} ${BCyan}genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${Reset} ..."
+  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}\n"
   _read_input_text " Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
@@ -641,7 +640,7 @@ _install_laptop_pkgs() {
     _print_warning " * Services"
     _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}Bluetooth${Reset} ..."
-    systemctl enable bluetooth &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
+    systemctl enable bluetooth &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
   else
     -_print_info " ${BBlue}Nothing to do!${Reset}"
   fi
@@ -736,7 +735,7 @@ _install_display_manager() {
     _print_warning " * Services"
     _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}Lightdm${Reset} ..."
-    sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
+    sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
     _print_info "It's not working yet..."
@@ -749,14 +748,14 @@ _install_display_manager() {
     _print_warning " * Services"
     _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}GDM${Reset} ..."
-    sudo systemctl enable gdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
+    sudo systemctl enable gdm &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
     _print_warning " * Services"
     _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}SDDM${Reset} ..."
-    sudo systemctl enable sddm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
+    sudo systemctl enable sddm &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
     _print_info " It's not working yet..."
