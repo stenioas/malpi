@@ -364,7 +364,7 @@ _format_partitions() {
 _install_base() {
   _print_title "INSTALLING THE BASE..."
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware nano intel-ucode btrfs-progs networkmanager"
-  echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}NetworkManager${Reset} ..."
+  echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}NetworkManager${Reset} ..."
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -378,8 +378,8 @@ _fstab_generate() {
   _read_input_text " Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
-    _print_title "GENERATING FSTAB..."
   fi
+  _print_title "GENERATING FSTAB..."
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -430,7 +430,9 @@ _set_hostname() {
     printf "%s" " ${BYellow}Type a hostname [ex: archlinux]:${Reset} "
     read -r NEW_HOSTNAME
   done
+  _print_title "SETTING HOSTNAME AND IP ADDRESS..."
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
+  echo -e " ${BBlue} Your hostname is${Reset} '${BYellow}${NEW_HOSTNAME}${Reset}'"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
   _print_done " [ DONE ]"
@@ -439,7 +441,8 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
-  echo -e " ${BBlue}[ Setting ]${Reset} root password ...\n"
+  echo -e " ${BBlue}[ Running ]${Reset} passwd ...\n"
+  echo -e " ${BYellow}Type a root password:${Reset}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done " [ DONE ]"
   _pause_function
@@ -456,7 +459,11 @@ _grub_generate() {
     read -r NEW_GRUB_NAME
   done
   _pacstrap_install "grub grub-btrfs efibootmgr"
+  _print_warning " * Installing grub on target..."
+  _print_line
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
+  _print_warning " * Generating grub.cfg..."
+  _print_line
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done " [ DONE ]"
   _pause_function  
@@ -475,7 +482,7 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED !!!"
     _package_install "wget"
-    echo -ne "\n${BBlue} Downloading setup.sh to /root${Reset} ..."
+    echo -ne "\n${BBlue} Downloading ${BCyan}setup.sh${Reset} ${BBlue}to /root${Reset} ..."
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BYellow} [ SAVED ]"
   fi
   _print_done " [ DONE ]"
@@ -548,8 +555,9 @@ _install_essential_pkgs() {
 _install_xorg() {
   _print_title "INSTALLING XORG..."
   echo -e " ${Purple}XORG${Reset}\n"
-  _package_install "xorg-server xorg-xinit xterm"
+  _group_package_install "xorg"
   _group_package_install "xorg-apps"
+  _package_install "xorg-xinit xterm"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -615,11 +623,10 @@ _install_laptop_pkgs() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo -e "\n"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}Bluetooth${Reset} ..."
+    echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}Bluetooth${Reset} ..."
     systemctl enable bluetooth &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
   else
-    echo -e "\n"
-    echo -e " ${BBlue}Nothing to do!${Reset}"
+    -_print_info " ${BBlue}Nothing to do!${Reset}"
   fi
   _print_done " [ DONE ]"
   _pause_function
@@ -627,7 +634,6 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED !!!"
-  _print_warning " * Copying this script to home ${NEW_USER}..."
   _print_done " [ DONE ]"
   _print_bline
   exit 0
@@ -710,7 +716,7 @@ _install_display_manager() {
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}Lightdm${Reset} ..."
+    echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}Lightdm${Reset} ..."
     sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -721,12 +727,12 @@ _install_display_manager() {
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
-    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}GDM${Reset} ..."
+    echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}GDM${Reset} ..."
     sudo systemctl enable gdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
-    echo -ne " ${BBlue}[ Enabling service ]${Reset} ${BCyan}SDDM${Reset} ..."
+    echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}SDDM${Reset} ..."
     sudo systemctl enable sddm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
