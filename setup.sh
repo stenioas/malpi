@@ -274,9 +274,9 @@ _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_info " Attached disks:\n"
-  lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | grep "disk" | awk '{print $1,$4,$6,$7}' | column -t
-  _print_info " Select disk:\n"
+  #_print_info " Attached disks:\n"
+  #lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | grep "disk" | awk '{print $1,$4,$6,$7}' | column -t
+  echo -e " ${BYellow}Select disk:${Reset}\n"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -285,9 +285,13 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
-  _print_info " Selected: ${BCyan}[ ${INSTALL_DISK} ]${Reset}"
+  _read_input_text " Edit disk partitions? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    cfdisk ${INSTALL_DISK}
+  fi
+  _print_title "DISK PARTITIONING..."
+  echo -e " ${BCyan}${INSTALL_DISK}${Reset} ... ${BYellow}[ SELECTED ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
