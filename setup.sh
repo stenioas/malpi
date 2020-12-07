@@ -307,6 +307,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
+    _print_title "FORMATTING ROOT PARTITION..."
     echo -ne "\n ${BBlue}[ ${ROOT_PARTITION} ]${Reset} ..."
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -337,10 +338,12 @@ _format_partitions() {
     done
     echo ""
     _read_input_text " Format EFI partition? [y/N]: "
+    _print_title "FORMATTING EFI PARTITION..."
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo ""
       echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ..."
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
+    else
+      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ... ${BYellow}[ NOT FORMATTED ]${Reset}"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
