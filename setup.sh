@@ -10,10 +10,16 @@
 # This script will only consider two partitions, ESP and root.
 # This script will format the root partition in btrfs format.
 # The ESP partition can be formatted if the user wants to.
+#
 # This script will create three subvolumes:
 #   @ for /
 #   @home for /home
 #   @ .snapshots for /.snapshots.
+#
+# This script sets zoneinfo to America/Fortaleza.
+# This script sets hwclock to UTC.
+#
+# ----------------------------------------------------------------------#
 #
 # References:
 #   Archfi script by Matmaoul - github.com/Matmoul
@@ -191,8 +197,17 @@ _check_archlive() {
 }
 
 _initial_info() {
-  _print_title "READ ME - IMPORTANT !!!"
-  _print_warning " 1. This script supports UEFI only.\n 2. This script will install GRUB as default bootloader.\n 3. This script, for now, only installs the lts kernel.\n 4. This script will only consider two partitions, ESP and root.\n 5. This script will format the root partition in btrfs format.\n 6. The ESP partition can be formatted if the user wants to.\n 7. This script does not support swap.\n 8. This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots."
+  _print_title "${BRed}IMPORTANT${BWhite} --- README${Reset}"
+  echo -e "\n - This script supports UEFI only."
+  echo -e "\n - This script will install GRUB as default bootloader."
+  echo -e "\n - This script, for now, only installs the lts kernel."
+  echo -e "\n - This script will only consider two partitions, ESP and root."
+  echo -e "\n - This script will format the root partition in btrfs format."
+  echo -e "\n - The ESP partition can be formatted if the user wants to."
+  echo -e "\n - This script does not support swap."
+  echo -e "\n - This script will create three subvolumes:\n   @ for /\n   @home for /home\n   @ .snapshots for /.snapshots."
+  echo -e "\n - This script sets zoneinfo as America/Fortaleza."
+  echo -e "\n - This script sets hwclock as UTC."
   _print_danger " *** THIS SCRIPT IS NOT YET COMPLETE ***"
   _print_done " [ DONE ]"
   _pause_function
