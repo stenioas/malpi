@@ -233,7 +233,7 @@ _format_partitions() {
     btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} Created!${Reset}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} 1> /dev/null 2>&1
+    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
@@ -297,8 +297,8 @@ _install_base() {
     nano \
     intel-ucode \
     btrfs-progs \
-    networkmanager &> /ev/null &&
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager 1> /dev/null 2>&1
+    networkmanager
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null
   _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -315,11 +315,11 @@ _fstab_generate() {
 _set_locale() {
   _print_title "SETTING TIME ZONE..."
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime > /dev/null 2>&1
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service > /dev/null 2>&1
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen
@@ -510,7 +510,7 @@ _install_laptop_pkgs() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo -e "\n"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    systemctl enable bluetooth > /dev/null 2>&1
+    systemctl enable bluetooth &> /dev/null
     _print_info " Bluetooth service ${BYellow}ENABLED!${Reset}"
   else
     echo -e "\n"
@@ -605,7 +605,7 @@ _install_display_manager() {
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    sudo systemctl enable lightdm > /dev/null 2>&1
+    sudo systemctl enable lightdm &> /dev/null
     _print_info " Lightdm service ${BYellow}ENABLED!${Reset}"
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -616,12 +616,12 @@ _install_display_manager() {
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
-    sudo systemctl enable gdm > /dev/null 2>&1
+    sudo systemctl enable gdm &> /dev/null
     _print_info " GDM service ${BYellow}ENABLED!${Reset}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
-    sudo systemctl enable sddm > /dev/null 2>&1
+    sudo systemctl enable sddm &> /dev/null
     _print_info " SDDM service ${BYellow}ENABLED!${Reset}"
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
@@ -855,9 +855,9 @@ _package_install() {
   _package_was_installed() {
     for PKG in $1; do
       if [[ $(id -u) == 0 ]]; then
-        pacman -S --noconfirm --needed "${PKG}" 1> /dev/null 2>&1 && return 0;
+        pacman -S --noconfirm --needed "${PKG}" &> /dev/null && return 0;
       else
-        sudo pacman -S --noconfirm --needed "${PKG}" 1> /dev/null 2>&1 && return 0;
+        sudo pacman -S --noconfirm --needed "${PKG}" &> /dev/null && return 0;
       fi
     done
     return 1
