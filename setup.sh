@@ -287,7 +287,7 @@ _select_disk() {
   INSTALL_DISK=${DEVICE}
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
-  _print_info " Selected: ${Purple}[ ${INSTALL_DISK} ]${Reset}"
+  _print_info " Selected: ${BCyan}[ ${INSTALL_DISK} ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
 }
@@ -326,9 +326,9 @@ _format_partitions() {
     echo -ne "\n ${BBlue}[ ${ROOT_PARTITION} ]${Reset} ..."
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BWhite}/@${Reset} ... ${BYellow}[ CREATED ]${Reset}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} ... ${BYellow}[ CREATED ]${Reset}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} ... ${BYellow}[ CREATED ]${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BCyan}/@${Reset} ... ${BYellow}[ CREATED ]${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${Blue}Subvolume ${BCyan}/@home${Reset} ... ${BYellow}[ CREATED ]${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${Blue}Subvolume ${BCyan}/@.snapshots${Reset} ... ${BYellow}[ CREATED ]${Reset}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -439,10 +439,10 @@ _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
   echo -ne "${BBlue} [ Running ]${Reset}"
   echo -ne "${BCyan} echo LANG=pt_BR.UTF-8 >> ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
+  echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BYellow} [ OK ]${Reset}"
   echo -ne "${BBlue} [ Running ]${Reset}"
   echo -ne "${BCyan} echo KEYMAP=br-abnt2 >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
+  echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function  
 }
