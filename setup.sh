@@ -112,9 +112,83 @@ EOF
 
 # ----------------------------------------------------------------------#
 
+### CORE FUNCTIONS
+
+_setup_install(){
+    [[ $(id -u) != 0 ]] && {
+      _print_warning " * Only for 'root'.\n"
+      exit 1
+    }
+    _check_archlive
+    _initial_info
+    _check_connection
+    _time_sync
+    _rank_mirrors
+    _select_disk
+    _format_partitions
+    _install_base
+    _fstab_generate
+    _set_locale
+    _set_language
+    _set_hostname
+    _root_passwd
+    _grub_generate
+    _mkinitcpio_generate
+    _finish_install
+    exit 0
+}
+
+_setup_config(){
+    [[ $(id -u) != 0 ]] && {
+      _print_warning " * Only for 'root'.\n"
+      exit 1
+    }
+    _create_new_user
+    _enable_multilib
+    _install_essential_pkgs
+    _install_xorg
+    _install_vga
+    _install_extra_pkgs
+    _install_laptop_pkgs
+    _finish_config
+    exit 0
+}
+
+_setup_desktop(){
+    [[ $(id -u) != 1000 ]] && {
+      _print_warning " * Only for 'normal user'.\n"
+      exit 1
+    }
+    _install_desktop
+    _install_display_manager
+    _finish_desktop
+    exit 0
+}
+
+_setup_user(){
+    [[ $(id -u) != 1000 ]] && {
+      _print_warning " * Only for 'normal user'.\n"
+      exit 1
+    }
+    _install_apps
+    _install_pamac
+    exit 0
+}
+
+# ----------------------------------------------------------------------#
+
 ### BASE FUNCTIONS
 
 # --- INSTALL SECTION --- >
+
+_check_archlive() {
+  [[ $(df | grep -w "/" | awk '{print $1}') != "airootfs" ]] && {
+    _print_danger " *** FIRST STEP MOST BE RUN IN LIVE MODE ***"
+    _print_done " [ DONE ]"
+    _print_bline
+    exit 1
+  }
+}
 
 _initial_info() {
   _print_title "READ ME - IMPORTANT !!!"
@@ -289,15 +363,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "INSTALLING THE BASE..."
-  pacstrap ${ROOT_MOUNTPOINT} \
-    base base-devel \
-    linux-lts \
-    linux-lts-headers \
-    linux-firmware \
-    nano \
-    intel-ucode \
-    btrfs-progs \
-    networkmanager
+  _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware nano intel-ucode btrfs-progs networkmanager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null
   _print_info " Networkmanager service ${BYellow}ENABLED!${Reset}"
   _print_done " [ DONE ]"
@@ -357,7 +423,7 @@ _grub_generate() {
   _print_title "GRUB INSTALLATION..."
   printf "%s" " ${BYellow}Grub entry name [ex: Archlinux]:${Reset} " 
   read -r NEW_GRUB_NAME
-  pacstrap ${ROOT_MOUNTPOINT} grub grub-btrfs efibootmgr os-prober
+  _pacstrap_install "grub grub-btrfs efibootmgr"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done " [ DONE ]"
@@ -376,8 +442,9 @@ _finish_install() {
   _read_input_text " Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo ""
-    echo -ne "${BBlue} Downloading setup.sh to /root${Reset} ..."
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e " ${Green} [ SAVED ]"
+    _package_install "wget"
+    echo -ne "\n${BBlue} Downloading setup.sh to /root${Reset} ..."
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${Green} [ SAVED ]"
   fi
   _print_done " [ DONE ]"
   _print_bline
@@ -707,81 +774,7 @@ _install_pamac() {
 
 # --- END USER SECTION --- >
 
-### CORE FUNCTIONS
-
-_setup_install(){
-    [[ $(id -u) != 0 ]] && {
-      _print_warning " * Only for 'root'.\n"
-      exit 1
-    }
-    _check_archlive
-    _initial_info
-    _check_connection
-    _time_sync
-    _rank_mirrors
-    _select_disk
-    _format_partitions
-    _install_base
-    _fstab_generate
-    _set_locale
-    _set_language
-    _set_hostname
-    _root_passwd
-    _grub_generate
-    _mkinitcpio_generate
-    _finish_install
-    exit 0
-}
-
-_setup_config(){
-    [[ $(id -u) != 0 ]] && {
-      _print_warning " * Only for 'root'.\n"
-      exit 1
-    }
-    _create_new_user
-    _enable_multilib
-    _install_essential_pkgs
-    _install_xorg
-    _install_vga
-    _install_extra_pkgs
-    _install_laptop_pkgs
-    _finish_config
-    exit 0
-}
-
-_setup_desktop(){
-    [[ $(id -u) != 1000 ]] && {
-      _print_warning " * Only for 'normal user'.\n"
-      exit 1
-    }
-    _install_desktop
-    _install_display_manager
-    _finish_desktop
-    exit 0
-}
-
-_setup_user(){
-    [[ $(id -u) != 1000 ]] && {
-      _print_warning " * Only for 'normal user'.\n"
-      exit 1
-    }
-    _install_apps
-    _install_pamac
-    exit 0
-}
-
-# ----------------------------------------------------------------------#
-
 ### OTHER FUNCTIONS
-
-_check_archlive() {
-  [[ $(df | grep "airootfs" | awk '{print $6}') == "" ]] && {
-    _print_danger " *** FIRST STEP MOST BE RUN IN LIVE MODE ***"
-    _print_done " [ DONE ]"
-    _print_bline
-    exit 1
-  }
-}
 
 _print_line() {
   printf "%$(tput cols)s\n"|tr ' ' '-'
