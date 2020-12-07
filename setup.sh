@@ -97,8 +97,6 @@ EOF
       NEW_LANGUAGE="pt_BR"
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
-      NEW_USER="user"
-      NEW_HOSTNAME="archlinux"
       NEW_GRUB_NAME="Archlinux"
       TRIM=0
 
@@ -301,7 +299,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "\n ${BBlue}[ ${ROOT_PARTITION} ]${Reset}"
+    echo -ne "\n ${BBlue}[ ${ROOT_PARTITION} ]${Reset} ..."
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BWhite}/@${Reset} ... ${BYellow}[ CREATED ]${Reset}"
@@ -333,7 +331,7 @@ _format_partitions() {
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo ""
-      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset}"
+      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ..."
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -374,15 +372,20 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "GENERATING FSTAB..."
-  genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab
-  cat ${ROOT_MOUNTPOINT}/etc/fstab
+  echo -ne " ${BBlue}[ Running ]${Reset} ${BCyan}genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab${Reset} ..."
+  genfstab -U ${ROOT_MOUNTPOINT} >> ${ROOT_MOUNTPOINT}/etc/fstab &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}"
+  echo ""
+  _read_input_text " Check your fstab file? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    nano ${ROOT_MOUNTPOINT}/etc/fstab
+    _print_title "GENERATING FSTAB..."
+  fi
   _print_done " [ DONE ]"
   _pause_function
 }
 
 _set_locale() {
   _print_title "SETTING TIME ZONE..."
-  echo ""
   echo -ne "${BBlue} [ Running ]${Reset}"
   echo -ne "${BCyan} timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
@@ -407,10 +410,9 @@ _set_locale() {
 
 _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
-  echo ""
   echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
+  echo -ne "${BCyan} echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   echo -ne "${BBlue} [ Running ]${Reset}"
   echo -ne "${BCyan} echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
@@ -420,17 +422,24 @@ _set_language() {
 
 _set_hostname() {
   _print_title "SETTING HOSTNAME AND IP ADDRESS..."
-  printf "%s" " ${BYellow}Hostname [ex: archlinux]:${Reset} " 
+  printf "%s" " ${BYellow}Type a hostname [ex: archlinux]:${Reset} "
   read -r NEW_HOSTNAME
+  while [[ "${NEW_HOSTNAME}" == "" ]]; do
+    _print_title "SETTING HOSTNAME AND IP ADDRESS..."
+    _print_danger " You need to enter a hostname."
+    printf "%s" " ${BYellow}Type a hostname [ex: archlinux]:${Reset} "
+    read -r NEW_HOSTNAME
+  done
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
+  if
   _print_done " [ DONE ]"
   _pause_function  
 }
 
 _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
-  _print_warning " * Setting root password...\n"
+  echo -e " ${BBlue}[ Setting ]${Reset} root password ...\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done " [ DONE ]"
   _pause_function
@@ -438,9 +447,14 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB INSTALLATION..."
-  printf "%s" " ${BYellow}Grub entry name [ex: Archlinux]:${Reset} " 
+  printf "%s" " ${BYellow}Type a grub name entry [ex: Archlinux]:${Reset} " 
   read -r NEW_GRUB_NAME
-  echo ""
+  while [[ "${NEW_GRUB_NAME}" == "" ]]; do
+    _print_title "GRUB INSTALLATION..."
+    _print_danger " You need to enter a grub name entry."
+    printf "%s" " ${BYellow}Type a grub name entry [ex: Archlinux]:${Reset} "
+    read -r NEW_GRUB_NAME
+  done
   _pacstrap_install "grub grub-btrfs efibootmgr"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
@@ -462,7 +476,7 @@ _finish_install() {
     _print_title "FIRST STEP FINISHED !!!"
     _package_install "wget"
     echo -ne "\n${BBlue} Downloading setup.sh to /root${Reset} ..."
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${Green} [ SAVED ]"
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BYellow} [ SAVED ]"
   fi
   _print_done " [ DONE ]"
   _print_bline
@@ -484,6 +498,12 @@ _create_new_user() {
   _print_title "CREATE NEW USER..."
   printf "%s" " ${BYellow}Username:${Reset} "
   read -r NEW_USER
+  while [[ "${NEW_USER}" == "" ]]; do
+    _print_title "CREATE NEW USER..."
+    _print_warning " You need to enter a username."
+    printf "%s" " ${BYellow}Username:${Reset} "
+    read -r NEW_USER
+  done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     useradd -m -g users -G wheel ${NEW_USER}
