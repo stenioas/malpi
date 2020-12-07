@@ -301,12 +301,12 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_info " On ${Purple}[ ${ROOT_PARTITION} ]${Reset}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_info " FORMATTED!"
+    echo -ne "\n ${BBlue}[ ${ROOT_PARTITION} ]${Reset}"
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BWhite}/@${Reset} Created!${Reset}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} Created!${Reset}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} Created!${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BWhite}/@${Reset} ... ${BYellow}[ CREATED ]${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@home${Reset} ... ${BYellow}[ CREATED ]${Reset}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${Blue}Subvolume ${BWhite}/@.snapshots${Reset} ... ${BYellow}[ CREATED ]${Reset}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -333,8 +333,8 @@ _format_partitions() {
     _read_input_text " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo ""
-      _print_info " On ${Purple}[ ${EFI_PARTITION} ]${Reset}"
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_info " FORMATTED!"
+      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset}"
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
