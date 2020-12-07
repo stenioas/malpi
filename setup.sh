@@ -197,6 +197,13 @@ _initial_info() {
   _pause_function
 }
 
+_initial_packages() {
+  _print_title "INSTALLING NECESSARY PACKAGES..."
+  _package_install "wget git nano"
+  _print_done " [ DONE ]"
+  _pause_function
+}
+
 _check_connection() {
   _print_title "TESTING CONNECTION..."
     echo -ne " ${BBlue}[ Connecting ] ...${Reset}"
@@ -250,18 +257,18 @@ _rank_mirrors() {
 _select_disk() {
   _print_title "DISK PARTITIONING..."
   PS3="$prompt1"
-  devices_list=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
+  DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_info " Disks and partitions:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | grep "disk" | awk '{print $1,$4,$6,$7}' | column -t
   _print_info " Select disk:\n"
-  select device in "${devices_list[@]}"; do
-    if _contains_element "${device}" "${devices_list[@]}"; then
+  select DEVICE in "${DEVICES_LIST[@]}"; do
+    if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
     else
       _invalid_option
     fi
   done
-  INSTALL_DISK=${device}
+  INSTALL_DISK=${DEVICE}
   cfdisk ${INSTALL_DISK}
   _print_title "DISK PARTITIONING..."
   _print_info " Selected: ${Purple}[ ${INSTALL_DISK} ]${Reset}"
@@ -271,14 +278,14 @@ _select_disk() {
 
 _format_partitions() {
   _print_title "FORMATTING AND MOUNTING PARTITIONS..."
-  block_list=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
+  BLOCK_LIST=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
 
-  partitions_list=()
-  for OPT in "${block_list[@]}"; do
-    partitions_list+=("/dev/${OPT}")
+  PARTITIONS_LIST=()
+  for OPT in "${BLOCK_LIST[@]}"; do
+    PARTITIONS_LIST+=("/dev/${OPT}")
   done
 
-  if [[ ${#block_list[@]} -eq 0 ]]; then
+  if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
     _print_warning " No partition found."
     exit 0
   fi
@@ -287,10 +294,10 @@ _format_partitions() {
     _print_title "FORMATTING ROOT PARTITION..."
     PS3="$prompt1"
     _print_warning " * Select partition to create btrfs subvolumes:\n * Remember, this script will create 3 subvolumes:\n   - @ for /,\n   - @home for /home,\n   - @.snapshots for snapshots.\n"
-    select partition in "${partitions_list[@]}"; do
-      if _contains_element "${partition}" "${partitions_list[@]}"; then
-        partition_number=$((REPLY -1))
-        ROOT_PARTITION="$partition"
+    select PARTITION in "${PARTITIONS_LIST[@]}"; do
+      if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
+        PARTITION_NUMBER=$((REPLY -1))
+        ROOT_PARTITION="$PARTITION"
         break;
       else
         _invalid_option
@@ -315,13 +322,13 @@ _format_partitions() {
     _pause_function
   }
 
-  _format_efi_partiton() {
+  _format_efi_partition() {
     _print_title "FORMATTING EFI PARTITION..."
     PS3="$prompt1"
     _print_warning " * Select EFI partition:\n"
-    select partition in "${partitions_list[@]}"; do
-      if _contains_element "${partition}" "${partitions_list[@]}"; then
-        EFI_PARTITION="${partition}"
+    select PARTITION in "${PARTITIONS_LIST[@]}"; do
+      if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
+        EFI_PARTITION="${PARTITION}"
         break;
       else
         _invalid_option
@@ -342,8 +349,8 @@ _format_partitions() {
   }
 
   _disable_partition() {
-    unset partitions_list["${partition_number}"]
-    partitions_list=("${partitions_list[@]}")
+    unset PARTITIONS_LIST["${PARTITION_NUMBER}"]
+    PARTITIONS_LIST=("${PARTITIONS_LIST[@]}")
   }
 
   _check_mountpoint() {
@@ -355,7 +362,7 @@ _format_partitions() {
     fi
   }
   _format_root_partition
-  _format_efi_partiton
+  _format_efi_partition
   _print_title "FORMATTING AND MOUNTING PARTITIONS..."
   _print_done " [ DONE ]"
   _pause_function
@@ -364,7 +371,9 @@ _format_partitions() {
 _install_base() {
   _print_title "INSTALLING THE BASE..."
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware nano intel-ucode btrfs-progs networkmanager"
-  echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}NetworkManager${Reset} ..."
+  _print_warning " * Services"
+  _print_line
+  echo -ne "\n ${BBlue}[ Enabling ]${Reset} ${BCyan}NetworkManager${Reset} ..."
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -432,7 +441,7 @@ _set_hostname() {
   done
   _print_title "SETTING HOSTNAME AND IP ADDRESS..."
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  echo -e " ${BBlue} Your hostname is${Reset} '${BYellow}${NEW_HOSTNAME}${Reset}'"
+  echo -e " ${BBlue}Your hostname is${Reset} '${BYellow}${NEW_HOSTNAME}${Reset}'"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
   echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
   _print_done " [ DONE ]"
@@ -441,8 +450,8 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
-  echo -e " ${BBlue}[ Running ]${Reset} passwd ...\n"
-  echo -e " ${BYellow}Type a root password:${Reset}"
+  echo -e " ${BBlue}[ Running ]${Reset} passwd ..."
+  _print_warning " ${BYellow}* Type a root password:${Reset}\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done " [ DONE ]"
   _pause_function
@@ -458,6 +467,7 @@ _grub_generate() {
     printf "%s" " ${BYellow}Type a grub name entry [ex: Archlinux]:${Reset} "
     read -r NEW_GRUB_NAME
   done
+  _print_title "GRUB INSTALLATION..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_warning " * Installing grub on target..."
   _print_line
@@ -481,7 +491,6 @@ _finish_install() {
   _read_input_text " Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED !!!"
-    _package_install "wget"
     echo -ne "\n${BBlue} Downloading ${BCyan}setup.sh${Reset} ${BBlue}to /root${Reset} ..."
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BYellow} [ SAVED ]"
   fi
@@ -493,6 +502,8 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
+  else
+    clear
   fi
   exit 0
 }
@@ -623,6 +634,8 @@ _install_laptop_pkgs() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo -e "\n"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
+    _print_warning " * Services"
+    _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}Bluetooth${Reset} ..."
     systemctl enable bluetooth &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
   else
@@ -716,6 +729,8 @@ _install_display_manager() {
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
+    _print_warning " * Services"
+    _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}Lightdm${Reset} ..."
     sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
@@ -727,11 +742,15 @@ _install_display_manager() {
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
+    _print_warning " * Services"
+    _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}GDM${Reset} ..."
     sudo systemctl enable gdm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
+    _print_warning " * Services"
+    _print_line
     echo -ne " ${BBlue}[ Enabling ]${Reset} ${BCyan}SDDM${Reset} ..."
     sudo systemctl enable sddm &> /dev/null && echo -e " ${BYellow}[ ENABLED ]${Reset}"
 
