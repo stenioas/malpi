@@ -438,11 +438,11 @@ _set_locale() {
 _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
   echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo LANG=pt_BR.UTF-8 >> ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" >> ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BYellow} [ OK ]${Reset}"
+  echo -ne "${BCyan} echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BYellow} [ OK ]${Reset}"
   echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo KEYMAP=br-abnt2 >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=br-abnt2" >> ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BYellow} [ OK ]${Reset}"
+  echo -ne "${BCyan} echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function  
 }
@@ -459,9 +459,14 @@ _set_hostname() {
   done
   _print_title "SETTING HOSTNAME AND IP ADDRESS..."
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  echo -e " ${BBlue}Your hostname is${Reset} '${BYellow}${NEW_HOSTNAME}${Reset}'"
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname
-  echo -e "127.0.0.1 localhost.localdomain localhost\n::1 localhost.localdomain localhost\n127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hosts
+  echo -ne "${BBlue} [ Running ]${Reset}"
+  echo -ne "${BCyan} echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
+  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BYellow} [ OK ]${Reset}"
+  echo -ne "${BBlue} [ Setting ]${Reset}"
+  echo -ne "${BCyan} Ip address on /etc/hosts"
+  echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
+  echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function  
 }
