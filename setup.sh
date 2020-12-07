@@ -712,6 +712,7 @@ _install_pamac() {
 _setup_install(){
     [[ $(id -u) != 0 ]] && {
       _print_warning " * Only for 'root'.\n"
+      _check_archlive
       exit 1
     }
     _initial_info
@@ -776,6 +777,7 @@ _setup_user(){
 _check_archlive() {
   [[ $(df | grep "airootfs" | awk '{print $6}') != "" ]] && {
     _print_danger " *** FIRST STEP MOST BE RUN IN LIVE MODE ***"
+    exit 1
   }
 }
 
