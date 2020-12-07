@@ -386,7 +386,7 @@ _install_base() {
 _fstab_generate() {
   _print_title "GENERATING FSTAB..."
   echo -ne " ${BBlue}[ Running ]${Reset} ${BCyan}genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${Reset} ..."
-  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab &> /dev/null && echo -e " ${BYellow}[ OK ]${Reset}\n"
+  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BYellow}[ OK ]${Reset}\n"
   _read_input_text " Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
