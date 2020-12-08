@@ -245,8 +245,7 @@ _check_connection() {
 
 _time_sync() {
   _print_title "TIME SYNC..."
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} timedatectl set-ntp true"
+  _print_running "timedatectl set-ntp true"
   timedatectl set-ntp true && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -332,7 +331,7 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_title "FORMATTING ROOT PARTITION..."
-    echo -ne "${BCyan}${ROOT_PARTITION}${Reset} ..."
+    echo -ne " ${BCyan}${ROOT_PARTITION}${Reset} ..."
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BCyan}/@${Reset} ... ${BYellow}[ CREATED ]${Reset}"
@@ -364,7 +363,7 @@ _format_partitions() {
     _read_input_text " Format EFI partition? [y/N]: "
     _print_title "FORMATTING EFI PARTITION..."
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "${BCyan}${EFI_PARTITION}${Reset} ..."
+      echo -ne " ${BCyan}${EFI_PARTITION}${Reset} ..."
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     else
       echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ... ${BYellow}[ NOT FORMATTED ]${Reset}\n"
@@ -482,8 +481,9 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "SETTING ROOT PASSWORD..."
-  echo -e " ${BBlue}[ Running ]${Reset} passwd ..."
-  _print_warning " ${BYellow}* Type a root password:${Reset}\n"
+  echo -ne " ${BBlue}[ Running ]${Reset}"
+  echo -e " ${BCyan}passwd${Reset} ..."
+  _print_warning " ${BYellow}Type a root password:${Reset}\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done " [ DONE ]"
   _pause_function
@@ -897,14 +897,15 @@ _print_title_alert() {
   _print_line_yellow
 }
 
-_print_done() {
-  T_COLS=$(tput cols)
-  echo -e "\n${BGreen}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
-}
-
 _print_info() {
   T_COLS=$(tput cols)
   echo -e "\n${BBlue}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_running() {
+  T_COLS=$(tput cols)
+  echo -ne "${BYellow}==>${Reset} ${BWhite}[ Running ]${Reset} "
+  echo -e "${Yellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -915,6 +916,11 @@ _print_warning() {
 _print_danger() {
   T_COLS=$(tput cols)
   echo -e "\n${BRed}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_done() {
+  T_COLS=$(tput cols)
+  echo -e "\n${BGreen}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
