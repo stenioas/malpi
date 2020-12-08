@@ -314,10 +314,10 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT PARTITION..."
     PS3="$PROMPT1"
-    echo -e " ${BRed} * Remember, this script will create 3 subvolumes:${Reset}"
-    echo -ne " ${BCyan}   - @ for ${BYellow}/${Reset}"
-    echo -ne " ${BCyan}   - @home for ${BYellow}/home${Reset}"
-    echo -e " ${BCyan}   - @.snapshots for ${BYellow}/.snapshots${Reset}"
+    echo -e " ${BRed}* REMEMBER!!! This script will create 3 subvolumes:${Reset}"
+    echo -e " ${BCyan}   - @ for ${BYellow}/${Reset}"
+    echo -e " ${BCyan}   - @home for ${BYellow}/home${Reset}"
+    echo -e " ${BCyan}   - @.snapshots for ${BYellow}/.snapshots${Reset}\n"
     echo -e " ${BYellow}Select partition to create btrfs subvolumes:${Reset}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -332,7 +332,7 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_title "FORMATTING ROOT PARTITION..."
-    echo -ne "\n ${BBlue}[ ${ROOT_PARTITION} ]${Reset} ..."
+    echo -ne "${BCyan}${ROOT_PARTITION}${Reset} ..."
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${Blue}Subvolume ${BCyan}/@${Reset} ... ${BYellow}[ CREATED ]${Reset}"
@@ -351,7 +351,7 @@ _format_partitions() {
   _format_efi_partition() {
     _print_title "FORMATTING EFI PARTITION..."
     PS3="$PROMPT1"
-    _print_warning " * Select EFI partition:\n"
+    echo -e " ${BYellow}Select EFI partition:${Reset}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -364,7 +364,7 @@ _format_partitions() {
     _read_input_text " Format EFI partition? [y/N]: "
     _print_title "FORMATTING EFI PARTITION..."
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ..."
+      echo -ne "${BCyan}${EFI_PARTITION}${Reset} ..."
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYellow}[ FORMATTED ]${Reset}"
     else
       echo -ne "\n ${BBlue}[ ${EFI_PARTITION} ]${Reset} ... ${BYellow}[ NOT FORMATTED ]${Reset}\n"
