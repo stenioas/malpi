@@ -876,7 +876,7 @@ _print_line() {
 }
 
 _print_line_yellow() {
-  printf "%$(${BYellow}tput cols${Reset})s\n"|tr ' ' '-'
+  printf "${BYellow}%$(tput cols)s\n${Reset}"|tr ' ' '-'
 }
 
 _print_bline() {
