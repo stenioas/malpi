@@ -256,8 +256,7 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
+  _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYellow} [ OK ]${Reset}"
   echo ""
   _read_input_text " Check your mirrorlist file? [y/N]: "
@@ -265,8 +264,7 @@ _rank_mirrors() {
     nano /etc/pacman.d/mirrorlist
   fi
   _print_title "UPDATING MIRRORS..."
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} pacman -Syy"
+  _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function
@@ -408,7 +406,7 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "GENERATING FSTAB..."
-  echo -ne " ${BBlue}[ Running ]${Reset} ${BCyan}genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${Reset} ..."
+  _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${Reset} ..."
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BYellow}[ OK ]${Reset}\n"
   _read_input_text " Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -421,22 +419,18 @@ _fstab_generate() {
 
 _set_locale() {
   _print_title "SETTING TIME ZONE..."
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} timedatectl set-ntp true"
+  _print_running "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
+  _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} hwclock --systohc --utc"
+  _print_running "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} locale-gen"
+  _print_running "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && echo -e "${BYellow} [ OK ]${Reset}"
   timedatectl set-ntp true
   _print_done " [ DONE ]"
@@ -445,11 +439,9 @@ _set_locale() {
 
 _set_language() {
   _print_title "SETTING LANGUAGE AND KEYMAP..."
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BYellow} [ OK ]${Reset}"
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BYellow} [ OK ]${Reset}"
   _print_done " [ DONE ]"
   _pause_function  
@@ -467,8 +459,7 @@ _set_hostname() {
   done
   _print_title "SETTING HOSTNAME AND IP ADDRESS..."
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  echo -ne "${BBlue} [ Running ]${Reset}"
-  echo -ne "${BCyan} echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
+  _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BYellow} [ OK ]${Reset}"
   echo -ne "${BBlue} [ Setting ]${Reset}"
   echo -ne "${BCyan} Ip address on /etc/hosts"
@@ -912,8 +903,14 @@ _print_info() {
 
 _print_running() {
   T_COLS=$(tput cols)
-  echo -ne "${BYellow}==>${Reset} ${BWhite}[ Running ]${Reset} "
-  echo -ne "${Yellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${Blue}  ->${Reset} ${BWhite}Running${Reset} "
+  echo -ne "${BCyan}[ $1 ]${Reset}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_installing() {
+  T_COLS=$(tput cols)
+  echo -ne "${Blue}  ->${Reset} ${BWhite}Installing${Reset} "
+  echo -ne "${BCyan}[ $1 ]${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -977,14 +974,15 @@ _package_install() {
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      echo -ne " ${BBlue}[ Installing ]${Reset} ${BCyan}${PKG}${Reset} ..."
+      _print_installing "${PKG}"
       if _package_was_installed "${PKG}"; then
         echo -e " ${BYellow}[ SUCCESS ]${Reset}"
       else
         echo -e " ${BRed}[ ERROR ]${Reset}"
       fi
     else
-      echo -e " ${BBlue}[ Installing ]${Reset} ${BCyan}${PKG}${Reset} ... ${Yellow}[ EXISTS ]${Reset}"
+      _print_installing "${PKG}"
+      echo -e " ${BYellow}[ EXISTS ]${Reset}"
     fi
   done
 }
@@ -1002,7 +1000,7 @@ _pacstrap_install() {
     return 1
   }
   for PKG in $1; do
-    echo -ne " ${BBlue}[ Installing ]${Reset} ${BCyan}${PKG}${Reset} ..."
+    _print_installing "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
       echo -e " ${BYellow}[ OK ]${Reset}"
     else
