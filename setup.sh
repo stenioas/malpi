@@ -197,7 +197,7 @@ _check_archlive() {
 }
 
 _initial_info() {
-  _print_title "${BRed}IMPORTANT${BWhite} --- README${Reset}"
+  _print_title_alert "README - IMPORTANT"
   echo -e "\n - ${BCyan}This script supports UEFI only.${Reset}"
   echo -e "\n - ${BCyan}This script will install GRUB as default bootloader.${Reset}"
   echo -e "\n - ${BCyan}This script, for now, only installs the lts kernel.${Reset}"
@@ -875,6 +875,10 @@ _print_line() {
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
+_print_line_yellow() {
+  printf "%$(${BYellow}tput cols${Reset})s\n"|tr ' ' '-'
+}
+
 _print_bline() {
   printf "%$(tput cols)s\n"|tr ' ' '_'
 }
@@ -884,6 +888,13 @@ _print_title() {
   _print_line
   echo -e "${BWhite}# $1${Reset}"
   _print_line
+}
+
+_print_title_alert() {
+  clear
+  _print_line_yellow
+  echo -e "${BRed}# $1${Reset}"
+  _print_line_yellow
 }
 
 _print_done() {
