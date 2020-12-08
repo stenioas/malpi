@@ -894,14 +894,15 @@ _print_bline() {
 _print_title() {
   clear
   _print_dline
-  echo -e "${BWhite}|  $1${Reset}\n"
+  echo -e "${BWhite} $1${Reset}"
+  _print_line
 }
 
 _print_title_alert() {
   clear
-  _print_line_yellow
-  echo -e "${BRed} > $1${Reset}"
   _print_dline_yellow
+  echo -e "${BRed} $1${Reset}"
+  _print_line_yellow
 }
 
 _print_info() {
