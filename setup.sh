@@ -287,7 +287,7 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   _print_title "DISK PARTITIONING..."
-  echo -e " ${BCyan}${INSTALL_DISK}${Reset} ... ${BYellow}[ SELECTED ]${Reset}"
+  echo -e " ${BCyan}${INSTALL_DISK}${Reset} ... ${BYellow}[ SELECTED ]${Reset}\n"
   _read_input_text " Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -314,7 +314,11 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT PARTITION..."
     PS3="$PROMPT1"
-    _print_warning " * Select partition to create btrfs subvolumes:\n * Remember, this script will create 3 subvolumes:\n   - @ for /,\n   - @home for /home,\n   - @.snapshots for snapshots.\n"
+    echo -e " ${BRed} * Remember, this script will create 3 subvolumes:${Reset}"
+    echo -ne " ${BCyan}   - @ for ${BYellow}/${Reset}"
+    echo -ne " ${BCyan}   - @home for ${BYellow}/home${Reset}"
+    echo -e " ${BCyan}   - @.snapshots for ${BYellow}/.snapshots${Reset}"
+    echo -e " ${BYellow}Select partition to create btrfs subvolumes:${Reset}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
