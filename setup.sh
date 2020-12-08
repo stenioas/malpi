@@ -872,29 +872,37 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  printf "%$(tput cols)s\n"|tr ' ' '-'
+  printf "${BWhite}%$(tput cols)s\n${Reset}"|tr ' ' '-'
+}
+
+_print_dline() {
+  printf "${BWhite}%$(tput cols)s\n${Reset}"|tr ' ' '='
 }
 
 _print_line_yellow() {
   printf "${BYellow}%$(tput cols)s\n${Reset}"|tr ' ' '-'
 }
 
+_print_dline_yellow() {
+  printf "${BYellow}%$(tput cols)s\n${Reset}"|tr ' ' '='
+}
+
 _print_bline() {
-  printf "%$(tput cols)s\n"|tr ' ' '_'
+  printf "${BWhite}%$(tput cols)s\n${Reset}"|tr ' ' '_'
 }
 
 _print_title() {
   clear
   _print_line
-  echo -e "${BWhite}# $1${Reset}"
-  _print_line
+  echo -e "${BWhite} > $1${Reset}"
+  _print_dline
 }
 
 _print_title_alert() {
   clear
   _print_line_yellow
-  echo -e "${BRed}# $1${Reset}"
-  _print_line_yellow
+  echo -e "${BRed} > $1${Reset}"
+  _print_dline_yellow
 }
 
 _print_info() {
