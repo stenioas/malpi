@@ -893,9 +893,8 @@ _print_bline() {
 
 _print_title() {
   clear
-  _print_line
-  echo -e "${BWhite} > $1${Reset}"
   _print_dline
+  echo -e "${BWhite}|  $1${Reset}\n"
 }
 
 _print_title_alert() {
@@ -913,7 +912,7 @@ _print_info() {
 _print_running() {
   T_COLS=$(tput cols)
   echo -ne "${BYellow}==>${Reset} ${BWhite}[ Running ]${Reset} "
-  echo -e "${Yellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${Yellow}$1${Reset}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
