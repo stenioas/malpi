@@ -231,16 +231,14 @@ _initial_info() {
 }
 
 _initial_packages() {
-  TASK=1
-  _print_title "[ REQUIRED PACKAGES ]"
+  _print_title "REQUIRED PACKAGES"
   _package_install "wget git nano"
-  _cleanup_task $TASK
   _print_done
   _pause_function
 }
 
 _check_connection() {
-  _print_title "TESTING CONNECTION..."
+  _print_title "CONNECTION"
     echo -ne " ${BBLUE}[ Connecting ] ...${RESET}"
     _connection_test() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
@@ -901,7 +899,7 @@ _print_bline() {
 _print_title() {
   clear
   _print_dline
-  echo -e "\e[1;43;1;37m# $1\e[0m"
+  echo -e "${BYELLOW}==> [ $1 ]${RESET}"
 }
 
 _print_title_alert() {
@@ -940,11 +938,7 @@ _print_danger() {
 
 _print_done() {
   T_COLS=$(tput cols)
-  echo -e " ${BGREEN}[ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_cleanup_task() {
-  tput cup $1 0
+  echo -e " ${BLACK}${BG_GREEN}[ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
