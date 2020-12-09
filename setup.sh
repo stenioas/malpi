@@ -885,7 +885,7 @@ _print_bline() {
 _print_title() {
   clear
   _print_dline
-  echo -e "\033[1;30;37m# $1\033[0m"
+  echo -e "\e[1;43;1;37m# $1\e[0m"
   _print_line
 }
 
