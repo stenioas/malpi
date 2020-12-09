@@ -898,8 +898,14 @@ _print_bline() {
 
 _print_title() {
   clear
+  APP_TITLE="ARCH-SETUP 0.1"
+  T_COLS=$(tput cols)
+  T_APP_TITLE=$(echo ${#APP_TITLE})
+  T_TITLE=$(echo ${#1})
   _print_dline
-  echo -e "${BYELLOW}==> [ $1 ]${RESET}"
+  echo -ne "${BWHITE}==> $1${RESET}"
+  tput cuf $(( T_COLS - T_APP_TITLE - T_TITLE - 5 ))
+  echo -e "${APP_TITLE}"
 }
 
 _print_title_alert() {
@@ -938,7 +944,8 @@ _print_danger() {
 
 _print_done() {
   T_COLS=$(tput cols)
-  echo -e " ${BLACK}${BG_GREEN}[ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo ""
+  echo -e "${BG_GREEN}${BWHITE}[ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
