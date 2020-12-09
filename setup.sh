@@ -114,6 +114,7 @@ EOF
       BG_WHITE=$(tput setab 7)
 
     # --- ESSENTIALS
+      APP_TITLE="ARCH-SETUP 0.1"
       NEW_LANGUAGE="pt_BR"
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
@@ -881,7 +882,7 @@ _print_line() {
 }
 
 _print_dline() {
-  printf "${BWHITE}%$(tput cols)s\n${RESET}"|tr ' ' '='
+  printf "${BGREEN}%$(tput cols)s\n${RESET}"|tr ' ' '-'
 }
 
 _print_line_yellow() {
@@ -898,14 +899,13 @@ _print_bline() {
 
 _print_title() {
   clear
-  APP_TITLE="ARCH-SETUP 0.1"
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   _print_dline
-  echo -ne "${BWHITE}==> $1${RESET}"
+  echo -ne "${BGREEN}==> $1${RESET}"
   tput cuf $(( T_COLS - T_APP_TITLE - T_TITLE - 5 ))
-  echo -e "${APP_TITLE}"
+  echo -e "${BGREEN}${APP_TITLE}${RESET}"
 }
 
 _print_title_alert() {
