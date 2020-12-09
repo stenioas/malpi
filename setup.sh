@@ -885,7 +885,7 @@ _print_bline() {
 _print_title() {
   clear
   _print_dline
-  echo -e "${BWhite} $1${Reset}"
+  echo -e "\033[1;30;37m# $1\033[0m"
   _print_line
 }
 
