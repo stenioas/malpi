@@ -1043,34 +1043,16 @@ ${BGREEN}
   │  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
   │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
   └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
+          .
+         / \
+        /   \
+       /^.   \
+      /  .-.  \
+     /  (   ) _\
+    / _.~   ~._^\
+   /.^         ^.\
 ${RESET}
 EOF
-echo "
-
-                       ++                       
-                      :MM:                      
-                     .NMMN-                     
-                    `mMMMMN.                    
-                   `hMMMMMMm`                   
-                   yMMMMMMMMd`                  
-                  +MMMMMMMMMMh`                 
-                 /:+dMMMMMMMMMh`                
-                oMMdssmNMMMMMMMh`               
-               sMMMMMMNNMMMMMMMMh`              
-             `sMMMMMMMMMMMMMMMMMMd`             
-            `yMMMMMMMMMMMMMMMMMMMMd.            
-           `yMMMMMMMMMMMMMMMMMMMMMMd.           
-          `hMMMMMMMMMMmhhdMMMMMMMMMMm-          
-         .dMMMMMMMMMh:`  `-hMMMMMMMMMm-         
-        .mMMMMMMMMMy`      `sMMMMMMMMMN:        
-       -mMMMMMMMMMN`        `mMMMMMMMMMN/       
-      :NMMMMMMMMMMh          sMMMMMMNdyyd/      
-     /NMMMMMMMMMMMh          oMMMMMMMMNms:      
-    oMMMMMMMMMMmdyo          +ydmMMMMMMMMNh/    
-   sMMMMMMmy+:.``              ``.:+ymMMMMMMy`  
- `yMMMds:``                          ``:sdMMMh` 
-`dds:`                                    `:sdd`
--`                                            `-"
 
 while [[ "$1" ]]; do
   read -e -sn 1 -p " Press any key to start..."
