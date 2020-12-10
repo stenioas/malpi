@@ -1043,25 +1043,31 @@ ${BGREEN}
   │  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
   │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
   └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
-                   ▄
-                  ▟▙
-                 ▟██▙
-                ▟████▙
-               ▟██████▙
-              ▟████████▙
-             ▟██████████▙
-            ▟████████████▙
-           ▟██████████████▙
-          ▟████████████████▙
-         ▟██████████████████▙
-        ▟████████▛▀▀▜███████▙
-       ▟███████▛      ▜██████▙
-      ▟████████         ███████▙
-     ▟█████████         ████████▙
-    ▟█████████▛        ▜████████▙
-   ▟██████▀▀              ▀▀██████▙
-  ▟███▀▘                      ▀███▙
- ▟▛▀                             ▀▜▙
+
+                       ++                       
+                      :MM:                      
+                     .NMMN-                     
+                    `mMMMMN.                    
+                   `hMMMMMMm`                   
+                   yMMMMMMMMd`                  
+                  +MMMMMMMMMMh`                 
+                 /:+dMMMMMMMMMh`                
+                oMMdssmNMMMMMMMh`               
+               sMMMMMMNNMMMMMMMMh`              
+             `sMMMMMMMMMMMMMMMMMMd`             
+            `yMMMMMMMMMMMMMMMMMMMMd.            
+           `yMMMMMMMMMMMMMMMMMMMMMMd.           
+          `hMMMMMMMMMMmhhdMMMMMMMMMMm-          
+         .dMMMMMMMMMh:`  `-hMMMMMMMMMm-         
+        .mMMMMMMMMMy`      `sMMMMMMMMMN:        
+       -mMMMMMMMMMN`        `mMMMMMMMMMN/       
+      :NMMMMMMMMMMh          sMMMMMMNdyyd/      
+     /NMMMMMMMMMMMh          oMMMMMMMMNms:      
+    oMMMMMMMMMMmdyo          +ydmMMMMMMMMNh/    
+   sMMMMMMmy+:.``              ``.:+ymMMMMMMy`  
+ `yMMMds:``                          ``:sdMMMh` 
+`dds:`                                    `:sdd`
+-`                                            `-
 
 ${RESET}
 EOF
