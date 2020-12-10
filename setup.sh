@@ -902,10 +902,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_REST_COLS=$(( T_COLS - T_TITLE - 8 ))
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BGREEN}%%> ${BWHITE}$1${RESET}${BGREEN} <%%${RESET}"
-  printf "${BGREEN}%${T_REST_COLS}s"|tr ' ' '%'
+  T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
+  printf "${BGREEN}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
+  tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 3 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
+  echo -ne "${BG_GREEN}${BYELLOW} $1 ${RESET}${BGREEN}|=${RESET}"
+  printf "${BGREEN}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
+  printf "${BGREEN}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
 }
 
 _print_title_alert() {
@@ -913,17 +915,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_REST_COLS=$(( T_COLS - T_TITLE - 8 ))
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BWHITE}%%> ${BG_RED}${BRED}$1${RESET}${BWHITE} <%%${RESET}"
-  printf "${BGREEN}%${T_REST_COLS}s"|tr ' ' '%'
-}
-
-_print_title_alert() {
-  clear
-  _print_dline_yellow
-  echo -e "${BRED} $1${RESET}"
-  _print_line_yellow
+  T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
+  printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
+  tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 3 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
+  echo -ne "${BG_RED}${BYELLOW} $1 ${RESET}${RED}|=${RESET}"
+  printf "${RED}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
+  printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
 }
 
 _print_info() {
