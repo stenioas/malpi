@@ -213,21 +213,20 @@ _check_archlive() {
 
 _initial_info() {
   _print_title_alert "README - IMPORTANT"
-  echo -e "\n - ${BCYAN}This script supports UEFI only.${RESET}"
-  echo -e "\n - ${BCYAN}This script will install GRUB as default bootloader.${RESET}"
-  echo -e "\n - ${BCYAN}This script, for now, only installs the lts kernel.${RESET}"
-  echo -e "\n - ${BCYAN}This script will only consider two partitions, ESP and root.${RESET}"
-  echo -e "\n - ${BCYAN}This script will format the root partition in btrfs format.${RESET}"
-  echo -e "\n - ${BCYAN}The ESP partition can be formatted if the user wants to.${RESET}"
-  echo -e "\n - ${BCYAN}This script does not support swap.${RESET}"
-  echo -e "\n - ${BCYAN}This script will create three subvolumes:${RESET}"
-  echo -ne "\n       ${BCYAN}@ for${RESET} ${BYELLOW}/${RESET}"
-  echo -ne "\n       ${BCYAN}@home for${RESET} ${BYELLOW}/home${RESET}"
-  echo -e "\n       ${BCYAN}@.snapshots for${RESET} ${BYELLOW}/.snapshots${RESET}"
-  echo -e "\n - ${BCYAN}This script sets zoneinfo as America/Fortaleza.${RESET}"
-  echo -e "\n - ${BCYAN}This script sets hwclock as UTC.${RESET}"
+  echo -e "\n - ${CYAN}This script supports UEFI only.${RESET}"
+  echo -e "\n - ${CYAN}This script will install GRUB as default bootloader.${RESET}"
+  echo -e "\n - ${CYAN}This script, for now, only installs the lts kernel.${RESET}"
+  echo -e "\n - ${CYAN}This script will only consider two partitions, ESP and root.${RESET}"
+  echo -e "\n - ${CYAN}This script will format the root partition in btrfs format.${RESET}"
+  echo -e "\n - ${CYAN}The ESP partition can be formatted if the user wants to.${RESET}"
+  echo -e "\n - ${CYAN}This script does not support swap.${RESET}"
+  echo -e "\n - ${CYAN}This script will create three subvolumes:${RESET}"
+  echo -ne "\n       ${CYAN}@ for${RESET} ${BYELLOW}/${RESET}"
+  echo -ne "\n       ${CYAN}@home for${RESET} ${BYELLOW}/home${RESET}"
+  echo -e "\n       ${CYAN}@.snapshots for${RESET} ${BYELLOW}/.snapshots${RESET}"
+  echo -e "\n - ${CYAN}This script sets zoneinfo as America/Fortaleza.${RESET}"
+  echo -e "\n - ${CYAN}This script sets hwclock as UTC.${RESET}"
   _print_danger " *** THIS SCRIPT IS NOT YET COMPLETE ***"
-  _print_done
   _pause_function
 }
 
@@ -949,11 +948,14 @@ _print_danger() {
 _print_done() {
   T_COLS=$(tput cols)
   echo ""
-  echo -e "${BWHITE}[ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BGREEN} =>${BWHITE} [ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
-  _print_bline
+  T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
+  tput cup $(( T_LINES - 2 )) 0
+  echo -e "${BGREEN}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
   read -e -sn 1 -p " ${BWHITE}Press any key to continue...${RESET}"
 }
 
@@ -1039,7 +1041,7 @@ _initial_screen() {
   LOGO_LINES=11
   CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
   CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
-  echo -e "`seq -s '═' ${T_COLS} | tr -d [:digit:]`"
+  echo -e "${BGREEN}`seq -s '═' ${T_COLS} | tr -d [:digit:]`${RESET}"
   tput cup ${CENTER_LINES} 0
   echo -ne "${BGREEN}"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╔═════════════════════════════════════════════════════════════════════════════════╗"
@@ -1074,9 +1076,9 @@ _initial_screen
 #EOF
 
 while [[ "$1" ]]; do
-  T_COLS=$(tput cols)
-  tput cup $(( T_COLS - 1 )) 0
-  echo -e "`seq -s '═' ${T_COLS} | tr -d [:digit:]`"
+  T_LINES=$(tput lines)
+  tput cup $(( T_LINES - 1 )) 0
+  echo -e "${BGREEN}`seq -s '═' ${T_COLS} | tr -d [:digit:]`${RESET}"
   read -e -sn 1 -p "${BWHITE} Press any key to start...${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
