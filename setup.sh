@@ -905,7 +905,7 @@ _print_title() {
   T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
   printf "${BGREEN}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
   tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 3 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BG_GREEN}${BYELLOW} $1 ${RESET}${BGREEN}|=${RESET}"
+  echo -ne "${BG_GREEN}${BYELLOW}║ $1 ${RESET}${BGREEN}║=${RESET}"
   printf "${BGREEN}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
   printf "${BGREEN}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
 }
@@ -918,7 +918,8 @@ _print_title_alert() {
   T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
   printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
   tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 3 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BG_RED}${BYELLOW} $1 ${RESET}${RED}|=${RESET}"
+  echo -e "${BGREEN}`seq -s '#' 129 | tr -d [:digit:]`${RESET}"
+  echo -ne "${BG_RED}${BYELLOW}║ $1 ${RESET}${RED}║=${RESET}"
   printf "${RED}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
   printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
 }
@@ -1047,9 +1048,7 @@ ${BCYAN}
   │  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      │
   │  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      │
   └───────────────────────────── By Stenio Silveira ────────────────────────────────┘
-⊩⇒⇝
 ${RESET}
-⊩
 EOF
 
 while [[ "$1" ]]; do
