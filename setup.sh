@@ -916,9 +916,9 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
-  printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
+  #printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
   tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 3 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -e "${BGREEN}`seq -s '═' 129 | tr -d [:digit:]`${RESET}"
+  echo -e "╔"; echo -ne "${BGREEN}`seq -s '═' 127 | tr -d [:digit:]`${RESET}"; echo -e "╗"
   echo -ne "${BG_RED}${BYELLOW}║ $1 ${RESET}${RED}║=${RESET}"
   printf "${RED}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
   printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
