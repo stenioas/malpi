@@ -1039,6 +1039,7 @@ _initial_screen() {
   LOGO_LINES=11
   CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
   CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
+  echo -e "`seq -s '═' ${T_COLS} | tr -d [:digit:]`"
   tput cup ${CENTER_LINES} 0
   echo -ne "${BGREEN}"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╔═════════════════════════════════════════════════════════════════════════════════╗"
@@ -1074,7 +1075,8 @@ _initial_screen
 
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
-  tput cup ${T_COLS} 0
+  tput cup $(( T_COLS - 1 )) 0
+  echo -e "`seq -s '═' ${T_COLS} | tr -d [:digit:]`"
   read -e -sn 1 -p "${BWHITE} Press any key to start...${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
