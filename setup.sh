@@ -1073,7 +1073,8 @@ _initial_screen
 #EOF
 
 while [[ "$1" ]]; do
-  tput ll
+  T_COLS=$(tput cols)
+  tput cup ${T_COLS} 0
   read -e -sn 1 -p "${BWHITE} Press any key to start...${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
