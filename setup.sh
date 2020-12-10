@@ -224,7 +224,7 @@ _initial_info() {
   echo -e "\n       ${CYAN}@.snapshots for${RESET} ${BYELLOW}/.snapshots${RESET}"
   echo -e "\n - ${CYAN}This script sets zoneinfo as America/Fortaleza.${RESET}"
   echo -e "\n - ${CYAN}This script sets hwclock as UTC.${RESET}"
-  _print_danger "\n *** THIS SCRIPT IS NOT YET COMPLETE ***"
+  _print_danger "\n [ THIS SCRIPT IS NOT YET COMPLETE ]"
   _pause_function
 }
 
@@ -237,7 +237,7 @@ _initial_packages() {
 
 _check_connection() {
   _print_title "CONNECTION"
-    echo -ne " ${BGREEN}==> ${BWHITE}Connecting${RESET} ...${RESET}"
+    echo -ne "${BGREEN}==> ${BWHITE}Connecting${RESET} ...${RESET}"
     _connection_test() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
@@ -268,7 +268,7 @@ _rank_mirrors() {
   _print_title "MIRRORS"
   _print_subtitle "Updating mirrors"
   _print_running "pacman -Syy"
-  pacman -Syy &> /dev/null && echo -e "${BYELLOW} [ OK ]${RESET}"
+  pacman -Syy &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_done
   _pause_function
 }
@@ -277,7 +277,7 @@ _select_disk() {
   _print_title "PARTITIONING"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  echo -e " ${BYELLOW}-> Select disk:${RESET}\n"
+  _print_subtitle "Select disk:${RESET}\n"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -287,7 +287,7 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   _print_title "PARTITIONING"
-  echo -e " ${BWHITE}${INSTALL_DISK}${RESET} ... ${BGREEN}[ SELECTED ]${RESET}\n"
+  echo -e " ${BWHITE}${INSTALL_DISK}${RESET}${BGREEN}[ SELECTED ]${RESET}\n"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -314,11 +314,11 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT PARTITION"
     PS3="$PROMPT1"
-    echo -e " ${BRED}-> REMEMBER!!! This script will create 3 subvolumes:${RESET}\n"
+    echo -e "${BRED}==> REMEMBER!!! This script will create 3 subvolumes:${RESET}\n"
     echo -e " ${CYAN}   - @ for ${BYELLOW}/${RESET}"
     echo -e " ${CYAN}   - @home for ${BYELLOW}/home${RESET}"
     echo -e " ${CYAN}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
-    echo -e " ${BYELLOW}-> Select partition to create btrfs subvolumes:${RESET}\n"
+    _print_subtitle "Select partition to create btrfs subvolumes:${RESET}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -332,12 +332,12 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_title "FORMATTING ROOT PARTITION"
-    echo -ne " ${BWHITE}${ROOT_PARTITION}${RESET} ..."
+    echo -ne " ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${BWHITE}Subvolume ${BCYAN}/@${RESET} ... ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BWHITE}Subvolume ${BCYAN}/@home${RESET} ... ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BWHITE}Subvolume ${BCYAN}/@.snapshots${RESET} ... ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${BLUE}  ->${BWHITE}Subvolume ${CYAN}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BLUE}  ->${BWHITE}Subvolume ${CYAN}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BLUE}  ->${BWHITE}Subvolume ${CYAN}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -351,7 +351,7 @@ _format_partitions() {
   _format_efi_partition() {
     _print_title "FORMATTING EFI PARTITION"
     PS3="$PROMPT1"
-    echo -e " ${BYELLOW}-> Select EFI partition:${RESET}\n"
+    _print_subtitle "Select EFI partition:${RESET}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -364,10 +364,10 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     _print_title "FORMATTING EFI PARTITION"
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET} ..."
+      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     else
-      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET} ... ${BGREEN}[ NOT FORMATTED ]${RESET}"
+      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET}${BGREEN}[ NOT FORMATTED ]${RESET}"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -383,7 +383,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      _print_info " The partition(s) was successfully mounted!"
+      _print_info "\n The partition(s) was successfully mounted!"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -400,8 +400,7 @@ _install_base() {
   _print_title "BASE"
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
   _print_subtitle "Services"
-  _print_line
-  echo -ne "\n ${BBLUE}-> ${BWHITE}Enabling: ${RESET} ${CYAN}NetworkManager${RESET} ..."
+  echo -ne "${BBLUE}  -> ${BWHITE}Enabling: ${RESET}${CYAN}NetworkManager${RESET}"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
   _pause_function
@@ -409,8 +408,8 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET} ..."
-  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}\n"
+  _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
+  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}"
   _read_input_text "Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
@@ -451,19 +450,18 @@ _set_language() {
 
 _set_hostname() {
   _print_title "HOSTNAME AND IP ADDRESS"
-  printf "%s" "${BGREEN}==> ${BWHITE}Type a hostname [ex: archlinux]:${RESET} "
+  _print_entry "Type a hostname [ex: archlinux]"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
-    echo -e " ${BRED}-> You must be type a hostname.${RESET}"
-    printf "%s" "${BGREEN}==> ${BWHITE}Type a hostname [ex: archlinux]:${RESET} "
+    _print_danger " YOU MUST BE TYPE A HOSTNAME!"
+    _print_entry "Type a hostname [ex: archlinux]"
     read -r NEW_HOSTNAME
   done
-  _print_title "HOSTNAME AND IP ADDRESS"
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BGREEN} [ OK ]${RESET}"
-  echo -ne "${BBLUE} ->${BWHITE} Setting:${RESET}"
+  echo -ne "${BLUE}  ->${BWHITE} Setting:${RESET}"
   echo -ne "${CYAN} Ip address on /etc/hosts${RESET}"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
@@ -474,7 +472,6 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "ROOT PASSWORD"
-  _print_running "passwd"
   _print_subtitle "Type a root password:\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done
@@ -483,21 +480,19 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_subtitle "Type a grub name entry [ex: Archlinux]: "
+  _print_entry "Type a grub name entry [ex: Archlinux]"
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    _print_danger "You must be type a grub name entry."
-    _print_subtitle "Type a grub name entry [ex: Archlinux]: "
+    _print_danger " YOU MUST BE TYPE A HOSTNAME!"
+    _print_entry "Type a grub name entry [ex: Archlinux]"
     read -r NEW_GRUB_NAME
   done
   _print_title "GRUB BOOTLOADER"
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing grub on target"
-  _print_line
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   _print_subtitle "Generating grub.cfg"
-  _print_line
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
   _pause_function  
@@ -515,10 +510,9 @@ _finish_install() {
   _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED"
-    echo -ne " ${BBLUE}-> ${BWHITE}Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET} ..."
+    echo -ne "${BBLUE} -> ${BWHITE}Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET}"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [ SAVED ]"
   fi
-  _print_done
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   _read_input_text "Reboot system? [y/N]: "
   echo ""
@@ -537,12 +531,12 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "CREATE NEW USER"
-  _print_subtitle "Type your username:${RESET} "
+  _print_entry "Type your username"
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "CREATE NEW USER"
-    _print_danger "You must be type a username."
-    _print_subtitle "Type your username:${RESET} "
+    _print_danger " YOU MUST BE TYPE A HOSTNAME!"
+    _print_entry "Type your username"
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
@@ -636,11 +630,11 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   _print_subtitle "Installing Utils"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Installing compression tools..."
+  _print_subtitle "Installing compression tools"
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Installing extra filesystem tools..."
+  _print_subtitle "Installing extra filesystem tools"
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Installing sound tools..."
+  _print_subtitle "Installing sound tools"
   _package_install "alsa-utils pulseaudio"
   _print_done
   _pause_function
@@ -884,12 +878,16 @@ _print_title_alert() {
   T_TITLE=$(echo ${#1})
   echo -ne "${BRED} ╔"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -ne "${BRED}╗${RESET}"
   tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BRED}═╣${RESET}"; echo -ne "${BYELLOW} $1 ${RESET}"; echo -ne "${BRED}╠${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BRED}═╣${RESET}"; echo -ne "${BRED} $1 ${RESET}"; echo -ne "${BRED}╠${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BRED} ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
 }
 
 _print_subtitle() {
   echo -e "${BGREEN}==> ${BWHITE}$1${RESET}"
+}
+
+_print_entry() {
+  printf "%s" "${BGREEN}==> ${BWHITE}$1:${RESET} "
 }
 
 _print_info() {
@@ -906,7 +904,7 @@ _print_running() {
 _print_installing() {
   T_COLS=$(tput cols)
   echo -ne "${BLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
-  echo -ne "${CYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -947,7 +945,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}==> $1${RESET}"
+  printf "%s" "${BGREEN}==> ${BWHITE}$1${RESET}"
   read -s -n 1 -r OPTION
 }
 
@@ -1004,7 +1002,7 @@ _pacstrap_install() {
   for PKG in $1; do
     _print_installing "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
-      echo -e " ${BYELLOW}[ OK ]${RESET}"
+      echo -e " ${BGREEN}[ OK ]${RESET}"
     else
       echo -e " ${BRED}[ ERROR ]${RESET}"
     fi
@@ -1055,9 +1053,9 @@ _initial_screen
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  CENTER_COLS=$(( (T_COLS - 28)/2 ))
+  CENTER_COLS=$(( (T_COLS - 30)/2 ))
   tput cup $(( (T_LINES - LOGO_LINES)/2 + LOGO_LINES + 1 )) $CENTER_COLS
-  read -e -sn 1 -p "${BWHITE} Press any key to start...${RESET}"
+  read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
