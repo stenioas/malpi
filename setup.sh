@@ -136,14 +136,13 @@ EOF
 
 _setup_install(){
     [[ $(id -u) != 0 ]] && {
-      _print_warning " * Only for 'root'.\n"
+      _print_warning "Only for 'root'.\n"
       exit 1
     }
     _check_archlive
     _initial_info
     _initial_packages
     _check_connection
-    _time_sync
     _rank_mirrors
     _select_disk
     _format_partitions
@@ -161,7 +160,7 @@ _setup_install(){
 
 _setup_config(){
     [[ $(id -u) != 0 ]] && {
-      _print_warning " * Only for 'root'.\n"
+      _print_warning "Only for 'root'.\n"
       exit 1
     }
     _create_new_user
@@ -177,7 +176,7 @@ _setup_config(){
 
 _setup_desktop(){
     [[ $(id -u) != 1000 ]] && {
-      _print_warning " * Only for 'normal user'.\n"
+      _print_warning "Only for 'normal user'.\n"
       exit 1
     }
     _install_desktop
@@ -188,7 +187,7 @@ _setup_desktop(){
 
 _setup_user(){
     [[ $(id -u) != 1000 ]] && {
-      _print_warning " * Only for 'normal user'.\n"
+      _print_warning "Only for 'normal user'.\n"
       exit 1
     }
     _install_apps
@@ -204,9 +203,8 @@ _setup_user(){
 
 _check_archlive() {
   [[ $(df | grep -w "/" | awk '{print $1}') != "airootfs" ]] && {
-    _print_danger " *** FIRST STEP MUST BE RUN IN LIVE MODE ***"
-    _print_done
-    _print_bline
+    _print_danger "\n *** FIRST STEP MUST BE RUN IN LIVE MODE ***"
+    _pause_function
     exit 1
   }
 }
@@ -226,7 +224,7 @@ _initial_info() {
   echo -e "\n       ${CYAN}@.snapshots for${RESET} ${BYELLOW}/.snapshots${RESET}"
   echo -e "\n - ${CYAN}This script sets zoneinfo as America/Fortaleza.${RESET}"
   echo -e "\n - ${CYAN}This script sets hwclock as UTC.${RESET}"
-  _print_danger " *** THIS SCRIPT IS NOT YET COMPLETE ***"
+  _print_danger "\n *** THIS SCRIPT IS NOT YET COMPLETE ***"
   _pause_function
 }
 
@@ -239,45 +237,36 @@ _initial_packages() {
 
 _check_connection() {
   _print_title "CONNECTION"
-    echo -ne " ${BBLUE}[ Connecting ] ...${RESET}"
+    echo -ne " ${BGREEN}==> ${BWHITE}Connecting${RESET} ...${RESET}"
     _connection_test() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
     if _connection_test; then
-      _print_title "TESTING CONNECTION..."
       echo -e " ${BGREEN}[ CONNECTED ]${RESET}"
       _print_done
     else
-      _print_title "TESTING CONNECTION..."
-      echo -e " ${BRED}[ NO CONNECTION ]${RESET}"
-      _print_done " [ GOOD BYE ]"
-      _print_bline
+      _print_danger " [ NOT CONNECTED ]"
+      _print_danger "\n *** GOOD BYE ***"
       exit 1
+      _pause_function
     fi
   _pause_function
 }
 
-_time_sync() {
-  _print_title "TIME SYNC..."
-  _print_running "timedatectl set-ntp true"
-  timedatectl set-ntp true && echo -e "${BYELLOW} [ OK ]${RESET}"
-  _print_done
-  _pause_function
-}
-
 _rank_mirrors() {
-  _print_title "RANKING MIRRORS..."
+  _print_title "MIRRORS"
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYELLOW} [ OK ]${RESET}"
   echo ""
-  _read_input_text " Check your mirrorlist file? [y/N]: "
+  _read_input_text " -> Check your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
   fi
-  _print_title "UPDATING MIRRORS..."
+  _print_title "MIRRORS"
+  _print_subtitle "Updating mirrors"
   _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && echo -e "${BYELLOW} [ OK ]${RESET}"
   _print_done
@@ -285,10 +274,10 @@ _rank_mirrors() {
 }
 
 _select_disk() {
-  _print_title "DISK PARTITIONING..."
+  _print_title "PARTITIONING"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  echo -e " ${BYELLOW}Select disk:${RESET}\n"
+  echo -e " ${BYELLOW}-> Select disk:${RESET}\n"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -297,19 +286,19 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  _print_title "DISK PARTITIONING..."
-  echo -e " ${BCYAN}${INSTALL_DISK}${RESET} ... ${BYELLOW}[ SELECTED ]${RESET}\n"
-  _read_input_text " Edit disk partitions? [y/N]: "
+  _print_title "PARTITIONING"
+  echo -e " ${BWHITE}${INSTALL_DISK}${RESET} ... ${BGREEN}[ SELECTED ]${RESET}\n"
+  _read_input_text " -> Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
-  _print_title "DISK PARTITIONING..."
+  _print_title "PARTITIONING"
   _print_done
   _pause_function
 }
 
 _format_partitions() {
-  _print_title "FORMATTING AND MOUNTING PARTITIONS..."
+  _print_title "FORMATTING AND MOUNTING PARTITIONS"
   BLOCK_LIST=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
 
   PARTITIONS_LIST=()
@@ -318,18 +307,18 @@ _format_partitions() {
   done
 
   if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
-    _print_warning " No partition found."
+    _print_warning "No partition found."
     exit 0
   fi
 
   _format_root_partition() {
-    _print_title "FORMATTING ROOT PARTITION..."
+    _print_title "FORMATTING ROOT PARTITION"
     PS3="$PROMPT1"
-    echo -e " ${BRED}* REMEMBER!!! This script will create 3 subvolumes:${RESET}"
-    echo -e " ${BCYAN}   - @ for ${BYELLOW}/${RESET}"
-    echo -e " ${BCYAN}   - @home for ${BYELLOW}/home${RESET}"
-    echo -e " ${BCYAN}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
-    echo -e " ${BYELLOW}Select partition to create btrfs subvolumes:${RESET}\n"
+    echo -e " ${BRED}-> REMEMBER!!! This script will create 3 subvolumes:${RESET}\n"
+    echo -e " ${CYAN}   - @ for ${BYELLOW}/${RESET}"
+    echo -e " ${CYAN}   - @home for ${BYELLOW}/home${RESET}"
+    echo -e " ${CYAN}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
+    echo -e " ${BYELLOW}-> Select partition to create btrfs subvolumes:${RESET}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -342,13 +331,13 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_title "FORMATTING ROOT PARTITION..."
-    echo -ne " ${BCYAN}${ROOT_PARTITION}${RESET} ..."
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BYELLOW}[ FORMATTED ]${RESET}"
+    _print_title "FORMATTING ROOT PARTITION"
+    echo -ne " ${BWHITE}${ROOT_PARTITION}${RESET} ..."
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${BLUE}Subvolume ${BCYAN}/@${RESET} ... ${BYELLOW}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BLUE}Subvolume ${BCYAN}/@home${RESET} ... ${BYELLOW}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BLUE}Subvolume ${BCYAN}/@.snapshots${RESET} ... ${BYELLOW}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${BWHITE}Subvolume ${BCYAN}/@${RESET} ... ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BWHITE}Subvolume ${BCYAN}/@home${RESET} ... ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BWHITE}Subvolume ${BCYAN}/@.snapshots${RESET} ... ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -360,9 +349,9 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_title "FORMATTING EFI PARTITION..."
+    _print_title "FORMATTING EFI PARTITION"
     PS3="$PROMPT1"
-    echo -e " ${BYELLOW}Select EFI partition:${RESET}\n"
+    echo -e " ${BYELLOW}-> Select EFI partition:${RESET}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -372,13 +361,13 @@ _format_partitions() {
       fi
     done
     echo ""
-    _read_input_text " Format EFI partition? [y/N]: "
-    _print_title "FORMATTING EFI PARTITION..."
+    _read_input_text " -> Format EFI partition? [y/N]: "
+    _print_title "FORMATTING EFI PARTITION"
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne " ${BCYAN}${EFI_PARTITION}${RESET} ..."
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BYELLOW}[ FORMATTED ]${RESET}"
+      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET} ..."
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     else
-      echo -ne "\n ${BBLUE}[ ${EFI_PARTITION} ]${RESET} ... ${BYELLOW}[ NOT FORMATTED ]${RESET}\n"
+      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET} ... ${BGREEN}[ NOT FORMATTED ]${RESET}"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -397,119 +386,117 @@ _format_partitions() {
       _print_info " The partition(s) was successfully mounted!"
       _disable_partition "$1"
     else
-      _print_warning " * WARNING: The partition was not successfully mounted!"
+      _print_warning "The partition was not successfully mounted!"
     fi
   }
   _format_root_partition
   _format_efi_partition
-  _print_title "FORMATTING AND MOUNTING PARTITIONS..."
+  _print_title "FORMATTING AND MOUNTING PARTITIONS"
   _print_done
   _pause_function
 }
 
 _install_base() {
-  _print_title "INSTALLING THE BASE..."
+  _print_title "BASE"
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
-  _print_warning " * Services"
+  _print_subtitle "Services"
   _print_line
-  echo -ne "\n ${BBLUE}[ Enabling ]${RESET} ${BCYAN}NetworkManager${RESET} ..."
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
+  echo -ne "\n ${BBLUE}-> ${BWHITE}Enabling: ${RESET} ${CYAN}NetworkManager${RESET} ..."
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
   _pause_function
 }
 
 _fstab_generate() {
-  _print_title "GENERATING FSTAB..."
+  _print_title "FSTAB"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET} ..."
-  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BYELLOW}[ OK ]${RESET}\n"
-  _read_input_text " Check your fstab file? [y/N]: "
+  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}\n"
+  _read_input_text " -> Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   fi
-  _print_title "GENERATING FSTAB..."
+  _print_title "FSTAB"
   _print_done
   _pause_function
 }
 
 _set_locale() {
-  _print_title "SETTING TIME ZONE..."
+  _print_title "TIME ZONE AND SYSTEM CLOCK"
   _print_running "timedatectl set-ntp true"
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BYELLOW} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && echo -e "${BYELLOW} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   _print_running "hwclock --systohc --utc"
-  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && echo -e "${BYELLOW} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_running "locale-gen"
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && echo -e "${BYELLOW} [ OK ]${RESET}"
-  timedatectl set-ntp true
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_done
   _pause_function
 }
 
 _set_language() {
-  _print_title "SETTING LANGUAGE AND KEYMAP..."
+  _print_title "LANGUAGE AND KEYMAP"
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BYELLOW} [ OK ]${RESET}"
+  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BYELLOW} [ OK ]${RESET}"
+  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_done
   _pause_function  
 }
 
 _set_hostname() {
-  _print_title "SETTING HOSTNAME AND IP ADDRESS..."
-  printf "%s" " ${BYELLOW}Type a hostname [ex: archlinux]:${RESET} "
+  _print_title "HOSTNAME AND IP ADDRESS"
+  printf "%s" "${BGREEN}==> ${BWHITE}Type a hostname [ex: archlinux]:${RESET} "
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
-    _print_title "SETTING HOSTNAME AND IP ADDRESS..."
-    echo -e " ${BRED}You must be type a hostname.${RESET}"
-    printf "%s" " ${BYELLOW}Type a hostname [ex: archlinux]:${RESET} "
+    _print_title "HOSTNAME AND IP ADDRESS"
+    echo -e " ${BRED}-> You must be type a hostname.${RESET}"
+    printf "%s" "${BGREEN}==> ${BWHITE}Type a hostname [ex: archlinux]:${RESET} "
     read -r NEW_HOSTNAME
   done
-  _print_title "SETTING HOSTNAME AND IP ADDRESS..."
+  _print_title "HOSTNAME AND IP ADDRESS"
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BYELLOW} [ OK ]${RESET}"
-  echo -ne "${BBLUE} [ Setting ]${RESET}"
-  echo -ne "${BCYAN} Ip address on /etc/hosts"
+  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BGREEN} [ OK ]${RESET}"
+  echo -ne "${BBLUE} ->${BWHITE} Setting:${RESET}"
+  echo -ne "${CYAN} Ip address on /etc/hosts${RESET}"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && echo -e "${BYELLOW} [ OK ]${RESET}"
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_done
   _pause_function  
 }
 
 _root_passwd() {
-  _print_title "SETTING ROOT PASSWORD..."
-  echo -ne " ${BBLUE}[ Running ]${RESET}"
-  echo -e " ${BCYAN}passwd${RESET} ..."
-  _print_warning " ${BYELLOW}Type a root password:${RESET}\n"
+  _print_title "ROOT PASSWORD"
+  _print_running "passwd"
+  _print_subtitle "Type a root password:\n"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done
   _pause_function
 }
 
 _grub_generate() {
-  _print_title "GRUB INSTALLATION..."
-  printf "%s" " ${BYELLOW}Type a grub name entry [ex: Archlinux]:${RESET} " 
+  _print_title "GRUB BOOTLOADER"
+  _print_subtitle "Type a grub name entry [ex: Archlinux]: "
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
-    _print_title "GRUB INSTALLATION..."
-    echo -e " ${BRED}You must be type a grub name entry.${RESET}"
-    printf "%s" " ${BYELLOW}Type a grub name entry [ex: Archlinux]:${RESET} "
+    _print_title "GRUB BOOTLOADER"
+    _print_danger "You must be type a grub name entry."
+    _print_subtitle "Type a grub name entry [ex: Archlinux]: "
     read -r NEW_GRUB_NAME
   done
-  _print_title "GRUB INSTALLATION..."
+  _print_title "GRUB BOOTLOADER"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_warning " * Installing grub on target..."
+  _print_subtitle "Installing grub on target"
   _print_line
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  _print_warning " * Generating grub.cfg..."
+  _print_subtitle "Generating grub.cfg"
   _print_line
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
@@ -517,24 +504,23 @@ _grub_generate() {
 }
 
 _mkinitcpio_generate() {
-  _print_title "GENERATE MKINITCPIO..."
+  _print_title "MKINITCPIO"
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _print_done
   _pause_function  
 }
 
 _finish_install() {
-  _print_title "FIRST STEP FINISHED !!!"
-  _read_input_text " Save a copy of this script in root directory? [y/N]: "
+  _print_title "FIRST STEP FINISHED"
+  _read_input_text " -> Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_title "FIRST STEP FINISHED !!!"
-    echo -ne " ${BBLUE}[ Downloading ]${RESET} ${BCYAN}setup.sh${RESET} ${BBLUE}to /root${RESET} ..."
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BYELLOW} [ SAVED ]"
+    _print_title "FIRST STEP FINISHED"
+    echo -ne " ${BBLUE}-> ${BWHITE}Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET} ..."
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [ SAVED ]"
   fi
   _print_done
-  _print_bline
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_text " Reboot system? [y/N]: "
+  _read_input_text " -> Reboot system? [y/N]: "
   echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -550,20 +536,20 @@ _finish_install() {
 # --- CONFIG SECTION --- >
 
 _create_new_user() {
-  _print_title "CREATE NEW USER..."
-  printf "%s" " ${BYELLOW}Type your username:${RESET} "
+  _print_title "CREATE NEW USER"
+  _print_subtitle "Type your username:${RESET} "
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
-    _print_title "CREATE NEW USER..."
-    echo -e " ${BRED}You must be type a username.${RESET}"
-    printf "%s" " ${BYELLOW}Type your username:${RESET} "
+    _print_title "CREATE NEW USER"
+    _print_danger "You must be type a username."
+    _print_subtitle "Type your username:${RESET} "
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     useradd -m -g users -G wheel ${NEW_USER}
     _print_info " User ${NEW_USER} created."
-    _print_warning " * Setting password...\n"
+    _print_subtitle "Setting password\n"
     passwd ${NEW_USER}
     _print_info " Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -575,11 +561,12 @@ _create_new_user() {
 }
 
 _enable_multilib(){
-  _print_title "ENABLING MULTILIB..."
+  _print_title "MULTILIB"
   ARCHI=$(uname -m)
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
+      echo -ne " ${BBLUE}-> ${BWHITE}Enabling: ${RESET} ${CYAN}Multilib${RESET} ..."
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
       _print_info " Multilib repository added to pacman.conf."
     else
@@ -594,15 +581,14 @@ _enable_multilib(){
 }
 
 _install_essential_pkgs() {
-  _print_title "INSTALLING ESSENTIAL PACKAGES..."
+  _print_title "ESSENTIAL PACKAGES"
   _package_install "dosfstools mtools udisks2 dialog git wget reflector bash-completion xdg-utils xdg-user-dirs"
   _print_done
   _pause_function
 }
 
 _install_xorg() {
-  _print_title "INSTALLING XORG..."
-  echo -e " ${PURPLE}XORG${RESET}\n"
+  _print_title "XORG"
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
@@ -611,7 +597,7 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "INSTALLING VIDEO DRIVER..."
+  _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
   _print_warning " * Select video card:\n"
@@ -622,7 +608,7 @@ _install_vga() {
       _invalid_option
     fi
   done
-  _print_title "INSTALLING VIDEO DRIVER..."
+  _print_title "VIDEO DRIVER"
   VIDEO_DRIVER=$(echo "${VIDEO_CARD}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${PURPLE}${VIDEO_DRIVER}${RESET}\n"
 
@@ -647,44 +633,41 @@ _install_vga() {
 }
 
 _install_extra_pkgs() {
-  _print_title "INSTALLING EXTRA PACKAGES..."
-  echo -e "${BGREEN}==>${RESET}${BWHITE} Installing Utils"
+  _print_title "EXTRA PACKAGES"
+  _print_subtitle "Installing Utils"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_warning " * Installing compression tools..."
-  _print_line
+  _print_subtitle "Installing compression tools..."
   _package_install "zip unzip unrar p7zip lzop"
-  _print_warning " * Installing extra filesystem tools..."
-  _print_line
+  _print_subtitle "Installing extra filesystem tools..."
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_warning " * Installing sound tools..."
-  _print_line
+  _print_subtitle "Installing sound tools..."
   _package_install "alsa-utils pulseaudio"
   _print_done
   _pause_function
 }
 
 _install_laptop_pkgs() {
-  _print_title "INSTALLING LAPTOP PACKAGES..."
+  _print_title "LAPTOP PACKAGES"
   PS3="$PROMPT1"
-  _read_input_text " Install laptop packages? [y/N]: "
+  _read_input_text " -> Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    echo -e "\n"
+    _print_title "LAPTOP PACKAGES"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_warning " * Services"
     _print_line
-    echo -ne " ${BBLUE}[ Enabling ]${RESET} ${BCYAN}Bluetooth${RESET} ..."
-    systemctl enable bluetooth &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
+    echo -ne " ${BBLUE}->${BWHITE}Enabling:${RESET} ${CYAN}Bluetooth${RESET} ..."
+    systemctl enable bluetooth &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   else
-    -_print_info " ${BBLUE}Nothing to do!${RESET}"
+    -_print_info " Nothing to do!"
   fi
   _print_done
   _pause_function
 }
 
 _finish_config() {
-  _print_title "SECOND STEP FINISHED !!!"
+  _print_title "SECOND STEP FINISHED"
   _print_done
-  _print_bline
+  _pause_function
   exit 0
 }
 
@@ -808,7 +791,7 @@ _finish_desktop() {
   _print_title "THIRD STEP FINISHED !!!"
   _print_warning " ${BCYAN}[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${BYELLOW} option.${RESET}"
   _print_done
-  _print_bline
+  _pause_function
   exit 0
 }
 
@@ -883,18 +866,6 @@ _print_dline() {
   printf "${BGREEN}%$(tput cols)s\n${RESET}"|tr ' ' '='
 }
 
-_print_line_yellow() {
-  printf "${BYELLOW}%$(tput cols)s\n${RESET}"|tr ' ' '-'
-}
-
-_print_dline_yellow() {
-  printf "${BYELLOW}%$(tput cols)s\n${RESET}"|tr ' ' '='
-}
-
-_print_bline() {
-  printf "${BGREEN}%$(tput cols)s\n${RESET}"|tr ' ' '_'
-}
-
 _print_title() {
   clear
   T_COLS=$(tput cols)
@@ -917,41 +888,44 @@ _print_title_alert() {
   echo -ne "${BRED} ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
 }
 
+_print_subtitle() {
+  echo -e "${BGREEN}==> ${BWHITE}$1${RESET}"
+}
+
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "\n${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_running() {
   T_COLS=$(tput cols)
-  echo -ne "${BLUE}  ->${RESET} ${BWHITE}Running${RESET} "
-  echo -ne "${BCYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${BLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
+  echo -ne "${CYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
   T_COLS=$(tput cols)
   echo -ne "${BLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
-  echo -ne "${BCYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${CYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "\n${BYELLOW}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}==> WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "\n${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_done() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  TEXT_COLS=12
-  CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
-  tput ll
-  echo ""
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "${BGREEN}-=] DONE [=-${RESET}" | fold -sw $(( T_COLS - 1 ))
+  TEXT_COLS=16
+  CENTER_COLS=$(( (T_COLS - TEXT_COLS)/2 ))
+  tput cup $(( T_LINES - 3 ))
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "${BGREEN}[=-   ${BWHITE}COMPLETE   ${BGREEN}-=]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
@@ -1061,6 +1035,7 @@ _initial_screen() {
 }
 
 clear
+timedatectl set-ntp true
 _initial_screen
 #cat <<EOF
 #${BGREEN}
