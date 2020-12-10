@@ -261,7 +261,7 @@ _rank_mirrors() {
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYELLOW} [ OK ]${RESET}"
   echo ""
-  _read_input_text " -> Check your mirrorlist file? [y/N]: "
+  _read_input_text "Check your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
   fi
@@ -288,7 +288,7 @@ _select_disk() {
   INSTALL_DISK=${DEVICE}
   _print_title "PARTITIONING"
   echo -e " ${BWHITE}${INSTALL_DISK}${RESET} ... ${BGREEN}[ SELECTED ]${RESET}\n"
-  _read_input_text " -> Edit disk partitions? [y/N]: "
+  _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
@@ -361,7 +361,7 @@ _format_partitions() {
       fi
     done
     echo ""
-    _read_input_text " -> Format EFI partition? [y/N]: "
+    _read_input_text "Format EFI partition? [y/N]: "
     _print_title "FORMATTING EFI PARTITION"
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo -ne " ${BWHITE}${EFI_PARTITION}${RESET} ..."
@@ -411,7 +411,7 @@ _fstab_generate() {
   _print_title "FSTAB"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET} ..."
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}\n"
-  _read_input_text " -> Check your fstab file? [y/N]: "
+  _read_input_text "Check your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   fi
@@ -512,7 +512,7 @@ _mkinitcpio_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _read_input_text " -> Save a copy of this script in root directory? [y/N]: "
+  _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED"
     echo -ne " ${BBLUE}-> ${BWHITE}Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET} ..."
@@ -520,7 +520,7 @@ _finish_install() {
   fi
   _print_done
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_text " -> Reboot system? [y/N]: "
+  _read_input_text "Reboot system? [y/N]: "
   echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -649,7 +649,7 @@ _install_extra_pkgs() {
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
   PS3="$PROMPT1"
-  _read_input_text " -> Install laptop packages? [y/N]: "
+  _read_input_text "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
@@ -802,7 +802,7 @@ _finish_desktop() {
 _install_apps() {
   _print_title "INSTALLING CUSTOM APPS..."
   PS3="$PROMPT1"
-  _read_input_text " Install custom apps? [y/N]: "
+  _read_input_text "Install custom apps? [y/N]: "
   echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -836,7 +836,7 @@ _install_apps() {
 _install_pamac() {
   _print_title "INSTALLING PAMAC..."
   PS3="$PROMPT1"
-  _read_input_text " Install pamac? [y/N]: "
+  _read_input_text "Install pamac? [y/N]: "
   echo -e "\n"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "pamac"; then
@@ -900,7 +900,7 @@ _print_info() {
 _print_running() {
   T_COLS=$(tput cols)
   echo -ne "${BLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
-  echo -ne "${CYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
@@ -947,7 +947,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}$1${RESET}"
+  printf "%s" "${BRED}==> $1${RESET}"
   read -s -n 1 -r OPTION
 }
 
@@ -1018,7 +1018,6 @@ _initial_screen() {
   LOGO_LINES=11
   CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
   CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
-  echo -e "${BGREEN}`seq -s '═' ${T_COLS} | tr -d [:digit:]`${RESET}"
   tput cup ${CENTER_LINES} 0
   echo -ne "${BGREEN}"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╔═════════════════════════════════════════════════════════════════════════════════╗"
@@ -1054,9 +1053,10 @@ _initial_screen
 #EOF
 
 while [[ "$1" ]]; do
+  T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  tput cup $(( T_LINES - 1 )) 0
-  echo -e "${BGREEN}`seq -s '═' ${T_COLS} | tr -d [:digit:]`${RESET}"
+  CENTER_COLS=$(( (T_COLS - 28)/2 ))
+  tput cup $(( (T_LINES - LOGO_LINES)/2 + LOGO_LINES + 1 )) $CENTER_COLS
   read -e -sn 1 -p "${BWHITE} Press any key to start...${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
