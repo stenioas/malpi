@@ -917,12 +917,12 @@ _print_title_alert() {
   T_TITLE=$(echo ${#1})
   T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
   #printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '_'
-  echo -ne "${BGREEN}╔"; echo -ne "`seq -s '═' $(( T_TITLE + 2 )) | tr -d [:digit:]`"; echo -e "${BGREEN}╗${RESET}"
+  echo -ne "${BGREEN}╔"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "${BGREEN}╗${RESET}"
   #echo -ne "${BBLUE} ${APP_TITLE} ${RESET}"
   tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 5 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
   #echo -ne "${BGREEN}╔"; echo -ne "`seq -s '═' 127 | tr -d [:digit:]`"; echo -e "╗${RESET}"
-  echo -ne "${BGREEN}║${RESET}"; echo -ne "${BRED} $1 ${RESET}"; echo -e "`seq -s ' ' $(( T_COLS - T_TITLE - 4)) | tr -d [:digit:]`"; echo -e "${BGREEN}║${RESET}"
-  echo -ne "${BGREEN}╚"; echo -ne "`seq -s '═' $(( T_COLS - 2 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
+  echo -ne "${BGREEN}║${RESET}"; echo -ne "${BRED} $1 ${RESET}"; echo -ne "${BGREEN}║${RESET}"; echo -e "`seq -s '═' $(( T_COLS - T_TITLE 4 )) | tr -d [:digit:]`"
+  echo -ne "${BGREEN}╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
   #printf "${RED}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
   #printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
 }
