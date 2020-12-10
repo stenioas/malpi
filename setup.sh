@@ -918,7 +918,7 @@ _print_title_alert() {
   T_REST_COLS=$(( T_COLS - T_TITLE - 4 ))
   echo -ne "${BGREEN}  ╔"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -ne "${BGREEN}╗${RESET}"
   tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 7 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BGREEN}  ║${RESET}"; echo -ne "${BRED} $1 ${RESET}"; echo -ne "${BGREEN}║${RESET}"; echo -e "${BGREEN}`seq -s '═' $(( T_COLS - T_TITLE - 5 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BGREEN}══║${RESET}"; echo -ne "${BRED} $1 ${RESET}"; echo -ne "${BGREEN}║${RESET}"; echo -e "${BGREEN}`seq -s '═' $(( T_COLS - T_TITLE - 5 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BGREEN}  ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
   #printf "${RED}%${T_REST_COLS}s\n${RESET}"|tr ' ' '-'
   #printf "${RED}%$(( T_TITLE + 2 ))s${RESET}"|tr ' ' '"'
