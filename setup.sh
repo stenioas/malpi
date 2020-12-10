@@ -648,8 +648,7 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "INSTALLING EXTRA PACKAGES..."
-  _print_warning " * Installing utils..."
-  _print_line
+  echo -e "${BGREEN}==>${RESET}${BWHITE} Installing Utils"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
   _print_warning " * Installing compression tools..."
   _print_line
@@ -931,7 +930,7 @@ _print_running() {
 
 _print_installing() {
   T_COLS=$(tput cols)
-  echo -ne "${BLUE}  ->${RESET} ${BWHITE}Installing${RESET} "
+  echo -ne "${BLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
   echo -ne "${BCYAN}[ $1 ]${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
@@ -947,8 +946,12 @@ _print_danger() {
 
 _print_done() {
   T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
+  TEXT_COLS=12
+  CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
+  tput ll
   echo ""
-  echo -e "${BGREEN} =>${BWHITE} [ DONE ]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "${BGREEN}-=] DONE [=-${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _pause_function() {
