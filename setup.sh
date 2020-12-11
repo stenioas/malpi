@@ -203,9 +203,9 @@ _initial_info() {
   echo -e "\n - The ESP partition can be formatted if the user wants to."
   echo -e "\n - This script does not support swap."
   echo -e "\n - This script will create three subvolumes:"
-  echo -e "     @ for ${BYELLOW}/${RESET}"
-  echo -e "     @home for ${BYELLOW}/home${RESET}"
-  echo -e "     @.snapshots for ${BYELLOW}/.snapshots${RESET}"
+  echo -e "     @ for ${YELLOW}/${RESET}"
+  echo -e "     @home for ${YELLOW}/home${RESET}"
+  echo -e "     @.snapshots for ${YELLOW}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC."
   _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
@@ -239,10 +239,10 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  _print_info "Generating new mirrorlist"
+  _print_subtitle "Mirrorlist"
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_info "Updating mirrors"
+  _print_subtitle "Update"
   _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   _print_done
@@ -253,7 +253,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_info "Selecting disk"
+  _print_info "Select disk:"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -286,11 +286,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "ROOT PARTITION"
     PS3="$PROMPT1"
-    _print_warning "REMEMBER!!! This script will create 3 subvolumes:"
-    echo -e "  ${BBLUE}->${WHITE} @ for ${BYELLOW}/${RESET}"
-    echo -e "  ${BBLUE}->${WHITE} @home for ${BYELLOW}/home${RESET}"
-    echo -e "  ${BBLUE}->${WHITE} @.snapshots for ${BYELLOW}/.snapshots${RESET}"
-    _print_info "Select partition to create btrfs subvolumes:${RESET}"
+    _print_info "Select ROOT partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -304,12 +300,12 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     echo -ne "${BGREEN}==> ${BWHITE}${ROOT_PARTITION}${RESET}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "FORMATTED"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_subtitle "Subvolumes"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} @${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} @home${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} @.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${BBLUE}  ->${BWHITE} @${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${BBLUE}  ->${BWHITE} @home${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${BBLUE}  ->${BWHITE} @.snapshots${RESET}"; _print_action "CREATED"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -335,9 +331,9 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "FORMATTED"
     else
-      echo -e "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}${BGREEN}[ NOT FORMATTED ]${RESET}"
+      echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -351,7 +347,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BGREEN}==> ${BWHITE}$1${RESET}"; echo -e " ${BGREEN}[ MOUNTED ]${RESET}"
+      echo -ne "${BGREEN}==> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -376,7 +372,7 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_info "Generating fstab"
+  _print_info "Generate file"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _print_done
@@ -457,9 +453,9 @@ _grub_generate() {
   done
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_info "Installing on grub target"
+  _print_subtitle "Grub target"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  _print_info "Generating grub.cfg"
+  _print_subtitle "Generate grub.cfg"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
   _pause_function  
@@ -509,7 +505,7 @@ _create_new_user() {
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     useradd -m -g users -G wheel ${NEW_USER}
-    _print_info " User ${NEW_USER} created."
+    _print_info "User ${NEW_USER} created."
     _print_info "Type user password:"
     passwd ${NEW_USER}
     _print_info " Privileges added."
@@ -854,27 +850,23 @@ _print_info() {
 }
 
 _print_installing() {
-  T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing${RESET} "
-  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_running() {
-  T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running${RESET} "
-  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Enabling${RESET} "
-  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Downloading${RESET} "
-  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_warning() {
@@ -889,6 +881,10 @@ _print_danger() {
 
 _print_ok() {
   echo -e " ${BWHITE}[${RESET}${BGREEN} OK ${BWHITE}]${RESET}"
+}
+
+_print_action() {
+  echo -e " ${BWHITE}[${RESET}${BGREEN} $1 ${BWHITE}]${RESET}"
 }
 
 #_print_done() {
