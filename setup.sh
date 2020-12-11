@@ -821,7 +821,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} $1 ${RESET}${PURPLE}╞${RESET}"; echo -e "${PURPLE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
+  echo -ne "${BLUE}═╡${RESET}${BG_BLUE}${BWHITE} $1 ${RESET}${BLUE}╞${RESET}"; echo -e "${BLUE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_title_alert() {
@@ -886,7 +886,7 @@ _print_action() {
 
 _print_done() {
   echo ""
-  echo -e "${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
+  echo -e "${BLUE}═╡${RESET}${BG_BLUE}${BWHITE} COMPLETE ${RESET}${BLUE}│${RESET}"
 }
 
 _print_bye() {
