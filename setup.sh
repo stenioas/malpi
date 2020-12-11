@@ -911,9 +911,7 @@ _contains_element() {
 }
 
 _invalid_option() {
-    _print_line
-    _print_warning " * Invalid option. Try again..."
-    _pause_function
+    _print_warning "Invalid option. Try again..."
 }
 
 _read_input_text() {
