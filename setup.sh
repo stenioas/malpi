@@ -289,7 +289,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_subtitle "ROOT Partition"
     PS3="$PROMPT1"
-    _print_info "Select ROOT partition:${RESET}"
+    _print_subtitle "Select ROOT partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -315,14 +315,12 @@ _format_partitions() {
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
-    _print_done
-    _pause_function
   }
 
   _format_efi_partition() {
     _print_subtitle "EFI Partition"
     PS3="$PROMPT1"
-    _print_info "Select EFI partition:${RESET}"
+    _print_info "Select EFI partition:"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -365,7 +363,7 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   _print_subtitle "Packages"
-  _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
+  _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_subtitle "Services"
   _print_enabling "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
@@ -375,7 +373,7 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_info "Generate file"
+  _print_subtitle "Generate file"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _print_done
@@ -416,7 +414,6 @@ _set_language() {
 _set_hostname() {
   _print_title "HOSTNAME AND IP ADDRESS"
   _print_entry "Type a hostname [ex: archlinux]"
-  _print_subtitle "Settings"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
@@ -425,6 +422,7 @@ _set_hostname() {
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
+  _print_subtitle "Settings"
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   echo -ne "${BBLUE}  ->${BWHITE} Setting${RESET}"
@@ -438,7 +436,7 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "ROOT PASSWORD"
-  _print_info "Type a root password:"
+  _print_subtitle "Type a root password:"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done
   _pause_function
@@ -481,12 +479,12 @@ _finish_install() {
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   _read_input_text "Reboot system? [y/N]: "
-  echo ""
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
   fi
   _print_thanks
+  tput cub 1
   _print_bye
   exit 0
 }
@@ -509,12 +507,12 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     useradd -m -g users -G wheel ${NEW_USER}
     _print_info "User ${NEW_USER} created."
-    _print_info "Type user password:"
+    _print_subtitle "Type user password:"
     passwd ${NEW_USER}
-    _print_info " Privileges added."
+    _print_info "Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
   else
-    _print_info " User ${NEW_USER} already exists!"
+    _print_info "User ${NEW_USER} already exists!"
   fi
   _print_done
   _pause_function
@@ -542,7 +540,7 @@ _enable_multilib(){
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
-  _package_install "dosfstools mtools udisks2 dialog git wget reflector bash-completion xdg-utils xdg-user-dirs"
+  _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
   _print_done
   _pause_function
 }
@@ -616,7 +614,7 @@ _install_laptop_pkgs() {
     _print_enabling "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
-    -_print_info " Nothing to do!"
+    -_print_info "Nothing to do!"
   fi
   _print_done
   _pause_function
@@ -665,10 +663,10 @@ _install_desktop() {
     _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Bspwm" ]]; then
-    _print_info " It's not working yet..."
+    _print_info "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Awesome" ]]; then
-    _print_info " It's not working yet..."
+    _print_info "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Openbox" ]]; then
     _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
@@ -677,7 +675,7 @@ _install_desktop() {
     _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "None" ]]; then
-    _print_info " Nothing to do!"
+    _print_info "Nothing to do!"
 
   else
     _invalid_option
@@ -714,7 +712,7 @@ _install_display_manager() {
     _print_info "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "Slim" ]]; then
-    _print_info " It's not working yet..."
+    _print_info "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
@@ -729,7 +727,7 @@ _install_display_manager() {
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
-    _print_info " It's not working yet..."
+    _print_info "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "None" ]]; then
     echo -e " ${BBLUE}Nothing to do!${RESET}"
@@ -844,12 +842,12 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BGREEN}==> ${RESET}${BBLUE}$1:${RESET} "
+  printf "%s" "${BGREEN}==> ${RESET}${BRED}$1:${RESET} "
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BGREEN}==> ${RESET}${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}==> $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -859,7 +857,7 @@ _print_warning() {
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}==> $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
@@ -927,12 +925,12 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}==> ${RESET}${BBLUE}$1${RESET}"
+  printf "%s" "${BGREEN}==> ${RESET}${BRED}$1${RESET}"
   read -r OPTION
 }
 
 _umount_partitions() {
-  _print_info " Umounting partitions..."
+  _print_info "UMOUNTING PARTITIONS"
   umount -R ${ROOT_MOUNTPOINT}
 }
 
