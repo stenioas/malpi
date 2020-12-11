@@ -1,23 +1,6 @@
 #!/bin/sh
 #
 # arch-setup: Install and Config Archlinux
-# 
-# ----------------------------------------------------------------------#
-#
-# This script supports UEFI only.
-# This script supports GRUB only.
-# This script, for now, only installs the lts kernel.
-# This script will only consider two partitions, ESP and root.
-# This script will format the root partition in btrfs format.
-# The ESP partition can be formatted if the user wants to.
-#
-# This script will create three subvolumes:
-#   @ for /
-#   @home for /home
-#   @ .snapshots for /.snapshots.
-#
-# This script sets zoneinfo to America/Fortaleza.
-# This script sets hwclock to UTC.
 #
 # ----------------------------------------------------------------------#
 #
@@ -61,7 +44,7 @@ usage: ${0##*/} [flags]
 
     --install | -i         First step, only root user. THIS STEP MUST BE RUN IN LIVE MODE!
     --config  | -c         Second step, only root user.
-    --desktop | -d         Third step, only normal user.
+    --desktop | -d         Third step, only root user.
     --user    | -u         Last step, only normal user.
 
 * Arch-Setup 0.1
@@ -908,21 +891,31 @@ _print_danger() {
   echo -e "${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+#_print_done() {
+#  T_COLS=$(tput cols)
+#  T_LINES=$(tput lines)
+#  TEXT_COLS=16
+#  CENTER_COLS=$(( (T_COLS - TEXT_COLS)/2 ))
+#  tput cup $(( T_LINES - 3 ))
+#  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "${BGREEN}[=-   ${BWHITE}COMPLETE   ${BGREEN}-=]${RESET}" | fold -sw $(( T_COLS - 1 ))
+#}
+
 _print_done() {
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
-  TEXT_COLS=16
-  CENTER_COLS=$(( (T_COLS - TEXT_COLS)/2 ))
-  tput cup $(( T_LINES - 3 ))
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "${BGREEN}[=-   ${BWHITE}COMPLETE   ${BGREEN}-=]${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo ""
+  echo -e "${BGREEN} -=[>   ${BWHITE}COMPLETE   ${BGREEN}<]=-${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+#_pause_function() {
+#  T_COLS=$(tput cols)
+#  T_LINES=$(tput lines)
+#  tput cup $(( T_LINES - 2 )) 0
+#  echo -e "${BGREEN}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+#  read -e -sn 1 -p " ${BWHITE}Press any key to continue...${RESET}"
+#}
+
 _pause_function() {
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
-  tput cup $(( T_LINES - 2 )) 0
-  echo -e "${BGREEN}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-  read -e -sn 1 -p " ${BWHITE}Press any key to continue...${RESET}"
+  echo ""
+  read -e -sn 1 -p "${BPURPLE}==> Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -1044,7 +1037,7 @@ _initial_screen
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  CENTER_COLS=$(( (T_COLS - 30)/2 ))
+  CENTER_COLS=$(( (T_COLS - 28)/2 ))
   tput cup $(( (T_LINES - LOGO_LINES)/2 + LOGO_LINES + 1 )) $CENTER_COLS
   read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
   case "$1" in
