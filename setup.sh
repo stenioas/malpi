@@ -208,7 +208,7 @@ _initial_info() {
   echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC.\n"
-  echo -e "\n   ${RED}│${RESET}${BG_RED}${BWHITE}THIS SCRIPT IS NOT YET COMPLETE${RESET}${RED}│${RESET}"
+  echo -e "\n ${RED}│${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ${RESET}${RED}│${RESET}"
   echo ""
   echo -e "${BGREEN}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
   _pause_function
@@ -822,7 +822,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "${BPURPLE}═╡${RESET}${BWHITE} $1 ${RESET}${BPURPLE}╞${RESET}"; echo -e "${BPURPLE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
+  echo -ne "${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} $1 ${RESET}${PURPLE}╞${RESET}"; echo -e "${PURPLE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_title_alert() {
@@ -831,7 +831,7 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "${BRED}═╡${RESET}${BWHITE} $1 ${RESET}${BRED}╞${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
+  echo -ne "${RED}═╡${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}╞${RESET}"; echo -e "${RED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_subtitle() {
@@ -887,7 +887,7 @@ _print_action() {
 
 _print_done() {
   echo ""
-  echo -ne " ${PURPLE}│${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
+  echo -e " ${PURPLE}│${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
 }
 
 _print_bye() {
@@ -902,7 +902,7 @@ _print_thanks() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p " ${GREEN}│${RESET}${BG_GREEN}${BWHITE} Press any key to continue ${RESET}${GREEN}│${RESET}"
+  read -e -sn 1 -p "${BGREEN}>${RESET}${BWHITE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
