@@ -141,8 +141,8 @@ _setup_install(){
     }
     _check_archlive
     _initial_info
-    _initial_packages
     _check_connection
+    _initial_packages
     _rank_mirrors
     _select_disk
     _format_partitions
@@ -228,28 +228,23 @@ _initial_info() {
   _pause_function
 }
 
+_check_connection() {
+    _connection_test() {
+      ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
+    }
+    if ! _connection_test; then
+      _print_title_alert "CONNECTION"
+      _print_warning "You are not connected. Solve this problem and run this script again."
+      _print_info "\nBYE"
+      exit 1
+      _pause_function
+    fi
+}
+
 _initial_packages() {
   _print_title "REQUIRED PACKAGES"
   _package_install "wget git nano"
   _print_done
-  _pause_function
-}
-
-_check_connection() {
-  _print_title "CONNECTION"
-    echo -ne "${BGREEN}==> ${BWHITE}Connecting${RESET} ...${RESET}"
-    _connection_test() {
-      ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
-    }
-    if _connection_test; then
-      echo -e " ${BGREEN}[ CONNECTED ]${RESET}"
-      _print_done
-    else
-      _print_danger " [ NOT CONNECTED ]"
-      _print_danger "\n *** GOOD BYE ***"
-      exit 1
-      _pause_function
-    fi
   _pause_function
 }
 
