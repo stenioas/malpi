@@ -255,7 +255,6 @@ _rank_mirrors() {
   fi
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYELLOW} [ OK ]${RESET}"
-  echo ""
   _read_input_text "Check your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
@@ -282,12 +281,11 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   _print_title "PARTITIONING"
-  echo -e " ${BWHITE}${INSTALL_DISK}${RESET}${BGREEN}[ SELECTED ]${RESET}\n"
+  echo -e " ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}\n"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
-  _print_title "PARTITIONING"
   _print_done
   _pause_function
 }
@@ -309,7 +307,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "FORMATTING ROOT PARTITION"
     PS3="$PROMPT1"
-    echo -e "${BRED}==> REMEMBER!!! This script will create 3 subvolumes:${RESET}\n"
+    _print_warning "REMEMBER!!! This script will create 3 subvolumes:\n"
     echo -e " ${CYAN}   - @ for ${BYELLOW}/${RESET}"
     echo -e " ${CYAN}   - @home for ${BYELLOW}/home${RESET}"
     echo -e " ${CYAN}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
@@ -327,12 +325,12 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_title "FORMATTING ROOT PARTITION"
-    echo -ne " ${BWHITE}${ROOT_PARTITION}${RESET}"
+    echo -ne "==> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "\n ${BLUE}  ->${BWHITE}Subvolume ${CYAN}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BLUE}  ->${BWHITE}Subvolume ${CYAN}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BLUE}  ->${BWHITE}Subvolume ${CYAN}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${CYAN}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BBLUE}  ->${BWHITE} Subvolume ${CYAN}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BBLUE}  ->${BWHITE} Subvolume ${CYAN}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -359,7 +357,7 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     _print_title "FORMATTING EFI PARTITION"
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET}"
+      echo -ne "${GREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     else
       echo -ne " ${BWHITE}${EFI_PARTITION}${RESET}${BGREEN}[ NOT FORMATTED ]${RESET}"
@@ -368,7 +366,6 @@ _format_partitions() {
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
     _print_done
-    _pause_function
   }
 
   _disable_partition() {
@@ -378,7 +375,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      _print_info "\n The partition(s) was successfully mounted!"
+      echo -ne "${BGREEN}==> ${BWHITE}${2}${RESET}"; echo -e " ${BGREEN}[ MOUNTED ]${RESET}"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -386,7 +383,6 @@ _format_partitions() {
   }
   _format_root_partition
   _format_efi_partition
-  _print_title "FORMATTING AND MOUNTING PARTITIONS"
   _print_done
   _pause_function
 }
@@ -409,7 +405,6 @@ _fstab_generate() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   fi
-  _print_title "FSTAB"
   _print_done
   _pause_function
 }
@@ -485,9 +480,10 @@ _grub_generate() {
   done
   _print_title "GRUB BOOTLOADER"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "Installing grub on target"
+  _print_subtitle "Installing grub on target\n"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  _print_subtitle "Generating grub.cfg"
+  echo ""
+  _print_subtitle "Generating grub.cfg\n"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
   _pause_function  
@@ -505,7 +501,7 @@ _finish_install() {
   _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED"
-    echo -ne "${BBLUE} -> ${BWHITE}Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET}"
+    echo -ne "${BBLUE}  ->${BWHITE} Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET}"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [ SAVED ]"
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -892,7 +888,7 @@ _print_info() {
 
 _print_running() {
   T_COLS=$(tput cols)
-  echo -ne "${BLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
   echo -ne "${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
