@@ -885,7 +885,7 @@ _print_danger() {
 }
 
 _print_ok() {
-  echo -e "${BWHITE} ... ${BGREEN}OK${RESET}"
+  echo -e " ${BWHITE}[${RESET}${BGREEN} OK ${BWHITE}]${RESET}"
 }
 
 #_print_done() {
@@ -958,11 +958,11 @@ _package_install() {
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        echo -e " ${BWHITE} ... ${RESET}${BRED}ERROR${RESET}"
+        echo -e " ${BWHITE}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
       fi
     else
       _print_installing "${PKG}"
-        echo -e " ${BWHITE} ... ${RESET}${BLUE}EXISTS${RESET}"
+        echo -e " ${BWHITE}[${RESET}${YELLOW} EXISTS ${BWHITE}]${RESET}"
     fi
   done
 }
@@ -984,7 +984,7 @@ _pacstrap_install() {
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      echo -e " ${BWHITE} ... ${BRED}ERROR${RESET}"
+      echo -e " ${BWHITE}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
     fi
   done
 }
