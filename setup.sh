@@ -111,7 +111,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1=" ${BBLUE}-> ${BWHITE}Option:${RESET} "
+      PROMPT1="  ${BBLUE}-> ${BWHITE}Option:${RESET} "
 
 # ----------------------------------------------------------------------#
 
@@ -282,7 +282,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_title "FORMATTING ROOT PARTITION"
+    _print_title "ROOT PARTITION"
     PS3="$PROMPT1"
     _print_warning "REMEMBER!!! This script will create 3 subvolumes:\n"
     echo -e " ${WHITE}   - @ for ${BYELLOW}/${RESET}"
@@ -318,7 +318,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_title "FORMATTING EFI PARTITION"
+    _print_title "EFI PARTITION"
     PS3="$PROMPT1"
     _print_subtitle "Select EFI partition:${RESET}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -329,13 +329,12 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    echo ""
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     else
-      echo -ne " ${BWHITE}${EFI_PARTITION}${RESET}${BGREEN}[ NOT FORMATTED ]${RESET}"
+      echo -e "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}${BGREEN}[ NOT FORMATTED ]${RESET}"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -886,9 +885,9 @@ _print_danger() {
 #}
 
 _print_done() {
-  echo -e "${BWHITE} ╓──────────────────╖${RESET}"
-  echo -e "${BWHITE}─╢${BGREEN} ░▒▓ COMPLETE ▓▒░ ${BWHITE}║${RESET}"
-  echo -e "${BWHITE} ╙──────────────────╜${RESET}"
+  echo -e "${BWHITE}  ┌──────────────────┐${RESET}"
+  echo -e "${BWHITE}  │${BGREEN} ░▒▓ COMPLETE ▓▒░ ${BWHITE}│${RESET}"
+  echo -e "${BWHITE}  └──────────────────┘${RESET}"
 }
 
 #_pause_function() {
@@ -901,7 +900,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}→ ${BWHITE}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN} ${BWHITE}Press any key to continue ←${RESET}"
 }
 
 _contains_element() {
