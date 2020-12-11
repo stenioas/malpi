@@ -879,16 +879,16 @@ _print_downloading() {
 }
 
 _print_ok() {
-  echo -e " ${GREEN}║${BG_GREEN}${BWHITE} OK ${RESET}${GREEN}║${RESET}"
+  echo -e " ${BWHITE}[${RESET}${BGREEN} OK ${BWHITE}]${RESET}"
 }
 
 _print_action() {
-  echo -e " ${GREEN}║${BG_GREEN}${BWHITE} $1 ${RESET}${GREEN}║${RESET}"
+  echo -e " ${BWHITE}[${RESET}${BGREEN} $1 ${BWHITE}]${RESET}"
 }
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN}>${RESET}${PURPLE} COMPLETE.${RESET}"
+  echo -e " ${PURPLE}│${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
 }
 
 _print_bye() {
