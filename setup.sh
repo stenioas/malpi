@@ -886,7 +886,7 @@ _print_action() {
 
 _print_done() {
   echo ""
-  echo -e "${BLUE}═╡${RESET}${BG_BLUE}${BWHITE} COMPLETE ${RESET}${BLUE}│${RESET}"
+  echo -e "${BGREEN}═╡${RESET}${BG_BLACK}${BGREEN} COMPLETE ${RESET}${BGREEN}│${RESET}"
 }
 
 _print_bye() {
