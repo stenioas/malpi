@@ -111,7 +111,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="  ${BBLUE}-> ${BWHITE}Option:${RESET} "
+      PROMPT1="  ${YELLOW}-> Option:${RESET} "
 
 # ----------------------------------------------------------------------#
 
@@ -209,6 +209,7 @@ _initial_info() {
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC."
   _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
+  _print_thanks
   _pause_function
 }
 
@@ -890,25 +891,21 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN}  →${BPURPLE} COMPLETE${RESET}"
+  echo -e "${BGREEN}>${BPURPLE} COMPLETE.${RESET}"
 }
 
 _print_bye() {
   echo ""
-  echo -e "${BGREEN}  →${BPURPLE} BYE!${RESET}"
+  echo -e "${BGREEN}>${BPURPLE} BYE!${RESET}"
 }
 
-#_pause_function() {
-#  T_COLS=$(tput cols)
-#  T_LINES=$(tput lines)
-#  tput cup $(( T_LINES - 2 )) 0
-#  echo -e "${BGREEN}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-#  read -e -sn 1 -p " ${BWHITE}Press any key to continue...${RESET}"
-#}
+_print_thanks() {
+  echo ""
+  echo -e "${BGREEN}>${BPURPLE} Thank you for testing this script..${RESET}"
+}
 
 _pause_function() {
-  echo ""
-  read -e -sn 1 -p "${BGREEN}  →${BWHITE} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}>${BWHITE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -920,7 +917,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLUE}  -> ${BWHITE}$1${RESET}"
+  printf "%s" "${YELLOW}  -> $1${RESET}"
   read -r OPTION
 }
 
