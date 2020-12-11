@@ -208,7 +208,7 @@ _initial_info() {
   echo -e "\n       @.snapshots for ${BYELLOW}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC."
-  _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
+  _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE\n"
   _pause_function
 }
 
@@ -885,9 +885,9 @@ _print_danger() {
 #}
 
 _print_done() {
-  echo -e "${BWHITE}  ┌──────────────────┐${RESET}"
-  echo -e "${BWHITE}  │${BGREEN} ░▒▓ COMPLETE ▓▒░ ${BWHITE}│${RESET}"
-  echo -e "${BWHITE}  └──────────────────┘${RESET}"
+  echo ""
+  echo -e "${BGREEN}  COMPLETE${RESET}"
+  echo -e "${BWHITE}──────────${RESET}"
 }
 
 #_pause_function() {
@@ -899,8 +899,7 @@ _print_done() {
 #}
 
 _pause_function() {
-  echo ""
-  read -e -sn 1 -p "${BGREEN} ${BWHITE}Press any key to continue ←${RESET}"
+  read -e -sn 1 -p " ${BWHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
