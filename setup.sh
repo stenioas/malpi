@@ -208,8 +208,9 @@ _initial_info() {
   echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC.\n"
-  echo -e "\n   ${BG_RED}${BWHITE}THIS SCRIPT IS NOT YET COMPLETE${RESET}"
-  _print_thanks
+  echo -e "\n   ${RED}│${RESET}${BG_RED}${BWHITE}THIS SCRIPT IS NOT YET COMPLETE${RESET}${RED}│${RESET}"
+  echo ""
+  echo -e "${BGREEN}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
   _pause_function
 }
 
@@ -481,8 +482,6 @@ _finish_install() {
     _umount_partitions
     reboot
   fi
-  _print_thanks
-  tput cub 1
   _print_bye
   exit 0
 }
@@ -888,7 +887,7 @@ _print_action() {
 
 _print_done() {
   echo ""
-  echo -e " ${PURPLE}│${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
+  echo -ne " ${PURPLE}│${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
 }
 
 _print_bye() {
@@ -902,7 +901,8 @@ _print_thanks() {
 }
 
 _pause_function() {
-  read -e -sn 1 -p "${BGREEN}>${BWHITE} Press any key to continue...${RESET}"
+  echo ""
+  read -e -sn 1 -p " ${GREEN}│${RESET}${BG_GREEN}${BWHITE} Press any key to continue ${RESET}${GREEN}│${RESET}"
 }
 
 _contains_element() {
