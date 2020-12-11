@@ -208,9 +208,8 @@ _initial_info() {
   echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC.\n"
-  echo -e "\n ${RED}│${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ${RESET}${RED}│${RESET}"
-  echo ""
-  echo -e "${BGREEN}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
+  echo -e "\n${RED}═╡${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ${RESET}${RED}│${RESET}"
+  echo -e "\n${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} Btw, thank's for your time!${RESET}${PURPLE}│${RESET}"
   _pause_function
 }
 
@@ -887,7 +886,7 @@ _print_action() {
 
 _print_done() {
   echo ""
-  echo -e " ${PURPLE}│${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
+  echo -e "${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} COMPLETE ${RESET}${PURPLE}│${RESET}"
 }
 
 _print_bye() {
