@@ -305,9 +305,10 @@ _format_partitions() {
     echo -ne "${BGREEN}==> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume${RESET} ${WHITE}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume${RESET} ${WHITE}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume${RESET} ${WHITE}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    _print_subtitle "Subvolumes"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE}@${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE}@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE}@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -889,7 +890,7 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN}==[${BWHITE} COMPLETE ${BWHITE}]${RESET}"
+  echo -e "${BGREEN}  →${BPURPLE} COMPLETE${RESET}"
 }
 
 #_pause_function() {
@@ -902,7 +903,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BWHITE} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}  →${BWHITE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -921,7 +922,7 @@ _read_input_text() {
 }
 
 _umount_partitions() {
-  _print_warning " * UNMOUNTING PARTITIONS..."
+  _print_info " Umounting partitions..."
   umount -R ${ROOT_MOUNTPOINT}
 }
 
@@ -953,7 +954,7 @@ _package_install() {
       fi
     else
       _print_installing "${PKG}"
-        echo -e " ${BWHITE}[ ${BLUE}OK${BWHITE} ]${RESET}"
+        echo -e " ${BWHITE}[ ${BLUE}EXISTS${BWHITE} ]${RESET}"
     fi
   done
 }
