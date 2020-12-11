@@ -208,7 +208,7 @@ _initial_info() {
   echo -e "\n       @.snapshots for ${BYELLOW}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC."
-  _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE\n"
+  _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
   _pause_function
 }
 
@@ -227,6 +227,7 @@ _check_connection() {
 
 _initial_packages() {
   _print_title "REQUIRED PACKAGES"
+  _print_subtitle "Packages"
   _package_install "wget git nano"
   _print_done
   _pause_function
@@ -251,7 +252,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle "Select disk:${RESET}\n"
+  _print_subtitle "Select disk:${RESET}"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -284,11 +285,11 @@ _format_partitions() {
   _format_root_partition() {
     _print_title "ROOT PARTITION"
     PS3="$PROMPT1"
-    _print_warning "REMEMBER!!! This script will create 3 subvolumes:\n"
-    echo -e " ${WHITE}   - @ for ${BYELLOW}/${RESET}"
-    echo -e " ${WHITE}   - @home for ${BYELLOW}/home${RESET}"
-    echo -e " ${WHITE}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
-    _print_subtitle "Select partition to create btrfs subvolumes:${RESET}\n"
+    _print_warning "REMEMBER!!! This script will create 3 subvolumes:"
+    echo -e "  ${BBLUE}->${WHITE} @ for ${BYELLOW}/${RESET}"
+    echo -e "  ${BBLUE}->${WHITE} @home for ${BYELLOW}/home${RESET}"
+    echo -e "  ${BBLUE}->${WHITE} @.snapshots for ${BYELLOW}/.snapshots${RESET}"
+    _print_subtitle "Select partition to create btrfs subvolumes:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -304,9 +305,9 @@ _format_partitions() {
     echo -ne "${BGREEN}==> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${WHITE}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${WHITE}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${WHITE}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume${RESET} ${WHITE}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume${RESET} ${WHITE}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume${RESET} ${WHITE}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -320,7 +321,7 @@ _format_partitions() {
   _format_efi_partition() {
     _print_title "EFI PARTITION"
     PS3="$PROMPT1"
-    _print_subtitle "Select EFI partition:${RESET}\n"
+    _print_subtitle "Select EFI partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -886,8 +887,7 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN}  COMPLETE${RESET}"
-  echo -e "${BWHITE}──────────${RESET}"
+  echo -e "  ${BWHITE}[${BGREEN} COMPLETE ${BWHITE}]${RESET}"
 }
 
 #_pause_function() {
@@ -899,7 +899,8 @@ _print_done() {
 #}
 
 _pause_function() {
-  read -e -sn 1 -p " ${BWHITE}Press any key to continue...${RESET}"
+  echo ""
+  read -e -sn 1 -p "${BGREEN}==> ${BWHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
