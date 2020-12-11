@@ -97,7 +97,7 @@ EOF
       BG_WHITE=$(tput setab 7)
 
     # --- ESSENTIALS
-      APP_TITLE="ARCH-SETUP 0.1"
+      APP_TITLE="arch-setup 0.1"
       NEW_LANGUAGE="pt_BR"
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
@@ -823,7 +823,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${CYAN}${APP_TITLE}${RESET}"
+  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${BPURPLE}═╡${RESET}${BWHITE} $1 ${RESET}${BPURPLE}╞${RESET}"; echo -e "${BPURPLE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
@@ -832,7 +832,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${CYAN}${APP_TITLE}${RESET}"
+  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${BRED}═╡${RESET}${BWHITE} $1 ${RESET}${BRED}╞${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
@@ -841,12 +841,22 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BYELLOW}==> ${RESET}${YELLOW}$1:${RESET} "
+  printf "%s" "${BGREEN}==> ${RESET}${BBLUE}$1:${RESET} "
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}==> ${RESET}${YELLOW}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BGREEN}==> ${RESET}${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_warning() {
+  T_COLS=$(tput cols)
+  echo -e "${BYELLOW}==> WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_danger() {
+  T_COLS=$(tput cols)
+  echo -e "${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
@@ -867,16 +877,6 @@ _print_enabling() {
 _print_downloading() {
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Downloading${RESET} "
   echo -ne "${WHITE}$1${RESET}"
-}
-
-_print_warning() {
-  T_COLS=$(tput cols)
-  echo -e "${BYELLOW}==> WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_danger() {
-  T_COLS=$(tput cols)
-  echo -e "${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_ok() {
@@ -924,7 +924,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLUE}==> ${RESET}${YELLOW}$1${RESET}"
+  printf "%s" "${BGREEN}==> ${RESET}${BBLUE}$1${RESET}"
   read -r OPTION
 }
 
