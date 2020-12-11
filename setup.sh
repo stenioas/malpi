@@ -219,9 +219,9 @@ _check_connection() {
     if ! _connection_test; then
       _print_title_alert "CONNECTION"
       _print_warning "You are not connected. Solve this problem and run this script again."
-      _print_info "\nBYE"
-      exit 1
+      _print_bye
       _pause_function
+      exit 1
     fi
 }
 
@@ -893,6 +893,11 @@ _print_done() {
   echo -e "${BGREEN}  →${BPURPLE} COMPLETE${RESET}"
 }
 
+_print_bye() {
+  echo ""
+  echo -e "${BGREEN}  →${BPURPLE} BYE!${RESET}"
+}
+
 #_pause_function() {
 #  T_COLS=$(tput cols)
 #  T_LINES=$(tput lines)
@@ -1016,5 +1021,5 @@ while [[ "$1" ]]; do
     --user|-u) _setup_user;;
   esac
   shift
-  _print_info "\nByye!" && exit 0
+  _print_bye && exit 0
 done
