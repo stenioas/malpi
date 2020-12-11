@@ -111,7 +111,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1=" ${YELLOW}Option:${RESET} "
+      PROMPT1=" ${BBLUE}-> ${BWHITE}Option:${RESET} "
 
 # ----------------------------------------------------------------------#
 
@@ -237,14 +237,10 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
+  _print_subtitle "Generating new mirrorlist..."
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYELLOW} [ OK ]${RESET}"
-  _read_input_text "Check your mirrorlist file? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    nano /etc/pacman.d/mirrorlist
-  fi
-  _print_title "MIRRORS"
-  _print_subtitle "Updating mirrors"
+  _print_subtitle "Updating mirrors..."
   _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_done
@@ -902,7 +898,6 @@ _print_danger() {
 #}
 
 _print_done() {
-  echo ""
   echo -e "${BWHITE} ╓──────────────────╖${RESET}"
   echo -e "${BWHITE}─╢${BGREEN} ░▒▓ COMPLETE ▓▒░ ${BWHITE}║${RESET}"
   echo -e "${BWHITE} ╙──────────────────╜${RESET}"
@@ -918,7 +913,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}☑→ ${BWHITE}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}→ ${BWHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -932,7 +927,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}==> ${BWHITE}$1${RESET}"
+  printf "%s" "${BBLUE}  -> ${BWHITE}$1${RESET}"
   read -s -n 1 -r OPTION
 }
 
