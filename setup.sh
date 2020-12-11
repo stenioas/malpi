@@ -1011,9 +1011,9 @@ _initial_screen() {
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                            ╔════════════════════╗"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "     ═══════════════════════╣ By Stenio Silveira ╠═══════════════════════"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                            ╚════════════════════╝${RESET}"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                           ╔════════════════════╗"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "    ═══════════════════════╣ By Stenio Silveira ╠═══════════════════════"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                           ╚════════════════════╝${RESET}"
 }
 
 clear
@@ -1038,7 +1038,7 @@ _initial_screen
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  CENTER_COLS=$(( (T_COLS - 28)/2 ))
+  CENTER_COLS=$(( (T_COLS - 24)/2 ))
   tput cup $(( (T_LINES - LOGO_LINES)/2 + LOGO_LINES + 1 )) $CENTER_COLS
   read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
   case "$1" in
