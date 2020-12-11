@@ -203,9 +203,9 @@ _initial_info() {
   echo -e "\n - The ESP partition can be formatted if the user wants to."
   echo -e "\n - This script does not support swap."
   echo -e "\n - This script will create three subvolumes:"
-  echo -e "     @ for ${YELLOW}/${RESET}"
-  echo -e "     @home for ${YELLOW}/home${RESET}"
-  echo -e "     @.snapshots for ${YELLOW}/.snapshots${RESET}"
+  echo -e "     @ for ${BCYAN}/${RESET}"
+  echo -e "     @home for ${BCYAN}/home${RESET}"
+  echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC."
   _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
@@ -924,7 +924,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BYELLOW}==> ${RESET}${YELLOW}$1${RESET}"
+  printf "%s" "${BBLUE}==> ${RESET}${YELLOW}$1${RESET}"
   read -r OPTION
 }
 
