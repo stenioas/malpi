@@ -825,7 +825,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BGREEN}═╗${RESET}"; echo -ne "${BWHITE} $1 ${RESET}"; echo -ne "${BGREEN}╔${RESET}"; echo -e "${BGREEN}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLUE}═╡${RESET}"; echo -ne "${BWHITE} $1 ${RESET}"; echo -ne "${BBLUE}╞${RESET}"; echo -e "${BBLUE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BGREEN} ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
 }
 
