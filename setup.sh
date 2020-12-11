@@ -248,7 +248,7 @@ _rank_mirrors() {
 }
 
 _select_disk() {
-  _print_title "PARTITIONING"
+  _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_subtitle "Select disk:${RESET}\n"
@@ -260,16 +260,11 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  _print_title "PARTITIONING"
-  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
+  echo -e "${BGREEN}==> ${BWHITE}Selected disk:${RESET} ${INSTALL_DISK}"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
-  _print_title "PARTITIONING"
-  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
-  _print_done
-  _pause_function
 }
 
 _format_partitions() {
@@ -306,7 +301,6 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_title "FORMATTING ROOT PARTITION"
     echo -ne "${BGREEN}==> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -337,7 +331,6 @@ _format_partitions() {
     done
     echo ""
     _read_input_text "Format EFI partition? [y/N]: "
-    _print_title "FORMATTING EFI PARTITION"
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
@@ -347,7 +340,6 @@ _format_partitions() {
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
-    _print_done
   }
 
   _disable_partition() {
@@ -381,14 +373,9 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
+  _print_subtitle "Generating..."
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}"
-  _read_input_text "Check your fstab file? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    nano ${ROOT_MOUNTPOINT}/etc/fstab
-  fi
-  _print_title "FSTAB"
-  _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}" && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
   _pause_function
 }
@@ -414,6 +401,7 @@ _set_locale() {
 
 _set_language() {
   _print_title "LANGUAGE AND KEYMAP"
+  _print_subtitle "Setting..."
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
@@ -462,7 +450,7 @@ _grub_generate() {
     _print_entry "Type a grub name entry [ex: Archlinux]"
     read -r NEW_GRUB_NAME
   done
-  _print_title "GRUB BOOTLOADER"
+  _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing grub on target\n"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
@@ -477,7 +465,7 @@ _mkinitcpio_generate() {
   _print_title "MKINITCPIO"
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _print_done
-  _pause_function  
+  _pause_function
 }
 
 _finish_install() {
@@ -928,7 +916,7 @@ _invalid_option() {
 
 _read_input_text() {
   printf "%s" "${BBLUE}  -> ${BWHITE}$1${RESET}"
-  read -s -n 1 -r OPTION
+  read -r OPTION
 }
 
 _umount_partitions() {
