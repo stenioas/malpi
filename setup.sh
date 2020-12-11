@@ -241,10 +241,10 @@ _rank_mirrors() {
   fi
   _print_subtitle "Generating new mirrorlist..."
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
-  reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && echo -e "${BYELLOW} [ OK ]${RESET}"
+  reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_subtitle "Updating mirrors..."
   _print_running "pacman -Syy"
-  pacman -Syy &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
+  pacman -Syy &> /dev/null && _print_ok
   _print_done
   _pause_function
 }
@@ -369,7 +369,7 @@ _install_base() {
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
   _print_subtitle "Services"
   _print_enabling "NetworkManager"
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _print_done
   _pause_function
 }
@@ -378,7 +378,7 @@ _fstab_generate() {
   _print_title "FSTAB"
   _print_subtitle "Generate"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
-  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}"
+  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _print_done
   _pause_function
 }
@@ -387,18 +387,18 @@ _set_locale() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   _print_subtitle "Settings"
   _print_running "timedatectl set-ntp true"
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
   _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   _print_running "hwclock --systohc --utc"
-  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_running "locale-gen"
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_done
   _pause_function
 }
@@ -407,9 +407,9 @@ _set_language() {
   _print_title "LANGUAGE AND KEYMAP"
   _print_subtitle "Settings"
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BGREEN} [ OK ]${RESET}"
+  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
   _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && echo -e "${BGREEN} [ OK ]${RESET}"
+  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
   _print_done
   _pause_function  
 }
@@ -426,12 +426,12 @@ _set_hostname() {
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BGREEN} [ OK ]${RESET}"
+  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   echo -ne "${BBLUE}  ->${BWHITE} Setting${RESET}"
   echo -ne "${WHITE} Ip address on /etc/hosts${RESET}"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && echo -e "${BGREEN} [ OK ]${RESET}"
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
   _print_done
   _pause_function  
 }
@@ -525,7 +525,7 @@ _enable_multilib(){
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
       _print_enabling "Multilib"
-      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && echo -e " ${BGREEN}[ OK ]${RESET}"
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && _print_ok
     else
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
@@ -612,7 +612,7 @@ _install_laptop_pkgs() {
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_subtitle "Services"
     echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}Bluetooth${RESET} ..."
-    systemctl enable bluetooth &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
+    systemctl enable bluetooth &> /dev/null && _print_ok
   else
     -_print_info " Nothing to do!"
   fi
@@ -706,7 +706,7 @@ _install_display_manager() {
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     _print_subtitle "Services"
     echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}LightDM${RESET} ..."
-    sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
+    sudo systemctl enable lightdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
     _print_info "It's not working yet..."
@@ -718,13 +718,13 @@ _install_display_manager() {
     _package_install "gdm"
     _print_subtitle "Services"
     echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}GDM${RESET} ..."
-    sudo systemctl enable gdm &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
+    sudo systemctl enable gdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
     _print_subtitle "Services"
     echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}SDDM${RESET} ..."
-    sudo systemctl enable sddm &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
+    sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
     _print_info " It's not working yet..."
@@ -833,7 +833,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
+  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${CYAN}${APP_TITLE}${RESET}"
   echo -ne "${BRED}═╡${RESET}${BWHITE} $1 ${RESET}${BRED}╞${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
@@ -885,7 +885,7 @@ _print_danger() {
 }
 
 _print_ok() {
-
+  echo -e "${BWHITE}| ${BGREEN}OK${RESET}"
 }
 
 #_print_done() {
@@ -956,13 +956,13 @@ _package_install() {
     if ! _is_package_installed "${PKG}"; then
       _print_installing "${PKG}"
       if _package_was_installed "${PKG}"; then
-        echo -e " ${BWHITE}[ ${BGREEN}OK${BWHITE} ]${RESET}"
+        _print_ok
       else
-        echo -e " ${BWHITE}[ ${BRED}ERROR${BWHITE} ]${RESET}"
+        echo -e " ${BWHITE}| ${BRED}ERROR${RESET}"
       fi
     else
       _print_installing "${PKG}"
-        echo -e " ${BWHITE}[ ${BLUE}EXISTS${BWHITE} ]${RESET}"
+        echo -e " ${BWHITE}| ${BLUE}EXISTS${RESET}"
     fi
   done
 }
@@ -982,9 +982,9 @@ _pacstrap_install() {
   for PKG in $1; do
     _print_installing "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
-      echo -e " ${BWHITE}[ ${BGREEN}OK${BWHITE} ]${RESET}"
+      _print_ok
     else
-      echo -e " ${BWHITE}[ ${BRED}OK${BWHITE} ]${RESET}"
+      echo -e " ${BWHITE}| ${BRED}ERROR${RESET}"
     fi
   done
 }
