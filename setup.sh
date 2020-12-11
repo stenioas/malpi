@@ -239,10 +239,10 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  _print_subtitle "Generating new mirrorlist..."
+  _print_info "Generating new mirrorlist"
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_subtitle "Updating mirrors..."
+  _print_info "Updating mirrors"
   _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   _print_done
@@ -253,7 +253,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle "Select disk:${RESET}"
+  _print_info "Selecting disk"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -290,7 +290,7 @@ _format_partitions() {
     echo -e "  ${BBLUE}->${WHITE} @ for ${BYELLOW}/${RESET}"
     echo -e "  ${BBLUE}->${WHITE} @home for ${BYELLOW}/home${RESET}"
     echo -e "  ${BBLUE}->${WHITE} @.snapshots for ${BYELLOW}/.snapshots${RESET}"
-    _print_subtitle "Select partition to create btrfs subvolumes:${RESET}"
+    _print_info "Select partition to create btrfs subvolumes:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -307,9 +307,9 @@ _format_partitions() {
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_subtitle "Subvolumes"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE}@${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE}@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE}@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} @${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} @home${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} @.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -323,7 +323,7 @@ _format_partitions() {
   _format_efi_partition() {
     _print_title "EFI PARTITION"
     PS3="$PROMPT1"
-    _print_subtitle "Select EFI partition:${RESET}"
+    _print_info "Select EFI partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -376,7 +376,7 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_subtitle "Generate"
+  _print_info "Generating fstab"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _print_done
@@ -417,6 +417,7 @@ _set_language() {
 _set_hostname() {
   _print_title "HOSTNAME AND IP ADDRESS"
   _print_entry "Type a hostname [ex: archlinux]"
+  _print_subtitle "Settings"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
@@ -438,7 +439,7 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "ROOT PASSWORD"
-  _print_subtitle "Type a root password:"
+  _print_info "Type a root password:"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done
   _pause_function
@@ -456,9 +457,9 @@ _grub_generate() {
   done
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "Installing grub on target"
+  _print_info "Installing on grub target"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  _print_subtitle "Generating grub.cfg"
+  _print_info "Generating grub.cfg"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
   _pause_function  
@@ -475,8 +476,8 @@ _finish_install() {
   _print_title "FIRST STEP FINISHED"
   _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "The file will be downloaded into root folder."
-    _print_downloading "setup.sh "
+    _print_info "The file will be downloaded into root folder."
+    _print_downloading "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [${BWHITE} SAVED${BGREEN} ]${RESET}"
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -486,6 +487,8 @@ _finish_install() {
     _umount_partitions
     reboot
   fi
+  _print_thanks
+  _print_bye
   exit 0
 }
 
@@ -507,7 +510,7 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     useradd -m -g users -G wheel ${NEW_USER}
     _print_info " User ${NEW_USER} created."
-    _print_subtitle "Setting password\n"
+    _print_info "Type user password:"
     passwd ${NEW_USER}
     _print_info " Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -558,7 +561,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
-  _print_subtitle "Select video card:\n"
+  info "Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -591,13 +594,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  _print_subtitle "Installing Utils"
+  info "Installing Utils"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Installing compression tools"
+  info "Installing compression tools"
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Installing extra filesystem tools"
+  info "Installing extra filesystem tools"
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Installing sound tools"
+  info "Installing sound tools"
   _package_install "alsa-utils pulseaudio"
   _print_done
   _pause_function
@@ -611,7 +614,7 @@ _install_laptop_pkgs() {
     _print_title "LAPTOP PACKAGES"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_subtitle "Services"
-    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}Bluetooth${RESET} ..."
+    _print_enabling "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
     -_print_info " Nothing to do!"
@@ -705,7 +708,7 @@ _install_display_manager() {
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     _print_subtitle "Services"
-    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}LightDM${RESET} ..."
+    _print_enabling "LightDM"
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -717,13 +720,13 @@ _install_display_manager() {
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
     _print_subtitle "Services"
-    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}GDM${RESET} ..."
+    _print_enabling "GDM"
     sudo systemctl enable gdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
     _print_subtitle "Services"
-    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}SDDM${RESET} ..."
+    _print_enabling "SDDM"
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
@@ -742,7 +745,7 @@ _install_display_manager() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED"
-  _print_subtitle "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
+  info "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
   _print_done
   _pause_function
   exit 0
@@ -842,12 +845,12 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BGREEN}==> ${BWHITE}$1:${RESET} "
+  printf "%s" "${BYELLOW}==> ${RESET}${YELLOW}$1:${RESET} "
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}==> ${RESET}${YELLOW}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
@@ -925,7 +928,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BYELLOW}> $1${RESET}"
+  printf "%s" "${BYELLOW}==> ${RESET}${YELLOW}$1${RESET}"
   read -r OPTION
 }
 
