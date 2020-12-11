@@ -903,9 +903,9 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BWHITE} ╓────────────────────╖${RESET}"
+  echo -e "${BWHITE} ╓──────────────────╖${RESET}"
   echo -e "${BWHITE}─╢${BGREEN} ░▒▓ COMPLETE ▓▒░ ${BWHITE}║${RESET}"
-  echo -e "${BWHITE} ╙────────────────────╜${RESET}"
+  echo -e "${BWHITE} ╙──────────────────╜${RESET}"
 }
 
 #_pause_function() {
@@ -918,7 +918,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}→ ${BWHITE}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}☑→ ${BWHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
