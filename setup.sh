@@ -208,7 +208,7 @@ _initial_info() {
   echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC.\n"
-  _print_danger "THIS SCRIPT IS NOT YET COMPLETE"
+  echo -e "\n   ${BG_RED}${BWHITE}THIS SCRIPT IS NOT YET COMPLETE${RESET}"
   _print_thanks
   _pause_function
 }
@@ -879,26 +879,26 @@ _print_downloading() {
 }
 
 _print_ok() {
-  echo -e " ${BWHITE}[${RESET}${BGREEN} OK ${BWHITE}]${RESET}"
+  echo -e " ${GREEN}║${BG_GREEN}${BWHITE} OK ${RESET}${GREEN}║${RESET}"
 }
 
 _print_action() {
-  echo -e " ${BWHITE}[${RESET}${BGREEN} $1 ${BWHITE}]${RESET}"
+  echo -e " ${GREEN}║${BG_GREEN}${BWHITE} $1 ${RESET}${GREEN}║${RESET}"
 }
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN}>${BPURPLE} COMPLETE.${RESET}"
+  echo -e "${BGREEN}>${RESET}${PURPLE} COMPLETE.${RESET}"
 }
 
 _print_bye() {
   echo ""
-  echo -e "${BGREEN}>${BPURPLE} BYE!${RESET}"
+  echo -e "${BGREEN}>${RESET}${PURPLE} BYE!${RESET}"
 }
 
 _print_thanks() {
   echo ""
-  echo -e "${BGREEN}>${BPURPLE} Btw, thank's for your time!${RESET}"
+  echo -e "${BGREEN}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
