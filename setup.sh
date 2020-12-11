@@ -904,7 +904,7 @@ _print_danger() {
 _print_done() {
   echo ""
   echo -e "${BWHITE} ╓────────────────────╖${RESET}"
-  echo -e "${BWHITE}─╢${BGREEN} ░▒▓█▇▆▅▄▃▂▁  COMPLETE ▁▂▃▄▅▆▇█▓▒░ ${BWHITE}║${RESET}"
+  echo -e "${BWHITE}─╢${BGREEN} ░▒▓ COMPLETE ▓▒░ ${BWHITE}║${RESET}"
   echo -e "${BWHITE} ╙────────────────────╜${RESET}"
 }
 
@@ -918,7 +918,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}==> ${BWHITE}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}→ ${BWHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -1038,7 +1038,7 @@ _initial_screen
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  CENTER_COLS=$(( (T_COLS - 24)/2 ))
+  CENTER_COLS=$(( (T_COLS - 26)/2 ))
   tput cup $(( (T_LINES - LOGO_LINES)/2 + LOGO_LINES + 1 )) $CENTER_COLS
   read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
   case "$1" in
