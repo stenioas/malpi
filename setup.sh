@@ -193,7 +193,8 @@ _check_archlive() {
 }
 
 _initial_info() {
-  _print_title_alert "README - IMPORTANT"
+  _print_title_alert "IMPORTANT"
+  _print_subtitle "Readme"
   echo -e "\n - This script supports UEFI only."
   echo -e "\n - This script will install GRUB as default bootloader."
   echo -e "\n - This script, for now, only installs the lts kernel."
@@ -902,7 +903,7 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN} -=[>   ${BWHITE}COMPLETE   ${BGREEN}<]=-${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BGREEN}==>     [     ${BWHITE}COMPLETE${RESET}     ]${RESET}"
 }
 
 #_pause_function() {
@@ -915,7 +916,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BPURPLE}==> Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}==> ${BWHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
