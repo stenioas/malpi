@@ -111,7 +111,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="  ${YELLOW}-> Option:${RESET} "
+      PROMPT1="${BRED}  -> Option:${RESET} "
 
 # ----------------------------------------------------------------------#
 
@@ -914,7 +914,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}==> $1${RESET}"
+  printf "%s" "${BRED}  -> $1${RESET}"
   read -r OPTION
 }
 
