@@ -825,7 +825,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BBLUE}═╡${RESET}${BWHITE} $1 ${RESET}${BBLUE}╞${RESET}"; echo -e "${BBLUE}`seq -s '═' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`${RESET}\n"
+  echo -ne "${BBLUE}═╡${RESET}${BWHITE} $1 ${RESET}${BBLUE}╞${RESET}"; echo -e "${BBLUE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_title_alert() {
@@ -834,7 +834,7 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BRED}═╡${RESET}${BWHITE} $1 ${RESET}${BRED}╞${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`${RESET}\n"
+  echo -ne "${BRED}═╡${RESET}${BWHITE} $1 ${RESET}${BRED}╞${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_subtitle() {
@@ -850,15 +850,21 @@ _print_info() {
   echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+_print_installing() {
+  T_COLS=$(tput cols)
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
+  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
 _print_running() {
   T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
   echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
-_print_installing() {
+_print_enabling() {
   T_COLS=$(tput cols)
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Enabling:${RESET} "
   echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
@@ -883,7 +889,7 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "  ${BWHITE}[${BGREEN} COMPLETE ${BWHITE}]${RESET}"
+  echo -e "${BGREEN}==[${BWHITE} COMPLETE ${BWHITE}]${RESET}"
 }
 
 #_pause_function() {
@@ -896,7 +902,7 @@ _print_done() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}==> ${BWHITE}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BWHITE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -941,13 +947,13 @@ _package_install() {
     if ! _is_package_installed "${PKG}"; then
       _print_installing "${PKG}"
       if _package_was_installed "${PKG}"; then
-        echo -e " ${BGREEN}[ OK ]${RESET}"
+        echo -e " ${BWHITE}[ ${BGREEN}OK${BWHITE} ]${RESET}"
       else
-        echo -e " ${BRED}[ ERROR ]${RESET}"
+        echo -e " ${BWHITE}[ ${BRED}ERROR${BWHITE} ]${RESET}"
       fi
     else
       _print_installing "${PKG}"
-      echo -e " ${YELLOW}[ EXISTS ]${RESET}"
+        echo -e " ${BWHITE}[ ${BLUE}OK${BWHITE} ]${RESET}"
     fi
   done
 }
@@ -967,9 +973,9 @@ _pacstrap_install() {
   for PKG in $1; do
     _print_installing "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
-      echo -e " ${BGREEN}[ OK ]${RESET}"
+      echo -e " ${BWHITE}[ ${BGREEN}OK${BWHITE} ]${RESET}"
     else
-      echo -e " ${BRED}[ ERROR ]${RESET}"
+      echo -e " ${BWHITE}[ ${BRED}OK${BWHITE} ]${RESET}"
     fi
   done
 }
@@ -997,21 +1003,6 @@ _initial_screen() {
 clear
 timedatectl set-ntp true
 _initial_screen
-#cat <<EOF
-#${BGREEN}
-#  ╔═════════════════════════════════════════════════════════════════════════════════╗
-#  ║                                                                                 ║
-#  ║   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  ║
-#  ║  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ ║
-#  ║  ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝ ║
-#  ║  ██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝  ║
-#  ║  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      ║
-#  ║  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      ║
-#  ║                            ╔════════════════════╗                               ║
-#  ╚════════════════════════════╣ By Stenio Silveira ╠═══════════════════════════════╝
-#                               ╚════════════════════╝
-#${RESET}
-#EOF
 
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
