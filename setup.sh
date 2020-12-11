@@ -262,11 +262,14 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -e "${BGREEN}==> ${BWHITE}Selected disk:${RESET} ${INSTALL_DISK}"
+  echo -ne "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
+    _print_title "PARTITION THE DISKS"
   fi
+  _print_done
+  _pause_function
 }
 
 _format_partitions() {
@@ -284,7 +287,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_title "ROOT PARTITION"
+    _print_subtitle "ROOT Partition"
     PS3="$PROMPT1"
     _print_info "Select ROOT partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -317,7 +320,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_title "EFI PARTITION"
+    _print_subtitle "EFI Partition"
     PS3="$PROMPT1"
     _print_info "Select EFI partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
