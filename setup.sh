@@ -903,9 +903,9 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BWHITE} ╭┄┄┄┄┄┄┄┄┄┄╮${RESET}"
-  echo -e "${BWHITE} │${BGREEN} COMPLETE ${BWHITE}│${RESET}"
-  echo -e "${BWHITE} ╰──────────╯${RESET}"
+  echo -e "${BWHITE}  ╓──────────╖${RESET}"
+  echo -e "${BWHITE}──╢${BGREEN} COMPLETE ${BWHITE}║${RESET}"
+  echo -e "${BWHITE}  ╙──────────╜${RESET}"
 }
 
 #_pause_function() {
