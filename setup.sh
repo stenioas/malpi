@@ -825,8 +825,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BBLUE}═╡${RESET}"; echo -ne "${BWHITE} $1 ${RESET}"; echo -ne "${BBLUE}╞${RESET}"; echo -e "${BBLUE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BGREEN} ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
+  echo -ne "${BBLUE}═╡${RESET}${BWHITE} $1 ${RESET}${BBLUE}╞${RESET}"; echo -e "${BBLUE}`seq -s '═' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_title_alert() {
@@ -834,10 +833,8 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  echo -ne "${BRED} ╔"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -ne "${BRED}╗${RESET}"
-  tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BRED}═╣${RESET}"; echo -ne "${BRED} $1 ${RESET}"; echo -ne "${BRED}╠${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BRED} ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
+  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
+  echo -ne "${BRED}═╡${RESET}${BWHITE} $1 ${RESET}${BRED}╞${RESET}"; echo -e "${BRED}`seq -s '═' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_subtitle() {
