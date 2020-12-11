@@ -366,8 +366,8 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
-  _print_subtitle "Services"
-  echo -ne "${BBLUE}  -> ${BWHITE}Enabling: ${RESET}${WHITE}NetworkManager${RESET}"
+  _print_subtitle "Enabling services..."
+  _print_enabling "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
   _pause_function
@@ -425,7 +425,7 @@ _set_hostname() {
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BGREEN} [ OK ]${RESET}"
-  echo -ne "${BBLUE}  ->${BWHITE} Setting:${RESET}"
+  echo -ne "${BBLUE}  ->${BWHITE} Setting${RESET}"
   echo -ne "${WHITE} Ip address on /etc/hosts${RESET}"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
@@ -436,7 +436,7 @@ _set_hostname() {
 
 _root_passwd() {
   _print_title "ROOT PASSWORD"
-  _print_subtitle "Type a root password:\n"
+  _print_subtitle "Type a root password:"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done
   _pause_function
@@ -454,10 +454,10 @@ _grub_generate() {
   done
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "Installing grub on target\n"
+  _print_subtitle "Installing grub on target"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo ""
-  _print_subtitle "Generating grub.cfg\n"
+  _print_subtitle "Generating grub.cfg"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
   _pause_function  
@@ -474,9 +474,9 @@ _finish_install() {
   _print_title "FIRST STEP FINISHED"
   _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_title "FIRST STEP FINISHED"
-    echo -ne "${BBLUE}  ->${BWHITE} Downloading:${RESET} ${WHITE}setup.sh${RESET} ${BWHITE}to /root${RESET}"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [ SAVED ]"
+    _print_subtitle "The file will be downloaded into root folder."
+    _print_downloading "setup.sh "
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [${BWHITE} SAVED${BGREEN} ]${RESET}"
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   _read_input_text "Reboot system? [y/N]: "
@@ -484,8 +484,6 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
-  else
-    clear
   fi
   exit 0
 }
@@ -525,16 +523,15 @@ _enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
-      echo -ne "${BBLUE}  -> ${BWHITE}Enabling: ${RESET} ${WHITE}Multilib${RESET} ..."
-      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
-      _print_info " Multilib repository added to pacman.conf."
+      _print_enabling "Multilib"
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && echo -e " ${BGREEN}[ OK ]${RESET}"
     else
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
     fi
   fi
-  _print_subtitle "Updating mirrors"
+  _print_subtitle "Updating mirrors..."
   pacman -Syy
   _print_done
   _pause_function
@@ -854,19 +851,25 @@ _print_info() {
 
 _print_installing() {
   T_COLS=$(tput cols)
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing${RESET} "
   echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_running() {
   T_COLS=$(tput cols)
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running${RESET} "
   echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_enabling() {
   T_COLS=$(tput cols)
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Enabling:${RESET} "
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Enabling${RESET} "
+  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_downloading() {
+  T_COLS=$(tput cols)
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Downloading${RESET} "
   echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
@@ -901,7 +904,7 @@ _print_bye() {
 
 _print_thanks() {
   echo ""
-  echo -e "${BGREEN}>${BPURPLE} Thank you for testing this script..${RESET}"
+  echo -e "${BGREEN}>${BPURPLE} Thank's for your time!${RESET}"
 }
 
 _pause_function() {
@@ -917,7 +920,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${YELLOW}  -> $1${RESET}"
+  printf "%s" "${BYELLOW}  -> $1${RESET}"
   read -r OPTION
 }
 
