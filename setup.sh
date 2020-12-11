@@ -281,13 +281,13 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   _print_title "PARTITIONING"
-  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}\n"
+  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
   _print_title "PARTITIONING"
-  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}\n"
+  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
   _print_done
   _pause_function
 }
@@ -564,6 +564,7 @@ _enable_multilib(){
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
     fi
   fi
+  _print_subtitle "Updating mirrors"
   pacman -Syy
   _print_done
   _pause_function
@@ -589,7 +590,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
-  _print_warning " * Select video card:\n"
+  _print_subtitle "Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -598,8 +599,7 @@ _install_vga() {
     fi
   done
   _print_title "VIDEO DRIVER"
-  VIDEO_DRIVER=$(echo "${VIDEO_CARD}" | tr '[:lower:]' '[:upper:]')
-  echo -e " ${PURPLE}${VIDEO_DRIVER}${RESET}\n"
+  echo -e "${BGREEN}==> ${BWHITE}${VIDEO_CARD}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
 
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
@@ -642,8 +642,7 @@ _install_laptop_pkgs() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_warning " * Services"
-    _print_line
+    _print_subtitle "Services"
     echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}Bluetooth${RESET} ..."
     systemctl enable bluetooth &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   else
@@ -665,7 +664,7 @@ _finish_config() {
 # --- DESKTOP SECTION --- >
 
 _install_desktop() {
-  _print_title "INSTALLING DESKTOP PACKAGES..."
+  _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
   _print_warning " * Select your option:\n"
@@ -676,7 +675,7 @@ _install_desktop() {
       _invalid_option
     fi
   done
-  _print_title "INSTALLING DESKTOP PACKAGES..."
+  _print_title "DESKTOP OR WINDOW MANAGER"
   DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${PURPLE}${DESKTOP_CHOICE}${RESET}"
   echo ""
@@ -720,7 +719,7 @@ _install_desktop() {
 }
 
 _install_display_manager() {
-  _print_title "INSTALLING DISPLAY MANAGER..."
+  _print_title "DISPLAY MANAGER"
   PS3="$PROMPT1"
   DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
   _print_warning " * Select your option:\n"
@@ -731,15 +730,14 @@ _install_display_manager() {
       _invalid_option
     fi
   done
-  _print_title "INSTALLING DISPLAY MANAGER..."
+  _print_title "DISPLAY MANAGER"
   DMANAGER_CHOICE=$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${PURPLE}${DMANAGER_CHOICE}${RESET}\n"
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    _print_warning " * Services"
-    _print_line
-    echo -ne " ${BBLUE}[ Enabling ]${RESET} ${BCYAN}Lightdm${RESET} ..."
+    _print_subtitle "Services"
+    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}LightDM${RESET} ..."
     sudo systemctl enable lightdm &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -750,16 +748,14 @@ _install_display_manager() {
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
-    _print_warning " * Services"
-    _print_line
-    echo -ne " ${BBLUE}[ Enabling ]${RESET} ${BCYAN}GDM${RESET} ..."
+    _print_subtitle "Services"
+    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}GDM${RESET} ..."
     sudo systemctl enable gdm &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
-    _print_warning " * Services"
-    _print_line
-    echo -ne " ${BBLUE}[ Enabling ]${RESET} ${BCYAN}SDDM${RESET} ..."
+    _print_subtitle "Services"
+    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}SDDM${RESET} ..."
     sudo systemctl enable sddm &> /dev/null && echo -e " ${BYELLOW}[ OK ]${RESET}"
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
@@ -777,8 +773,8 @@ _install_display_manager() {
 }
 
 _finish_desktop() {
-  _print_title "THIRD STEP FINISHED !!!"
-  _print_warning " ${BCYAN}[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${BYELLOW} option.${RESET}"
+  _print_title "THIRD STEP FINISHED"
+  _print_subtitle "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
   _print_done
   _pause_function
   exit 0
@@ -789,7 +785,7 @@ _finish_desktop() {
 # --- USER SECTION --- >
 
 _install_apps() {
-  _print_title "INSTALLING CUSTOM APPS..."
+  _print_title "CUSTOM APPS"
   PS3="$PROMPT1"
   _read_input_text "Install custom apps? [y/N]: "
   echo -e "\n"
@@ -823,7 +819,7 @@ _install_apps() {
 }
 
 _install_pamac() {
-  _print_title "INSTALLING PAMAC..."
+  _print_title "PAMAC"
   PS3="$PROMPT1"
   _read_input_text "Install pamac? [y/N]: "
   echo -e "\n"
@@ -971,7 +967,7 @@ _package_install() {
     if ! _is_package_installed "${PKG}"; then
       _print_installing "${PKG}"
       if _package_was_installed "${PKG}"; then
-        echo -e " ${BGREEN}[ SUCCESS ]${RESET}"
+        echo -e " ${BGREEN}[ OK ]${RESET}"
       else
         echo -e " ${BRED}[ ERROR ]${RESET}"
       fi
