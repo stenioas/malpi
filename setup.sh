@@ -903,9 +903,9 @@ _print_danger() {
 
 _print_done() {
   echo ""
-  echo -e "${BWHITE}  ╓──────────╖${RESET}"
-  echo -e "${BWHITE}──╢${BGREEN} COMPLETE ${BWHITE}║${RESET}"
-  echo -e "${BWHITE}  ╙──────────╜${RESET}"
+  echo -e "${BWHITE}  ╓──────────────────╖${RESET}"
+  echo -e "${BWHITE}──╢${BGREEN} ░▒▓█ COMPLETE █▓▒░${BWHITE}║${RESET}"
+  echo -e "${BWHITE}  ╙──────────────────╜${RESET}"
 }
 
 #_pause_function() {
@@ -999,23 +999,21 @@ _pacstrap_install() {
 _initial_screen() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  LOGO_COLS=83
-  LOGO_LINES=11
+  LOGO_COLS=77
+  LOGO_LINES=9
   CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
   CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
   tput cup ${CENTER_LINES} 0
   echo -ne "${BGREEN}"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╔═════════════════════════════════════════════════════════════════════════════════╗"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║                                                                                 ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║   █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗  ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║  ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗ ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║  ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝ ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║  ██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝  ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║  ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║      ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝      ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "║                            ╔════════════════════╗                               ║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╚════════════════════════════╣ By Stenio Silveira ╠═══════════════════════════════╝"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                             ╚════════════════════╝${RESET}"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e " █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                            ╔════════════════════╗"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "     ═══════════════════════╣ By Stenio Silveira ╠═══════════════════════"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                            ╚════════════════════╝${RESET}"
 }
 
 clear
