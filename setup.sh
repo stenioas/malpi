@@ -365,8 +365,9 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
+  _print_subtitle "Packages"
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
-  _print_subtitle "Enabling services..."
+  _print_subtitle "Services"
   _print_enabling "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
@@ -375,7 +376,7 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_subtitle "Generating..."
+  _print_subtitle "Generate"
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
@@ -384,6 +385,7 @@ _fstab_generate() {
 
 _set_locale() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
+  _print_subtitle "Settings"
   _print_running "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
@@ -403,7 +405,7 @@ _set_locale() {
 
 _set_language() {
   _print_title "LANGUAGE AND KEYMAP"
-  _print_subtitle "Setting..."
+  _print_subtitle "Settings"
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && echo -e "${BGREEN} [ OK ]${RESET}"
   _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
@@ -456,7 +458,6 @@ _grub_generate() {
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing grub on target"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  echo ""
   _print_subtitle "Generating grub.cfg"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _print_done
@@ -823,8 +824,8 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BBLUE}═╡${RESET}${BWHITE} $1 ${RESET}${BBLUE}╞${RESET}"; echo -e "${BBLUE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
+  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${CYAN}${APP_TITLE}${RESET}"
+  echo -ne "${BPURPLE}═╡${RESET}${BWHITE} $1 ${RESET}${BPURPLE}╞${RESET}"; echo -e "${BPURPLE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
 }
 
 _print_title_alert() {
@@ -883,6 +884,10 @@ _print_danger() {
   echo -e "${BRED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+_print_ok() {
+
+}
+
 #_print_done() {
 #  T_COLS=$(tput cols)
 #  T_LINES=$(tput lines)
@@ -904,7 +909,7 @@ _print_bye() {
 
 _print_thanks() {
   echo ""
-  echo -e "${BGREEN}>${BPURPLE} Thank's for your time!${RESET}"
+  echo -e "${BGREEN}>${BPURPLE} Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
@@ -920,7 +925,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BYELLOW}  -> $1${RESET}"
+  printf "%s" "${BYELLOW}> $1${RESET}"
   read -r OPTION
 }
 
