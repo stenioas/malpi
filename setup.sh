@@ -211,19 +211,19 @@ _check_archlive() {
 
 _initial_info() {
   _print_title_alert "README - IMPORTANT"
-  echo -e "\n - ${CYAN}This script supports UEFI only.${RESET}"
-  echo -e "\n - ${CYAN}This script will install GRUB as default bootloader.${RESET}"
-  echo -e "\n - ${CYAN}This script, for now, only installs the lts kernel.${RESET}"
-  echo -e "\n - ${CYAN}This script will only consider two partitions, ESP and root.${RESET}"
-  echo -e "\n - ${CYAN}This script will format the root partition in btrfs format.${RESET}"
-  echo -e "\n - ${CYAN}The ESP partition can be formatted if the user wants to.${RESET}"
-  echo -e "\n - ${CYAN}This script does not support swap.${RESET}"
-  echo -e "\n - ${CYAN}This script will create three subvolumes:${RESET}"
-  echo -ne "\n       ${CYAN}@ for${RESET} ${BYELLOW}/${RESET}"
-  echo -ne "\n       ${CYAN}@home for${RESET} ${BYELLOW}/home${RESET}"
-  echo -e "\n       ${CYAN}@.snapshots for${RESET} ${BYELLOW}/.snapshots${RESET}"
-  echo -e "\n - ${CYAN}This script sets zoneinfo as America/Fortaleza.${RESET}"
-  echo -e "\n - ${CYAN}This script sets hwclock as UTC.${RESET}"
+  echo -e "\n - This script supports UEFI only."
+  echo -e "\n - This script will install GRUB as default bootloader."
+  echo -e "\n - This script, for now, only installs the lts kernel."
+  echo -e "\n - This script will only consider two partitions, ESP and root."
+  echo -e "\n - This script will format the root partition in btrfs format."
+  echo -e "\n - The ESP partition can be formatted if the user wants to."
+  echo -e "\n - This script does not support swap."
+  echo -e "\n - This script will create three subvolumes:"
+  echo -ne "\n       @ for ${BYELLOW}/${RESET}"
+  echo -ne "\n       @home for ${BYELLOW}/home${RESET}"
+  echo -e "\n       @.snapshots for ${BYELLOW}/.snapshots${RESET}"
+  echo -e "\n - This script sets zoneinfo as America/Fortaleza."
+  echo -e "\n - This script sets hwclock as UTC."
   _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
   _pause_function
 }
@@ -281,11 +281,13 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   _print_title "PARTITIONING"
-  echo -e " ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}\n"
+  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}\n"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
+  _print_title "PARTITIONING"
+  echo -e "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET} ${BGREEN}[ SELECTED ]${RESET}\n"
   _print_done
   _pause_function
 }
@@ -308,9 +310,9 @@ _format_partitions() {
     _print_title "FORMATTING ROOT PARTITION"
     PS3="$PROMPT1"
     _print_warning "REMEMBER!!! This script will create 3 subvolumes:\n"
-    echo -e " ${CYAN}   - @ for ${BYELLOW}/${RESET}"
-    echo -e " ${CYAN}   - @home for ${BYELLOW}/home${RESET}"
-    echo -e " ${CYAN}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
+    echo -e " ${WHITE}   - @ for ${BYELLOW}/${RESET}"
+    echo -e " ${WHITE}   - @home for ${BYELLOW}/home${RESET}"
+    echo -e " ${WHITE}   - @.snapshots for ${BYELLOW}/.snapshots${RESET}\n"
     _print_subtitle "Select partition to create btrfs subvolumes:${RESET}\n"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -325,12 +327,12 @@ _format_partitions() {
       umount -R ${ROOT_MOUNTPOINT}
     fi
     _print_title "FORMATTING ROOT PARTITION"
-    echo -ne "==> ${BWHITE}${ROOT_PARTITION}${RESET}"
+    echo -ne "${BGREEN}==> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${CYAN}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e " ${BBLUE}  ->${BWHITE} Subvolume ${CYAN}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e " ${BBLUE}  ->${BWHITE} Subvolume ${CYAN}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${WHITE}/@${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${WHITE}/@home${RESET} ${BGREEN}[ CREATED ]${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -e "${BBLUE}  ->${BWHITE} Subvolume ${WHITE}/@.snapshots${RESET} ${BGREEN}[ CREATED ]${RESET}"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -357,7 +359,7 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     _print_title "FORMATTING EFI PARTITION"
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "${GREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
+      echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && echo -e " ${BGREEN}[ FORMATTED ]${RESET}"
     else
       echo -ne " ${BWHITE}${EFI_PARTITION}${RESET}${BGREEN}[ NOT FORMATTED ]${RESET}"
@@ -375,7 +377,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BGREEN}==> ${BWHITE}${2}${RESET}"; echo -e " ${BGREEN}[ MOUNTED ]${RESET}"
+      echo -ne "${BGREEN}==> ${BWHITE}$1${RESET}"; echo -e " ${BGREEN}[ MOUNTED ]${RESET}"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -391,7 +393,7 @@ _install_base() {
   _print_title "BASE"
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs wget git nano networkmanager"
   _print_subtitle "Services"
-  echo -ne "${BBLUE}  -> ${BWHITE}Enabling: ${RESET}${CYAN}NetworkManager${RESET}"
+  echo -ne "${BBLUE}  -> ${BWHITE}Enabling: ${RESET}${WHITE}NetworkManager${RESET}"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
   _pause_function
@@ -405,6 +407,8 @@ _fstab_generate() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   fi
+  _print_title "FSTAB"
+  _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}" && echo -e " ${BGREEN}[ OK ]${RESET}"
   _print_done
   _pause_function
 }
@@ -452,7 +456,7 @@ _set_hostname() {
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BGREEN} [ OK ]${RESET}"
   echo -ne "${BBLUE}  ->${BWHITE} Setting:${RESET}"
-  echo -ne "${CYAN} Ip address on /etc/hosts${RESET}"
+  echo -ne "${WHITE} Ip address on /etc/hosts${RESET}"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && echo -e "${BGREEN} [ OK ]${RESET}"
@@ -501,7 +505,7 @@ _finish_install() {
   _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "FIRST STEP FINISHED"
-    echo -ne "${BBLUE}  ->${BWHITE} Downloading:${RESET} ${CYAN}setup.sh${RESET} ${BWHITE}to /root${RESET}"
+    echo -ne "${BBLUE}  ->${BWHITE} Downloading:${RESET} ${WHITE}setup.sh${RESET} ${BWHITE}to /root${RESET}"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [ SAVED ]"
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -551,7 +555,7 @@ _enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
-      echo -ne " ${BBLUE}-> ${BWHITE}Enabling: ${RESET} ${CYAN}Multilib${RESET} ..."
+      echo -ne "${BBLUE}  -> ${BWHITE}Enabling: ${RESET} ${WHITE}Multilib${RESET} ..."
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
       _print_info " Multilib repository added to pacman.conf."
     else
@@ -640,7 +644,7 @@ _install_laptop_pkgs() {
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_warning " * Services"
     _print_line
-    echo -ne " ${BBLUE}->${BWHITE}Enabling:${RESET} ${CYAN}Bluetooth${RESET} ..."
+    echo -ne "${BBLUE}  ->${BWHITE}Enabling:${RESET} ${WHITE}Bluetooth${RESET} ..."
     systemctl enable bluetooth &> /dev/null && echo -e " ${BGREEN}[ OK ]${RESET}"
   else
     -_print_info " Nothing to do!"
@@ -889,13 +893,13 @@ _print_info() {
 _print_running() {
   T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running:${RESET} "
-  echo -ne "${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
   T_COLS=$(tput cols)
   echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
-  echo -ne "${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -ne "${WHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
