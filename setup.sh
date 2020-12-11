@@ -224,7 +224,7 @@ _initial_info() {
   echo -e "\n       ${CYAN}@.snapshots for${RESET} ${BYELLOW}/.snapshots${RESET}"
   echo -e "\n - ${CYAN}This script sets zoneinfo as America/Fortaleza.${RESET}"
   echo -e "\n - ${CYAN}This script sets hwclock as UTC.${RESET}"
-  _print_danger "\n [ THIS SCRIPT IS NOT YET COMPLETE ]"
+  _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
   _pause_function
 }
 
@@ -451,7 +451,7 @@ _set_hostname() {
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && echo -e "${BGREEN} [ OK ]${RESET}"
-  echo -ne "${BLUE}  ->${BWHITE} Setting:${RESET}"
+  echo -ne "${BBLUE}  ->${BWHITE} Setting:${RESET}"
   echo -ne "${CYAN} Ip address on /etc/hosts${RESET}"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
@@ -894,7 +894,7 @@ _print_running() {
 
 _print_installing() {
   T_COLS=$(tput cols)
-  echo -ne "${BLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
+  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing:${RESET} "
   echo -ne "${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
@@ -967,13 +967,13 @@ _package_install() {
     if ! _is_package_installed "${PKG}"; then
       _print_installing "${PKG}"
       if _package_was_installed "${PKG}"; then
-        echo -e " ${BYELLOW}[ SUCCESS ]${RESET}"
+        echo -e " ${BGREEN}[ SUCCESS ]${RESET}"
       else
         echo -e " ${BRED}[ ERROR ]${RESET}"
       fi
     else
       _print_installing "${PKG}"
-      echo -e " ${BYELLOW}[ EXISTS ]${RESET}"
+      echo -e " ${YELLOW}[ EXISTS ]${RESET}"
     fi
   done
 }
