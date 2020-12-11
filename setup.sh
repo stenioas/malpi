@@ -207,8 +207,8 @@ _initial_info() {
   echo -e "     @home for ${BCYAN}/home${RESET}"
   echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
-  echo -e "\n - This script sets hwclock as UTC."
-  _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
+  echo -e "\n - This script sets hwclock as UTC.\n"
+  _print_danger "THIS SCRIPT IS NOT YET COMPLETE"
   _print_thanks
   _pause_function
 }
@@ -287,7 +287,6 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_subtitle "ROOT Partition"
     PS3="$PROMPT1"
     _print_subtitle "Select ROOT partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -318,7 +317,6 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_subtitle "EFI Partition"
     PS3="$PROMPT1"
     _print_subtitle "Select EFI partition:"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -842,7 +840,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BGREEN}==> ${RESET}${BRED}$1:${RESET} "
+  printf "%s" "${BGREEN}==> $1: ${RESET}"
 }
 
 _print_info() {
@@ -888,15 +886,6 @@ _print_action() {
   echo -e " ${BWHITE}[${RESET}${BGREEN} $1 ${BWHITE}]${RESET}"
 }
 
-#_print_done() {
-#  T_COLS=$(tput cols)
-#  T_LINES=$(tput lines)
-#  TEXT_COLS=16
-#  CENTER_COLS=$(( (T_COLS - TEXT_COLS)/2 ))
-#  tput cup $(( T_LINES - 3 ))
-#  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "${BGREEN}[=-   ${BWHITE}COMPLETE   ${BGREEN}-=]${RESET}" | fold -sw $(( T_COLS - 1 ))
-#}
-
 _print_done() {
   echo ""
   echo -e "${BGREEN}>${BPURPLE} COMPLETE.${RESET}"
@@ -925,7 +914,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}==> ${RESET}${BRED}$1${RESET}"
+  printf "%s" "${BGREEN}==> $1${RESET}"
   read -r OPTION
 }
 
