@@ -253,7 +253,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_info "Select disk:"
+  _print_subtitle "Select disk:"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -320,7 +320,7 @@ _format_partitions() {
   _format_efi_partition() {
     _print_subtitle "EFI Partition"
     PS3="$PROMPT1"
-    _print_info "Select EFI partition:"
+    _print_subtitle "Select EFI partition:"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
