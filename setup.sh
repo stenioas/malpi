@@ -448,7 +448,7 @@ _set_hostname() {
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
-    _print_danger " YOU MUST BE TYPE A HOSTNAME!"
+    _print_warning "YOU MUST BE TYPE A HOSTNAME!"
     _print_entry "Type a hostname [ex: archlinux]"
     read -r NEW_HOSTNAME
   done
@@ -478,7 +478,7 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    _print_danger " YOU MUST BE TYPE A HOSTNAME!"
+    _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _print_entry "Type a grub name entry [ex: Archlinux]"
     read -r NEW_GRUB_NAME
   done
@@ -530,7 +530,7 @@ _create_new_user() {
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "CREATE NEW USER"
-    _print_danger " YOU MUST BE TYPE A HOSTNAME!"
+    _print_warning "YOU MUST BE TYPE A USERNAME!"
     _print_entry "Type your username"
     read -r NEW_USER
   done
