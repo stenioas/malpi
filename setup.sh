@@ -203,9 +203,9 @@ _initial_info() {
   echo -e "\n - The ESP partition can be formatted if the user wants to."
   echo -e "\n - This script does not support swap."
   echo -e "\n - This script will create three subvolumes:"
-  echo -ne "\n       @ for ${BYELLOW}/${RESET}"
-  echo -ne "\n       @home for ${BYELLOW}/home${RESET}"
-  echo -e "\n       @.snapshots for ${BYELLOW}/.snapshots${RESET}"
+  echo -e "     @ for ${BYELLOW}/${RESET}"
+  echo -e "     @home for ${BYELLOW}/home${RESET}"
+  echo -e "     @.snapshots for ${BYELLOW}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC."
   _print_danger "\n - THIS SCRIPT IS NOT YET COMPLETE"
@@ -824,9 +824,8 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  echo -ne "${BGREEN} ╔"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -ne "${BGREEN}╗${RESET}"
-  tput cuf $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
-  echo -ne "${BGREEN}═╣${RESET}"; echo -ne "${BWHITE} $1 ${RESET}"; echo -ne "${BGREEN}╠${RESET}"; echo -e "${BGREEN}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLUE}${APP_TITLE}${RESET}"
+  echo -ne "${BGREEN}═╗${RESET}"; echo -ne "${BWHITE} $1 ${RESET}"; echo -ne "${BGREEN}╔${RESET}"; echo -e "${BGREEN}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BGREEN} ╚"; echo -ne "`seq -s '═' $(( T_TITLE + 3 )) | tr -d [:digit:]`"; echo -e "╝${RESET}"
 }
 
