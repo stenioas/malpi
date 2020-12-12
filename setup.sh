@@ -282,8 +282,8 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
+    echo -e "\n${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
-    _print_subtitle "Select ROOT partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -312,8 +312,8 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
+    echo -e "\n${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
-    _print_subtitle "Select EFI partition:"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -324,10 +324,10 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
+      echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "FORMATTED"
     else
-      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
+      echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -341,7 +341,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "\n${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
+      echo -ne "${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -832,12 +832,13 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}▓▒░${RESET}${BGREEN} $1${RESET}"
-  T_RIGHT="${WHITE}${APP_TITLE}${RESET}${BBLACK} ░▒▓${RESET}"
+  T_LEFT="${BBLACK}▒░ ${RESET}${BGREEN} $1${RESET}"
+  T_RIGHT="${WHITE}${APP_TITLE}${RESET}${BBLACK}  ░▒${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BG_PURPLE}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline
+  tput cuu 1
 }
 
 _print_title_alert() {
@@ -851,10 +852,11 @@ _print_title_alert() {
   echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 5 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline
+  tput cuu 1
 }
 
 _print_subtitle() {
-  echo -e "${BGREEN}> ${BWHITE}$1${RESET}"
+  echo -e "\n${BGREEN}> ${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
@@ -928,7 +930,7 @@ _print_thanks() {
 
 _pause_function() {
   _print_dline
-  read -e -sn 1 -p "${BBLACK}> Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${WHITE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
