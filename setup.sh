@@ -257,7 +257,7 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -ne "\n${BGREEN}→ ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
+  echo -ne "\n${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -296,7 +296,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "\n${BGREEN}→ ${BWHITE}${ROOT_PARTITION}${RESET}"
+    echo -ne "\n${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "FORMATTED"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_subtitle "Subvolumes"
@@ -324,10 +324,10 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "\n${BGREEN}→ ${BWHITE}${EFI_PARTITION}${RESET}"
+      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "FORMATTED"
     else
-      echo -ne "\n${BGREEN}→ ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
+      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -341,7 +341,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "\n${BGREEN}→ ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
+      echo -ne "\n${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -573,7 +573,7 @@ _install_vga() {
     fi
   done
   _print_title "VIDEO DRIVER"
-  echo -e "${BGREEN}→ ${BWHITE}${VIDEO_CARD}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
+  echo -e "${BGREEN}==> ${BWHITE}${VIDEO_CARD}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
 
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
@@ -848,7 +848,7 @@ _print_title_alert() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BGREEN}→ ${BWHITE}$1${RESET}"
+  echo -e "\n${BGREEN}> ${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
@@ -862,7 +862,7 @@ _print_info() {
 
 _print_prompt_info() {
   T_COLS=$(tput cols)
-  echo -e "${BGREEN}→${RESET}${BLUE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BGREEN}>${RESET}${BLUE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -876,27 +876,27 @@ _print_danger() {
 }
 
 _print_installing() {
-  echo -ne "${BGREEN}  Installing ${RESET}"
+  echo -ne "${BBLACK} →Installing ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${BBLACK}  Running ${RESET}"
+  echo -ne "${BBLACK} →Running ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${BGREEN}  Enabling ${RESET}"
+  echo -ne "${BBLACK} →Enabling ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${BGREEN}  Downloading ${RESET}"
+  echo -ne "${BBLACK} →Downloading ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_setting() {
-  echo -ne "${WHITE}  Setting ${RESET}"
+  echo -ne "${BBLACK} →Setting ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
@@ -909,7 +909,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${BBLACK}  [${RESET}${BGREEN} DONE ${RESET}${BBLACK}]${RESET}"
+  echo -e "\n${BGREEN} →DONE ${RESET}${BBLACK}]${RESET}"
 }
 
 _print_bye() {
@@ -922,7 +922,7 @@ _print_thanks() {
 
 _pause_function() {
   _print_dline
-  read -e -sn 1 -p "${CYAN} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN} →${RESET}${CYAN}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -940,7 +940,7 @@ _read_input_text() {
 
 _read_input_prompt_text() {
   echo ""
-  printf "%s" "${BGREEN}→${RESET}${BRED} $1${RESET}"
+  printf "%s" "${BGREEN}>${RESET}${BRED} $1${RESET}"
   read -r OPTION
 }
 
