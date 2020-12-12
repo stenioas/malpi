@@ -877,7 +877,7 @@ _print_downloading() {
 }
 
 _print_ok() {
-  echo -e "${BBLACK} > ${BGREEN} OK${RESET}"
+  echo -e "${BBLACK} [ ${RESET}${BGREEN}OK${RESET}${BBLACK} ] ${RESET}"
 }
 
 _print_action() {
@@ -885,18 +885,16 @@ _print_action() {
 }
 
 _print_done() {
-  echo ""
-  echo -e "${BGREEN} COMPLETE${RESET}"
+  echo -e "\n${BGREEN}> Done !${RESET}"
 }
 
 _print_bye() {
-  echo ""
-  echo -e "${BGREEN}>${RESET}${PURPLE} BYE!${RESET}"
+  echo -e "\n${BBLACK}>${RESET}${PURPLE} BYE!${RESET}"
 }
 
 _print_thanks() {
   echo ""
-  echo -e "${BGREEN}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
+  echo -e "\n${BBLACK}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
