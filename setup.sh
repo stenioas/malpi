@@ -300,9 +300,9 @@ _format_partitions() {
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "FORMATTED"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_subtitle "Subvolumes"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${WHITE} @${RESET}"; _print_action "CREATED"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${WHITE} @home${RESET}"; _print_action "CREATED"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${WHITE} @.snapshots${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${WHITE}  @${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${WHITE}  @home${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${WHITE}  @.snapshots${RESET}"; _print_action "CREATED"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -469,8 +469,6 @@ _grub_generate() {
 
 _mkinitcpio_generate() {
   _print_title "MKINITCPIO"
-  echo ""
-  _print_running "mkinitcpio -P\n"
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _print_done
   _pause_function
@@ -818,13 +816,12 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  T_COLS=$(tput cols)
-  echo -e "${BWHITE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '─' $(tput cols) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BWHITE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '═' $(tput cols) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -832,7 +829,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BWHITE}# ${RESET}${BGREEN}$1${RESET}"
+  T_LEFT="${BWHITE} ${RESET}${BGREEN}$1${RESET}"
   T_RIGHT="${WHITE}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 1 )) | tr -d [:digit:]`"
@@ -846,7 +843,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BG_RED}${BWHITE}# $1${RESET}"
+  T_LEFT="${BG_RED}${BWHITE} $1${RESET}"
   T_RIGHT="${BG_RED}${WHITE}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
@@ -947,7 +944,6 @@ _read_input_text() {
 }
 
 _read_input_prompt_text() {
-  echo ""
   printf "%s" "${BGREEN}>${RESET}${BRED} $1${RESET}"
   read -r OPTION
 }
