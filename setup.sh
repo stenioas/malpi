@@ -324,10 +324,10 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
+      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "FORMATTED"
     else
-      echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
+      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -341,7 +341,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
+      echo -ne "\n${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
