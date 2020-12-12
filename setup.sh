@@ -257,7 +257,7 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -ne "\n${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
+  echo -ne "${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -282,7 +282,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "\n${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -296,23 +296,29 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "\n${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "FORMATTED"
+    echo -ne "${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}" && _print_action "selected!"
+    _print_formatting "${ROOT_PARTITION}"
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_subtitle "Subvolumes"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${WHITE}  @${RESET}"; _print_action "CREATED"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${WHITE}  @home${RESET}"; _print_action "CREATED"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${WHITE}  @.snapshots${RESET}"; _print_action "CREATED"
+    _print_creating "@ subvolume"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${WHITE}  @${RESET}" && _print_ok
+    _print_creating "@home subvolume"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${WHITE}  @home${RESET}" && _print_ok
+    _print_creating "@.snapshots subvolume"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${WHITE}  @.snapshots${RESET}" && _print_ok
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
+    _print_mounting "/"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null
+    _print_mounting "/home"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_ok
+    _print_mounting "/.snapshots"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
   }
 
   _format_efi_partition() {
-    echo -e "\n${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -322,15 +328,15 @@ _format_partitions() {
         _invalid_option
       fi
     done
+    echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}" && _print_action "selected!"
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "FORMATTED"
-    else
-      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
+      _print_formatting "${EFI_PARTITION}"
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
+    _print_mounting "${EFI_PARTITION}"
+    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
 
@@ -341,10 +347,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "\n${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
+      echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "mounted!"
       _disable_partition "$1"
     else
-      _print_warning "The partition was not successfully mounted!"
+      echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "${BRED}Not successfully mounted!${RESET}"
     fi
   }
   _format_root_partition
@@ -835,7 +841,6 @@ _print_title() {
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 1 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
   _print_dline
-  tput cuu 1
 }
 
 _print_title_alert() {
@@ -849,11 +854,10 @@ _print_title_alert() {
   echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline
-  tput cuu 1
 }
 
 _print_subtitle() {
-  echo -e "\n${BGREEN}> ${BWHITE}$1${RESET}"
+  echo -e "${BGREEN}> ${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
@@ -878,6 +882,21 @@ _print_warning() {
 _print_danger() {
   T_COLS=$(tput cols)
   echo -e "${RRED}  DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_formatting() {
+  echo -ne "${BBLACK}  Formatting ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
+}
+
+_print_creating() {
+  echo -ne "${BBLACK}  Creating ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
+}
+
+_print_mounting() {
+  echo -ne "${BBLACK}  Mounting ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_installing() {
@@ -906,7 +925,7 @@ _print_setting() {
 }
 
 _print_ok() {
-  echo -e "${BBLACK} → ${RESET}${BGREEN}ok.${RESET}"
+  echo -e "${BBLACK} → ${RESET}${BGREEN}OK${RESET}"
 }
 
 _print_action() {
