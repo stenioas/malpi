@@ -111,7 +111,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BRED}  -> Option:${RESET} "
+      PROMPT1="${YELLOW}  Option:${RESET} "
 
 # ----------------------------------------------------------------------#
 
@@ -253,7 +253,7 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -ne "${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
+  echo -ne "\n${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -292,13 +292,13 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}"
+    echo -ne "\n${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "FORMATTED"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_subtitle "Subvolumes"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${BBLUE}  ->${BWHITE} @${RESET}"; _print_action "CREATED"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${BBLUE}  ->${BWHITE} @home${RESET}"; _print_action "CREATED"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${BBLUE}  ->${BWHITE} @.snapshots${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${WHITE} @${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${WHITE} @home${RESET}"; _print_action "CREATED"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${WHITE} @.snapshots${RESET}"; _print_action "CREATED"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -337,7 +337,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BGREEN}==> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
+      echo -ne "\n${BGREEN}> ${BWHITE}$1${RESET}"; _print_action "MOUNTED"
       _disable_partition "$1"
     else
       _print_warning "The partition was not successfully mounted!"
@@ -416,16 +416,16 @@ _set_hostname() {
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   _print_subtitle "Ip Address"
-  _print_setting "/etc/hosts file content"
+  _print_setting "/etc/hosts file with the content below:"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
   cat <<EOF
-${WHITE}  127.0.0.1 localhost.localdomain localhost
+
+  127.0.0.1 localhost.localdomain localhost
   ::1 localhost.localdomain localhost
   127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}${RESET}
 EOF
-
   _print_done
   _pause_function  
 }
@@ -463,7 +463,7 @@ _grub_generate() {
 _mkinitcpio_generate() {
   _print_title "MKINITCPIO"
   echo ""
-  _print_running "mkinitcpio -P"
+  _print_running "mkinitcpio -P\n"
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _print_done
   _pause_function
@@ -471,14 +471,15 @@ _mkinitcpio_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _read_input_text "Save a copy of this script in root directory? [y/N]: "
+  _print_subtitle "END FIRST STEP"
+  _read_input_prompt_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_info "The file will be downloaded into root folder."
     _print_downloading "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_text "Reboot system? [y/N]: "
+  _read_input_prompt_text "Reboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -571,10 +572,10 @@ _install_vga() {
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
 
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "$VIDEO_CARD" == "Nvidia" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "$VIDEO_CARD" == "Virtualbox" ]]; then
     _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
@@ -604,7 +605,7 @@ _install_extra_pkgs() {
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
   PS3="$PROMPT1"
-  _read_input_text "Install laptop packages? [y/N]: "
+  _read_input_prompt_text "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
@@ -661,10 +662,10 @@ _install_desktop() {
     _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Bspwm" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Awesome" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Openbox" ]]; then
     _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
@@ -707,10 +708,10 @@ _install_display_manager() {
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "Slim" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
@@ -725,7 +726,7 @@ _install_display_manager() {
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
-    _print_info "It's not working yet..."
+    _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "None" ]]; then
     echo -e " ${BBLUE}Nothing to do!${RESET}"
@@ -753,7 +754,7 @@ _finish_desktop() {
 _install_apps() {
   _print_title "CUSTOM APPS"
   PS3="$PROMPT1"
-  _read_input_text "Install custom apps? [y/N]: "
+  _read_input_prompt_text "Install custom apps? [y/N]: "
   echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -787,7 +788,7 @@ _install_apps() {
 _install_pamac() {
   _print_title "PAMAC"
   PS3="$PROMPT1"
-  _read_input_text "Install pamac? [y/N]: "
+  _read_input_prompt_text "Install pamac? [y/N]: "
   echo -e "\n"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "pamac"; then
@@ -840,12 +841,17 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${RED}  $1${RESET}"
+  printf "%s" "${BCYAN}  $1${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
   echo -e "${BLUE}  $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_prompt_info() {
+  T_COLS=$(tput cols)
+  echo -e "${BGREEN}>${RESET}${BLUE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -906,7 +912,7 @@ _print_thanks() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BLUE}> Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}>${RESET}${CYAN} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -918,12 +924,18 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}> $1${RESET}"
+  printf "%s" "${BRED}  $1${RESET}"
+  read -r OPTION
+}
+
+_read_input_prompt_text() {
+  echo ""
+  printf "%s" "${BGREEN}>${RESET}${BRED} $1${RESET}"
   read -r OPTION
 }
 
 _umount_partitions() {
-  _print_info "UMOUNTING PARTITIONS"
+  _print_prompt_info "UMOUNTING PARTITIONS"
   umount -R ${ROOT_MOUNTPOINT}
 }
 
@@ -951,11 +963,11 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        echo -e " ${BBLACK}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
+        echo -e " ${BBLACK}[${RESET}${BRED} ERROR ${RESET}${BBLACK}]${RESET}"
       fi
     else
       _print_installing "${PKG}"
-        echo -e " ${BBLACK}[${RESET}${BGREEN} EXISTS ${BWHITE}]${RESET}"
+        echo -e " ${BBLACK}[${RESET}${BGREEN} EXISTS ${RESET}${BBLACK}]${RESET}"
     fi
   done
 }
