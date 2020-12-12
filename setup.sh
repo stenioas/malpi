@@ -122,7 +122,6 @@ _setup_install(){
       _print_warning "Only for 'root'.\n"
       exit 1
     }
-    _check_archlive
     _initial_info
     _check_connection
     _initial_packages
@@ -183,14 +182,6 @@ _setup_user(){
 ### BASE FUNCTIONS
 
 # --- INSTALL SECTION --- >
-
-_check_archlive() {
-  [[ $(df | grep -w "/" | awk '{print $1}') != "airootfs" ]] && {
-    _print_danger "\n *** FIRST STEP MUST BE RUN IN LIVE MODE ***"
-    _pause_function
-    exit 1
-  }
-}
 
 _initial_info() {
   _print_title_alert "IMPORTANT"
@@ -412,12 +403,13 @@ _set_language() {
 _set_hostname() {
   _print_title "HOSTNAME AND IP ADDRESS"
   _print_subtitle "Hostname"
-  _print_entry "Type a hostname [ex: archlinux]"
+  _print_entry "Type a hostname: "
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
+    _print_subtitle "Hostname"
     _print_warning "YOU MUST BE TYPE A HOSTNAME!"
-    _print_entry "Type a hostname [ex: archlinux]"
+    _print_entry "Type a hostname: "
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
@@ -425,14 +417,14 @@ _set_hostname() {
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   _print_subtitle "Ip Address"
   _print_setting "/etc/hosts file content"
+  echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
+  echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
   cat <<EOF
 ${WHITE}  127.0.0.1 localhost.localdomain localhost
   ::1 localhost.localdomain localhost
   127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}${RESET}
 EOF
-  echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
 
   _print_done
   _pause_function  
@@ -440,7 +432,7 @@ EOF
 
 _root_passwd() {
   _print_title "ROOT PASSWORD"
-  _print_subtitle "Type a root password:"
+  _print_subtitle "Type root password:"
   arch-chroot ${ROOT_MOUNTPOINT} passwd
   _print_done
   _pause_function
@@ -448,12 +440,14 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_entry "Type a grub name entry [ex: Archlinux]"
+  _print_subtitle "Grub entry"
+  _print_entry "Type a grub name entry: "
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
+    _print_subtitle "Grub entry"
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
-    _print_entry "Type a grub name entry [ex: Archlinux]"
+    _print_entry "Type a grub name entry: "
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Packages"
@@ -468,6 +462,8 @@ _grub_generate() {
 
 _mkinitcpio_generate() {
   _print_title "MKINITCPIO"
+  echo ""
+  _print_running "mkinitcpio -P"
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _print_done
   _pause_function
@@ -479,7 +475,7 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_info "The file will be downloaded into root folder."
     _print_downloading "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && echo -e "${BGREEN} [${BWHITE} SAVED${BGREEN} ]${RESET}"
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   _read_input_text "Reboot system? [y/N]: "
@@ -497,12 +493,12 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "CREATE NEW USER"
-  _print_entry "Type your username"
+  _print_entry "Type your username: "
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "CREATE NEW USER"
     _print_warning "YOU MUST BE TYPE A USERNAME!"
-    _print_entry "Type your username"
+    _print_entry "Type your username: "
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
@@ -827,7 +823,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${PURPLE} │${RESET}${BG_PURPLE}${BWHITE} $1 ${RESET}${PURPLE}│${RESET}"
+  echo -e "${YELLOW}│${RESET}${BG_YELLOW}${BWHITE} $1 ${RESET}${YELLOW}│${RESET}"
 }
 
 _print_title_alert() {
@@ -836,7 +832,7 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${RED} │${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}│${RESET}"
+  echo -e "${RED}│${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}│${RESET}"
 }
 
 _print_subtitle() {
@@ -844,22 +840,22 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BGREEN}> $1: ${RESET}"
+  printf "%s" "${RED}  $1${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}> $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BLUE}  $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}> WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}  WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}==> $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${RRED}  DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
@@ -900,17 +896,17 @@ _print_done() {
 }
 
 _print_bye() {
-  echo -e "\n${BBLACK}>${RESET}${PURPLE} BYE!${RESET}"
+  echo -e "\n${PURPLE}  BYE!${RESET}"
 }
 
 _print_thanks() {
   echo ""
-  echo -e "\n${BBLACK}>${RESET}${PURPLE} Btw, thank's for your time!${RESET}"
+  echo -e "\n${PURPLE}  Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BBLACK}> Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BLUE}> Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -922,7 +918,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}  -> $1${RESET}"
+  printf "%s" "${BRED}> $1${RESET}"
   read -r OPTION
 }
 
@@ -938,7 +934,7 @@ _is_package_installed() {
   return 1
 }
 
-_package_install() {
+_package_install() { # install pacman package
   _package_was_installed() {
     for PKG in $1; do
       if [[ $(id -u) == 0 ]]; then
@@ -955,21 +951,20 @@ _package_install() {
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        echo -e " ${BWHITE}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
+        echo -e " ${BBLACK}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
       fi
     else
       _print_installing "${PKG}"
-        echo -e " ${BWHITE}[${RESET}${YELLOW} EXISTS ${BWHITE}]${RESET}"
+        echo -e " ${BBLACK}[${RESET}${BGREEN} EXISTS ${BWHITE}]${RESET}"
     fi
   done
 }
 
-_group_package_install() {
-  # install a package group
+_group_package_install() { # install a package group
   _package_install "$(pacman -Sqg ${1})"
 }
 
-_pacstrap_install() {
+_pacstrap_install() { # install pacstrap package
   _pacstrap_was_installed() {
     for PKG in $1; do
       pacstrap "${ROOT_MOUNTPOINT}" "${PKG}" &> /dev/null && return 0;
@@ -981,7 +976,7 @@ _pacstrap_install() {
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      echo -e " ${BWHITE}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
+      echo -e " ${BBLACK}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
     fi
   done
 }
