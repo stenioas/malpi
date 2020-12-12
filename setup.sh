@@ -818,11 +818,11 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BGREEN}`seq -s '═' $(tput cols) | tr -d [:digit:]`${RESET}"
+  echo -e "${YELLOW}`seq -s '─' $(tput cols) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
-  printf "${BGREEN}%$(tput cols)s\n${RESET}"|tr ' ' '='
+  echo -e "${YELLOW}`seq -s '═' $(tput cols) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -911,7 +911,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${PURPLE}░▒▓${RESET}${BG_PURPLE}${BWHITE}Done!${RESET}${PURPLE}▓▒░${RESET}"
+  echo -e "\n${PURPLE}${RESET}${BG_PURPLE}${BWHITE}Done!${RESET}${PURPLE}${RESET}"
 }
 
 _print_bye() {
@@ -923,7 +923,7 @@ _print_thanks() {
 }
 
 _pause_function() {
-  echo ""
+  _print_dline
   read -e -sn 1 -p "${CYAN} Press any key to continue...${RESET}"
 }
 
