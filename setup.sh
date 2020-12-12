@@ -202,7 +202,7 @@ _initial_info() {
 - This script sets zoneinfo as America/Fortaleza.
 - This script sets hwclock as UTC.
 
-${RED}╡${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ! ${RESET}${RED}│${RESET}"
+${RED}│${RESET}${BG_RED}${BWHITE} This script is not yet complete! ${RESET}${RED}│${RESET}
 EOF
   _print_thanks
   _print_done
@@ -906,21 +906,20 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BGREEN}>${RESET}${BBLACK} [ ${RESET}${BGREEN}done!${RESET}${BBLACK} ]${RESET}"
+  echo -ne "\n${PURPLE} ░▒▓█${RESET}${BG_PURPLE}${BWHITE} DONE ${RESET}${PURPLE}█▓▒░${RESET}"
 }
 
 _print_bye() {
-  echo -e "\n${PURPLE}  BYE!${RESET}"
+  echo -e "\n${BPURPLE}  BYE!${RESET}"
 }
 
 _print_thanks() {
-  echo ""
-  echo -e "\n${PURPLE}  Btw, thank's for your time!${RESET}"
+  echo -e "\n${BPURPLE}  Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}>${RESET}${CYAN} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BBLACK}  Press any key to continue...${RESET}"
 }
 
 _contains_element() {
