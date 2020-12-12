@@ -829,11 +829,13 @@ _print_title() {
   clear
   T_COLS=$(tput cols)
   T_LEFT="${YELLOW}░▒▓${RESET}${BG_YELLOW}${BWHITE} $1${RESET}"
-  T_RIGHT="${BG_YELLOW}${BBLACK}${APP_TITLE}${RESET}${YELLOW} ▓▒░${RESET}"
+  T_RIGHT="${BG_YELLOW}${BLACK}${APP_TITLE}${RESET}${YELLOW}▓▒░${RESET}"
   T_COLS_LEFT=$(echo ${#T_LEFT})
   T_COLS_RIGHT=$(echo ${#T_RIGHT})
   echo -ne "${T_LEFT}"; echo -ne "${BG_YELLOW}${YELLOW}`seq -s ' ' $(( T_COLS - T_COLS_LEFT - T_COLS_RIGHT )) | tr -d [:digit:]`${RESET}"; echo -e "${T_RIGHT}"
-  echo -ne "`seq -s '=' 20 | tr -d [:digit:]`"
+  echo ${T_COLS}
+  echo ${T_COLS_LEFT}
+  echo ${T_COLS_RIGHT}
 }
 
 _print_title_alert() {
