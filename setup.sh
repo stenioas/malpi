@@ -201,8 +201,7 @@ _initial_info() {
      @.snapshots for ${BGREEN}/.snapshots${RESET}
 - This script sets zoneinfo as America/Fortaleza.
 - This script sets hwclock as UTC.
-
-${RED}│${RESET}${BG_RED}${BWHITE} This script is not yet complete! ${RESET}${RED}│${RESET}
+${BRED}- This script is not yet complete!${RESET}
 EOF
   _print_thanks
   _print_done
@@ -387,7 +386,7 @@ _set_locale() {
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   _print_running "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
-  sed -i 's/#\('pt_BR.UTF-8'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
+  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_running "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_done
@@ -831,7 +830,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
+  "${BBLACK}${APP_TITLE}${RESET}"
   echo -e "${YELLOW}░▒▓█${RESET}${BG_YELLOW}${BWHITE} $1 ${RESET}${YELLOW}█▓▒░${RESET}"
 }
 
@@ -840,7 +839,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
+  echo -e "${BBLACK}${APP_TITLE}${RESET}"
   echo -e "${RED}░▒▓█${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}█▓▒░${RESET}"
 }
 
@@ -906,7 +905,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${PURPLE} ░▒▓█${RESET}${BG_PURPLE}${BWHITE} DONE ${RESET}${PURPLE}█▓▒░${RESET}"
+  echo -e "\n${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BWHITE} DONE ${RESET}${PURPLE}█▓▒░${RESET}"
 }
 
 _print_bye() {
@@ -1021,6 +1020,7 @@ _initial_screen() {
 }
 
 clear
+setfont
 timedatectl set-ntp true
 _initial_screen
 
