@@ -830,10 +830,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${YELLOW}░▒▓${RESET}${BG_YELLOW}${BWHITE} $1${RESET}"
-  T_RIGHT="${BG_YELLOW}${BLACK}${APP_TITLE}${RESET}${YELLOW}▓▒░${RESET}"
+  T_LEFT="${YELLOW}${RESET}${BG_YELLOW}${BWHITE} $1${RESET}"
+  T_RIGHT="${BG_YELLOW}${BLACK}${APP_TITLE}${RESET}${YELLOW}▓▓▒▒░░${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BG_YELLOW}${YELLOW}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BG_YELLOW}${YELLOW}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
 }
 
