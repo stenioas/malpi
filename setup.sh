@@ -818,11 +818,13 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BWHITE}`seq -s '─' $(tput cols) | tr -d [:digit:]`${RESET}"
+  T_COLS=$(tput cols)
+  echo -e "${BWHITE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
-  echo -e "${BWHITE}`seq -s '═' $(tput cols) | tr -d [:digit:]`${RESET}"
+  T_COLS=$(tput cols)
+  echo -e "${BWHITE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -830,10 +832,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}[ ${RESET}${BWHITE}$1${RESET}${BBLACK} ]${RESET}"
-  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
-  echo -e "${T_LEFT}"
+  T_LEFT="${PURPLE}░▒▓${RESET}${BG_PURPLE}${BWHITE}$1${RESET}"
+  T_RIGHT="${BG_PURPLE}${WHITE}${APP_TITLE}${RESET}${PURPLE}▓▒░${RESET}"
+  echo -ne "${T_LEFT}"
+  echo -ne "${BG_PURPLE}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 5 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${T_RIGHT}"
+  _print_dline
 }
 
 _print_title_alert() {
@@ -842,15 +846,15 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   T_LEFT="${RED}░▒▓${RESET}${BG_RED}${BWHITE}$1${RESET}"
-  T_RIGHT="${BG_RED}${BWHITE}${APP_TITLE}${RESET}${RED}▓▒░${RESET}"
+  T_RIGHT="${BG_RED}${WHITE}${APP_TITLE}${RESET}${RED}▓▒░${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 5 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline
 }
 
 _print_subtitle() {
-  echo -e "\n${BGREEN}> ${BWHITE}$1${RESET}"
+  echo -e "${BGREEN}> ${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
