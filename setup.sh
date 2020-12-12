@@ -42,7 +42,7 @@ usage: ${0##*/} [flags]
 
   Flag options:
 
-    --install | -i         First step, only root user. THIS STEP MUST BE RUN IN LIVE MODE!
+    --install | -i         First step, only root user.
     --config  | -c         Second step, only root user.
     --desktop | -d         Third step, only root user.
     --user    | -u         Last step, only normal user.
@@ -208,8 +208,8 @@ _initial_info() {
   echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
   echo -e "\n - This script sets zoneinfo as America/Fortaleza."
   echo -e "\n - This script sets hwclock as UTC.\n"
-  echo -e "\n${RED}═╡${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ${RESET}${RED}│${RESET}"
-  echo -e "\n${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} Btw, thank's for your time!${RESET}${PURPLE}│${RESET}"
+  echo -e "\n${RED}═╡${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ! ${RESET}${RED}│${RESET}"
+  echo -e "\n${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} Btw, thank's for your time ! ${RESET}${PURPLE}│${RESET}"
   _pause_function
 }
 
@@ -821,7 +821,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "${BLUE}═╡${RESET}${BG_BLUE}${BWHITE} $1 ${RESET}${BLUE}╞${RESET}"; echo -e "${BLUE}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
+  echo -e "${BLUE}  │${RESET}${BG_BLUE}${BWHITE} $1 ${RESET}${BLUE}│${RESET}"
 }
 
 _print_title_alert() {
@@ -830,25 +830,25 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "${RED}═╡${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}╞${RESET}"; echo -e "${RED}`seq -s '═' $(( T_COLS - T_TITLE - 4 )) | tr -d [:digit:]`${RESET}\n"
+  echo -e "${RED}  │${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}│${RESET}"
 }
 
 _print_subtitle() {
-  echo -e "${BGREEN}==> ${BWHITE}$1${RESET}"
+  echo -e "\n${BGREEN}> ${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
-  printf "%s" "${BGREEN}==> $1: ${RESET}"
+  printf "%s" "\n${BGREEN}> $1: ${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}==> $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}> $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}==> WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}> WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
@@ -857,36 +857,36 @@ _print_danger() {
 }
 
 _print_installing() {
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Installing${RESET} "
+  echo -ne "${YELLOW}  Installing ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Running${RESET} "
+  echo -ne "${YELLOW}  Running ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Enabling${RESET} "
+  echo -ne "${YELLOW}  Enabling ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${BBLUE}  ->${RESET} ${BWHITE}Downloading${RESET} "
+  echo -ne "${YELLOW}  Downloading ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_ok() {
-  echo -e " ${BWHITE}[${RESET}${BGREEN} OK ${BWHITE}]${RESET}"
+  echo -e "${BBLACK} > ${BGREEN} OK${RESET}"
 }
 
 _print_action() {
-  echo -e " ${BWHITE}[${RESET}${BGREEN} $1 ${BWHITE}]${RESET}"
+  echo -e "${BBLACK} > ${BGREEN} $1${RESET}"
 }
 
 _print_done() {
   echo ""
-  echo -e "${BGREEN}═╡${RESET}${BG_BLACK}${BGREEN} COMPLETE ${RESET}${BGREEN}│${RESET}"
+  echo -e "${BGREEN} COMPLETE${RESET}"
 }
 
 _print_bye() {
@@ -901,7 +901,7 @@ _print_thanks() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BGREEN}>${RESET}${BWHITE} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BBLACK}>${RESET}${BWHITE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
