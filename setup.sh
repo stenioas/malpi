@@ -842,10 +842,11 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   T_LEFT="${RED}░▒▓${RESET}${BG_RED}${BWHITE}$1${RESET}"
-  T_RIGHT="${BG_RED}${BLACK}${APP_TITLE}${RESET}${RED}▓▒░${RESET}"
+  T_RIGHT="${BG_RED}${BWHITE}${APP_TITLE}${RESET}${RED}▓▒░${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`"
+  echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
+  _print_dline
 }
 
 _print_subtitle() {
