@@ -832,7 +832,8 @@ _print_title() {
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}${YELLOW} ▓▒░${RESET}"
   T_COLS_LEFT=$(echo ${#T_LEFT})
   T_COLS_RIGHT=$(echo ${#T_RIGHT})
-  echo -ne "${T_LEFT}"; echo -ne "${YELLOW}`seq -s ' ' $(( T_COLS - T_LEFT - T_RIGHT ))) | tr -d [:digit:]`${RESET}"; echo -e "${T_RIGHT}"
+  echo -ne "${T_LEFT}"; echo -ne "${YELLOW}`seq -s ' ' $(( T_COLS - T_COLS_LEFT - T_COLS_RIGHT ))) | tr -d [:digit:]`${RESET}"; echo -e "${T_RIGHT}"
+  echo -ne "`seq -s '=' 20 | tr -d [:digit:]`"
 }
 
 _print_title_alert() {
