@@ -262,7 +262,7 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -ne "${BGREEN}==> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
+  echo -ne "${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -301,7 +301,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "${BGREEN}==> ${BWHITE}${ROOT_PARTITION}${RESET}"
+    echo -ne "${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "FORMATTED"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_subtitle "Subvolumes"
@@ -380,7 +380,7 @@ _fstab_generate() {
 
 _set_locale() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
-  _print_subtitle "Settings"
+  _print_subtitle "Setting"
   _print_running "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
   _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
@@ -400,7 +400,7 @@ _set_locale() {
 
 _set_language() {
   _print_title "LANGUAGE AND KEYMAP"
-  _print_subtitle "Settings"
+  _print_subtitle "Setting"
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
   _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
@@ -411,6 +411,7 @@ _set_language() {
 
 _set_hostname() {
   _print_title "HOSTNAME AND IP ADDRESS"
+  _print_subtitle "Hostname"
   _print_entry "Type a hostname [ex: archlinux]"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
@@ -420,14 +421,19 @@ _set_hostname() {
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  _print_subtitle "Settings"
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  echo -ne "${BBLUE}  ->${BWHITE} Setting${RESET}"
-  echo -ne "${WHITE} Ip address on /etc/hosts${RESET}"
+  _print_subtitle "Ip Address"
+  _print_setting "/etc/hosts file content"
+  cat <<EOF
+${WHITE}  127.0.0.1 localhost.localdomain localhost
+  ::1 localhost.localdomain localhost
+  127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}${RESET}
+EOF
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
+
   _print_done
   _pause_function  
 }
@@ -821,7 +827,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${BLUE}  │${RESET}${BG_BLUE}${BWHITE} $1 ${RESET}${BLUE}│${RESET}"
+  echo -e "${PURPLE} │${RESET}${BG_PURPLE}${BWHITE} $1 ${RESET}${PURPLE}│${RESET}"
 }
 
 _print_title_alert() {
@@ -830,7 +836,7 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${RED}  │${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}│${RESET}"
+  echo -e "${RED} │${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}│${RESET}"
 }
 
 _print_subtitle() {
@@ -838,7 +844,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "\n${BGREEN}> $1: ${RESET}"
+  printf "%s" "${BGREEN}> $1: ${RESET}"
 }
 
 _print_info() {
@@ -876,16 +882,21 @@ _print_downloading() {
   echo -ne "${WHITE}$1${RESET}"
 }
 
+_print_setting() {
+  echo -ne "${YELLOW}  Setting ${RESET}"
+  echo -ne "${WHITE}$1${RESET}"
+}
+
 _print_ok() {
   echo -e "${BBLACK} [ ${RESET}${BGREEN}OK${RESET}${BBLACK} ] ${RESET}"
 }
 
 _print_action() {
-  echo -e "${BBLACK} > ${BGREEN} $1${RESET}"
+  echo -e "${BBLACK} [ ${RESET}${BGREEN}$1${RESET}${BBLACK} ] ${RESET}"
 }
 
 _print_done() {
-  echo -e "\n${BGREEN}> Done !${RESET}"
+  echo -e "\n${BBLACK}  [ ${RESET}${BGREEN}DONE${RESET}${BBLACK} ]${RESET}"
 }
 
 _print_bye() {
@@ -899,7 +910,7 @@ _print_thanks() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BBLACK}>${RESET}${BWHITE} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BBLACK}> Press any key to continue...${RESET}"
 }
 
 _contains_element() {
