@@ -841,10 +841,11 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}░▒▓${RESET}${BG_RED}${BWHITE}$1${RESET}${RED}▓▒░${RESET}"
-  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
-  echo -e "${T_LEFT}"
+  T_LEFT="${RED}░▒▓${RESET}${BG_RED}${BWHITE}$1${RESET}"
+  T_RIGHT="${BG_RED}${BLACK}${APP_TITLE}${RESET}${RED}▓▒░${RESET}"
+  echo -ne "${T_LEFT}"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`"
+  echo -e "${T_RIGHT}"
 }
 
 _print_subtitle() {
@@ -909,7 +910,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${BBLACK}[ ${RESET}${BWHITE}DONE${RESET}${BBLACK} ]${RESET}"
+  echo -e "\n${BBLACK}[ ${RESET}${BGREEN}DONE${RESET}${BBLACK} ]${RESET}"
 }
 
 _print_bye() {
