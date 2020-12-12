@@ -828,8 +828,10 @@ _print_dline() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  T_LEFT="${YELLOW}░▒▓${RESET}${BG_YELLOW}${BWHITE} $1${RESET}${YELLOW}${RESET}"
+  T_LEFT="${YELLOW}░▒▓${RESET}${BG_YELLOW}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}${YELLOW}▓▒░${RESET}"
+  T_COLS_LEFT=$(echo ${#T_LEFT})
+  T_COLS_RIGHT=$(echo ${#T_RIGHT})
   echo -e "${YELLOW}`seq -s ' ' $(( T_COLS - T_LEFT - T_RIGHT ))) | tr -d [:digit:]`${RESET}"
 }
 
