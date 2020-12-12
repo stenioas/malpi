@@ -186,21 +186,26 @@ _setup_user(){
 _initial_info() {
   _print_title_alert "IMPORTANT"
   _print_subtitle "Readme"
-  echo -e "\n - This script supports UEFI only."
-  echo -e "\n - This script will install GRUB as default bootloader."
-  echo -e "\n - This script, for now, only installs the lts kernel."
-  echo -e "\n - This script will only consider two partitions, ESP and root."
-  echo -e "\n - This script will format the root partition in btrfs format."
-  echo -e "\n - The ESP partition can be formatted if the user wants to."
-  echo -e "\n - This script does not support swap."
-  echo -e "\n - This script will create three subvolumes:"
-  echo -e "     @ for ${BCYAN}/${RESET}"
-  echo -e "     @home for ${BCYAN}/home${RESET}"
-  echo -e "     @.snapshots for ${BCYAN}/.snapshots${RESET}"
-  echo -e "\n - This script sets zoneinfo as America/Fortaleza."
-  echo -e "\n - This script sets hwclock as UTC.\n"
-  echo -e "\n${RED}═╡${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ! ${RESET}${RED}│${RESET}"
-  echo -e "\n${PURPLE}═╡${RESET}${BG_PURPLE}${BWHITE} Btw, thank's for your time ! ${RESET}${PURPLE}│${RESET}"
+  cat <<EOF
+
+- This script supports UEFI only.
+- This script will install GRUB as default bootloader.
+- This script, for now, only installs the lts kernel.
+- This script will only consider two partitions, ESP and root.
+- This script will format the root partition in btrfs format.
+- The ESP partition can be formatted if the user wants to.
+- This script does not support swap.
+- This script will create three subvolumes:
+     @ for ${BGREEN}/${RESET}
+     @home for ${BGREEN}/home${RESET}
+     @.snapshots for ${BGREEN}/.snapshots${RESET}
+- This script sets zoneinfo as America/Fortaleza.
+- This script sets hwclock as UTC.
+
+${RED}╡${RESET}${BG_RED}${BWHITE} THIS SCRIPT IS NOT YET COMPLETE ! ${RESET}${RED}│${RESET}"
+EOF
+  _print_thanks
+  _print_done
   _pause_function
 }
 
