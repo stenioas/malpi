@@ -830,11 +830,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${YELLOW}░▒▓${RESET}${BG_YELLOW}${BWHITE}$1${RESET}${YELLOW}▓▒░${RESET}"
+  T_LEFT="${PURPLE}░▒▓${RESET}${BG_PURPLE}${BWHITE}$1${RESET}${PURPLE}▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`"
-  echo -e "${T_RIGHT}"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
+  echo -e "${T_LEFT}"
 }
 
 _print_title_alert() {
@@ -844,9 +843,8 @@ _print_title_alert() {
   T_TITLE=$(echo ${#1})
   T_LEFT="${RED}░▒▓${RESET}${BG_RED}${BWHITE}$1${RESET}${RED}▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 6 )) | tr -d [:digit:]`"
-  echo -e "${T_RIGHT}"
 }
 
 _print_subtitle() {
@@ -878,22 +876,22 @@ _print_danger() {
 }
 
 _print_installing() {
-  echo -ne "${WHITE}  Installing ${RESET}"
+  echo -ne "${BGREEN}  Installing ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${WHITE}  Running ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  echo -ne "${BBLACK}  Running ${RESET}"
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${WHITE}  Enabling ${RESET}"
+  echo -ne "${BGREEN}  Enabling ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${WHITE}  Downloading ${RESET}"
+  echo -ne "${BGREEN}  Downloading ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
@@ -911,7 +909,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${BGREEN} [${RESET}${BBLACK} DONE ${RESET}${BGREEN}]${RESET}"
+  echo -e "\n${BBLACK}  [${RESET}${BGREEN} DONE ${RESET}${BBLACK}]${RESET}"
 }
 
 _print_bye() {
