@@ -906,7 +906,7 @@ _print_setting() {
 }
 
 _print_ok() {
-  echo -e "${BBLACK} → ${RESET}${BGREEN}OK${RESET}"
+  echo -e "${BBLACK} → ${RESET}${BGREEN}ok.${RESET}"
 }
 
 _print_action() {
@@ -977,11 +977,11 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        echo -e "${BBLACK} →${RESET}${BRED} ERROR${RESET}"
+        echo -e "${BBLACK} →${RESET}${BRED} error!${RESET}"
       fi
     else
       _print_installing "${PKG}"
-        echo -e "${BBLACK} →${RESET}${BGREEN} EXISTS${RESET}"
+        echo -e "${BBLACK} →${RESET}${BGREEN} exists.${RESET}"
     fi
   done
 }
@@ -1002,7 +1002,7 @@ _pacstrap_install() { # install pacstrap package
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      echo -e "${BBLACK} →${RESET}${BRED} ERROR${RESET}"
+      echo -e "${BBLACK} →${RESET}${BRED} error${RESET}"
     fi
   done
 }
