@@ -832,7 +832,7 @@ _print_title() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${YELLOW}│${RESET}${BG_YELLOW}${BWHITE} $1 ${RESET}${YELLOW}│${RESET}"
+  echo -e "${YELLOW}░▒▓█${RESET}${BG_YELLOW}${BWHITE} $1 ${RESET}${YELLOW}█▓▒░${RESET}"
 }
 
 _print_title_alert() {
@@ -841,7 +841,7 @@ _print_title_alert() {
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
   tput cuf $(( T_COLS - T_APP_TITLE - 1 )); echo -e "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${RED}│${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}│${RESET}"
+  echo -e "${RED}░▒▓█${RESET}${BG_RED}${BWHITE} $1 ${RESET}${RED}█▓▒░${RESET}"
 }
 
 _print_subtitle() {
@@ -906,7 +906,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${PURPLE} ░▒▓█${RESET}${BG_PURPLE}${BWHITE} DONE ${RESET}${PURPLE}█▓▒░${RESET}"
+  echo -e "\n${PURPLE} ░▒▓█${RESET}${BG_PURPLE}${BWHITE} DONE ${RESET}${PURPLE}█▓▒░${RESET}"
 }
 
 _print_bye() {
@@ -919,7 +919,7 @@ _print_thanks() {
 
 _pause_function() {
   echo ""
-  read -e -sn 1 -p "${BBLACK}  Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${CYAN} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
