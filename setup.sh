@@ -878,28 +878,28 @@ _print_danger() {
 }
 
 _print_installing() {
-  echo -ne "${YELLOW}  Installing ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  echo -ne "${WHITE}  Installing ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${YELLOW}  Running ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  echo -ne "${WHITE}  Running ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${YELLOW}  Enabling ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  echo -ne "${WHITE}  Enabling ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${YELLOW}  Downloading ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  echo -ne "${WHITE}  Downloading ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_setting() {
-  echo -ne "${YELLOW}  Setting ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  echo -ne "${WHITE}  Setting ${RESET}"
+  echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_ok() {
@@ -911,7 +911,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BWHITE} DONE ${RESET}${PURPLE}█▓▒░${RESET}"
+  echo -e "\n${PURPLE}░▒▓${RESET}${BG_PURPLE}${BWHITE}Done!${RESET}${PURPLE}▓▒░${RESET}"
 }
 
 _print_bye() {
