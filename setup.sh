@@ -830,7 +830,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${PURPLE}░▒▓${RESET}${BG_PURPLE}${BWHITE}$1${RESET}${PURPLE}▓▒░${RESET}"
+  T_LEFT="${BBLACK}[ ${RESET}${BWHITE}$1${RESET}${BBLACK} ]${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
@@ -909,7 +909,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${BGREEN} → DONE${RESET}"
+  echo -e "\n${BBLACK}[ ${RESET}${BWHITE}DONE${RESET}${BBLACK} ]${RESET}"
 }
 
 _print_bye() {
