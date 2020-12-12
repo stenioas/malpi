@@ -867,45 +867,45 @@ _print_prompt_info() {
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW} → WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}  WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${RRED} → DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${RRED}  DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_installing() {
-  echo -ne "${BBLACK} → Installing ${RESET}"
+  echo -ne "${BBLACK}  Installing ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${BBLACK} → Running ${RESET}"
+  echo -ne "${BBLACK}  Running ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${BBLACK} → Enabling ${RESET}"
+  echo -ne "${BBLACK}  Enabling ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${BBLACK} → Downloading ${RESET}"
+  echo -ne "${BBLACK}  Downloading ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_setting() {
-  echo -ne "${BBLACK} → Setting ${RESET}"
+  echo -ne "${BBLACK}  Setting ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_ok() {
-  echo -e "${BBLACK} [ ${RESET}${BGREEN}OK${RESET}${BBLACK} ] ${RESET}"
+  echo -e "${BBLACK} → ${RESET}${BGREEN}OK${RESET}"
 }
 
 _print_action() {
-  echo -e "${BBLACK} [ ${RESET}${BGREEN}$1${RESET}${BBLACK} ] ${RESET}"
+  echo -e "${BBLACK} → ${RESET}${BGREEN}$1${RESET}"
 }
 
 _print_done() {
@@ -913,16 +913,16 @@ _print_done() {
 }
 
 _print_bye() {
-  echo -e "\n${BPURPLE} → BYE!${RESET}"
+  echo -e "\n${BPURPLE}  BYE!${RESET}"
 }
 
 _print_thanks() {
-  echo -e "\n${BPURPLE} → Btw, thank's for your time!${RESET}"
+  echo -e "\n${BPURPLE}  Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
   _print_dline
-  read -e -sn 1 -p "${BGREEN} → ${RESET}${CYAN}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BBLACK}> Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -973,11 +973,11 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        echo -e " ${BBLACK}[${RESET}${BRED} ERROR ${RESET}${BBLACK}]${RESET}"
+        echo -e "${BBLACK} →${RESET}${BRED} ERROR${RESET}"
       fi
     else
       _print_installing "${PKG}"
-        echo -e " ${BBLACK}[${RESET}${BGREEN} EXISTS ${RESET}${BBLACK}]${RESET}"
+        echo -e "${BBLACK} →${RESET}${BGREEN} EXISTS${RESET}"
     fi
   done
 }
@@ -998,7 +998,7 @@ _pacstrap_install() { # install pacstrap package
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      echo -e " ${BBLACK}[${RESET}${BRED} ERROR ${BWHITE}]${RESET}"
+      echo -e "${BBLACK} →${RESET}${BRED} ERROR${RESET}"
     fi
   done
 }
