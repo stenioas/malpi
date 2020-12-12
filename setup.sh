@@ -828,10 +828,9 @@ _print_dline() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  T_APP_TITLE=$(echo ${#APP_TITLE})
-  T_TITLE=$(echo ${#1})
-  "${BBLACK}${APP_TITLE}${RESET}"
-  echo -e "${YELLOW}░▒▓█${RESET}${BG_YELLOW}${BWHITE} $1 ${RESET}${YELLOW}█▓▒░${RESET}"
+  T_LEFT="${YELLOW}░▒▓${RESET}${BG_YELLOW}${BWHITE} $1${RESET}${YELLOW}${RESET}"
+  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}${YELLOW}▓▒░${RESET}"
+  echo -e "${YELLOW}`seq -s ' ' $(( T_COLS - T_LEFT - T_RIGHT ))) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
