@@ -111,7 +111,7 @@ EOF
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${YELLOW}  Option:${RESET} "
+      PROMPT1="${BRED}  Option:${RESET} "
 
 # ----------------------------------------------------------------------#
 
@@ -320,10 +320,10 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"
+      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "FORMATTED"
     else
-      echo -ne "${BGREEN}==> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
+      echo -ne "\n${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}"; _print_action "NOT FORMATTED"
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -432,8 +432,11 @@ EOF
 
 _root_passwd() {
   _print_title "ROOT PASSWORD"
+  PASSWD_CHECK=0
   _print_subtitle "Type root password:"
-  arch-chroot ${ROOT_MOUNTPOINT} passwd
+  while [[ $PASSWD_CHECK == 0 ]]; do
+    arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
+  done
   _print_done
   _pause_function
 }
@@ -841,7 +844,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BCYAN}  $1${RESET}"
+  printf "%s" "${BRED}  $1${RESET}"
 }
 
 _print_info() {
@@ -898,7 +901,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -e "\n${BBLACK}  [ ${RESET}${BGREEN}DONE${RESET}${BBLACK} ]${RESET}"
+  echo -ne "\n${BGREEN}>${RESET}${BBLACK} [ ${RESET}${BGREEN}done!${RESET}${BBLACK} ]${RESET}"
 }
 
 _print_bye() {
