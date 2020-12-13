@@ -73,7 +73,7 @@
       BG_WHITE=$(tput setab 7)
 
     # --- ESSENTIALS
-      APP_TITLE="arch-setup 0.1"
+      APP_TITLE="myarch-setup 0.1"
       NEW_LANGUAGE="pt_BR"
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
@@ -832,13 +832,13 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}║${RESET}${BCYAN}   $1  ${RESET}${BBLACK}░░▒▒▓▓█${RESET}"
+  T_LEFT="${BBLACK}█▓▒░${RESET}${BCYAN} $1 ${RESET}${BBLACK}░▒▓█${RESET}"
   T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`"
+  echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
-  echo
+  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - 9 )) | tr -d [:digit:]`${RESET}"
+  _print_dline_bblack
 }
 
 _print_title_alert() {
@@ -846,13 +846,13 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}║${RESET}${BWHITE} ¡ $1 !${RESET}${RED}░░▒▒▓▓█${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE} ¡$1! ${RESET}${RED}░▒▓█${RESET}"
   T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "`seq -s '█' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`"
+  echo -ne "${BRED}`seq -s '═' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${RED}`seq -s '█' $(( T_COLS - T_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
-  echo
+  echo -e "${RED}`seq -s '█' $(( T_COLS - T_TITLE - 11 )) | tr -d [:digit:]`${RESET}"
+  _print_dline_red
 }
 
 _print_subtitle() {
@@ -932,8 +932,8 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}`seq -s '█' $(( T_COLS - 13 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${BBLACK}█▓▒░${RESET}${BGREEN}   DONE  ${RESET}${BBLACK}║${RESET}"
+  echo -ne "\n${BBLACK}█▓▒░${RESET}${BGREEN} DONE ${RESET}${BBLACK}░▒▓█${RESET}"
+  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - 13 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
