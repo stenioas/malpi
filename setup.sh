@@ -832,12 +832,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}║${RESET}${BCYAN}   $1  ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_LEFT="${BBLACK}║${RESET}${BCYAN}   $1  ${RESET}${BBLACK}░░▒▒▓▓█${RESET}"
   T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - 9 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
@@ -846,12 +846,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}║${RESET}${BWHITE} ¡ $1 !${RESET}${RED}░▒▓█${RESET}"
+  T_LEFT="${RED}║${RESET}${BWHITE} ¡ $1 !${RESET}${RED}░░▒▒▓▓█${RESET}"
   T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "`seq -s '█' $(( T_COLS - T_APP_TITLE +  )) | tr -d [:digit:]`"
+  echo -ne "`seq -s '█' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${RED}`seq -s '█' $(( T_COLS - T_TITLE - 9 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '█' $(( T_COLS - T_TITLE - 6 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
@@ -932,7 +932,7 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}`seq -s '█' $(( T_COLS - 9 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BBLACK}`seq -s '█' $(( T_COLS - 13 )) | tr -d [:digit:]`${RESET}"
   echo -e "${BBLACK}█▓▒░${RESET}${BGREEN}   DONE  ${RESET}${BBLACK}║${RESET}"
 }
 
@@ -1093,10 +1093,10 @@ ${BBLACK}
   ███▌    ▄ ███  ███   ███ ███    ███  ▄███     ███▄  
   █████▄▄██ █▀    ▀█   █▀  ████████▀  ████       ███▄ 
   ▀
-         ${BBLACK}By Stenio Silveira${RESET}
-     ${BGREEN}https://github.com/stenioas${RESET}
+                  ${BBLACK}By Stenio Silveira${RESET}
+              ${BGREEN}https://github.com/stenioas${RESET}
 
-    ${BPURPLE}Btw, thank's for your time!${RESET}
+              ${BPURPLE}Btw, thank's for your time!${RESET}
 
 EOF
 
