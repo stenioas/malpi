@@ -469,9 +469,13 @@ _grub_generate() {
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Grub target"
+  echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
+  echo -e "${RESET}"
   _print_subtitle "Generate grub.cfg"
+  echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
+  echo -e "${RESET}"
   _print_done
   _pause_function  
 }
@@ -505,12 +509,13 @@ _finish_install() {
 # --- CONFIG SECTION --- >
 
 _create_new_user() {
-  _print_title "CREATE NEW USER"
+  _print_title "NEW USER"
+  _print_subtitle "Username"
   _print_entry "Type your username: "
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
-    _print_title "CREATE NEW USER"
-    _print_warning "YOU MUST BE TYPE A USERNAME!"
+    _print_title "NEW USER"
+    _print_warning "You must be type a username!"
     _print_entry "Type your username: "
     read -r NEW_USER
   done
@@ -862,7 +867,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BBLUE}  $1${RESET}"
+  printf "%s" "${BRED}  $1${RESET}"
 }
 
 _print_info() {
@@ -959,12 +964,12 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLUE}  $1${RESET}"
+  printf "%s" "${BRED}  $1${RESET}"
   read -r OPTION
 }
 
 _read_input_prompt_text() {
-  printf "%s" "${BGREEN}>${RESET}${BBLUE} $1${RESET}"
+  printf "%s" "${BGREEN}>${RESET}${BRED} $1${RESET}"
   read -r OPTION
 }
 
