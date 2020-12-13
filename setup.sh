@@ -832,12 +832,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}█▓▒░${RESET}${BCYAN} $1 ${RESET}${BBLACK}░▒▓█${RESET}"
-  T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${T_RIGHT}"
+  T_LEFT="${BBLACK}█▓▒░${RESET}${BCYAN}   $1   ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
+  echo -ne "${BBLACK}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
+  echo -e " ${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - 9 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - 13 )) | tr -d [:digit:]`${RESET}"
   _print_dline_bblack
 }
 
@@ -846,12 +846,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BWHITE} ¡$1! ${RESET}${RED}░▒▓█${RESET}"
-  T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "${BRED}`seq -s '═' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${T_RIGHT}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}  ¡$1!  ${RESET}${RED}░▒▓█${RESET}"
+  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
+  echo -ne "${RED}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
+  echo -e " ${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${RED}`seq -s '█' $(( T_COLS - T_TITLE - 11 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '█' $(( T_COLS - T_TITLE - 13 )) | tr -d [:digit:]`${RESET}"
   _print_dline_red
 }
 
@@ -932,8 +932,8 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}█▓▒░${RESET}${BGREEN} DONE ${RESET}${BBLACK}░▒▓█${RESET}"
-  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - 13 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BBLACK}█▓▒░${RESET}${BGREEN}  DONE  ${RESET}${BBLACK}░▒▓█${RESET}"
+  echo -e "${BBLACK}`seq -s '█' $(( T_COLS - 15 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
