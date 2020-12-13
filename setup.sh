@@ -108,12 +108,12 @@ _setup_install(){
     _format_partitions
     _install_base
     _fstab_generate
-    _set_locale
-    _set_language
-    _set_hostname
+    _set_timezone_and_clock
+    _set_localization
+    _set_network
+    _mkinitcpio_generate
     _root_passwd
     _grub_generate
-    _mkinitcpio_generate
     _finish_install
     exit 0
 }
@@ -135,8 +135,8 @@ _setup_config(){
 }
 
 _setup_desktop(){
-    [[ $(id -u) != 1000 ]] && {
-      _print_warning "Only for 'normal user'.\n"
+    [[ $(id -u) != 0 ]] && {
+      _print_warning "Only for 'root'.\n"
       exit 1
     }
     _install_desktop
@@ -233,7 +233,6 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -ne "${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "Selected"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -272,7 +271,6 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}" && _print_action "Selected"
     _print_formatting "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -304,7 +302,6 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}" && _print_action "Selected"
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_formatting "${EFI_PARTITION}"
@@ -355,7 +352,7 @@ _fstab_generate() {
   _pause_function
 }
 
-_set_locale() {
+_set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   _print_subtitle "Setting"
   _print_running "timedatectl set-ntp true"
@@ -369,15 +366,15 @@ _set_locale() {
   _print_running "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  _print_running "locale-gen"
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_done
   _pause_function
 }
 
-_set_language() {
-  _print_title "LANGUAGE AND KEYMAP"
+_set_localization() {
+  _print_title "LOCALIZATION"
   _print_subtitle "Setting"
+  _print_running "locale-gen"
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
   _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
@@ -386,8 +383,9 @@ _set_language() {
   _pause_function  
 }
 
-_set_hostname() {
-  _print_title "HOSTNAME AND IP ADDRESS"
+_set_network() {
+  _print_title "NETWORK CONFIGURATION"
+  _print_subtitle "Hostname"
   _print_entry "Type a hostname: "
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
@@ -412,6 +410,13 @@ _set_hostname() {
 EOF
   _print_done
   _pause_function  
+}
+
+_mkinitcpio_generate() {
+  _print_title "INITRAMFS"
+  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
+  _print_done
+  _pause_function
 }
 
 _root_passwd() {
@@ -452,13 +457,6 @@ _grub_generate() {
   echo -ne "${RESET}"
   _print_done
   _pause_function  
-}
-
-_mkinitcpio_generate() {
-  _print_title "MKINITCPIO"
-  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
-  _print_done
-  _pause_function
 }
 
 _finish_install() {
@@ -548,7 +546,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
-  info "Select video card:\n"
+  _print_subtitle "Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -581,13 +579,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  info "Installing Utils"
+  _print_subtitle "Installing Utils"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  info "Installing compression tools"
+  _print_subtitle "Installing compression tools"
   _package_install "zip unzip unrar p7zip lzop"
-  info "Installing extra filesystem tools"
+  _print_subtitle "Installing extra filesystem tools"
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  info "Installing sound tools"
+  _print_subtitle "Installing sound tools"
   _package_install "alsa-utils pulseaudio"
   _print_done
   _pause_function
@@ -599,6 +597,7 @@ _install_laptop_pkgs() {
   _read_input_prompt_text "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
+    _print_subtitle "Packages"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_subtitle "Services"
     _print_enabling "Bluetooth"
@@ -732,7 +731,7 @@ _install_display_manager() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED"
-  info "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
+  _print_info "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
   _print_done
   _pause_function
   exit 0
@@ -833,10 +832,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${PURPLE}║${RESET}${BG_PURPLE}${BCYAN}   $1  ${RESET}${PURPLE}██▓▒░${RESET}"
-  T_RIGHT="${CYAN}${APP_TITLE}${RESET}"
-  echo -ne "${PURPLE}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
-  echo -e "${T_RIGHT}"
+  T_LEFT="${PURPLE}║${RESET}${BG_PURPLE}${BCYAN}   $1  ${RESET}${PURPLE}█▓▒░${RESET}"
+  T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
+  echo -ne "${PURPLE}`seq -s '_' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e " ${T_RIGHT}"
   echo -e "${T_LEFT}"
   echo
 }
@@ -846,16 +845,16 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}║${RESET}${BG_RED}${BWHITE} ¡ $1 !${RESET}${RED}██▓▒░${RESET}"
-  T_RIGHT="${WHITE}${APP_TITLE}${RESET}"
-  echo -ne "${RED}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
-  echo -e "${T_RIGHT}"
+  T_LEFT="${RED}║${RESET}${BG_RED}${BWHITE} ¡ $1 !${RESET}${RED}█▓▒░${RESET}"
+  T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
+  echo -ne "${RED}`seq -s '_' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e " ${T_RIGHT}"
   echo -e "${T_LEFT}"
   echo
 }
 
 _print_subtitle() {
-  echo -e "${BGREEN}> ${BWHITE}$1${RESET}"
+  echo -e "${BWHITE}  $1${RESET}"
 }
 
 _print_entry() {
@@ -883,37 +882,37 @@ _print_danger() {
 }
 
 _print_formatting() {
-  echo -ne "${BBLACK}  Formatting ${RESET}"
+  echo -ne "${BBLACK}→ Formatting ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_creating() {
-  echo -ne "${BBLACK}  Creating ${RESET}"
+  echo -ne "${BBLACK}→ Creating ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_mounting() {
-  echo -ne "${BBLACK}  Mounting ${RESET}"
+  echo -ne "${BBLACK}→ Mounting ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_installing() {
-  echo -ne "${BBLACK}  Installing ${RESET}"
+  echo -ne "${BBLACK}→ Installing ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${BBLACK}  Running ${RESET}"
+  echo -ne "${BBLACK}→ Running ${RESET}"
   echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${BBLACK}  Enabling ${RESET}"
+  echo -ne "${BBLACK}→ Enabling ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${BBLACK}  Downloading ${RESET}"
+  echo -ne "${BBLACK}→ Downloading ${RESET}"
   echo -ne "${BWHITE}$1${RESET}"
 }
 
@@ -943,7 +942,7 @@ _print_thanks() {
 }
 
 _pause_function() {
-  _print_dline
+  _print_dline_bblack
   read -e -sn 1 -p "${WHITE} Press any key to continue...${RESET}"
 }
 
