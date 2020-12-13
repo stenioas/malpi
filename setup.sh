@@ -257,7 +257,7 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  echo -ne "${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "SELECTED"
+  echo -ne "${BGREEN}> ${BWHITE}${INSTALL_DISK}${RESET}"; _print_action "Selected"
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -282,7 +282,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BPURPLE} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -296,16 +296,16 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo -ne "${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}" && _print_action "selected!"
+    echo -ne "${BGREEN}> ${BWHITE}${ROOT_PARTITION}${RESET}" && _print_action "Selected"
     _print_formatting "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_creating "@ subvolume"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && echo -ne "${WHITE}  @${RESET}" && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_ok
     _print_creating "@home subvolume"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && echo -ne "${WHITE}  @home${RESET}" && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_ok
     _print_creating "@.snapshots subvolume"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && echo -ne "${WHITE}  @.snapshots${RESET}" && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     _print_mounting "/"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
@@ -318,7 +318,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BPURPLE} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -328,7 +328,7 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}" && _print_action "selected!"
+    echo -ne "${BGREEN}> ${BWHITE}${EFI_PARTITION}${RESET}" && _print_action "Selected"
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_formatting "${EFI_PARTITION}"
@@ -347,7 +347,7 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "mounted!"
+      echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "Mounted"
       _disable_partition "$1"
     else
       echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "${BRED}Not successfully mounted!${RESET}"
@@ -431,24 +431,23 @@ _set_hostname() {
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
   cat <<EOF
-
-  127.0.0.1 localhost.localdomain localhost
-  ::1 localhost.localdomain localhost
-  127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}${RESET}
+    127.0.0.1 localhost.localdomain localhost
+    ::1 localhost.localdomain localhost
+    127.0.1.1 ${BPURPLE}${NEW_HOSTNAME}${RESET}.localdomain ${BPURPLE}${NEW_HOSTNAME}${RESET}
 EOF
   _print_done
   _pause_function  
 }
 
 _root_passwd() {
-  _print_title "ROOT PASSWORD"
   PASSWD_CHECK=0
-  _print_subtitle "Type root password:"
   while [[ $PASSWD_CHECK == 0 ]]; do
+    _print_title "ROOT PASSWORD"
+    _print_subtitle "Type root password:"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
+    _print_done
+    _pause_function
   done
-  _print_done
-  _pause_function
 }
 
 _grub_generate() {
@@ -482,10 +481,8 @@ _mkinitcpio_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _print_subtitle "END FIRST STEP"
   _read_input_prompt_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_info "The file will be downloaded into root folder."
     _print_downloading "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
@@ -866,7 +863,7 @@ _print_entry() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BLUE}  $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}  $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_prompt_info() {
@@ -891,12 +888,12 @@ _print_formatting() {
 
 _print_creating() {
   echo -ne "${BBLACK}  Creating ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_mounting() {
   echo -ne "${BBLACK}  Mounting ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_installing() {
@@ -958,12 +955,12 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}  $1${RESET}"
+  printf "%s" "${BPURPLE}  $1${RESET}"
   read -r OPTION
 }
 
 _read_input_prompt_text() {
-  printf "%s" "${BGREEN}>${RESET}${BRED} $1${RESET}"
+  printf "%s" "${BGREEN}>${RESET}${BPURPLE} $1${RESET}"
   read -r OPTION
 }
 
