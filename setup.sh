@@ -1040,16 +1040,16 @@ _initial_screen() {
   CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
   CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
   tput cup ${CENTER_LINES} 0
-  echo -ne "${BGREEN}"
+  echo -ne "${BBLACK}"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e " █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "═════════════════════════════════════════════════════════════════════════════"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                           → By Stenio Silveira"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                     https://github.com/stenioas/myarch${RESET}"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "═════════════════════════════════════════════════════════════════════════════${RESET}"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                             ${BRED}By Stenio Silveira${RESET}"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                   ${BGREEN}→ https://github.com/stenioas/myarch${RESET}"
 }
 
 clear
