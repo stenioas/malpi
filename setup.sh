@@ -834,7 +834,7 @@ _print_title() {
   T_TITLE=$(echo ${#1})
   T_LEFT="${PURPLE}║${RESET}${BG_PURPLE}${BCYAN}   $1  ${RESET}${PURPLE}█▓▒░${RESET}"
   T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "${PURPLE}`seq -s '_' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${PURPLE}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
   echo -e " ${T_RIGHT}"
   echo -e "${T_LEFT}"
   echo
@@ -847,7 +847,7 @@ _print_title_alert() {
   T_TITLE=$(echo ${#1})
   T_LEFT="${RED}║${RESET}${BG_RED}${BWHITE} ¡ $1 !${RESET}${RED}█▓▒░${RESET}"
   T_RIGHT="${BYELLOW}${APP_TITLE}${RESET}"
-  echo -ne "${RED}`seq -s '_' $(( T_COLS - T_APP_TITLE + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
   echo -e " ${T_RIGHT}"
   echo -e "${T_LEFT}"
   echo
@@ -1070,7 +1070,7 @@ timedatectl set-ntp true
 
 cat <<EOF
 
-  ${BBLACK}
+${BBLACK}
      ▄████████    ▄████████  ▄████████    ▄█    █▄    
     ███    ███   ███    ███ ███    ███   ███    ███   
     ███    ███   ███    ███ ███    █▀    ███    ███   
@@ -1096,7 +1096,7 @@ cat <<EOF
 EOF
 
 while [[ "$1" ]]; do
-  read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
+  read -e -sn 1 -p "${BWHITE}  Press any key to start!${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
