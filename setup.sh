@@ -35,30 +35,6 @@
 #
 # ----------------------------------------------------------------------#
 
-usage() {
-    cat <<EOF
-
-usage: ${0##*/} [flags]
-
-  Flag options:
-
-    --install | -i         First step, only root user.
-    --config  | -c         Second step, only root user.
-    --desktop | -d         Third step, only root user.
-    --user    | -u         Last step, only normal user.
-
-* Arch-Setup 0.1
-
-EOF
-}
-
-[[ -z $1 ]] && {
-    usage
-    exit 1
-}
-
-# ----------------------------------------------------------------------#
-
 ### VARS
 
     # --- COLORS
@@ -112,6 +88,47 @@ EOF
 
     # --- PROMPT
       PROMPT1="${BRED}  Option:${RESET} "
+
+# ----------------------------------------------------------------------#
+
+usage() {
+    cat <<EOF
+
+usage: ${0##*/} [flags]
+
+  Flag options:
+
+    --install | -i         First step, only root user.
+    --config  | -c         Second step, only root user.
+    --desktop | -d         Third step, only root user.
+    --user    | -u         Last step, only normal user.
+
+arch-setup 0.1
+
+${BLACK}░▒▓██████▓▒░${RESET}
+${RED}░▒▓██████▓▒░${RESET}
+${GREEN}░▒▓██████▓▒░${RESET}
+${YELLOW}░▒▓██████▓▒░${RESET}
+${BLUE}░▒▓██████▓▒░${RESET}
+${PURPLE}░▒▓██████▓▒░${RESET}
+${CYAN}░▒▓██████▓▒░${RESET}
+${WHITE}░▒▓██████▓▒░${RESET}
+${BBLACK}░▒▓██████▓▒░${RESET}
+${BRED}░▒▓██████▓▒░${RESET}
+${BGREEN}░▒▓██████▓▒░${RESET}
+${BYELLOW}░▒▓██████▓▒░${RESET}
+${BBLUE}░▒▓██████▓▒░${RESET}
+${BPURPLE}░▒▓██████▓▒░${RESET}
+${BCYAN}░▒▓██████▓▒░${RESET}
+${BWHITE}░▒▓██████▓▒░${RESET}
+
+EOF
+}
+
+[[ -z $1 ]] && {
+    usage
+    exit 1
+}
 
 # ----------------------------------------------------------------------#
 
@@ -268,7 +285,7 @@ _select_disk() {
 }
 
 _format_partitions() {
-  _print_title "FORMATTING AND MOUNTING PARTITIONS"
+  _print_title "FORMAT THE PARTITIONS | MOUNT THE FILE SYSTEMS"
   BLOCK_LIST=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
 
   PARTITIONS_LIST=()
@@ -412,7 +429,6 @@ _set_language() {
 
 _set_hostname() {
   _print_title "HOSTNAME AND IP ADDRESS"
-  _print_subtitle "Hostname"
   _print_entry "Type a hostname: "
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
@@ -426,7 +442,7 @@ _set_hostname() {
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   _print_subtitle "Ip Address"
-  _print_setting "/etc/hosts file with the content below:"
+  _print_setting "/etc/hosts file with the content below"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
@@ -456,7 +472,6 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_subtitle "Grub entry"
   _print_entry "Type a grub name entry: "
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
@@ -471,11 +486,11 @@ _grub_generate() {
   _print_subtitle "Grub target"
   echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  echo -e "${RESET}"
+  echo -ne "${RESET}"
   _print_subtitle "Generate grub.cfg"
   echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
-  echo -e "${RESET}"
+  echo -ne "${RESET}"
   _print_done
   _pause_function  
 }
