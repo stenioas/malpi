@@ -867,7 +867,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BRED}  $1${RESET}"
+  printf "%s" "${BGREEN}>${RESET}${BWHITE} $1${RESET}"
 }
 
 _print_info() {
