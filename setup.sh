@@ -282,7 +282,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BPURPLE} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${YELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -318,7 +318,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BPURPLE} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${YELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -418,7 +418,7 @@ _set_hostname() {
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
     _print_subtitle "Hostname"
-    _print_warning "YOU MUST BE TYPE A HOSTNAME!"
+    _print_warning "You must be type a hostname!"
     _print_entry "Type a hostname: "
     read -r NEW_HOSTNAME
   done
@@ -433,7 +433,7 @@ _set_hostname() {
   cat <<EOF
     127.0.0.1 localhost.localdomain localhost
     ::1 localhost.localdomain localhost
-    127.0.1.1 ${BPURPLE}${NEW_HOSTNAME}${RESET}.localdomain ${BPURPLE}${NEW_HOSTNAME}${RESET}
+    127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
 EOF
   _print_done
   _pause_function  
@@ -441,13 +441,17 @@ EOF
 
 _root_passwd() {
   PASSWD_CHECK=0
+  _print_title "ROOT PASSWORD"
+  _print_subtitle "Type root password:"
+  arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
+    _print_warning "The password does not match!"
     _print_subtitle "Type root password:"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
-    _print_done
-    _pause_function
   done
+  _print_done
+  _pause_function
 }
 
 _grub_generate() {
@@ -737,7 +741,7 @@ _install_display_manager() {
     _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "None" ]]; then
-    echo -e " ${BBLUE}Nothing to do!${RESET}"
+    _print_info "Nothing to do!"
 
   else
     _invalid_option
@@ -934,7 +938,7 @@ _print_done() {
 }
 
 _print_bye() {
-  echo -e "\n${BPURPLE}  BYE!${RESET}"
+  echo -e "\n${BGREEN}  BYE!${RESET}"
 }
 
 _print_thanks() {
@@ -955,12 +959,12 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BPURPLE}  $1${RESET}"
+  printf "%s" "${BBLUE}  $1${RESET}"
   read -r OPTION
 }
 
 _read_input_prompt_text() {
-  printf "%s" "${BGREEN}>${RESET}${BPURPLE} $1${RESET}"
+  printf "%s" "${BGREEN}>${RESET}${BBLUE} $1${RESET}"
   read -r OPTION
 }
 
