@@ -78,6 +78,8 @@
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
       NEW_GRUB_NAME="Archlinux"
+      T_COLS=$(tput cols)
+      T_LINES=$(tput lines)
       TRIM=0
 
     # --- MOUNTPOINTS
@@ -88,47 +90,6 @@
 
     # --- PROMPT
       PROMPT1="${BRED}  Option:${RESET} "
-
-# ----------------------------------------------------------------------#
-
-usage() {
-    cat <<EOF
-
-usage: ${0##*/} [flags]
-
-  Flag options:
-
-    --install | -i         First step, only root user.
-    --config  | -c         Second step, only root user.
-    --desktop | -d         Third step, only root user.
-    --user    | -u         Last step, only normal user.
-
-arch-setup 0.1
-
-${BLACK}░▒▓██████▓▒░${RESET}
-${RED}░▒▓██████▓▒░${RESET}
-${GREEN}░▒▓██████▓▒░${RESET}
-${YELLOW}░▒▓██████▓▒░${RESET}
-${BLUE}░▒▓██████▓▒░${RESET}
-${PURPLE}░▒▓██████▓▒░${RESET}
-${CYAN}░▒▓██████▓▒░${RESET}
-${WHITE}░▒▓██████▓▒░${RESET}
-${BBLACK}░▒▓██████▓▒░${RESET}
-${BRED}░▒▓██████▓▒░${RESET}
-${BGREEN}░▒▓██████▓▒░${RESET}
-${BYELLOW}░▒▓██████▓▒░${RESET}
-${BBLUE}░▒▓██████▓▒░${RESET}
-${BPURPLE}░▒▓██████▓▒░${RESET}
-${BCYAN}░▒▓██████▓▒░${RESET}
-${BWHITE}░▒▓██████▓▒░${RESET}
-
-EOF
-}
-
-[[ -z $1 ]] && {
-    usage
-    exit 1
-}
 
 # ----------------------------------------------------------------------#
 
@@ -202,23 +163,21 @@ _setup_user(){
 
 _initial_info() {
   _print_title_alert "IMPORTANT"
-  _print_subtitle "Readme"
   cat <<EOF
-
-- This script supports UEFI only.
-- This script will install GRUB as default bootloader.
-- This script, for now, only installs the lts kernel.
-- This script will only consider two partitions, ESP and root.
-- This script will format the root partition in btrfs format.
-- The ESP partition can be formatted if the user wants to.
-- This script does not support swap.
-- This script will create three subvolumes:
-     @ for ${BGREEN}/${RESET}
-     @home for ${BGREEN}/home${RESET}
-     @.snapshots for ${BGREEN}/.snapshots${RESET}
-- This script sets zoneinfo as America/Fortaleza.
-- This script sets hwclock as UTC.
-${BRED}- This script is not yet complete!${RESET}
+* This script supports UEFI only.
+* This script will install GRUB as default bootloader.
+* This script, for now, only installs the lts kernel.
+* This script will only consider two partitions, ESP and root.
+* This script will format the root partition in btrfs format.
+* The ESP partition can be formatted if the user wants to.
+* This script does not support swap.
+* This script will create three subvolumes:
+    @ for ${BGREEN}/${RESET}
+    @home for ${BGREEN}/home${RESET}
+    @.snapshots for ${BGREEN}/.snapshots${RESET}
+* This script sets zoneinfo as America/Fortaleza.
+* This script sets hwclock as UTC.
+${BRED}* This script is not yet complete!${RESET}
 EOF
   _print_thanks
   _print_done
@@ -677,7 +636,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
   echo -e " ${PURPLE}${DESKTOP_CHOICE}${RESET}"
-  echo ""
+  echo
   
   if [[ "${DESKTOP}" == "Gnome" ]]; then
     _group_package_install "gnome"
@@ -843,12 +802,30 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BWHITE}`seq -s '─' $(tput cols) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BWHITE}`seq -s '═' $(tput cols) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+}
+
+_print_line_red() {
+  echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+}
+
+_print_dline_red() {
+  T_COLS=$(tput cols)
+  echo -e "${RED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+}
+
+_print_line_bblack() {
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+}
+
+_print_dline_bblack() {
+  T_COLS=$(tput cols)
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -856,12 +833,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BWHITE} ${RESET}${BGREEN}$1${RESET}"
-  T_RIGHT="${WHITE}${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 1 )) | tr -d [:digit:]`"
+  T_LEFT="${PURPLE}║${RESET}${BG_PURPLE}${BCYAN}   $1  ${RESET}${PURPLE}██▓▒░${RESET}"
+  T_RIGHT="${CYAN}${APP_TITLE}${RESET}"
+  echo -ne "${PURPLE}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  _print_dline
+  echo -e "${T_LEFT}"
+  echo
 }
 
 _print_title_alert() {
@@ -869,12 +846,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BG_RED}${BWHITE} $1${RESET}"
-  T_RIGHT="${BG_RED}${WHITE}${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${BG_RED}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  T_LEFT="${RED}║${RESET}${BG_RED}${BWHITE} ¡ $1 !${RESET}${RED}██▓▒░${RESET}"
+  T_RIGHT="${WHITE}${APP_TITLE}${RESET}"
+  echo -ne "${RED}`seq -s '_' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  _print_dline
+  echo -e "${T_LEFT}"
+  echo
 }
 
 _print_subtitle() {
@@ -1047,30 +1024,63 @@ _pacstrap_install() { # install pacstrap package
   done
 }
 
-_initial_screen() {
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
-  LOGO_COLS=77
-  LOGO_LINES=9
-  CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
-  CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
-  tput cup ${CENTER_LINES} 0
-  echo -ne "${BBLACK}"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e " █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "═════════════════════════════════════════════════════════════════════════════${RESET}"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                             ${BRED}By Stenio Silveira${RESET}"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                   ${BGREEN}→ https://github.com/stenioas/myarch${RESET}"
+usage() {
+    cat <<EOF
+
+usage: ${0##*/} [flags]
+
+  Flag options:
+
+    --install | -i         First step, only root user.
+    --config  | -c         Second step, only root user.
+    --desktop | -d         Third step, only root user.
+    --user    | -u         Last step, only normal user.
+
+arch-setup 0.1
+
+${BLACK}░▒▓██████▓▒░${RESET}
+${RED}░▒▓██████▓▒░${RESET}
+${GREEN}░▒▓██████▓▒░${RESET}
+${YELLOW}░▒▓██████▓▒░${RESET}
+${BLUE}░▒▓██████▓▒░${RESET}
+${PURPLE}░▒▓██████▓▒░${RESET}
+${CYAN}░▒▓██████▓▒░${RESET}
+${WHITE}░▒▓██████▓▒░${RESET}
+${BBLACK}░▒▓██████▓▒░${RESET}
+${BRED}░▒▓██████▓▒░${RESET}
+${BGREEN}░▒▓██████▓▒░${RESET}
+${BYELLOW}░▒▓██████▓▒░${RESET}
+${BBLUE}░▒▓██████▓▒░${RESET}
+${BPURPLE}░▒▓██████▓▒░${RESET}
+${BCYAN}░▒▓██████▓▒░${RESET}
+${BWHITE}░▒▓██████▓▒░${RESET}
+
+EOF
 }
+
+[[ -z $1 ]] && {
+    usage
+    exit 1
+}
+
+# ----------------------------------------------------------------------#
 
 clear
 setfont
 timedatectl set-ntp true
-_initial_screen
+
+cat <<EOF
+${PURPLE}
+  █████╗ ██████╗  ██████╗██╗  ██╗    ███████╗███████╗████████╗██╗   ██╗██████╗
+ ██╔══██╗██╔══██╗██╔════╝██║  ██║    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
+ ███████║██████╔╝██║     ███████║    ███████╗█████╗     ██║   ██║   ██║██████╔╝
+ ██╔══██║██╔══██╗██║     ██╔══██║    ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝
+ ██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║
+ ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝${RESET}
+ ${BWHITE}═════════════════════════════════════════════════════════════════════════════${RESET}
+                            ${RED}By Stenio Silveira${RESET}
+                    ${BGREEN}https://github.com/stenioas/myarch${RESET}
+EOF
 
 while [[ "$1" ]]; do
   T_COLS=$(tput cols)
