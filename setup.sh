@@ -282,7 +282,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${YELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -318,7 +318,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${YELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -862,7 +862,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  printf "%s" "${BRED}  $1${RESET}"
+  printf "%s" "${BBLUE}  $1${RESET}"
 }
 
 _print_info() {
@@ -887,7 +887,7 @@ _print_danger() {
 
 _print_formatting() {
   echo -ne "${BBLACK}  Formatting ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  echo -ne "${WHITE}$1${RESET}"
 }
 
 _print_creating() {
@@ -1031,7 +1031,7 @@ _initial_screen() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   LOGO_COLS=77
-  LOGO_LINES=8
+  LOGO_LINES=9
   CENTER_COLS=$(( (T_COLS - LOGO_COLS)/2 ))
   CENTER_LINES=$(( (T_LINES - LOGO_LINES)/2 ))
   tput cup ${CENTER_LINES} 0
@@ -1043,7 +1043,8 @@ _initial_screen() {
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "██║  ██║██║  ██║╚██████╗██║  ██║    ███████║███████╗   ██║   ╚██████╔╝██║"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝"
   echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "═════════════════════════════════════════════════════════════════════════════"
-  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                           → By Stenio Silveira${RESET}"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                           → By Stenio Silveira"
+  echo -ne "`seq -s ' ' ${CENTER_COLS} | tr -d [:digit:]`"; echo -e "                     https://github.com/stenioas/myarch${RESET}"
 }
 
 clear
