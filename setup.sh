@@ -930,8 +930,8 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BGREEN} DONE  ${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - 6 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BBLACK}[${RESET}${BGREEN} DONE ${RESET}${BBLACK}]${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
@@ -944,7 +944,7 @@ _print_thanks() {
 
 _pause_function() {
   echo
-  read -e -sn 1 -p "${WHITE}  Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -1072,30 +1072,22 @@ timedatectl set-ntp true
 cat <<EOF
 
 ${BBLACK}
-     ▄████████    ▄████████  ▄████████    ▄█    █▄    
-    ███    ███   ███    ███ ███    ███   ███    ███   
-    ███    ███   ███    ███ ███    █▀    ███    ███   
-    ███    ███  ▄███▄▄▄▄██▀ ███         ▄███▄▄▄▄███▄▄ 
-  ▀███████████ ▀▀███▀▀▀▀▀   ███        ▀▀███▀▀▀▀███▀  
-    ███    ███ ▀███████████ ███    █▄    ███    ███   
-    ███    ███   ███    ███ ███    ███   ███    ███   
-    ███    █▀    ███    ███ ████████▀    ███    █▀    
-                 ███    ███                           
+                                  _
+   _ __ ___  _   _  __ _ _ __ ___| |__
+  | '_ ` _ \| | | |/ _` | '__/ __| '_ \
+  | | | | | | |_| | (_| | | | (__| | | |
+  |_| |_| |_|\__, |\__,_|_|  \___|_| |_|
+             |___/ _
+          ___  ___| |_ _   _ _ __
+         / __|/ _ \ __| | | | '_ \
+         \__ \  __/ |_| |_| | |_) |
+         |___/\___|\__|\__,_| .__/
+                            |_|
+  ${BBLACK}By Stenio Silveira${RESET}
+  ${BGREEN}https://github.com/stenioas${RESET}
 
-   ▄█        ▄█  ███▄▄▄▄   ███    █▄  ▀████    ▐████▀ 
-  ███       ███  ███▀▀▀██▄ ███    ███   ███▌   ████▀  
-  ███       ███▌ ███   ███ ███    ███    ███  ▐███    
-  ███       ███▌ ███   ███ ███    ███    ▀███▄███▀    
-  ███       ███▌ ███   ███ ███    ███    ████▀██▄     
-  ███       ███  ███   ███ ███    ███   ▐███  ▀███    
-  ███▌    ▄ ███  ███   ███ ███    ███  ▄███     ███▄  
-  █████▄▄██ █▀    ▀█   █▀  ████████▀  ████       ███▄ 
-  ▀
-                  ${BBLACK}By Stenio Silveira${RESET}
-              ${BGREEN}https://github.com/stenioas${RESET}
-
-              ${BPURPLE}Btw, thank's for your time!${RESET}
-
+  ${BPURPLE}Btw, thank's for your time!${RESET}
+  
 EOF
 
 while [[ "$1" ]]; do
