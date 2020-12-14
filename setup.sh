@@ -394,10 +394,9 @@ _set_network() {
   _print_running "/etc/hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  _print_info "hosts file content:"
-  cat <<EOF
-
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
+  _print_subtitle "Hosts file content:"
+  cat <<EOF 
 127.0.0.1 localhost.localdomain localhost
 ::1 localhost.localdomain localhost
 127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
@@ -458,7 +457,8 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _read_input_text "\nSave a copy of this script in root directory? [y/N]: "
+  echo
+  _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
       _package_install "wget"
@@ -467,7 +467,8 @@ _finish_install() {
     fi
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_text "\nReboot system? [y/N]: "
+  echo
+  _read_input_text "Reboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -856,7 +857,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  echo -e "${BWHITE}$1${RESET}"
+  echo -e "${BGREEN}$1${RESET}"
   printf "%s" "${BGREEN}→ ${RESET}"
 }
 
