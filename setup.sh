@@ -897,32 +897,32 @@ _print_mounting() {
 }
 
 _print_installing() {
-  COLS_PKG=${#1}
+  COLS_VAR=${#1}
   echo -ne "${BWHITE}[    ] $1${RESET}"
 }
 
 _print_running() {
-  echo -ne "${BBLACK}→ Running ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  COLS_VAR=${#1}
+  echo -ne "${BWHITE}[    ] $1${RESET}"
 }
 
 _print_enabling() {
-  echo -ne "${BBLACK}→ Enabling ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  COLS_VAR=${#1}
+  echo -ne "${BWHITE}[    ] $1${RESET}"
 }
 
 _print_downloading() {
-  echo -ne "${BBLACK}→ Downloading ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  COLS_VAR=${#1}
+  echo -ne "${BWHITE}[    ] $1${RESET}"
 }
 
 _print_setting() {
-  echo -ne "${BBLACK}  Setting ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  COLS_VAR=${#1}
+  echo -ne "${BWHITE}[    ] $1${RESET}"
 }
 
 _print_ok() {
-  tput cub $(( COLS_PKG + 5 ))
+  tput cub $(( COLS_VAR + 5 ))
   echo -e "${BGREEN}OK${RESET}"
 }
 
