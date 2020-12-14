@@ -995,12 +995,12 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        tput cub $(( COLS_PKG + 5 ))
+        tput cub $(( COLS_VAR + 5 ))
         echo -e "${BRED}ER${RESET}"
       fi
     else
       _print_installing "${PKG}"
-      tput cub $(( COLS_PKG + 5 ))
+      tput cub $(( COLS_VAR + 5 ))
       echo -e "${BGREEN}OK${RESET}"
     fi
   done
