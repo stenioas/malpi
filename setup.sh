@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BRED}  Option:${RESET} "
+      PROMPT1="${BGREEN}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -102,7 +102,6 @@ _setup_install(){
     }
     _initial_info
     _check_connection
-    _initial_packages
     _rank_mirrors
     _select_disk
     _format_partitions
@@ -196,14 +195,6 @@ _check_connection() {
       _pause_function
       exit 1
     fi
-}
-
-_initial_packages() {
-  _print_title "REQUIRED PACKAGES"
-  _print_subtitle "Installing packages..."
-  _package_install "wget git nano"
-  _print_done
-  _pause_function
 }
 
 _rank_mirrors() {
@@ -467,13 +458,16 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _read_input_prompt_text "\nSave a copy of this script in root directory? [y/N]: "
+  _read_input_text "\nSave a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_downloading "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
+    if ! _is_package_installed "wget"; then
+      _package_install "wget"
+      _print_downloading "setup.sh"
+      wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
+    fi
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_prompt_text "\nReboot system? [y/N]: "
+  _read_input_text "\nReboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -600,7 +594,7 @@ _install_extra_pkgs() {
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
   PS3="$PROMPT1"
-  _read_input_prompt_text "Install laptop packages? [y/N]: "
+  _read_input_text "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
     _print_subtitle "Packages"
@@ -750,7 +744,7 @@ _finish_desktop() {
 _install_apps() {
   _print_title "CUSTOM APPS"
   PS3="$PROMPT1"
-  _read_input_prompt_text "Install custom apps? [y/N]: "
+  _read_input_text "Install custom apps? [y/N]: "
   echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -784,7 +778,7 @@ _install_apps() {
 _install_pamac() {
   _print_title "PAMAC"
   PS3="$PROMPT1"
-  _read_input_prompt_text "Install pamac? [y/N]: "
+  _read_input_text "Install pamac? [y/N]: "
   echo -e "\n"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "pamac"; then
@@ -935,10 +929,6 @@ _print_ok() {
   echo -e "${BGREEN}*${RESET}"
 }
 
-_print_action() {
-  echo -e "${BBLACK} → ${RESET}${BGREEN}$1${RESET}"
-}
-
 _print_done() {
   echo -ne "\n${BGREEN} DONE ${RESET}"
   echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 5 )) | tr -d [:digit:]`${RESET}"
@@ -966,12 +956,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}  $1${RESET}"
-  read -r OPTION
-}
-
-_read_input_prompt_text() {
-  printf "%s" "${BGREEN}>${RESET}${BRED} $1${RESET}"
+  printf "%s" "${BRED}$1${RESET}"
   read -r OPTION
 }
 
