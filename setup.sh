@@ -216,6 +216,7 @@ _rank_mirrors() {
   _print_subtitle "Update"
   _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
+  nano /etc/pacman.d/mirrorlist
   _print_done
   _pause_function
 }
@@ -898,32 +899,32 @@ _print_mounting() {
 
 _print_installing() {
   COLS_VAR=${#1}
-  echo -ne "${BWHITE}[    ] $1${RESET}"
+  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
 }
 
 _print_running() {
   COLS_VAR=${#1}
-  echo -ne "${BWHITE}[    ] $1${RESET}"
+  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
 }
 
 _print_enabling() {
   COLS_VAR=${#1}
-  echo -ne "${BWHITE}[    ] $1${RESET}"
+  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
 }
 
 _print_downloading() {
   COLS_VAR=${#1}
-  echo -ne "${BWHITE}[    ] $1${RESET}"
+  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
 }
 
 _print_setting() {
   COLS_VAR=${#1}
-  echo -ne "${BWHITE}[    ] $1${RESET}"
+  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
 }
 
 _print_ok() {
-  tput cub $(( COLS_VAR + 5 ))
-  echo -e "${BGREEN}OK${RESET}"
+  tput cub $(( COLS_VAR + 3 ))
+  echo -e "${BGREEN}*${RESET}"
 }
 
 _print_action() {
@@ -995,13 +996,12 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        tput cub $(( COLS_VAR + 5 ))
-        echo -e "${BRED}ER${RESET}"
+        tput cub $(( COLS_VAR + 3 ))
+        echo -e "${BRED}!${RESET}"
       fi
     else
       _print_installing "${PKG}"
-      tput cub $(( COLS_VAR + 5 ))
-      echo -e "${BGREEN}OK${RESET}"
+      _print_ok
     fi
   done
 }
