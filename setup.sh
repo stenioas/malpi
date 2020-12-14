@@ -897,8 +897,8 @@ _print_mounting() {
 }
 
 _print_installing() {
-  echo -ne "${BBLACK}→ Installing ${RESET}"
-  echo -ne "${BWHITE}$1${RESET}"
+  COLS_PKG=${#1}
+  echo -ne "${BWHITE}[    ] $1${RESET}"
 }
 
 _print_running() {
@@ -922,7 +922,8 @@ _print_setting() {
 }
 
 _print_ok() {
-  echo -e "${BBLACK} → ${RESET}${BGREEN}OK${RESET}"
+  tput cub $(( COLS_PKG + 5 ))
+  echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_action() {
@@ -930,8 +931,8 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}[${RESET}${BGREEN} DONE ${RESET}${BBLACK}]${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BGREEN} DONE ${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 5 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
