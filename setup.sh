@@ -243,7 +243,7 @@ _select_disk() {
 }
 
 _format_partitions() {
-  _print_title "FORMAT THE PARTITIONS | MOUNT THE FILE SYSTEMS"
+  _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
   BLOCK_LIST=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
 
   PARTITIONS_LIST=()
@@ -832,13 +832,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BCYAN}   $1   ${RESET}${PURPLE}█▓▒░${RESET}"
+  T_LEFT="${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BCYAN}  $1  ${RESET}${PURPLE}█▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  echo -ne " "
-  echo -e "${PURPLE}`seq -s '"' $(( T_TITLE + 12 )) | tr -d [:digit:]`${RESET}"
+  echo
 }
 
 _print_title_alert() {
@@ -846,13 +845,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}░▒▓█${RESET}${BG_RED}${BWHITE}  ¡$1!  ${RESET}${RED}█▓▒░${RESET}"
+  T_LEFT="${RED}░▒▓█${RESET}${BG_RED}${BWHITE}¡ $1 !${RESET}${RED}█▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  echo -ne " "
-  echo -e "${RED}`seq -s '"' $(( T_TITLE + 12 )) | tr -d [:digit:]`${RESET}"
+  echo
 }
 
 _print_subtitle() {
@@ -932,8 +930,8 @@ _print_action() {
 }
 
 _print_done() {
-  echo -ne "\n${BGREEN}  DONE  ${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BGREEN} DONE  ${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - 6 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
@@ -945,6 +943,7 @@ _print_thanks() {
 }
 
 _pause_function() {
+  echo
   read -e -sn 1 -p "${WHITE}  Press any key to continue...${RESET}"
 }
 
