@@ -164,6 +164,7 @@ _setup_user(){
 _initial_info() {
   _print_title_alert "IMPORTANT"
   cat <<EOF
+
 * This script supports UEFI only.
 * This script will install GRUB as default bootloader.
 * This script, for now, only installs the lts kernel.
@@ -257,7 +258,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -292,7 +293,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "${BGREEN}>${RESET}${BWHITE} Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -320,10 +321,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BCYAN}${1}${RESET} ${BGREEN}Mounted!${RESET}"
+      echo -e "${BCYAN}${1}${RESET} ${BGREEN}Mounted!${RESET}"
       _disable_partition "$1"
     else
-      echo -ne "${BCYAN}${1}${RESET} ${BRED}Not successfully mounted!${RESET}"
+      echo -e "${BCYAN}${1}${RESET} ${BRED}Not successfully mounted!${RESET}"
     fi
   }
   _format_root_partition
@@ -335,6 +336,7 @@ _format_partitions() {
 _install_base() {
   PKGS="base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_title "BASE"
+  _print_info "\nThe following packages will be installed: ${BGREEN}${PKGS}${RESET}"
   _print_subtitle "Installing packages..."
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_subtitle "Services"
@@ -346,7 +348,7 @@ _install_base() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_subtitle "Generate file"
+  _print_subtitle "Generating fstab..."
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _print_done
@@ -395,16 +397,19 @@ _set_network() {
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
+  _print_subtitle "Setting..."
+  _print_running "/etc/hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  _print_subtitle "Ip Address - Setting /etc/hosts file with the content below"
+  _print_running "/etc/hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts
+  _print_info "hosts file content:"
   cat <<EOF
-    127.0.0.1 localhost.localdomain localhost
-    ::1 localhost.localdomain localhost
-    127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
+
+127.0.0.1 localhost.localdomain localhost
+::1 localhost.localdomain localhost
+127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
 EOF
   _print_done
   _pause_function  
@@ -412,6 +417,7 @@ EOF
 
 _mkinitcpio_generate() {
   _print_title "INITRAMFS"
+  echo
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _print_done
   _pause_function
@@ -445,13 +451,13 @@ _grub_generate() {
     _print_entry "\nType a grub name entry:"
     read -r NEW_GRUB_NAME
   done
-  _print_subtitle "Packages"
+  _print_subtitle "Installing Packages..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "Grub target"
+  _print_subtitle "Installing GRUB..."
   echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
-  _print_subtitle "Generate grub.cfg"
+  _print_subtitle "Generating grub.cfg..."
   echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
@@ -461,13 +467,13 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _read_input_prompt_text "Save a copy of this script in root directory? [y/N]: "
+  _read_input_prompt_text "\nSave a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_downloading "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_prompt_text "Reboot system? [y/N]: "
+  _read_input_prompt_text "\nReboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -832,7 +838,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BCYAN}  $1  ${RESET}${PURPLE}█▓▒░${RESET}"
+  T_LEFT="${WHITE}░▒▓█${RESET}${BG_WHITE}${BLACK}  $1  ${RESET}${WHITE}█▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
