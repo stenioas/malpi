@@ -837,7 +837,8 @@ _print_title() {
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  _print_dline_bblack
+  echo -ne " "
+  echo -e "${PURPLE}`seq -s '"' $(( T_TITLE + 12 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
@@ -845,12 +846,13 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}░▒▓█${RESET}${BWHITE}  ¡$1!  ${RESET}${RED}█▓▒░${RESET}"
+  T_LEFT="${RED}░▒▓█${RESET}${BG_RED}${BWHITE}  ¡$1!  ${RESET}${RED}█▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  _print_dline_red
+  echo -ne " "
+  echo -e "${RED}`seq -s '"' $(( T_TITLE + 12 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_subtitle() {
