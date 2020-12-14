@@ -199,7 +199,7 @@ _check_connection() {
 
 _initial_packages() {
   _print_title "REQUIRED PACKAGES"
-  _print_subtitle "Packages"
+  _print_subtitle "Installing packages..."
   _package_install "wget git nano"
   _print_done
   _pause_function
@@ -210,10 +210,9 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  _print_subtitle "Mirrorlist"
+  _print_subtitle "Running..."
   _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_subtitle "Update"
   _print_running "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   nano /etc/pacman.d/mirrorlist
@@ -321,10 +320,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "Mounted"
+      echo -ne "${BCYAN}${1}${RESET} ${BGREEN}Mounted!${RESET}"
       _disable_partition "$1"
     else
-      echo -ne "${BGREEN}> ${RESET}${BWHITE}${1}"; _print_action "${BRED}Not successfully mounted!${RESET}"
+      echo -ne "${BCYAN}${1}${RESET} ${BRED}Not successfully mounted!${RESET}"
     fi
   }
   _format_root_partition
@@ -334,8 +333,9 @@ _format_partitions() {
 }
 
 _install_base() {
+  PKGS="base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_title "BASE"
-  _print_subtitle "Packages"
+  _print_subtitle "Installing packages..."
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_subtitle "Services"
   _print_enabling "NetworkManager"
@@ -355,7 +355,7 @@ _fstab_generate() {
 
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
-  _print_subtitle "Setting"
+  _print_subtitle "Running..."
   _print_running "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
   _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
@@ -373,7 +373,7 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
-  _print_subtitle "Setting"
+  _print_subtitle "Running..."
   _print_running "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
@@ -386,21 +386,18 @@ _set_localization() {
 
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
-  _print_subtitle "Hostname"
-  _print_entry "Type a hostname: "
+  _print_entry "\nType a hostname:"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "HOSTNAME AND IP ADDRESS"
-    _print_subtitle "Hostname"
     _print_warning "You must be type a hostname!"
-    _print_entry "Type a hostname: "
+    _print_entry "\nType a hostname:"
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_running "echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  _print_subtitle "Ip Address"
-  _print_setting "/etc/hosts file with the content below"
+  _print_subtitle "Ip Address - Setting /etc/hosts file with the content below"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
@@ -429,7 +426,9 @@ _root_passwd() {
     _print_title "ROOT PASSWORD"
     _print_warning "The password does not match!"
     _print_subtitle "Type root password:"
+    echo -ne "${BBLACK}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
+    echo -ne "${RESET}"
   done
   _print_done
   _pause_function
@@ -437,13 +436,13 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_entry "Type a grub name entry: "
+  _print_entry "\nType a grub name entry:"
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
     _print_subtitle "Grub entry"
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
-    _print_entry "Type a grub name entry: "
+    _print_entry "\nType a grub name entry:"
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Packages"
@@ -484,12 +483,12 @@ _finish_install() {
 _create_new_user() {
   _print_title "NEW USER"
   _print_subtitle "Username"
-  _print_entry "Type your username: "
+  _print_entry "\nType your username:"
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     _print_warning "You must be type a username!"
-    _print_entry "Type your username: "
+    _print_entry "\nType your username:"
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
@@ -838,7 +837,6 @@ _print_title() {
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  echo
 }
 
 _print_title_alert() {
@@ -851,20 +849,20 @@ _print_title_alert() {
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  echo
 }
 
 _print_subtitle() {
-  echo -e "${BWHITE}  $1${RESET}"
+  echo -e "\n${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
-  printf "%s" "${BGREEN}>${RESET}${BWHITE} $1${RESET}"
+  echo -e "${BWHITE}$1${RESET}"
+  printf "%s" "${BGREEN}→ ${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}  $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_prompt_info() {
@@ -874,27 +872,30 @@ _print_prompt_info() {
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}  WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${RRED}  DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${RRED}DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_formatting() {
-  echo -ne "${BBLACK}→ Formatting ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  COLS_AUX=${#1}
+  COLS_VAR=$(( COLS_AUX + 11 ))
+  echo -ne "${BBLACK}[ ] ${BBLACK}Formatting ${WHITE}$1${RESET}"
 }
 
 _print_creating() {
-  echo -ne "${BBLACK}→ Creating ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  COLS_AUX=${#1}
+  COLS_VAR=$(( COLS_AUX + 9 ))
+  echo -ne "${BBLACK}[ ] ${BBLACK}Creating ${WHITE}$1${RESET}"
 }
 
 _print_mounting() {
-  echo -ne "${BBLACK}→ Mounting ${RESET}"
-  echo -ne "${WHITE}$1${RESET}"
+  COLS_AUX=${#1}
+  COLS_VAR=$(( COLS_AUX + 8 ))
+  echo -ne "${BBLACK}[ ] ${BBLACK}Mouting ${WHITE}$1${RESET}"
 }
 
 _print_installing() {
@@ -913,8 +914,9 @@ _print_enabling() {
 }
 
 _print_downloading() {
-  COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
+  COLS_AUX=${#1}
+  COLS_VAR=$(( COLS_AUX + 12 ))
+  echo -ne "${BBLACK}[ ] ${BBLACK}Downloading ${WHITE}$1${RESET}"
 }
 
 _print_setting() {
@@ -1022,7 +1024,8 @@ _pacstrap_install() { # install pacstrap package
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      echo -e "${BBLACK} →${RESET}${BRED} error${RESET}"
+      tput cub $(( COLS_VAR + 3 ))
+      echo -e "${BRED}!${RESET}"
     fi
   done
 }
