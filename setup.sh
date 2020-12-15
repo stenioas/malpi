@@ -267,19 +267,19 @@ _format_partitions() {
     _print_action "${ROOT_PARTITION}" "Formatted!"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_creating "@ subvolume"
+    _print_action "@ subvolume" "Created!"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_ok
-    _print_creating "@home subvolume"
+    _print_action "@home subvolume" "Created!"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_ok
-    _print_creating "@.snapshots subvolume"
+    _print_action "@.snapshots subvolume" "Created!"
     btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_mounting "/"
+    _print_action "/" "Mounted!"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
-    _print_mounting "/home"
+    _print_action "/home" "Mounted!"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_ok
-    _print_mounting "/.snapshots"
+    _print_action "/.snapshots" "Mounted!"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
   }
@@ -301,7 +301,7 @@ _format_partitions() {
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-    _print_mounting "${EFI_PARTITION}"
+    _print_action "${EFI_PARTITION}" "Mounted!"
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
@@ -467,7 +467,7 @@ _finish_install() {
     if ! _is_package_installed "wget"; then
       _package_install "wget"
     fi
-    _print_downloading "setup.sh"
+    _print_action "setup.sh" "Downloaded!"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -885,43 +885,14 @@ _print_danger() {
   echo -e "${RRED}DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
-_print_formatting() {
-  COLS_AUX=${#1}
-  COLS_VAR=$(( COLS_AUX + 11 ))
-  echo -ne "${BBLACK}[ ] ${BBLACK}Formatting ${WHITE}$1${RESET}"
-}
-
-_print_creating() {
-  COLS_AUX=${#1}
-  COLS_VAR=$(( COLS_AUX + 9 ))
-  echo -ne "${BBLACK}[ ] ${BBLACK}Creating ${WHITE}$1${RESET}"
-}
-
-_print_mounting() {
-  COLS_AUX=${#1}
-  COLS_VAR=$(( COLS_AUX + 8 ))
-  echo -ne "${BBLACK}[ ] ${BBLACK}Mouting ${WHITE}$1${RESET}"
-}
-
-_print_downloading() {
-  COLS_AUX=${#1}
-  COLS_VAR=$(( COLS_AUX + 12 ))
-  echo -ne "${BBLACK}[ ] ${BBLACK}Downloading ${WHITE}$1${RESET}"
-}
-
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 3 ))
-  echo -ne "${BBLACK}[ ] ${BBLACK}${WHITE}$1${RESET} ${BGREEN}$2${RESET}"
-}
-
-_print_installing() {
-  COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}[ ]${RESET}${WHITE} $1${RESET}${BGREEN} $2${RESET}"
 }
 
 _print_item() {
   COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}[ ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
@@ -985,7 +956,7 @@ _package_install() { # install pacman package
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      _print_installing "${PKG}"
+      _print_item "${PKG}"
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
@@ -993,7 +964,7 @@ _package_install() { # install pacman package
         echo -e "${BRED}!${RESET}"
       fi
     else
-      _print_installing "${PKG}"
+      _print_item "${PKG}"
       _print_ok
     fi
   done
@@ -1011,7 +982,7 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    _print_installing "${PKG}"
+    _print_item "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
