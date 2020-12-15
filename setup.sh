@@ -90,6 +90,7 @@
 
     # --- PROMPT
       PROMPT1="${BGREEN}→ ${RESET}"
+      PS2="  "
 
 # ----------------------------------------------------------------------#
 
@@ -383,6 +384,7 @@ _set_network() {
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
+    echo
     _print_warning "You must be type a hostname!"
     _print_entry "Type a hostname:"
     read -r NEW_HOSTNAME
@@ -436,7 +438,8 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    _print_warning "\nYOU MUST BE TYPE A GRUB NAME ENTRY!"
+    echo
+    _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _print_entry "Type a grub name entry:"
     read -r NEW_GRUB_NAME
   done
@@ -935,7 +938,7 @@ _print_done() {
 }
 
 _print_bye() {
-  echo -e "\n${BGREEN}  BYE!${RESET}\n"
+  echo -e "\n${BGREEN}Bye!${RESET}\n"
 }
 
 _print_thanks() {
