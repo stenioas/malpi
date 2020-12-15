@@ -204,9 +204,9 @@ _rank_mirrors() {
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
   _print_subtitle "Running..."
-  _print_running "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
+  _print_item "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_running "pacman -Syy"
+  _print_item "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   nano /etc/pacman.d/mirrorlist
   _print_done
@@ -264,7 +264,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_formatting "${ROOT_PARTITION}"
+    _print_action "${ROOT_PARTITION}" "Formatted!"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_creating "@ subvolume"
@@ -297,7 +297,7 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_formatting "${EFI_PARTITION}"
+      _print_action "${EFI_PARTITION}" "Formatted!"
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
@@ -328,9 +328,13 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   _print_subtitle "Installing packages..."
-  _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
-  _print_subtitle "Services"
-  _print_enabling "NetworkManager"
+  _pacstrap_install "base base-devel"
+  _pacstrap_install "linux-lts linux-lts-headers linux-firmware"
+  _pacstrap_install "intel-ucode"
+  _pacstrap_install "btrfs-progs"
+  _pacstrap_install "networkmanager"
+  _print_subtitle "Enabling services..."
+  _print_item "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _print_done
   _pause_function
@@ -339,26 +343,24 @@ _install_base() {
 _fstab_generate() {
   _print_title "FSTAB"
   _print_subtitle "Generating fstab..."
-  _print_running "TESTANDO genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}" && _print_ok
-  _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
+  _print_item "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
-  _print_running "TESTANDO genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}" && _print_ok
   _print_done
   _pause_function
 }
-
+genfstab -U /mnt > /mnt/etc/fstab
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   _print_subtitle "Running..."
-  _print_running "timedatectl set-ntp true"
+  _print_item "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
-  _print_running "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
+  _print_item "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  _print_running "hwclock --systohc --utc"
+  _print_item "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_done
@@ -368,11 +370,11 @@ _set_timezone_and_clock() {
 _set_localization() {
   _print_title "LOCALIZATION"
   _print_subtitle "Running..."
-  _print_running "locale-gen"
+  _print_item "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
-  _print_running "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  _print_item "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
-  _print_running "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  _print_item "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
   _print_done
   _pause_function  
@@ -391,9 +393,9 @@ _set_network() {
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_subtitle "Setting..."
-  _print_running "hostname file"
+  _print_item "hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  _print_running "hosts file"
+  _print_item "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
@@ -515,7 +517,7 @@ _enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
-      _print_enabling "Multilib"
+      _print_item "Multilib"
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && _print_ok
     else
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
@@ -603,7 +605,7 @@ _install_laptop_pkgs() {
     _print_subtitle "Packages"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_subtitle "Services"
-    _print_enabling "Bluetooth"
+    _print_item "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
     -_print_info "Nothing to do!"
@@ -697,7 +699,7 @@ _install_display_manager() {
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     _print_subtitle "Services"
-    _print_enabling "LightDM"
+    _print_item "LightDM"
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -709,13 +711,13 @@ _install_display_manager() {
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
     _print_subtitle "Services"
-    _print_enabling "GDM"
+    _print_item "GDM"
     sudo systemctl enable gdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
     _print_subtitle "Services"
-    _print_enabling "SDDM"
+    _print_item "SDDM"
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
@@ -901,28 +903,23 @@ _print_mounting() {
   echo -ne "${BBLACK}[ ] ${BBLACK}Mouting ${WHITE}$1${RESET}"
 }
 
-_print_installing() {
-  COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
-}
-
-_print_running() {
-  COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
-}
-
-_print_enabling() {
-  COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
-}
-
 _print_downloading() {
   COLS_AUX=${#1}
   COLS_VAR=$(( COLS_AUX + 12 ))
   echo -ne "${BBLACK}[ ] ${BBLACK}Downloading ${WHITE}$1${RESET}"
 }
 
-_print_setting() {
+_print_action() {
+  COLS_VAR=$(( ${#1} + ${#2} + 3 ))
+  echo -ne "${BBLACK}[ ] ${BBLACK}${WHITE}$1${RESET} ${BGREEN}$2${RESET}"
+}
+
+_print_installing() {
+  COLS_VAR=${#1}
+  echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
+}
+
+_print_item() {
   COLS_VAR=${#1}
   echo -ne "${BBLACK}[ ]${WHITE} $1${RESET}"
 }
