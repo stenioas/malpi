@@ -178,7 +178,9 @@ _initial_info() {
     @.snapshots for ${BGREEN}/.snapshots${RESET}
 * This script sets zoneinfo as America/Fortaleza.
 * This script sets hwclock as UTC.
+
 ${BYELLOW}* This script is not yet complete!${RESET}
+
 ${BWHITE}* Btw, thank's for your time!${RESET}
 EOF
   _print_done
@@ -868,7 +870,7 @@ _print_title_alert() {
   T_LEFT="${RED}█▓▒░${RESET}${BWHITE}¡ $1 !${RESET}${RED}░▒▓█${RESET}"
   T_RIGHT="${BRED}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BRED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
 }
 
