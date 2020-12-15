@@ -178,9 +178,9 @@ _initial_info() {
     @.snapshots for ${BGREEN}/.snapshots${RESET}
 * This script sets zoneinfo as America/Fortaleza.
 * This script sets hwclock as UTC.
-${BRED}* This script is not yet complete!${RESET}
+${BYELLOW}* This script is not yet complete!${RESET}
+${BWHITE}* Btw, thank's for your time!${RESET}
 EOF
-  echo -e "${PURPLE}* Btw, thank's for your time!${RESET}"
   _print_done
   _pause_function
 }
@@ -207,9 +207,14 @@ _rank_mirrors() {
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_item "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
+  echo
   _read_input_text "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    tput sc
     nano /etc/pacman.d/mirrorlist
+    tput rc
+    _print_done
+    _pause_function
   else
     _print_done
     _pause_function
@@ -231,7 +236,11 @@ _select_disk() {
   INSTALL_DISK=${DEVICE}
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    tput sc
     cfdisk ${INSTALL_DISK}
+    tput rc
+    _print_done
+    _pause_function
   else
     _print_done
     _pause_function
@@ -270,14 +279,14 @@ _format_partitions() {
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_action "Create" "@${YELLOW} subvolume${RESET}"
+    _print_action "Create subvolume" "@"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_ok
-    _print_action "Create" "@home${YELLOW} subvolume${RESET}"
+    _print_action "Create subvolume" "@home"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_ok
-    _print_action "Create" "@.snapshots${YELLOW} subvolume${RESET}"
+    _print_action "Create subvolume" "@.snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_action "Mount" "@ subvolume in ${YELLOW}${ROOT_MOUNTPOINT}${RESET}"
+    _print_action "Mount" "@ in ${YELLOW}${ROOT_MOUNTPOINT}${RESET}"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
     _print_action "Mount" "@home subvolume in ${YELLOW}${ROOT_MOUNTPOINT}/home${RESET}"
@@ -424,10 +433,14 @@ _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
   _print_subtitle "Type root password:"
+  echo -ne "${BBLACK}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
+  echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
+    echo
     _print_warning "The password does not match!"
+    tput cuu 1
     _print_subtitle "Type root password:"
     echo -ne "${BBLACK}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
@@ -852,10 +865,10 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BG_RED}${BWHITE}¡ $1 !${RESET}${RED}░▒▓█${RESET}"
-  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}¡ $1 !${RESET}${RED}░▒▓█${RESET}"
+  T_RIGHT="${BRED}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
+  echo -ne "${BRED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
 }
 
@@ -889,8 +902,8 @@ _print_danger() {
 }
 
 _print_action() {
-  COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[    ]${RESET}${BBLACK} $2${RESET}${YELLOW} $1${RESET}"
+  COLS_VAR=$(( ${#1} + ${#2} ))
+  echo -ne "${BBLACK}[    ]${RESET}${BBLACK} $1${RESET}${YELLOW} $2${RESET}"
 }
 
 _print_item() {
