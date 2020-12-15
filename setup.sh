@@ -325,9 +325,7 @@ _format_partitions() {
 }
 
 _install_base() {
-  PKGS="base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_title "BASE"
-  _print_info "\nThe following packages will be installed: ${BGREEN}${PKGS}${RESET}"
   _print_subtitle "Installing packages..."
   _pacstrap_install "base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode btrfs-progs networkmanager"
   _print_subtitle "Services"
@@ -340,8 +338,10 @@ _install_base() {
 _fstab_generate() {
   _print_title "FSTAB"
   _print_subtitle "Generating fstab..."
+  _print_running "TESTANDO genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}" && _print_ok
   _print_running "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
+  _print_running "TESTANDO genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab${RESET}" && _print_ok
   _print_done
   _pause_function
 }
@@ -382,16 +382,16 @@ _set_network() {
   _print_entry "\nType a hostname:"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
-    _print_title "HOSTNAME AND IP ADDRESS"
+    _print_title "NETWORK CONFIGURATION"
     _print_warning "You must be type a hostname!"
-    _print_entry "\nType a hostname:"
+    _print_entry "Type a hostname:"
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_subtitle "Setting..."
-  _print_running "/etc/hostname file"
+  _print_running "hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  _print_running "/etc/hosts file"
+  _print_running "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
@@ -436,9 +436,8 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    _print_subtitle "Grub entry"
-    _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
-    _print_entry "\nType a grub name entry:"
+    _print_warning "\nYOU MUST BE TYPE A GRUB NAME ENTRY!"
+    _print_entry "Type a grub name entry:"
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Installing Packages..."
@@ -462,9 +461,9 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
       _package_install "wget"
-      _print_downloading "setup.sh"
-      wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
     fi
+    _print_downloading "setup.sh"
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -833,7 +832,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${WHITE}░▒▓█${RESET}${BG_WHITE}${BLACK}  $1  ${RESET}${WHITE}█▓▒░${RESET}"
+  T_LEFT="${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BGREEN}  $1  ${RESET}${PURPLE}█▓▒░${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
