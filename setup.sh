@@ -293,12 +293,10 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_action "${EFI_PARTITION}" "Formatted!"
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "${EFI_PARTITION}" "Formatted!"
     fi
-    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-    _print_action "${EFI_PARTITION}" "Mounted!"
-    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
+    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_action "${EFI_MOUNTPOINT}" "Created!"
+    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_action "${EFI_PARTITION}" "Mounted!"
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
 
@@ -863,7 +861,7 @@ _print_entry() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_prompt_info() {
@@ -883,7 +881,7 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} ))
-  echo -e "${WHITE}$1${RESET}${BGREEN} $2${RESET}"
+  echo -e "${WHITE}$1${RESET}${YELLOW} $2${RESET}"
 }
 
 _print_item() {
