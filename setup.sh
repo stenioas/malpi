@@ -180,7 +180,7 @@ _initial_info() {
 * This script sets hwclock as UTC.
 ${BRED}* This script is not yet complete!${RESET}
 EOF
-  _print_thanks
+  echo -e "${PURPLE}* Btw, thank's for your time!${RESET}"
   _print_done
   _pause_function
 }
@@ -267,23 +267,16 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_action "${ROOT_PARTITION}" "Formatted!"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "${ROOT_PARTITION}" "Formatted!"
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_action "@ subvolume" "Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_ok
-    _print_action "@home subvolume" "Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_ok
-    _print_action "@.snapshots subvolume" "Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_action "@ subvolume" "Created!"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_action "@home subvolume" "Created!"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_action "@.snapshots subvolume" "Created!"
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_action "/" "Mounted!"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
-    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
-    _print_action "/home" "Mounted!"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_ok
-    _print_action "/.snapshots" "Mounted!"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_action "/" "Mounted!"
+    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null && _print_action "/home directory" "Created!" && _print_action "/.snapshots directory" "Created!"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_action "/home" "Mounted!"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_action "/.snapshots" "Mounted!"
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
   }
 
@@ -316,10 +309,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      _print_action "${1}" "Mounted!"
+      _print_info "Partition successfully mounted!"
       _disable_partition "$1"
     else
-      _print_action "${1}" "${BRED}Not successfully mounted!${RESET}"
+      _print_warning "Partition not successfully mounted!"
     fi
   }
   _format_root_partition
@@ -889,8 +882,8 @@ _print_danger() {
 }
 
 _print_action() {
-  COLS_VAR=$(( ${#1} + ${#2} + 3 ))
-  echo -ne "${BBLACK}[ ]${RESET}${WHITE} $1${RESET}${BGREEN} $2${RESET}"
+  COLS_VAR=$(( ${#1} + ${#2} ))
+  echo -e "${WHITE}$1${RESET}${BGREEN} $2${RESET}"
 }
 
 _print_item() {
@@ -910,10 +903,6 @@ _print_done() {
 
 _print_bye() {
   echo -e "\n${BGREEN}Bye!${RESET}\n"
-}
-
-_print_thanks() {
-  echo -e "\n${BPURPLE}  Btw, thank's for your time!${RESET}"
 }
 
 _pause_function() {
@@ -1019,7 +1008,7 @@ ${CYAN}░▒▓██████▓▒░${RESET}
 ${WHITE}░▒▓██████▓▒░${RESET}
 ${BBLACK}══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${RESET}
 ${BBLACK}█▓▒░    MOUNT POINTS    ░▒▓███████████████████████████████████████████████████████████████████████▓▒░ myarch-setup 0.1${RESET}
-${BBLACK}══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${RESET}
+${BBLACK}───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────${RESET}
 ${BRED}░▒▓██████▓▒░${RESET}
 ${BGREEN}░▒▓██████▓▒░${RESET}
 ${BYELLOW}░▒▓██████▓▒░${RESET}
@@ -1051,17 +1040,14 @@ ${BGREEN}
   |    \| | | (____ |/ ___) ___)  _ \ 
   | | | | |_| / ___ | |  ( (___| | | |
   |_|_|_|\__  \_____|_|   \____)_| |_|
-        (____/    _                     
-      ___ _____ _| |_ _   _ ____        
-     /___) ___ (_   _) | | |  _ \       
-    |___ | ____| | |_| |_| | |_| |      
-    (___/|_____)  \__)____/|  __/       
-                           |_|         
+        (____/      ___ _____ _| |_ _   _ ____        
+                   /___) ___ (_   _) | | |  _ \       
+                  |___ | ____| | |_| |_| | |_| |      
+                  (___/|_____)  \__)____/|  __/       
+                                         |_|
 
   ${BBLACK}By Stenio Silveira${RESET}
-  ${BBLUE}https://github.com/stenioas${RESET}
-
-  ${BPURPLE}Btw, thank's for your time!${RESET}
+  ${BLUE}https://github.com/stenioas${RESET}
 
 EOF
 
