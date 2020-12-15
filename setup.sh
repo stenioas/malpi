@@ -267,16 +267,23 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_action "${ROOT_PARTITION}" "Formatted!"
+    _print_action "Format" "${ROOT_PARTITION}"
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_action "@ subvolume" "Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_action "@home subvolume" "Created!"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_action "@.snapshots subvolume" "Created!"
+    _print_action "Create" "@${YELLOW} subvolume${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_ok
+    _print_action "Create" "@home${YELLOW} subvolume${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_ok
+    _print_action "Create" "@.snapshots${YELLOW} subvolume${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_action "/" "Mounted!"
-    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null && _print_action "/home directory" "Created!" && _print_action "/.snapshots directory" "Created!"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_action "/home" "Mounted!"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_action "/.snapshots" "Mounted!"
+    _print_action "Mount" "@ subvolume in ${YELLOW}${ROOT_MOUNTPOINT}${RESET}"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
+    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
+    _print_action "Mount" "@home subvolume in ${YELLOW}${ROOT_MOUNTPOINT}/home${RESET}"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_ok
+    _print_action "Mount" "@.snapshots subvolume in ${YELLOW}${ROOT_MOUNTPOINT}/.snapshots${RESET}"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
   }
 
@@ -293,10 +300,12 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_action "${EFI_PARTITION}" "Formatted!"
+      _print_action "Format" "${EFI_PARTITION}"
+      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
     fi
-    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_action "${EFI_MOUNTPOINT}" "Created!"
-    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_action "${EFI_PARTITION}" "Mounted!"
+    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
+    _print_action "Mount" "${EFI_PARTITION} partition in ${YELLOW}${EFI_MOUNTPOINT}${RESET}"
+    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
 
@@ -461,7 +470,7 @@ _finish_install() {
     if ! _is_package_installed "wget"; then
       _package_install "wget"
     fi
-    _print_action "setup.sh" "Downloaded!"
+    _print_action "Download" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -843,7 +852,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}░▒▓█${RESET}${BG_RED}${BWHITE}¡ $1 !${RESET}${RED}█▓▒░${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BG_RED}${BWHITE}¡ $1 !${RESET}${RED}░▒▓█${RESET}"
   T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
@@ -871,26 +880,26 @@ _print_prompt_info() {
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING: ${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING: ${RESET}${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${RRED}DANGER: ${RED}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER: ${RESET}${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
-  COLS_VAR=$(( ${#1} + ${#2} ))
-  echo -e "${WHITE}$1${RESET}${YELLOW} $2${RESET}"
+  COLS_VAR=$(( ${#1} + ${#2} + 1 ))
+  echo -ne "${BBLACK}[    ]${RESET}${BBLACK} $2${RESET}${YELLOW} $1${RESET}"
 }
 
 _print_item() {
   COLS_VAR=${#1}
-  echo -ne "${BBLACK}[ ]${RESET}${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}[    ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
-  tput cub $(( COLS_VAR + 3 ))
+  tput cub $(( COLS_VAR + 5 ))
   echo -e "${BGREEN}*${RESET}"
 }
 
