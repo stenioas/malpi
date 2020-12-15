@@ -900,7 +900,12 @@ _print_item() {
 
 _print_ok() {
   tput cub $(( COLS_VAR + 5 ))
-  echo -e "${BGREEN}*${RESET}"
+  echo -e "${BGREEN}OK${RESET}"
+}
+
+_print_error() {
+  tput cub $(( COLS_VAR + 5 ))
+  echo -e "${BRED}ERR${RESET}"
 }
 
 _print_done() {
@@ -960,7 +965,7 @@ _package_install() { # install pacman package
         _print_ok
       else
         tput cub $(( COLS_VAR + 3 ))
-        echo -e "${BRED}!${RESET}"
+        _print_error
       fi
     else
       _print_item "${PKG}"
