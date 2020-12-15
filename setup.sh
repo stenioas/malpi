@@ -193,7 +193,6 @@ _check_connection() {
       _print_title_alert "CONNECTION"
       _print_warning "You are not connected. Solve this problem and run this script again."
       _print_bye
-      _pause_function
       exit 1
     fi
 }
@@ -208,9 +207,13 @@ _rank_mirrors() {
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_item "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
-  nano /etc/pacman.d/mirrorlist
-  _print_done
-  _pause_function
+  _read_input_text "Edit your mirrorlist file? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    nano /etc/pacman.d/mirrorlist
+  else
+    _print_done
+    _pause_function
+  fi
 }
 
 _select_disk() {
@@ -229,10 +232,10 @@ _select_disk() {
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
-    _print_title "PARTITION THE DISKS"
+  else
+    _print_done
+    _pause_function
   fi
-  _print_done
-  _pause_function
 }
 
 _format_partitions() {
@@ -313,10 +316,10 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
-      echo -e "${BCYAN}${1}${RESET} ${BGREEN}Mounted!${RESET}"
+      _print_action "${1}" "Mounted!"
       _disable_partition "$1"
     else
-      echo -e "${BCYAN}${1}${RESET} ${BRED}Not successfully mounted!${RESET}"
+      _print_action "${1}" "${BRED}Not successfully mounted!${RESET}"
     fi
   }
   _format_root_partition
@@ -1014,7 +1017,9 @@ ${BLUE}░▒▓██████▓▒░${RESET}
 ${PURPLE}░▒▓██████▓▒░${RESET}
 ${CYAN}░▒▓██████▓▒░${RESET}
 ${WHITE}░▒▓██████▓▒░${RESET}
-${BBLACK}░▒▓██████▓▒░${RESET}
+${BBLACK}══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${RESET}
+${BBLACK}█▓▒░    MOUNT POINTS    ░▒▓███████████████████████████████████████████████████████████████████████▓▒░ myarch-setup 0.1${RESET}
+${BBLACK}══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${RESET}
 ${BRED}░▒▓██████▓▒░${RESET}
 ${BGREEN}░▒▓██████▓▒░${RESET}
 ${BYELLOW}░▒▓██████▓▒░${RESET}
