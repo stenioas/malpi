@@ -1057,26 +1057,47 @@ EOF
 clear
 setfont
 timedatectl set-ntp true
+setterm -background yellow -store
+tput setaf 3
+cat <<"EOF"
 
-cat <<EOF
 
-${BGREEN}
-                                _     
-                               | |    
-   ____  _   _ _____  ____ ____| |__  
-  |    \| | | (____ |/ ___) ___)  _ \ 
-  | | | | |_| / ___ | |  ( (___| | | |
-  |_|_|_|\__  \_____|_|   \____)_| |_|
-        (____/      ___ _____ _| |_ _   _ ____        
-                   /___) ___ (_   _) | | |  _ \       
-                  |___ | ____| | |_| |_| | |_| |      
-                  (___/|_____)  \__)____/|  __/       
-                                         |_|
 
-  ${BBLACK}By Stenio Silveira${RESET}
-  ${BLUE}https://github.com/stenioas${RESET}
+
+
+
+
+
+
+
+
+
+                                                              -`
+                                                             .o+`
+                                                            `ooo/
+                                                           `+oooo:
+                                                          `+oooooo:
+                                                          -+oooooo+:
+                                                        `/:-:++oooo+:
+                                                       `/++++/+++++++:
+                                                      `/++++++++++++++:
+                                                     `/+++ooooooooooooo/`
+                                                    ./ooosssso++osssssso+`
+                                                   .oossssso-````/ossssss+`
+                                                  -osssssso.      :ssssssso.
+                                                 :osssssss/        osssso+++.
+                                                /ossssssss/        +ssssooo/-
+                                              `/ossssso+/:-        -:/+osssso+-
+                                             `+sso+:-`                 `.-/+oso:
+                                            `++:.                           `-/+/
+                                            .`                                 `
+                                                My Personal Arclinux Installer
+                                                     By Stenio Silveira
+                                               https://github.com/stenioas/myarch
 
 EOF
+setterm -background black -store
+tput sgr0
 
 while [[ "$1" ]]; do
   read -e -sn 1 -p "${BWHITE}  Press any key to start!${RESET}"
