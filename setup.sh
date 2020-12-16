@@ -1057,8 +1057,7 @@ EOF
 clear
 setfont
 timedatectl set-ntp true
-setterm -background yellow -store
-tput setaf 3
+tput bold; tput setaf 2
 cat <<"EOF"
 
 
@@ -1096,7 +1095,6 @@ cat <<"EOF"
                                                https://github.com/stenioas/myarch
 
 EOF
-setterm -background black -store
 tput sgr0
 
 while [[ "$1" ]]; do
