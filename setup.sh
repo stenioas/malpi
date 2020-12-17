@@ -164,7 +164,7 @@ _setup_user(){
 _initial_info() {
   _print_title_alert "IMPORTANT"
   cat <<EOF
-
+${CYAN}
   * This script supports UEFI only.
   * This script will install GRUB as default bootloader.
   * This script, for now, only installs the lts kernel.
@@ -173,11 +173,11 @@ _initial_info() {
   * The ESP partition can be formatted if the user wants to.
   * This script does not support swap.
   * This script will create three subvolumes:
-      @ for ${BGREEN}/${RESET}
-      @home for ${BGREEN}/home${RESET}
-      @.snapshots for ${BGREEN}/.snapshots${RESET}
-  * This script sets zoneinfo as America/Fortaleza.
-  * This script sets hwclock as UTC.
+      @ for ${RESET}${BCYAN}/${RESET}
+      ${CYAN}@home for ${RESET}${BCYAN/home${RESET}
+      ${CYAN}@.snapshots for ${RESET}${BCYAN}/.snapshots${RESET}
+  ${CYAN}* This script sets zoneinfo as America/Fortaleza.
+  * This script sets hwclock as UTC.${RESET}
   
   ${BYELLOW}* This script is not yet complete!${RESET}
   
@@ -209,7 +209,6 @@ _rank_mirrors() {
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_item "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
-  echo
   _read_input_text "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
@@ -323,9 +322,11 @@ _format_partitions() {
 
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
+      echo
       _print_info "Partition successfully mounted!"
       _disable_partition "$1"
     else
+      echo
       _print_warning "Partition not successfully mounted!"
     fi
   }
@@ -392,7 +393,7 @@ _set_localization() {
 
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
-  _print_entry "\nType a hostname:"
+  _print_entry "Type a hostname:"
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
@@ -873,12 +874,12 @@ _print_title_alert() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BGREEN}→${RESET}${BWHITE} $1${RESET}"
+  echo -e "\n${BBLACK}>${RESET}${BWHITE} $1${RESET}"
 }
 
 _print_entry() {
-  echo -e "${BGREEN}→${RESET}${BWHITE} $1${RESET}"
-  printf "%s" "${BGREEN}> ${RESET}"
+  echo -e "\n${BWHITE}$1${RESET}"
+  printf "%s" "${BGREEN}→ ${RESET}"
 }
 
 _print_info() {
@@ -898,12 +899,12 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[      ]${RESET}${BCYAN} $1${RESET}${BYELLOW} $2${RESET}"
+  echo -ne "${BBLACK}  [      ]${RESET}${BCYAN} $1${RESET}${BYELLOW} $2${RESET}"
 }
 
 _print_item() {
   COLS_VAR=${#1}
-  echo -ne "${BBLACK}[      ]${RESET}${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}  [      ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
@@ -917,8 +918,8 @@ _print_error() {
 }
 
 _print_done() {
-  echo -ne "\n${BGREEN}  DONE  ${RESET}"
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BGREEN} DONE  ${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 6 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
