@@ -259,7 +259,8 @@ _format_partitions() {
 
   _format_root_partition() {
     echo
-    _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
+    _print_danger "All data on the partition will be LOST!"
+    tput cuu 1
     _print_select_partition "ROOT"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -296,7 +297,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    _print_select_partition "EFI"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -306,9 +307,10 @@ _format_partitions() {
         _invalid_option
       fi
     done
+    _print_danger "All data on the partition will be LOST!"
+    tput cuu 1
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
       _read_input_text "Confirm format EFI partition? [y/N]: "
       if [[ $OPTION == y || $OPTION == Y ]]; then
         _print_subtitle "Setting partition..."
@@ -870,7 +872,7 @@ _print_subtitle() {
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
   echo -e "\n${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE + 18 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE + 19 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_entry() {
@@ -880,17 +882,17 @@ _print_entry() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${GREEN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}INFO:${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING: ${RESET}${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER: ${RESET}${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
