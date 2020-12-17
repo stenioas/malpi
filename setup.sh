@@ -94,6 +94,22 @@
 
 # ----------------------------------------------------------------------#
 
+### TESTS
+
+_check_connection() {
+    _connection_test() {
+      ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
+    }
+    if ! _connection_test; then
+      _print_title_alert "CONNECTION"
+      _print_warning "You are not connected. Solve this problem and run this script again."
+      _print_bye
+      exit 1
+    fi
+}
+
+# ----------------------------------------------------------------------#
+
 ### CORE FUNCTIONS
 
 _setup_install(){
@@ -102,7 +118,6 @@ _setup_install(){
       exit 1
     }
     _initial_info
-    _check_connection
     _rank_mirrors
     _select_disk
     _format_partitions
@@ -186,18 +201,6 @@ EOF
   echo
   _print_line_red
   _pause_function
-}
-
-_check_connection() {
-    _connection_test() {
-      ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
-    }
-    if ! _connection_test; then
-      _print_title_alert "CONNECTION"
-      _print_warning "You are not connected. Solve this problem and run this script again."
-      _print_bye
-      exit 1
-    fi
 }
 
 _rank_mirrors() {
@@ -1032,7 +1035,30 @@ EOF
 }
 
 _start_screen() {
+tput bold; tput setaf 2
+  cat <<"EOF"
 
+                 -@
+                .##@
+               .####@
+               @#####@
+             . *######@
+            .##@o@#####@
+           /############@
+          /##############@
+         @######@**%######@
+        @######`     %#####o
+       @######@       ######%               
+     -@#######h       ######@.`
+    /#####h**``       `**%@####@
+   @H@*`                    `*%#@
+  *`                            `*
+
+EOF
+tput sgr0
+echo -e "${BBLACK} My Personal ${RESET}${PURPLE}Arclinux${RESET}${BBLACK} Installer${RESET}"
+echo -e "${BBLACK} By Stenio Silveira${RESET}"
+echo -e "${BGREEN} https://github.com/stenioas/myarch${RESET}"
 }
 
 # ----------------------------------------------------------------------#
@@ -1043,30 +1069,10 @@ _start_screen() {
     usage
     exit 1
 }
+_check_connection
 clear
 setfont
 timedatectl set-ntp true
-tput bold; tput setaf 2
-cat <<"EOF"
-
-                 -@
-                .##@
-               .####@                              _     _ _                  
-               @#####@              /\            | |   | (_)                 
-             . *######@            /  \   _ __ ___| |__ | |_ _ __  _   ___  __
-            .##@o@#####@          / /\ \ | '__/ __| '_ \| | | '_ \| | | \ \/ /
-           /############@        / ____ \| | | (__| | | | | | | | | |_| |>  < 
-          /##############@      /_/    \_\_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\
-         @######@**%######@
-        @######`     %#####o            My Personal Arclinux Installer
-       @######@       ######%               By Stenio Silveira
-     -@#######h       ######@.`       https://github.com/stenioas/myarch
-    /#####h**``       `**%@####@
-   @H@*`                    `*%#@
-  *`                            `*
-
-EOF
-tput sgr0
 
 while [[ "$1" ]]; do
   read -e -sn 1 -p "${BWHITE}  Press any key to start!${RESET}"
