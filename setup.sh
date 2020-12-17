@@ -164,20 +164,20 @@ _setup_user(){
 _initial_info() {
   _print_title_alert "IMPORTANT"
   cat <<EOF
-${CYAN}
-  * This script supports UEFI only.
-  * This script will install GRUB as default bootloader.
-  * This script, for now, only installs the lts kernel.
-  * This script will only consider two partitions, ESP and root.
-  * This script will format the root partition in btrfs format.
-  * The ESP partition can be formatted if the user wants to.
-  * This script does not support swap.
-  * This script will create three subvolumes:
-      @ for ${RESET}${BCYAN}/${RESET}
-      ${CYAN}@home for ${RESET}${BCYAN/home${RESET}
-      ${CYAN}@.snapshots for ${RESET}${BCYAN}/.snapshots${RESET}
-  ${CYAN}* This script sets zoneinfo as America/Fortaleza.
-  * This script sets hwclock as UTC.${RESET}
+
+${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
+${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
+${CYAN}  * This script, for now, only installs the ${RESET}${BYELLOW}LTS KERNEL.${RESET}
+${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP and root.${RESET}
+${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}btrfs format.${RESET}
+${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
+${CYAN}  * This script does not support ${BYELLOW}SWAP${RESET}.
+${CYAN}  * This script will create three subvolumes:${RESET}
+${CYAN}      @ for /${RESET}
+${CYAN}      @home for /home${RESET}
+${CYAN}      @.snapshots for /.snapshots${RESET}
+${CYAN}  * This script sets zoneinfo as America/Fortaleza.${RESET}
+${CYAN}  * This script sets hwclock as UTC.${RESET}
   
   ${BYELLOW}* This script is not yet complete!${RESET}
   
@@ -899,7 +899,7 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[      ]${RESET}${BCYAN} $1${RESET}${BYELLOW} $2${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${PURPLE} $1${RESET}${WHITE} $2${RESET}"
 }
 
 _print_item() {
@@ -919,7 +919,7 @@ _print_error() {
 
 _print_done() {
   echo -ne "\n${BBLACK}>${RESET}${BGREEN} DONE  ${RESET}"
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 6 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
