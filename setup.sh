@@ -431,7 +431,7 @@ _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
   _print_subtitle "Type root password:"
-  echo -ne "${BBLACK}"
+  echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
@@ -850,10 +850,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}█▓▒░${RESET}${BGREEN}   $1   ${RESET}${BBLACK}░▒▓█${RESET}"
-  T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK}  ${APP_TITLE}${RESET}"
+  T_LEFT="${BBLACK}█▓▒░║${RESET}${BGREEN}   $1    ${RESET}${BBLACK}║░▒▓█${RESET}"
+  T_RIGHT="${BBLACK}█▓▒░║${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 26 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_bblack
 }
@@ -863,10 +863,10 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}   $1   ${RESET}${RED}░▒▓█${RESET}"
-  T_RIGHT="${RED}█▓▒░${RESET}${BBLACK}  ${APP_TITLE}${RESET}"
+  T_LEFT="${RED}█▓▒░║${RESET}${BWHITE}   $1    ${RESET}${RED}║░▒▓█${RESET}"
+  T_RIGHT="${RED}█▓▒░║${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 26 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_red
 }
@@ -902,31 +902,31 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[       ]${RESET}${BCYAN} $1${RESET}${YELLOW} $2${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${BCYAN} $1${RESET}${YELLOW} $2${RESET}"
 }
 
 _print_item() {
   COLS_VAR=${#1}
-  echo -ne "${BBLACK}[       ]${RESET}${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
-  tput cub $(( COLS_VAR + 7 ))
-  echo -e "${BGREEN}OK${RESET}"
+  tput cub $(( COLS_VAR + 6 ))
+  echo -e "${BGREEN}OK!${RESET}"
 }
 
 _print_error() {
-  tput cub $(( COLS_VAR + 7 ))
-  echo -e "${BRED}ER${RESET}"
+  tput cub $(( COLS_VAR + 6 ))
+  echo -e "${BRED}FAIL!${RESET}"
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}[${RESET}${BGREEN} DONE! ${RESET}${BBLACK}]${RESET}"
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 8 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BBLACK}[${RESET}${BGREEN} DONE ${RESET}${BBLACK}]${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
-  echo -e "\n${BBLACK}[${RESET}${BGREEN} Bye!! ${RESET}${BBLACK}]${RESET}\n"
+  echo -e "\n${BBLACK}[${RESET}${BGREEN} Bye! ${RESET}${BBLACK}]${RESET}\n"
 }
 
 _pause_function() {
