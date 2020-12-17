@@ -855,7 +855,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}█▓▒░${RESET}${BGREEN}  $1 ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_LEFT="${BBLACK}█▓▒░${RESET}${BGREEN}  $1  ${RESET}${BBLACK}░▒▓█${RESET}"
   T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
@@ -867,7 +867,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}  $1 ${RESET}${RED}░▒▓█${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}  $1  ${RESET}${RED}░▒▓█${RESET}"
   T_RIGHT="${RED}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
@@ -904,7 +904,7 @@ _print_danger() {
 }
 
 _print_action() {
-  COLS_VAR=$(( ${#1} + ${#2} ))
+  COLS_VAR=$(( ${#1} + ${#2} + 1 ))
   echo -ne "${BBLACK}[    ]${RESET}${BBLACK} $1${RESET}${YELLOW} $2${RESET}"
 }
 
@@ -920,7 +920,7 @@ _print_ok() {
 
 _print_error() {
   tput cub $(( COLS_VAR + 5 ))
-  echo -e "${BRED}ERR${RESET}"
+  echo -e "${BRED}ER${RESET}"
 }
 
 _print_done() {
@@ -979,7 +979,6 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        tput cub $(( COLS_VAR + 3 ))
         _print_error
       fi
     else
@@ -1005,8 +1004,7 @@ _pacstrap_install() { # install pacstrap package
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      tput cub $(( COLS_VAR + 3 ))
-      echo -e "${BRED}!${RESET}"
+      _print_error
     fi
   done
 }
