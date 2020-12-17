@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BGREEN}→ ${RESET}"
+      PROMPT1="${BGREEN}> ${RESET}"
       PS2="  "
 
 # ----------------------------------------------------------------------#
@@ -165,23 +165,23 @@ _initial_info() {
   _print_title_alert "IMPORTANT"
   cat <<EOF
 
-* This script supports UEFI only.
-* This script will install GRUB as default bootloader.
-* This script, for now, only installs the lts kernel.
-* This script will only consider two partitions, ESP and root.
-* This script will format the root partition in btrfs format.
-* The ESP partition can be formatted if the user wants to.
-* This script does not support swap.
-* This script will create three subvolumes:
-    @ for ${BGREEN}/${RESET}
-    @home for ${BGREEN}/home${RESET}
-    @.snapshots for ${BGREEN}/.snapshots${RESET}
-* This script sets zoneinfo as America/Fortaleza.
-* This script sets hwclock as UTC.
-
-${BYELLOW}* This script is not yet complete!${RESET}
-
-${BWHITE}* Btw, thank's for your time!${RESET}
+  * This script supports UEFI only.
+  * This script will install GRUB as default bootloader.
+  * This script, for now, only installs the lts kernel.
+  * This script will only consider two partitions, ESP and root.
+  * This script will format the root partition in btrfs format.
+  * The ESP partition can be formatted if the user wants to.
+  * This script does not support swap.
+  * This script will create three subvolumes:
+      @ for ${BGREEN}/${RESET}
+      @home for ${BGREEN}/home${RESET}
+      @.snapshots for ${BGREEN}/.snapshots${RESET}
+  * This script sets zoneinfo as America/Fortaleza.
+  * This script sets hwclock as UTC.
+  
+  ${BYELLOW}* This script is not yet complete!${RESET}
+  
+  ${BWHITE}* Btw, thank's for your time!${RESET}
 EOF
   _print_done
   _pause_function
@@ -311,7 +311,7 @@ _format_partitions() {
       mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
-    _print_action "Mount" "${EFI_PARTITION} partition in ${YELLOW}${EFI_MOUNTPOINT}${RESET}"
+    _print_action "Mount" "${EFI_PARTITION}"
     mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
@@ -440,7 +440,7 @@ _root_passwd() {
     _print_warning "The password does not match!"
     tput cuu 1
     _print_subtitle "Type root password:"
-    echo -ne "${BBLACK}"
+    echo -ne "${CYAN}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
     echo -ne "${RESET}"
   done
@@ -454,19 +454,18 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    echo
-    _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
+    _print_warning "\nYOU MUST BE TYPE A GRUB NAME ENTRY!"
     _print_entry "Type a grub name entry:"
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Installing Packages..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing GRUB..."
-  echo -ne "${BBLACK}"
+  echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
   _print_subtitle "Generating grub.cfg..."
-  echo -ne "${BBLACK}"
+  echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
   _print_done
@@ -851,10 +850,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}█▓▒░${RESET}${BGREEN}  $1  ${RESET}${BBLACK}░▒▓█${RESET}"
-  T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
+  T_LEFT="${BBLACK}█▓▒░${RESET}${BGREEN}   $1   ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK}  ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_bblack
 }
@@ -864,10 +863,10 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}  $1  ${RESET}${RED}░▒▓█${RESET}"
-  T_RIGHT="${RED}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}   $1   ${RESET}${RED}░▒▓█${RESET}"
+  T_RIGHT="${RED}█▓▒░${RESET}${BBLACK}  ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_red
 }
@@ -877,8 +876,8 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  echo -e "${BGREEN}$1${RESET}"
-  printf "%s" "${BGREEN}→ ${RESET}"
+  echo -e "${PURPLE}$1${RESET}"
+  printf "%s" "${BGREEN}> ${RESET}"
 }
 
 _print_info() {
@@ -903,31 +902,31 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[    ]${RESET}${BCYAN} $1${RESET}${YELLOW} $2${RESET}"
+  echo -ne "${BBLACK}[       ]${RESET}${BCYAN} $1${RESET}${YELLOW} $2${RESET}"
 }
 
 _print_item() {
   COLS_VAR=${#1}
-  echo -ne "${BBLACK}[    ]${RESET}${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}[       ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
-  tput cub $(( COLS_VAR + 5 ))
+  tput cub $(( COLS_VAR + 7 ))
   echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_error() {
-  tput cub $(( COLS_VAR + 5 ))
+  tput cub $(( COLS_VAR + 7 ))
   echo -e "${BRED}ER${RESET}"
 }
 
 _print_done() {
-  echo -ne "\n${BGREEN} DONE ${RESET}"
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 5 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BBLACK}[${RESET}${BGREEN} DONE! ${RESET}${BBLACK}]${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 8 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
-  echo -e "\n${BGREEN}Bye!${RESET}\n"
+  echo -e "\n${BBLACK}[${RESET}${BGREEN} Bye!! ${RESET}${BBLACK}]${RESET}\n"
 }
 
 _pause_function() {
@@ -944,7 +943,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BRED}$1${RESET}"
+  printf "%s" "${PURPLE}$1${RESET}"
   read -r OPTION
 }
 
@@ -1049,6 +1048,7 @@ EOF
 }
 
 # ----------------------------------------------------------------------#
+
 
 clear
 setfont
