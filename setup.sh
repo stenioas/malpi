@@ -198,7 +198,6 @@ ${CYAN}  * This script sets hwclock as UTC.${RESET}
 ${BYELLOW}  * This script is not yet complete!${RESET}
   
 ${BWHITE}  * Btw, thank's for your time!${RESET}
-
 EOF
   echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
   read -e -sn 1 -p "${BRED} Press any key to continue...${RESET}"
