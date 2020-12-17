@@ -273,6 +273,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
+    echo
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -307,8 +308,9 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
-      _read_input_text "Confirm format EFI partition? [y/N]: "
+      _read_input_text "${BYELLOW}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
+        echo
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
       fi
@@ -397,13 +399,13 @@ _set_localization() {
 
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
-  _print_entry "Type a hostname:"
+  _print_entry "Type a hostname: "
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
     echo
     _print_warning "You must be type a hostname!"
-    _print_entry "Type a hostname:"
+    _print_entry "Type a hostname: "
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
@@ -452,13 +454,13 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_entry "Type a grub name entry:"
+  _print_entry "Type a grub name entry: "
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
     echo
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
-    _print_entry "Type a grub name entry:"
+    _print_entry "Type a grub name entry: "
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Installing Packages..."
@@ -476,7 +478,6 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  echo
   _read_input_text "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
@@ -502,12 +503,12 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "NEW USER"
-  _print_entry "Type your username:"
+  _print_entry "Type your username: "
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     _print_warning "You must be type a username!"
-    _print_entry "Type your username:"
+    _print_entry "Type your username: "
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
@@ -860,12 +861,14 @@ _print_title_alert() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BWHITE}$1${RESET}\n"
+  COLS_SUBTITLE=${#1}
+  echo -e "\n${BWHITE}$1${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_entry() {
   echo
-  printf "%s" "${PURPLE}$1${RESET}"
+  printf "%s" "${BWHITE}$1${RESET}"
 }
 
 _print_info() {
@@ -925,7 +928,7 @@ _invalid_option() {
 
 _read_input_text() {
   echo
-  printf "%s" "${PURPLE} $1${RESET}"
+  printf "%s" "${PURPLE}$1${RESET}"
   read -r OPTION
 }
 
