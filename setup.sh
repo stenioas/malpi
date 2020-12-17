@@ -212,9 +212,7 @@ _rank_mirrors() {
   echo
   _read_input_text "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    tput sc
     nano /etc/pacman.d/mirrorlist
-    tput rc
     _print_done
     _pause_function
   else
@@ -238,9 +236,7 @@ _select_disk() {
   INSTALL_DISK=${DEVICE}
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    tput sc
     cfdisk ${INSTALL_DISK}
-    tput rc
     _print_done
     _pause_function
   else
@@ -288,12 +284,12 @@ _format_partitions() {
     _print_action "Create subvolume" "@.snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
-    _print_action "Mount" "@ in ${YELLOW}${ROOT_MOUNTPOINT}${RESET}"
+    _print_action "Mount" "@"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
-    _print_action "Mount" "@home subvolume in ${YELLOW}${ROOT_MOUNTPOINT}/home${RESET}"
+    _print_action "Mount" "@home"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_ok
-    _print_action "Mount" "@.snapshots subvolume in ${YELLOW}${ROOT_MOUNTPOINT}/.snapshots${RESET}"
+    _print_action "Mount" "@.snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
   }
@@ -860,6 +856,7 @@ _print_title() {
   echo -ne "${T_LEFT}"
   echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
+  _print_dline_bblack
 }
 
 _print_title_alert() {
@@ -872,6 +869,7 @@ _print_title_alert() {
   echo -ne "${T_LEFT}"
   echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
+  _print_dline_red
 }
 
 _print_subtitle() {
@@ -905,7 +903,7 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[    ]${RESET}${BBLACK} $1${RESET}${YELLOW} $2${RESET}"
+  echo -ne "${BBLACK}[    ]${RESET}${BCYAN} $1${RESET}${YELLOW} $2${RESET}"
 }
 
 _print_item() {
