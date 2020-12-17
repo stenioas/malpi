@@ -1060,39 +1060,21 @@ timedatectl set-ntp true
 tput bold; tput setaf 2
 cat <<"EOF"
 
-
-
-
-
-
-
-
-
-
-
-
-                                                              -`
-                                                             .o+`
-                                                            `ooo/
-                                                           `+oooo:
-                                                          `+oooooo:
-                                                          -+oooooo+:
-                                                        `/:-:++oooo+:
-                                                       `/++++/+++++++:
-                                                      `/++++++++++++++:
-                                                     `/+++ooooooooooooo/`
-                                                    ./ooosssso++osssssso+`
-                                                   .oossssso-````/ossssss+`
-                                                  -osssssso.      :ssssssso.
-                                                 :osssssss/        osssso+++.
-                                                /ossssssss/        +ssssooo/-
-                                              `/ossssso+/:-        -:/+osssso+-
-                                             `+sso+:-`                 `.-/+oso:
-                                            `++:.                           `-/+/
-                                            .`                                 `
-                                                My Personal Arclinux Installer
-                                                     By Stenio Silveira
-                                               https://github.com/stenioas/myarch
+                 -@
+                .##@
+               .####@                              _     _ _                  
+               @#####@              /\            | |   | (_)                 
+             . *######@            /  \   _ __ ___| |__ | |_ _ __  _   ___  __
+            .##@o@#####@          / /\ \ | '__/ __| '_ \| | | '_ \| | | \ \/ /
+           /############@        / ____ \| | | (__| | | | | | | | | |_| |>  < 
+          /##############@      /_/    \_\_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\
+         @######@**%######@
+        @######`     %#####o            My Personal Arclinux Installer
+       @######@       ######%               By Stenio Silveira
+     -@#######h       ######@.`       https://github.com/stenioas/myarch
+    /#####h**``       `**%@####@
+   @H@*`                    `*%#@
+  *`                            `*
 
 EOF
 tput sgr0
