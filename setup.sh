@@ -183,24 +183,24 @@ _initial_info() {
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
 ${CYAN}  * This script installs the following kernels and their respective headers:${RESET}
-${BYELLOW}      linux${RESET}
-${BYELLOW}      linux-lts${RESET}
+${CYAN}      - ${RESET}${BYELLOW}linux${RESET}
+${CYAN}      - ${RESET}${BYELLOW}linux-lts${RESET}
 ${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
 ${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
 ${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
 ${CYAN}  * This script does not support ${BYELLOW}SWAP${RESET}.
 ${CYAN}  * This script will create three subvolumes:${RESET}
-${CYAN}      @ for /${RESET}
-${CYAN}      @home for /home${RESET}
-${CYAN}      @.snapshots for /.snapshots${RESET}
+${CYAN}      - ${BYELLOW}@${RESET}${CYAN} for /${RESET}
+${CYAN}      - ${BYELLOW}@home${RESET}${CYAN} for /home${RESET}
+${CYAN}      - ${BYELLOW}@.snapshots${RESET}${CYAN} for /.snapshots${RESET}
 ${CYAN}  * This script sets zoneinfo as America/Fortaleza.${RESET}
 ${CYAN}  * This script sets hwclock as UTC.${RESET}
   
-  ${BYELLOW}* This script is not yet complete!${RESET}
+${BYELLOW}  * This script is not yet complete!${RESET}
   
-  ${BWHITE}* Btw, thank's for your time!${RESET}
+${BWHITE}  * Btw, thank's for your time!${RESET}
+
 EOF
-  echo
   _print_line_red
   _pause_function
 }
