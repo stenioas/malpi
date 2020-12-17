@@ -307,20 +307,25 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    _print_danger "All data on the partition will be LOST!"
-    tput cuu 1
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _read_input_text "Confirm format EFI partition? [y/N]: "
+      _print_danger "All data on the partition will be LOST!"
+      tput cuu 1
+      _read_input_text "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         _print_subtitle "Setting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
+        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
+        _print_action "Mount" "${EFI_PARTITION}"
+        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
+      else
+        _print_subtitle "Setting partition..."
+        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
+        _print_action "Mount" "${EFI_PARTITION}"
+        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
     fi
-    mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
-    _print_action "Mount" "${EFI_PARTITION}"
-    mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
 
@@ -486,11 +491,11 @@ _finish_install() {
     if ! _is_package_installed "wget"; then
       _package_install "wget"
     fi
+    _print_subtitle "Downloading..."
     _print_action "Download" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  echo
   _read_input_text "Reboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -866,13 +871,13 @@ _print_title_alert() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   echo -e "\n${BWHITE}$1${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
   echo -e "\n${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE + 19 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 19 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_entry() {
@@ -882,7 +887,7 @@ _print_entry() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}INFO:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
