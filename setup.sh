@@ -454,7 +454,8 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    _print_warning "\nYOU MUST BE TYPE A GRUB NAME ENTRY!"
+    echo
+    _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _print_entry "Type a grub name entry:"
     read -r NEW_GRUB_NAME
   done
@@ -850,12 +851,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}║█▓▒░${RESET}${BGREEN}    $1    ${RESET}${BBLACK}░▒▓█║${RESET}"
-  T_RIGHT="${BBLACK}║█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
+  T_LEFT="${BBLACK}║█▓▒░${RESET}${BGREEN}    $1    ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 27 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 25 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  _print_dline_bblack
+  echo -ne "${BBLACK}╚${RESET}"; echo -e "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
@@ -863,12 +864,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}║█▓▒░${RESET}${BWHITE}    $1    ${RESET}${RED}░▒▓█║${RESET}"
-  T_RIGHT="${RED}║█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
+  T_LEFT="${RED}║█▓▒░${RESET}${BWHITE}    $1    ${RESET}${RED}░▒▓█${RESET}"
+  T_RIGHT="${RED}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 27 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 25 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  _print_dline_red
+  echo -ne "${RED}╚${RESET}"; echo -e "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_subtitle() {
@@ -1021,23 +1022,22 @@ usage: ${0##*/} [flags]
 arch-setup 0.1
 
 ${BLACK}░▒▓██████▓▒░${RESET}
-${RED}░▒▓██████▓▒░${RESET}
-${GREEN}░▒▓██████▓▒░${RESET}
-${YELLOW}░▒▓██████▓▒░${RESET}
-${BLUE}░▒▓██████▓▒░${RESET}
-${PURPLE}░▒▓██████▓▒░${RESET}
+${BBLACK}░▒▓██████▓▒░${RESET}
 ${CYAN}░▒▓██████▓▒░${RESET}
 ${WHITE}░▒▓██████▓▒░${RESET}
-${BBLACK}══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${RESET}
-${BBLACK}█▓▒░    MOUNT POINTS    ░▒▓███████████████████████████████████████████████████████████████████████▓▒░ myarch-setup 0.1${RESET}
-${BBLACK}───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────${RESET}
-${BRED}░▒▓██████▓▒░${RESET}
-${BGREEN}░▒▓██████▓▒░${RESET}
-${BYELLOW}░▒▓██████▓▒░${RESET}
-${BBLUE}░▒▓██████▓▒░${RESET}
-${BPURPLE}░▒▓██████▓▒░${RESET}
 ${BCYAN}░▒▓██████▓▒░${RESET}
 ${BWHITE}░▒▓██████▓▒░${RESET}
+
+${YELLOW}░▒▓██████▓▒░${RESET}
+${RED}░▒▓██████▓▒░${RESET}
+${BRED}░▒▓██████▓▒░${RESET}
+${GREEN}░▒▓██████▓▒░${RESET}
+${BGREEN}░▒▓██████▓▒░${RESET}
+${BYELLOW}░▒▓██████▓▒░${RESET}
+${BLUE}░▒▓██████▓▒░${RESET}
+${BBLUE}░▒▓██████▓▒░${RESET}
+${PURPLE}░▒▓██████▓▒░${RESET}
+${BPURPLE}░▒▓██████▓▒░${RESET}
 
 EOF
 }
