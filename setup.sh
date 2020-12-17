@@ -851,10 +851,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}║█▓▒░${RESET}${BWHITE}    $1    ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_LEFT="${BBLACK}█▓▒░${RESET}${BWHITE}    $1    ${RESET}${BBLACK}░▒▓█${RESET}"
   T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 25 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 24 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_bblack
 }
@@ -864,31 +864,26 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}║█▓▒░${RESET}${BWHITE}    $1    ${RESET}${RED}░▒▓█${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}    $1    ${RESET}${RED}░▒▓█${RESET}"
   T_RIGHT="${RED}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 25 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 24 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_red
 }
 
 _print_subtitle() {
-  echo -e "\n${BGREEN}▲${RESET}${BWHITE} $1${RESET}"
+  echo -e "\n${BGREEN}→${RESET}${BWHITE} $1${RESET}"
 }
 
 _print_entry() {
-  echo -e "${BWHITE}$1${RESET}"
+  echo -e "${BGREEN}→${RESET}${BWHITE} $1${RESET}"
   printf "%s" "${BGREEN}> ${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_prompt_info() {
-  T_COLS=$(tput cols)
-  echo -e "${BGREEN}>${RESET}${BLUE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -944,14 +939,12 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BWHITE}$1${RESET}"
-  ${BYELLOW}
+  printf "%s" "${BGREEN}→${RESET}${BRED} $1${RESET}"
   read -r OPTION
-  ${RESET}
 }
 
 _umount_partitions() {
-  _print_prompt_info "UMOUNTING PARTITIONS"
+  _print_info "UMOUNTING PARTITIONS"
   umount -R ${ROOT_MOUNTPOINT}
 }
 
