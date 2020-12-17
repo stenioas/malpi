@@ -855,10 +855,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${PURPLE}░▒▓█${RESET}${BG_PURPLE}${BGREEN}  $1  ${RESET}${PURPLE}█▓▒░${RESET}"
-  T_RIGHT="${BBLACK}${APP_TITLE}${RESET}"
+  T_LEFT="${BBLACK}█▓▒░${RESET}${BGREEN}  $1 ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 11 )) | tr -d [:digit:]`"
+  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
 }
 
@@ -867,8 +867,8 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}¡ $1 !${RESET}${RED}░▒▓█${RESET}"
-  T_RIGHT="${BRED}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
+  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}  $1 ${RESET}${RED}░▒▓█${RESET}"
+  T_RIGHT="${RED}█▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 16 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
