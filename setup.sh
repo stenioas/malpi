@@ -310,7 +310,7 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
-      _read_input_text "${BRED}Confirm format EFI partition? [y/N]: "
+      _read_input_text "Confirm format EFI partition? [y/N]: "
       if [[ $OPTION == y || $OPTION == Y ]]; then
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
@@ -906,7 +906,7 @@ _print_warning() {
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER: ${RESET}${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER: ${RESET}${BBLACK}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
