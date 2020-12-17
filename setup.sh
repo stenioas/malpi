@@ -257,9 +257,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo
     _print_danger "All data on the partition will be LOST!"
-    tput cuu 1
     _print_select_partition "ROOT"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -296,6 +294,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
+    echo
     _print_select_partition "EFI"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -312,6 +311,7 @@ _format_partitions() {
       tput cuu 1
       _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
+        echo
         _print_subtitle "Setting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
@@ -319,12 +319,14 @@ _format_partitions() {
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       else
+        echo
         _print_subtitle "Setting partition..."
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
     else
+      echo
       _print_subtitle "Setting partition..."
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
       _print_action "Mount" "${EFI_PARTITION}"
@@ -455,7 +457,6 @@ _root_passwd() {
     _print_title "ROOT PASSWORD"
     echo
     _print_warning "The password does not match!"
-    tput cuu 1
     _print_subtitle "Type root password:"
     echo -ne "${CYAN}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
