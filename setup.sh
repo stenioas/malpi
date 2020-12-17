@@ -850,10 +850,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}█▓▒░║${RESET}${BGREEN}   $1    ${RESET}${BBLACK}║░▒▓█${RESET}"
-  T_RIGHT="${BBLACK}█▓▒░║${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
+  T_LEFT="${BBLACK}║█▓▒░${RESET}${BGREEN}    $1    ${RESET}${BBLACK}░▒▓█║${RESET}"
+  T_RIGHT="${BBLACK}║█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 26 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 27 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_bblack
 }
@@ -863,10 +863,10 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░║${RESET}${BWHITE}   $1    ${RESET}${RED}║░▒▓█${RESET}"
-  T_RIGHT="${RED}█▓▒░║${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
+  T_LEFT="${RED}║█▓▒░${RESET}${BWHITE}    $1    ${RESET}${RED}░▒▓█║${RESET}"
+  T_RIGHT="${RED}║█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 26 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 27 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_red
 }
@@ -912,12 +912,12 @@ _print_item() {
 
 _print_ok() {
   tput cub $(( COLS_VAR + 6 ))
-  echo -e "${BGREEN}OK!${RESET}"
+  echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_error() {
   tput cub $(( COLS_VAR + 6 ))
-  echo -e "${BRED}FAIL!${RESET}"
+  echo -e "${BRED}FAIL${RESET}"
 }
 
 _print_done() {
@@ -943,7 +943,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${PURPLE}$1${RESET}"
+  printf "%s" "${BYELLOW}$1${RESET}"
   read -r OPTION
 }
 
