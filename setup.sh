@@ -183,8 +183,8 @@ _initial_info() {
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
 ${CYAN}  * This script installs the following kernels and their respective headers:${RESET}
-${CYAN}      - ${RESET}${BYELLOW}linux${RESET}
-${CYAN}      - ${RESET}${BYELLOW}linux-lts${RESET}
+${CYAN}      - ${RESET}${BYELLOW}LINUX${RESET}
+${CYAN}      - ${RESET}${BYELLOW}LINUX-LTS${RESET}
 ${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
 ${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
 ${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
