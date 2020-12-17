@@ -183,8 +183,8 @@ _initial_info() {
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
 ${CYAN}  * This script, for now, only installs the ${RESET}${BYELLOW}LTS KERNEL.${RESET}
-${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP and root.${RESET}
-${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}btrfs format.${RESET}
+${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
+${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
 ${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
 ${CYAN}  * This script does not support ${BYELLOW}SWAP${RESET}.
 ${CYAN}  * This script will create three subvolumes:${RESET}
@@ -216,9 +216,6 @@ _rank_mirrors() {
   _read_input_text "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
-    _print_title "MIRRORS"
-    _print_line_bblack
-    _pause_function
   else
     _print_line_bblack
     _pause_function
@@ -241,9 +238,6 @@ _select_disk() {
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
-    _print_title "PARTITION THE DISKS"
-    _print_line_bblack
-    _pause_function
   else
     _print_line_bblack
     _pause_function
@@ -370,9 +364,6 @@ _fstab_generate() {
   _read_input_text "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
-    _print_title "FSTAB"
-    _print_line_bblack
-    _pause_function
   else
     _print_line_bblack
     _pause_function
