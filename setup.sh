@@ -258,8 +258,9 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo
     _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
+    _print_select_partition "ROOT"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -273,7 +274,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    echo
+    _print_subtitle "Setting partition..."
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -308,9 +309,9 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
-      _read_input_text "${BYELLOW}Confirm format EFI partition? [y/N]: ${RESET}"
+      _read_input_text "Confirm format EFI partition? [y/N]: "
       if [[ $OPTION == y || $OPTION == Y ]]; then
-        echo
+        _print_subtitle "Setting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
       fi
@@ -329,7 +330,7 @@ _format_partitions() {
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
       echo
-      _print_info "${BGREEN}Partition successfully mounted!${RESET}"
+      _print_info "Partition successfully mounted!"
       _disable_partition "$1"
     else
       echo
@@ -863,7 +864,13 @@ _print_title_alert() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   echo -e "\n${BWHITE}$1${RESET}"
-  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE + 1 )) | tr -d [:digit:]`${RESET}"
+}
+
+_print_select_partition() {
+  COLS_SUBTITLE=${#1}
+  echo -e "\n${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( COLS_SUBTITLE + 18 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_entry() {
@@ -913,7 +920,6 @@ _print_bye() {
 }
 
 _pause_function() {
-  echo
   _print_line_bblack
   read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
 }
