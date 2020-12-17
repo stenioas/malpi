@@ -183,7 +183,8 @@ ${CYAN}  * This script sets hwclock as UTC.${RESET}
   
   ${BWHITE}* Btw, thank's for your time!${RESET}
 EOF
-  _print_done
+  echo
+  _print_line_red
   _pause_function
 }
 
@@ -237,6 +238,7 @@ _select_disk() {
   _read_input_text "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
+    _print_title "PARTITION THE DISKS"
     _print_done
     _pause_function
   else
@@ -883,7 +885,7 @@ _print_title_alert() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BWHITE} $1${RESET}"
+  echo -e "\n${BWHITE}$1${RESET}"
 }
 
 _print_entry() {
@@ -927,8 +929,8 @@ _print_error() {
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}>${RESET}${BGREEN} DONE  ${RESET}"
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BGREEN}DONE  ${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 5 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
