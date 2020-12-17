@@ -259,7 +259,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "\n${BBLACK}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -294,7 +294,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "\n${BBLACK}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -899,7 +899,7 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[      ]${RESET}${PURPLE} $1${RESET}${WHITE} $2${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${BBLACK} $1${RESET}${WHITE} $2${RESET}"
 }
 
 _print_item() {
@@ -940,7 +940,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLACK}>${RESET}${BRED} $1${RESET}"
+  printf "%s" "${BBLACK}>${RESET}${GREEN} $1${RESET}"
   read -r OPTION
 }
 
