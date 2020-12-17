@@ -89,8 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BBLACK}→ ${RESET}"
-      PS2="  "
+      PROMPT1="${BGREEN}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -181,7 +180,7 @@ _initial_info() {
   cat <<EOF
 
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
-${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
+${CYAN}  * This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
 ${CYAN}  * This script installs the following kernels and their respective headers:${RESET}
 ${CYAN}      - ${RESET}${BYELLOW}linux${RESET}
 ${CYAN}      - ${RESET}${BYELLOW}linux-lts${RESET}
@@ -193,7 +192,7 @@ ${CYAN}  * This script will create three subvolumes:${RESET}
 ${CYAN}      - ${BYELLOW}@${RESET}${CYAN} for /${RESET}
 ${CYAN}      - ${BYELLOW}@home${RESET}${CYAN} for /home${RESET}
 ${CYAN}      - ${BYELLOW}@.snapshots${RESET}${CYAN} for /.snapshots${RESET}
-${CYAN}  * This script sets zoneinfo as America/Fortaleza.${RESET}
+${CYAN}  * This script, for now, sets zoneinfo as America/Fortaleza.${RESET}
 ${CYAN}  * This script sets hwclock as UTC.${RESET}
   
 ${BYELLOW}  * This script is not yet complete!${RESET}
@@ -201,7 +200,7 @@ ${BYELLOW}  * This script is not yet complete!${RESET}
 ${BWHITE}  * Btw, thank's for your time!${RESET}
 
 EOF
-  echo -e "\n${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
   read -e -sn 1 -p "${BRED} Press any key to continue...${RESET}"
 }
 
@@ -328,7 +327,7 @@ _format_partitions() {
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
       echo
-      _print_info "Partition successfully mounted!"
+      _print_info "${BGREEN}Partition successfully mounted!${RESET}"
       _disable_partition "$1"
     else
       echo
@@ -861,17 +860,17 @@ _print_title_alert() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BWHITE}$1${RESET}"
+  echo -e "\n${BWHITE}$1${RESET}\n"
 }
 
 _print_entry() {
-  echo -e "\n${BWHITE}$1${RESET}"
-  printf "%s" "${BBLACK}→ ${RESET}"
+  echo
+  printf "%s" "${PURPLE}$1${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${GREEN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
@@ -925,7 +924,8 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLACK}→${RESET}${PURPLE} $1${RESET}"
+  echo
+  printf "%s" "${PURPLE} $1${RESET}"
   read -r OPTION
 }
 
