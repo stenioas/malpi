@@ -851,12 +851,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}║█▓▒░${RESET}${BGREEN}    $1    ${RESET}${BBLACK}░▒▓█${RESET}"
+  T_LEFT="${BBLACK}║█▓▒░${RESET}${BWHITE}    $1    ${RESET}${BBLACK}░▒▓█${RESET}"
   T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 25 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -ne "${BBLACK}╚${RESET}"; echo -e "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${RESET}"
+  _print_dline_bblack
 }
 
 _print_title_alert() {
@@ -869,15 +869,15 @@ _print_title_alert() {
   echo -ne "${T_LEFT}"
   echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 25 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -ne "${RED}╚${RESET}"; echo -e "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${RESET}"
+  _print_dline_red
 }
 
 _print_subtitle() {
-  echo -e "\n${BWHITE}$1${RESET}"
+  echo -e "\n${BGREEN}▲${RESET}${BWHITE} $1${RESET}"
 }
 
 _print_entry() {
-  echo -e "${PURPLE}$1${RESET}"
+  echo -e "${BWHITE}$1${RESET}"
   printf "%s" "${BGREEN}> ${RESET}"
 }
 
@@ -903,7 +903,7 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}[      ]${RESET}${BCYAN} $1${RESET}${YELLOW} $2${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${BCYAN} $1${RESET}${BYELLOW} $2${RESET}"
 }
 
 _print_item() {
@@ -922,12 +922,12 @@ _print_error() {
 }
 
 _print_done() {
-  echo -ne "\n${BBLACK}[${RESET}${BGREEN} DONE ${RESET}${BBLACK}]${RESET}"
+  echo -ne "\n${BGREEN}  DONE  ${RESET}"
   echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 7 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_bye() {
-  echo -e "\n${BBLACK}[${RESET}${BGREEN} Bye! ${RESET}${BBLACK}]${RESET}\n"
+  echo -e "\n${BGREEN} Bye!${RESET}\n"
 }
 
 _pause_function() {
@@ -944,8 +944,10 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BYELLOW}$1${RESET}"
+  printf "%s" "${BWHITE}$1${RESET}"
+  ${BYELLOW}
   read -r OPTION
+  ${RESET}
 }
 
 _umount_partitions() {
