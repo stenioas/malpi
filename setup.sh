@@ -182,7 +182,7 @@ _initial_info() {
 
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
-${CYAN}  * This script, for now, only installs the ${RESET}${BYELLOW}LTS KERNEL.${RESET}
+${CYAN}  * This script installs the following kernels: ${RESET}${BYELLOW}linux${RESET}${CYAN} and${RESET}${BYELLOW}linux-lts.${RESET}
 ${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
 ${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
 ${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
@@ -308,7 +308,7 @@ _format_partitions() {
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
-      _read_input_text "${BYELLOW}Confirm format EFI partition? [y/N]: "
+      _read_input_text "${BRED}Confirm format EFI partition? [y/N]: "
       if [[ $OPTION == y || $OPTION == Y ]]; then
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
@@ -345,7 +345,7 @@ _install_base() {
   _print_title "BASE"
   _print_subtitle "Installing packages..."
   _pacstrap_install "base base-devel"
-  _pacstrap_install "linux-lts linux-lts-headers linux-firmware"
+  _pacstrap_install "linux linux-headers linux-lts linux-lts-headers linux-firmware"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
@@ -928,11 +928,12 @@ _print_error() {
 }
 
 _print_bye() {
-  echo -e "\n${BGREEN} Bye!${RESET}\n"
+  _print_line_bblack
+  echo -e "${BGREEN} Bye!${RESET}\n"
 }
 
 _pause_function() {
-  read -e -sn 1 -p "${BPURPLE} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
@@ -944,7 +945,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLACK}→${RESET}${GREEN} $1${RESET}"
+  printf "%s" "${BBLACK}→${RESET}${PURPLE} $1${RESET}"
   read -r OPTION
 }
 
