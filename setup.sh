@@ -217,8 +217,10 @@ _rank_mirrors() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
     _print_title "MIRRORS"
+    _print_line_bblack
     _pause_function
   else
+    _print_line_bblack
     _pause_function
   fi
 }
@@ -240,8 +242,10 @@ _select_disk() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
     _print_title "PARTITION THE DISKS"
+    _print_line_bblack
     _pause_function
   else
+    _print_line_bblack
     _pause_function
   fi
 }
@@ -339,6 +343,7 @@ _format_partitions() {
   }
   _format_root_partition
   _format_efi_partition
+  _print_line_bblack
   _pause_function
 }
 
@@ -353,6 +358,7 @@ _install_base() {
   _print_subtitle "Enabling services..."
   _print_item "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
+  _print_line_bblack
   _pause_function
 }
 
@@ -365,8 +371,10 @@ _fstab_generate() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
     _print_title "FSTAB"
+    _print_line_bblack
     _pause_function
   else
+    _print_line_bblack
     _pause_function
   fi
 }
@@ -385,6 +393,7 @@ _set_timezone_and_clock() {
   _print_item "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
+  _print_line_bblack
   _pause_function
 }
 
@@ -397,6 +406,7 @@ _set_localization() {
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
   _print_item "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
+  _print_line_bblack
   _pause_function  
 }
 
@@ -425,6 +435,7 @@ _set_network() {
 ::1 localhost.localdomain localhost
 127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
 EOF
+  _print_line_bblack
   _pause_function  
 }
 
@@ -432,6 +443,7 @@ _mkinitcpio_generate() {
   _print_title "INITRAMFS"
   echo
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
+  _print_line_bblack
   _pause_function
 }
 
@@ -452,6 +464,7 @@ _root_passwd() {
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
     echo -ne "${RESET}"
   done
+  _print_line_bblack
   _pause_function
 }
 
@@ -476,6 +489,7 @@ _grub_generate() {
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
+  _print_line_bblack
   _pause_function  
 }
 
@@ -527,6 +541,7 @@ _create_new_user() {
   else
     _print_info "User ${NEW_USER} already exists!"
   fi
+  _print_line_bblack
   _pause_function
 }
 
@@ -546,12 +561,14 @@ _enable_multilib(){
   fi
   _print_subtitle "Updating mirrors..."
   pacman -Syy
+  _print_line_bblack
   _pause_function
 }
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
   _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
+  _print_line_bblack
   _pause_function
 }
 
@@ -560,6 +577,7 @@ _install_xorg() {
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
+  _print_line_bblack
   _pause_function
 }
 
@@ -594,6 +612,7 @@ _install_vga() {
     _invalid_option
     exit 0
   fi
+  _print_line_bblack
   _pause_function
 }
 
@@ -607,6 +626,7 @@ _install_extra_pkgs() {
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
   _print_subtitle "Installing sound tools"
   _package_install "alsa-utils pulseaudio"
+  _print_line_bblack
   _pause_function
 }
 
@@ -624,11 +644,13 @@ _install_laptop_pkgs() {
   else
     -_print_info "Nothing to do!"
   fi
+  _print_line_bblack
   _pause_function
 }
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED"
+  _print_line_bblack
   _pause_function
   exit 0
 }
@@ -688,6 +710,7 @@ _install_desktop() {
     exit 0
   fi
   localectl set-x11-keymap br
+  _print_line_bblack
   _pause_function
 }
 
@@ -741,12 +764,14 @@ _install_display_manager() {
     _invalid_option
     exit 0
   fi
+  _print_line_bblack
   _pause_function
 }
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED"
   _print_info "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
+  _print_line_bblack
   _pause_function
   exit 0
 }
@@ -785,6 +810,7 @@ _install_apps() {
   else
     echo -e " ${BYELLOW}* Nothing to do!${RESET}"
   fi
+  _print_line_bblack
   _pause_function
 }
 
@@ -805,6 +831,7 @@ _install_pamac() {
   else
     echo -e " ${BYELLOW}* Nothing to do!${RESET}"
   fi
+  _print_line_bblack
   _pause_function
 }
 
@@ -914,8 +941,7 @@ _print_bye() {
 }
 
 _pause_function() {
-  echo
-  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BPURPLE} Press any key to continue...${RESET}"
 }
 
 _contains_element() {
