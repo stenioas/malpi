@@ -183,8 +183,8 @@ _initial_info() {
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
 ${CYAN}  * This script installs the following kernels and their respective headers:${RESET}
-${CYAN}      - ${RESET}${BYELLOW}LINUX${RESET}
-${CYAN}      - ${RESET}${BYELLOW}LINUX-LTS${RESET}
+${CYAN}      - ${RESET}${BYELLOW}linux${RESET}
+${CYAN}      - ${RESET}${BYELLOW}linux-lts${RESET}
 ${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
 ${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
 ${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
@@ -201,8 +201,8 @@ ${BYELLOW}  * This script is not yet complete!${RESET}
 ${BWHITE}  * Btw, thank's for your time!${RESET}
 
 EOF
-  _print_line_red
-  _pause_function
+  echo -e "\n${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  read -e -sn 1 -p "${BRED} Press any key to continue...${RESET}"
 }
 
 _rank_mirrors() {
@@ -219,7 +219,6 @@ _rank_mirrors() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
   else
-    _print_line_bblack
     _pause_function
   fi
 }
@@ -241,7 +240,6 @@ _select_disk() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   else
-    _print_line_bblack
     _pause_function
   fi
 }
@@ -339,7 +337,6 @@ _format_partitions() {
   }
   _format_root_partition
   _format_efi_partition
-  _print_line_bblack
   _pause_function
 }
 
@@ -354,7 +351,6 @@ _install_base() {
   _print_subtitle "Enabling services..."
   _print_item "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
-  _print_line_bblack
   _pause_function
 }
 
@@ -367,7 +363,6 @@ _fstab_generate() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   else
-    _print_line_bblack
     _pause_function
   fi
 }
@@ -386,7 +381,6 @@ _set_timezone_and_clock() {
   _print_item "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  _print_line_bblack
   _pause_function
 }
 
@@ -399,7 +393,6 @@ _set_localization() {
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
   _print_item "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
-  _print_line_bblack
   _pause_function  
 }
 
@@ -428,7 +421,6 @@ _set_network() {
 ::1 localhost.localdomain localhost
 127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
 EOF
-  _print_line_bblack
   _pause_function  
 }
 
@@ -436,7 +428,6 @@ _mkinitcpio_generate() {
   _print_title "INITRAMFS"
   echo
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
-  _print_line_bblack
   _pause_function
 }
 
@@ -457,7 +448,6 @@ _root_passwd() {
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
     echo -ne "${RESET}"
   done
-  _print_line_bblack
   _pause_function
 }
 
@@ -482,7 +472,6 @@ _grub_generate() {
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
-  _print_line_bblack
   _pause_function  
 }
 
@@ -514,19 +503,18 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "NEW USER"
-  _print_subtitle "Username"
-  _print_entry "\nType your username:"
+  _print_entry "Type your username:"
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     _print_warning "You must be type a username!"
-    _print_entry "\nType your username:"
+    _print_entry "Type your username:"
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     useradd -m -g users -G wheel ${NEW_USER}
-    _print_info "User ${NEW_USER} created."
+    _print_action "Create user" "${NEW_USER}"
     _print_subtitle "Type user password:"
     passwd ${NEW_USER}
     _print_info "Privileges added."
@@ -534,7 +522,6 @@ _create_new_user() {
   else
     _print_info "User ${NEW_USER} already exists!"
   fi
-  _print_line_bblack
   _pause_function
 }
 
@@ -554,14 +541,12 @@ _enable_multilib(){
   fi
   _print_subtitle "Updating mirrors..."
   pacman -Syy
-  _print_line_bblack
   _pause_function
 }
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
   _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
-  _print_line_bblack
   _pause_function
 }
 
@@ -570,7 +555,6 @@ _install_xorg() {
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
-  _print_line_bblack
   _pause_function
 }
 
@@ -605,7 +589,6 @@ _install_vga() {
     _invalid_option
     exit 0
   fi
-  _print_line_bblack
   _pause_function
 }
 
@@ -619,7 +602,6 @@ _install_extra_pkgs() {
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
   _print_subtitle "Installing sound tools"
   _package_install "alsa-utils pulseaudio"
-  _print_line_bblack
   _pause_function
 }
 
@@ -637,13 +619,11 @@ _install_laptop_pkgs() {
   else
     -_print_info "Nothing to do!"
   fi
-  _print_line_bblack
   _pause_function
 }
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED"
-  _print_line_bblack
   _pause_function
   exit 0
 }
@@ -703,7 +683,6 @@ _install_desktop() {
     exit 0
   fi
   localectl set-x11-keymap br
-  _print_line_bblack
   _pause_function
 }
 
@@ -757,14 +736,12 @@ _install_display_manager() {
     _invalid_option
     exit 0
   fi
-  _print_line_bblack
   _pause_function
 }
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED"
   _print_info "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
-  _print_line_bblack
   _pause_function
   exit 0
 }
@@ -803,7 +780,6 @@ _install_apps() {
   else
     echo -e " ${BYELLOW}* Nothing to do!${RESET}"
   fi
-  _print_line_bblack
   _pause_function
 }
 
@@ -824,7 +800,6 @@ _install_pamac() {
   else
     echo -e " ${BYELLOW}* Nothing to do!${RESET}"
   fi
-  _print_line_bblack
   _pause_function
 }
 
@@ -890,7 +865,7 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  echo -e "\n${BWHITE} $1${RESET}"
+  echo -e "\n${BWHITE}$1${RESET}"
   printf "%s" "${BBLACK}→ ${RESET}"
 }
 
@@ -901,12 +876,12 @@ _print_info() {
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING: ${RESET}${BWHITE}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING: ${RESET}${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER: ${RESET}${BBLACK}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER: ${RESET}${CYAN}$1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
@@ -930,11 +905,14 @@ _print_error() {
 }
 
 _print_bye() {
+  echo
   _print_line_bblack
   echo -e "${BGREEN} Bye!${RESET}\n"
 }
 
 _pause_function() {
+  echo
+  _print_line_bblack
   read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
 }
 
