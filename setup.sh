@@ -213,7 +213,7 @@ _rank_mirrors() {
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_item "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
-  _read_input_text "Edit your mirrorlist file? [y/N]: "
+  _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
   else
@@ -234,7 +234,7 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
-  _read_input_text "Edit disk partitions? [y/N]: "
+  _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   else
@@ -306,24 +306,29 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    _read_input_text "Format EFI partition? [y/N]: "
+    _read_input_option "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be LOST!"
       tput cuu 1
-      _read_input_text "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
+      _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         _print_subtitle "Setting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
-        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
+        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       else
         _print_subtitle "Setting partition..."
-        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
+        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
+    else
+      _print_subtitle "Setting partition..."
+      mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
+      _print_action "Mount" "${EFI_PARTITION}"
+      mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
     fi
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
@@ -367,7 +372,7 @@ _fstab_generate() {
   _print_subtitle "Generating fstab..."
   _print_item "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
-  _read_input_text "Edit your fstab file? [y/N]: "
+  _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   else
@@ -406,13 +411,13 @@ _set_localization() {
 
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
-  _print_entry "Type a hostname: "
+  _read_input_text "Type a hostname: "
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
     echo
     _print_warning "You must be type a hostname!"
-    _print_entry "Type a hostname: "
+    _read_input_text "Type a hostname: "
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
@@ -461,13 +466,13 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_entry "Type a grub name entry: "
+  _read_input_text "Type a grub name entry: "
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
     echo
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
-    _print_entry "Type a grub name entry: "
+    _read_input_text "Type a grub name entry: "
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Installing Packages..."
@@ -485,7 +490,7 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _read_input_text "Save a copy of this script in root directory? [y/N]: "
+  _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
       _package_install "wget"
@@ -495,7 +500,7 @@ _finish_install() {
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_text "Reboot system? [y/N]: "
+  _read_input_option "Reboot system? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -510,12 +515,12 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "NEW USER"
-  _print_entry "Type your username: "
+  _read_input_text "Type your username: "
   read -r NEW_USER
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     _print_warning "You must be type a username!"
-    _print_entry "Type your username: "
+    _read_input_text "Type your username: "
     read -r NEW_USER
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
@@ -615,7 +620,7 @@ _install_extra_pkgs() {
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
   PS3="$PROMPT1"
-  _read_input_text "Install laptop packages? [y/N]: "
+  _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
     _print_subtitle "Packages"
@@ -760,7 +765,7 @@ _finish_desktop() {
 _install_apps() {
   _print_title "CUSTOM APPS"
   PS3="$PROMPT1"
-  _read_input_text "Install custom apps? [y/N]: "
+  _read_input_option "Install custom apps? [y/N]: "
   echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -793,7 +798,7 @@ _install_apps() {
 _install_pamac() {
   _print_title "PAMAC"
   PS3="$PROMPT1"
-  _read_input_text "Install pamac? [y/N]: "
+  _read_input_option "Install pamac? [y/N]: "
   echo -e "\n"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "pamac"; then
@@ -879,11 +884,6 @@ _print_select_partition() {
   echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 19 )) | tr -d [:digit:]`${RESET}"
 }
 
-_print_entry() {
-  echo
-  printf "%s" "${BWHITE}$1${RESET}"
-}
-
 _print_info() {
   T_COLS=$(tput cols)
   echo -e "${BBLUE}INFO:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
@@ -925,9 +925,15 @@ _print_bye() {
   echo -e "${BGREEN} Bye!${RESET}\n"
 }
 
-_pause_function() {
-  _print_line_bblack
-  read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
+_read_input_text() {
+  echo
+  printf "%s" "${BWHITE}$1${RESET}"
+}
+
+_read_input_option() {
+  echo
+  printf "%s" "${PURPLE}$1${RESET}"
+  read -r OPTION
 }
 
 _contains_element() {
@@ -938,10 +944,9 @@ _invalid_option() {
     _print_warning "Invalid option. Try again..."
 }
 
-_read_input_text() {
-  echo
-  printf "%s" "${PURPLE}$1${RESET}"
-  read -r OPTION
+_pause_function() {
+  _print_line_bblack
+  read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
