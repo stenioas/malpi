@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BGREEN}→ ${RESET}"
+      PROMPT1="${BBLACK}→ ${RESET}"
       PS2="  "
 
 # ----------------------------------------------------------------------#
@@ -212,6 +212,7 @@ _rank_mirrors() {
   _read_input_text "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
+    _print_title "MIRRORS"
     _print_done
     _pause_function
   else
@@ -356,8 +357,16 @@ _fstab_generate() {
   _print_subtitle "Generating fstab..."
   _print_item "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
-  _print_done
-  _pause_function
+  _read_input_text "Edit your fstab file? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    nano ${ROOT_MOUNTPOINT}/etc/fstab
+    _print_title "FSTAB"
+    _print_done
+    _pause_function
+  else
+    _print_done
+    _pause_function
+  fi
 }
 genfstab -U /mnt > /mnt/etc/fstab
 _set_timezone_and_clock() {
@@ -451,7 +460,7 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
-  _print_entry "\nType a grub name entry:"
+  _print_entry "Type a grub name entry:"
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
@@ -874,12 +883,12 @@ _print_title_alert() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BBLACK}>${RESET}${BWHITE} $1${RESET}"
+  echo -e "\n${BWHITE} $1${RESET}"
 }
 
 _print_entry() {
-  echo -e "\n${BBLACK}>${RESET}${BWHITE} $1${RESET}"
-  printf "%s" "${BGREEN}> ${RESET}"
+  echo -e "\n${BWHITE} $1${RESET}"
+  printf "%s" "${BBLACK}→ ${RESET}"
 }
 
 _print_info() {
@@ -940,7 +949,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLACK}>${RESET}${GREEN} $1${RESET}"
+  printf "%s" "${BBLACK}→${RESET}${GREEN} $1${RESET}"
   read -r OPTION
 }
 
@@ -1017,35 +1026,21 @@ usage: ${0##*/} [flags]
 
 arch-setup 0.1
 
-${BLACK}░▒▓██████▓▒░${RESET}
-${BBLACK}░▒▓██████▓▒░${RESET}
-${CYAN}░▒▓██████▓▒░${RESET}
-${WHITE}░▒▓██████▓▒░${RESET}
-${BCYAN}░▒▓██████▓▒░${RESET}
-${BWHITE}░▒▓██████▓▒░${RESET}
-
-${YELLOW}░▒▓██████▓▒░${RESET}
-${RED}░▒▓██████▓▒░${RESET}
-${BRED}░▒▓██████▓▒░${RESET}
-${GREEN}░▒▓██████▓▒░${RESET}
-${BGREEN}░▒▓██████▓▒░${RESET}
-${BYELLOW}░▒▓██████▓▒░${RESET}
-${BLUE}░▒▓██████▓▒░${RESET}
-${BBLUE}░▒▓██████▓▒░${RESET}
-${PURPLE}░▒▓██████▓▒░${RESET}
-${BPURPLE}░▒▓██████▓▒░${RESET}
-
 EOF
 }
+
+_start_screen() {
+
+}
+
+# ----------------------------------------------------------------------#
+
+### EXECUTION
 
 [[ -z $1 ]] && {
     usage
     exit 1
 }
-
-# ----------------------------------------------------------------------#
-
-
 clear
 setfont
 timedatectl set-ntp true
