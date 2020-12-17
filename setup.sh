@@ -1041,6 +1041,7 @@ _check_connection
 clear
 setfont
 timedatectl set-ntp true
+_start_screen
 
 while [[ "$1" ]]; do
   read -e -sn 1 -p "${BWHITE}  Press any key to start!${RESET}"
