@@ -261,7 +261,8 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo -e "\n${BBLACK}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} ROOT${RESET}${BWHITE} partition:${RESET}"
+    _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -296,7 +297,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo -e "\n${BBLACK}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
+    echo -e "\n${BWHITE}Select${RESET}${BYELLOW} EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -308,8 +309,12 @@ _format_partitions() {
     done
     _read_input_text "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_action "Format" "${EFI_PARTITION}"
-      mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
+      _print_danger "All data on the partition will be ${BYELLOW}LOST!${RESET}"
+      _read_input_text "${BYELLOW}Confirm format EFI partition? [y/N]: "
+      if [[ $OPTION == y || $OPTION == Y ]]; then
+        _print_action "Format" "${EFI_PARTITION}"
+        mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
+      fi
     fi
     mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null &&
     _print_action "Mount" "${EFI_PARTITION}"
