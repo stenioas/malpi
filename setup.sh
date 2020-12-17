@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BGREEN}> ${RESET}"
+      PROMPT1="${BGREEN}→ ${RESET}"
       PS2="  "
 
 # ----------------------------------------------------------------------#
@@ -878,8 +878,8 @@ _print_subtitle() {
 }
 
 _print_entry() {
-  echo -e "\n${BWHITE}$1${RESET}"
-  printf "%s" "${BGREEN}→ ${RESET}"
+  echo -e "\n${BBLACK}>${RESET}${BWHITE} $1${RESET}"
+  printf "%s" "${BGREEN}> ${RESET}"
 }
 
 _print_info() {
@@ -899,12 +899,12 @@ _print_danger() {
 
 _print_action() {
   COLS_VAR=$(( ${#1} + ${#2} + 1 ))
-  echo -ne "${BBLACK}  [      ]${RESET}${BCYAN} $1${RESET}${BYELLOW} $2${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${BCYAN} $1${RESET}${BYELLOW} $2${RESET}"
 }
 
 _print_item() {
   COLS_VAR=${#1}
-  echo -ne "${BBLACK}  [      ]${RESET}${WHITE} $1${RESET}"
+  echo -ne "${BBLACK}[      ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
@@ -918,7 +918,7 @@ _print_error() {
 }
 
 _print_done() {
-  echo -ne "\n${BGREEN} DONE  ${RESET}"
+  echo -ne "\n${BBLACK}>${RESET}${BGREEN} DONE  ${RESET}"
   echo -e "${BBLACK}`seq -s '─' $(( T_COLS - 6 )) | tr -d [:digit:]`${RESET}"
 }
 
@@ -940,7 +940,7 @@ _invalid_option() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}→${RESET}${BRED} $1${RESET}"
+  printf "%s" "${BBLACK}>${RESET}${BRED} $1${RESET}"
   read -r OPTION
 }
 
