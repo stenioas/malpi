@@ -484,7 +484,7 @@ _grub_generate() {
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
-  _print_subtitle "Generating grub.cfg..."
+  _print_subtitle "\nGenerating grub.cfg..."
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
@@ -499,6 +499,7 @@ _finish_install() {
   echo -e "Kernel: linux and linux-lts"
   echo -e "Hostname: ${NEW_HOSTNAME}"
   echo -e "Grubname: ${NEW_GRUB_NAME}"
+  echo -e "-----------------------------------"
   _print_info "Your new system has been installed!"
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -511,7 +512,7 @@ _finish_install() {
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
-  _read_input_option "${BRED}Reboot system? [y/N]: ${RESET}"
+  _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
