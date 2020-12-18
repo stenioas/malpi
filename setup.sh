@@ -198,6 +198,7 @@ ${CYAN}  * This script sets hwclock as UTC.${RESET}
 ${BYELLOW}  * This script is not yet complete!${RESET}
   
 ${BWHITE}  * Btw, thank's for your time!${RESET}
+
 EOF
   echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
   read -e -sn 1 -p "${BRED} Press any key to continue...${RESET}"
@@ -308,7 +309,6 @@ _format_partitions() {
     _read_input_option "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be LOST!"
-      tput cuu 1
       _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
@@ -875,13 +875,13 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}$1${RESET}"
+  echo -e "${BWHITE}$1${RESET}"
   echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
+  echo -e "${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
   echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 19 )) | tr -d [:digit:]`${RESET}"
 }
 
@@ -927,12 +927,10 @@ _print_bye() {
 }
 
 _read_input_text() {
-  echo
   printf "%s" "${BWHITE}$1${RESET}"
 }
 
 _read_input_option() {
-  echo
   printf "%s" "${PURPLE}$1${RESET}"
   read -r OPTION
 }
@@ -946,6 +944,7 @@ _invalid_option() {
 }
 
 _pause_function() {
+  echo
   _print_line_bblack
   read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
 }
