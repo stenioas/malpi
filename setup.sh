@@ -1070,7 +1070,7 @@ _start_screen() {
   tput cup $(( CURSOR_POSITION_Y + 19 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW} .\`                                 \`${RESET}  ${BORDER_COLOR}║${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 20 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}╟───────────────────────────────────────╢${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 21 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}  ${YELLOW}https://github.com/stenioas/myarch${RESET}   ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 22 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}    ${PURPLE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${PURPLE} Installer${RESET}     ${BORDER_COLOR║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 22 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}    ${PURPLE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${PURPLE} Installer${RESET}     ${BORDER_COLOR}║${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 23 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}          ${CYAN}By${RESET}${BBLACK} Stenio Silveira${RESET}           ${BORDER_COLOR}║${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 24 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}╙───────────────────────────────────────╜${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 26 )) ${CURSOR_POSITION_X}; read -e -sn 1 -p "${BWHITE}         Press any key to start!${RESET}"
