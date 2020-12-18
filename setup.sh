@@ -511,7 +511,6 @@ _finish_install() {
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  echo
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -1042,30 +1041,31 @@ EOF
 }
 
 _start_screen() {
-  tput bold; tput setaf 2
-  cat <<"EOF"
-
-                 -@
-                .##@
-               .####@
-               @#####@
-             . *######@
-            .##@o@#####@
-           /############@
-          /##############@
-         @######@**%######@
-        @######`     %#####o
-       @######@       ######%               
-     -@#######h       ######@.`
-    /#####h**``       `**%@####@
-   @H@*`                    `*%#@
-  *`                            `*
-
-EOF
-  tput sgr0
-  echo -e "${BBLACK}  My Personal ${RESET}${PURPLE}Arclinux${RESET}${BBLACK} Installer${RESET}"
-  echo -e "${BBLACK}  By Stenio Silveira${RESET}"
-  echo -e "${BGREEN}  https://github.com/stenioas/myarch${RESET}\n"
+  T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
+  LOGO_COLS=32
+  LOGO_LINES=19
+  CURSOR_POSITION_X=$(( (T_COLS - LOGO_COLS)/2 ))
+  CURSOR_POSITION_Y=$(( (T_LINES - LOGO_LINES)/2 ))
+  tput cup ${CURSOR_POSITION_X} ${CURSOR_POSITION_Y}; echo -e "${BGREEN}               -@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 1 )); echo -e "              .##@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 2 )); echo -e "             .####@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 3 )); echo -e "             @#####@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 4 )); echo -e "           . *######@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 5 )); echo -e "          .##@o@#####@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 6 )); echo -e "         /############@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 7 )); echo -e "        /##############@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 8 )); echo -e "       @######@**%######@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 9 )); echo -e "      @######\`     %#####o"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 10 )); echo -e "     @######@       ######%"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 11)); echo -e "   -@#######h       ######@.\`"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 12 )); echo -e "  /#####h**\`\`       \`**%@####@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 13 )); echo -e " @H@*\`                    \`*%#@"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 14 )); echo -e "*\`                            \`*${RESET}"
+  echo
+  tput cup $(( CURSOR_POSITION_X - 2 )) $(( CURSOR_POSITION_Y + 16 )); echo -e "${BBLACK}  My Personal ${RESET}${PURPLE}Arclinux${RESET}${BBLACK} Installer${RESET}"
+  tput cup $(( CURSOR_POSITION_X - 2 )) $(( CURSOR_POSITION_Y + 17 )); echo -e "${BBLACK}        By Stenio Silveira${RESET}"
+  tput cup $(( CURSOR_POSITION_X - 2 )) $(( CURSOR_POSITION_Y + 18 )); echo -e "${BGREEN}https://github.com/stenioas/myarch${RESET}\n"
 }
 
 # ----------------------------------------------------------------------#
