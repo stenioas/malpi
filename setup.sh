@@ -1058,7 +1058,7 @@ _start_screen() {
   tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 8 )); echo -e "       @######@**%######@"
   tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 9 )); echo -e "      @######\`     %#####o"
   tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 10 )); echo -e "     @######@       ######%"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 11)); echo -e "   -@#######h       ######@.\`"
+  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 11 )); echo -e "   -@#######h       ######@.\`"
   tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 12 )); echo -e "  /#####h**\`\`       \`**%@####@"
   tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 13 )); echo -e " @H@*\`                    \`*%#@"
   tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 14 )); echo -e "*\`                            \`*${RESET}"
