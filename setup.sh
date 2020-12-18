@@ -1063,9 +1063,9 @@ _start_screen() {
   tput cup $(( CURSOR_POSITION_Y + 13 )) ${CURSOR_POSITION_X}; echo -e " @H@*\`                    \`*%#@"
   tput cup $(( CURSOR_POSITION_Y + 14 )) ${CURSOR_POSITION_X}; echo -e "*\`                            \`*${RESET}"
   echo
-  tput cup $(( CURSOR_POSITION_Y + 16 )) $(( CURSOR_POSITION_X - 2 )); echo -e "${BBLACK}  My Personal ${RESET}${PURPLE}Arclinux${RESET}${BBLACK} Installer${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 17 )) $(( CURSOR_POSITION_X - 2 )); echo -e "${BBLACK}        By Stenio Silveira${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 18 )) $(( CURSOR_POSITION_X - 2 )); echo -e "${BGREEN}https://github.com/stenioas/myarch${RESET}\n"
+  tput cup $(( CURSOR_POSITION_Y + 16 )) $(( CURSOR_POSITION_X - 1 )); echo -e "${WHITE}  My Personal ${RESET}${BWHITE}Arclinux${RESET}${WHITE} Installer${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 17 )) $(( CURSOR_POSITION_X - 1 )); echo -e "${BBLACK}        By Stenio Silveira${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 18 )) $(( CURSOR_POSITION_X - 1 )); echo -e "${YELLOW}https://github.com/stenioas/myarch${RESET}\n"
 }
 
 # ----------------------------------------------------------------------#
