@@ -273,7 +273,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_subtitle "Setting partition..."
+    _print_subtitle "\nSetting partition..."
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -311,23 +311,20 @@ _format_partitions() {
       _print_danger "All data on the partition will be LOST!"
       _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
-        echo
-        _print_subtitle "Setting partition..."
+        _print_subtitle "\nSetting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       else
-        echo
-        _print_subtitle "Setting partition..."
+        _print_subtitle "\nSetting partition..."
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
     else
-      echo
-      _print_subtitle "Setting partition..."
+      _print_subtitle "\nSetting partition..."
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
       _print_action "Mount" "${EFI_PARTITION}"
       mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
@@ -363,7 +360,7 @@ _install_base() {
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
-  _print_subtitle "Enabling services..."
+  _print_subtitle "\nEnabling services..."
   _print_item "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
@@ -417,20 +414,19 @@ _set_network() {
   read -r NEW_HOSTNAME
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
-    echo
     _print_warning "You must be type a hostname!"
     _read_input_text "Type a hostname: "
     read -r NEW_HOSTNAME
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  _print_subtitle "Setting..."
+  _print_subtitle "\nSetting..."
   _print_item "hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   _print_item "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
-  _print_subtitle "Hosts file content:"
+  _print_subtitle "\nHosts file content:"
   cat <<EOF 
 127.0.0.1 localhost.localdomain localhost
 ::1 localhost.localdomain localhost
@@ -455,7 +451,6 @@ _root_passwd() {
   echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
-    echo
     _print_warning "The password does not match!"
     _print_subtitle "Type root password:"
     echo -ne "${CYAN}"
@@ -471,14 +466,13 @@ _grub_generate() {
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
-    echo
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _read_input_text "Type a grub name entry: "
     read -r NEW_GRUB_NAME
   done
-  _print_subtitle "Installing Packages..."
+  _print_subtitle "\nInstalling Packages..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "Installing GRUB..."
+  _print_subtitle "\nInstalling GRUB..."
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
@@ -491,17 +485,25 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
+  _print_subtitle "CONFIGS"
+  echo -e "Root partition: ${ROOT_PARTITION}"
+  echo -e "EFI partition: ${EFI_PARTITION}"
+  echo -e "Kernel: linux and linux-lts"
+  echo -e "Hostname: ${NEW_HOSTNAME}"
+  echo -e "Grubname: ${NEW_GRUB_NAME}"
+  _print_info "Your new system has been installed!"
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
       _package_install "wget"
     fi
-    _print_subtitle "Downloading..."
+    _print_subtitle "\nDownloading..."
     _print_action "Download" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_option "Reboot system? [y/N]: "
+  echo
+  _read_input_option "${BRED}Reboot system? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
