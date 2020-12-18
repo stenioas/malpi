@@ -1043,35 +1043,36 @@ EOF
 _start_screen() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  LOGO_COLS=40
-  LOGO_LINES=25
+  LOGO_COLS=42
+  LOGO_LINES=28
   CURSOR_POSITION_X=$(( (T_COLS - LOGO_COLS)/2 ))
   CURSOR_POSITION_Y=$(( (T_LINES - LOGO_LINES)/2 ))
-  tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BYELLOW}╓──────────────────────────────────────╖"
-  tput cup $(( CURSOR_POSITION_Y + 1 )) ${CURSOR_POSITION_X}; echo -e "║                   -\`                 ║"
-  tput cup $(( CURSOR_POSITION_Y + 2 )) ${CURSOR_POSITION_X}; echo -e "║                  .o+\`                ║"
-  tput cup $(( CURSOR_POSITION_Y + 3 )) ${CURSOR_POSITION_X}; echo -e "║                 \`ooo/                ║ "
-  tput cup $(( CURSOR_POSITION_Y + 4 )) ${CURSOR_POSITION_X}; echo -e "║                \`+oooo:               ║"
-  tput cup $(( CURSOR_POSITION_Y + 5 )) ${CURSOR_POSITION_X}; echo -e "║               \`+oooooo:              ║"
-  tput cup $(( CURSOR_POSITION_Y + 6 )) ${CURSOR_POSITION_X}; echo -e "║               -+oooooo+:             ║"
-  tput cup $(( CURSOR_POSITION_Y + 7 )) ${CURSOR_POSITION_X}; echo -e "║             \`/:-:++oooo+:            ║"
-  tput cup $(( CURSOR_POSITION_Y + 8 )) ${CURSOR_POSITION_X}; echo -e "║            \`/++++/+++++++:           ║"
-  tput cup $(( CURSOR_POSITION_Y + 9 )) ${CURSOR_POSITION_X}; echo -e "║           \`/++++++++++++++:          ║"
-  tput cup $(( CURSOR_POSITION_Y + 10 )) ${CURSOR_POSITION_X}; echo -e "║          \`/+++ooooooooooooo/\`        ║"
-  tput cup $(( CURSOR_POSITION_Y + 11 )) ${CURSOR_POSITION_X}; echo -e "║         ./ooosssso++osssssso+\`       ║"
-  tput cup $(( CURSOR_POSITION_Y + 12 )) ${CURSOR_POSITION_X}; echo -e "║        .oossssso-\`\`\`\`/ossssss+\`      ║"
-  tput cup $(( CURSOR_POSITION_Y + 13 )) ${CURSOR_POSITION_X}; echo -e "║       -osssssso.      :ssssssso.     ║"
-  tput cup $(( CURSOR_POSITION_Y + 14 )) ${CURSOR_POSITION_X}; echo -e "║      :osssssss/        osssso+++.    ║"
-  tput cup $(( CURSOR_POSITION_Y + 15 )) ${CURSOR_POSITION_X}; echo -e "║     /ossssssss/        +ssssooo/-    ║"
-  tput cup $(( CURSOR_POSITION_Y + 16 )) ${CURSOR_POSITION_X}; echo -e "║   \`/ossssso+/:-        -:/+osssso+-  ║"
-  tput cup $(( CURSOR_POSITION_Y + 17 )) ${CURSOR_POSITION_X}; echo -e "║  \`+sso+:-\`                 \`.-/+oso: ║"
-  tput cup $(( CURSOR_POSITION_Y + 18 )) ${CURSOR_POSITION_X}; echo -e "║ \`++:.                           \`-/+/║"
-  tput cup $(( CURSOR_POSITION_Y + 19 )) ${CURSOR_POSITION_X}; echo -e "║ .\`                                 \` ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 21 )) ${CURSOR_POSITION_X}; echo -e "${YELLOW}║  https://github.com/stenioas/myarch  ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 22 )) ${CURSOR_POSITION_X}; echo -e "${WHITE}║    My Personal ${RESET}${BWHITE}Arclinux${RESET}${WHITE} Installer    ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 23 )) ${CURSOR_POSITION_X}; echo -e "${CYAN}║          By${RESET}${BBLACK} Stenio Silveira          ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 25 )) ${CURSOR_POSITION_X}; read -e -sn 1 -p "${BWHITE}║       Press any key to start!       ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 26 )) ${CURSOR_POSITION_X}; echo -e "╙──────────────────────────────────────╜"
+  tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BPURPLE}╓───────────────────────────────────────╖${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 1 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}                   -\`${RESET}                  ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 2 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}                  .o+\`${RESET}                 ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 3 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}                 \`ooo/${RESET}                 ${BPURPLE}║${RESET} "
+  tput cup $(( CURSOR_POSITION_Y + 4 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}                \`+oooo:${RESET}                ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 5 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}               \`+oooooo:${RESET}               ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 6 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}               -+oooooo+:${RESET}              ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 7 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}             \`/:-:++oooo+:${RESET}             ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 8 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}            \`/++++/+++++++:${RESET}            ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 9 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}           \`/++++++++++++++:${RESET}           ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 10 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}          \`/+++ooooooooooooo/\`${RESET}         ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 11 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}         ./ooosssso++osssssso+\`${RESET}        ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 12 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}        .oossssso-\`\`\`\`/ossssss+\`${RESET}       ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 13 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}       -osssssso.      :ssssssso.${RESET}      ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 14 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}      :osssssss/        osssso+++.${RESET}     ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 15 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}     /ossssssss/        +ssssooo/-${RESET}     ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 16 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}   \`/ossssso+/:-        -:/+osssso+-${RESET}   ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 17 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW}  \`+sso+:-\`                 \`.-/+oso:${RESET}  ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 18 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW} \`++:.                           \`-/+/${RESET} ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 19 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}${BYELLOW} .\`                                 \`${RESET}  ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 20 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}╟───────────────────────────────────────╢${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 21 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}  ${YELLOW}https://github.com/stenioas/myarch${RESET}   ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 22 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}    ${WHITE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${WHITE} Installer${RESET}     ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 23 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}║${RESET}          ${CYAN}By${RESET}${BBLACK} Stenio Silveira${RESET}           ${BPURPLE}║${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 24 )) ${CURSOR_POSITION_X}; echo -e "${BPURPLE}╙───────────────────────────────────────╜${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 26 )) ${CURSOR_POSITION_X}; read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 }
 
 # ----------------------------------------------------------------------#
