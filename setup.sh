@@ -1047,7 +1047,7 @@ _start_screen() {
   LOGO_LINES=19
   CURSOR_POSITION_X=$(( (T_COLS - LOGO_COLS)/2 ))
   CURSOR_POSITION_Y=$(( (T_LINES - LOGO_LINES)/2 ))
-  tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BBLACK}               -@"
+  tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BYELLOW}               -@"
   tput cup $(( CURSOR_POSITION_Y + 1 )) ${CURSOR_POSITION_X}; echo -e "              .##@"
   tput cup $(( CURSOR_POSITION_Y + 2 )) ${CURSOR_POSITION_X}; echo -e "             .####@"
   tput cup $(( CURSOR_POSITION_Y + 3 )) ${CURSOR_POSITION_X}; echo -e "             @#####@"
@@ -1066,7 +1066,7 @@ _start_screen() {
   tput cup $(( CURSOR_POSITION_Y + 16 )) $(( CURSOR_POSITION_X - 1 )); echo -e "${WHITE}  My Personal ${RESET}${BWHITE}Arclinux${RESET}${WHITE} Installer${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 17 )) $(( CURSOR_POSITION_X - 1 )); echo -e "${BBLACK}        By Stenio Silveira${RESET}"
   tput cup $(( CURSOR_POSITION_Y + 18 )) $(( CURSOR_POSITION_X - 1 )); echo -e "${BBLACK}https://github.com/stenioas/myarch${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 20 )) $(( CURSOR_POSITION_X - 1 )); read -e -sn 1 -p "${BWHITE}    Press any key to start!${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 20 )) $(( CURSOR_POSITION_X - 1 )); read -e -sn 1 -p "${BWHITE}     Press any key to start!${RESET}"
 }
 
 # ----------------------------------------------------------------------#
