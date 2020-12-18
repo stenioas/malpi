@@ -411,12 +411,16 @@ _set_localization() {
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
   _read_input_text "Type a hostname: "
+  echo -ne "${BGREEN}"
   read -r NEW_HOSTNAME
+  echo -ne "${RESET}"
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
     _print_warning "You must be type a hostname!"
     _read_input_text "Type a hostname: "
+    echo -ne "${BGREEN}"
     read -r NEW_HOSTNAME
+    echo -ne "${RESET}"
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_subtitle "\nSetting..."
@@ -463,12 +467,16 @@ _root_passwd() {
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
   _read_input_text "Type a grub name entry: "
+  echo -ne "${BGREEN}"
   read -r NEW_GRUB_NAME
+  echo -ne "${RESET}"
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _read_input_text "Type a grub name entry: "
+    echo -ne "${BGREEN}"
     read -r NEW_GRUB_NAME
+    echo -ne "${RESET}"
   done
   _print_subtitle "\nInstalling Packages..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
@@ -519,12 +527,16 @@ _finish_install() {
 _create_new_user() {
   _print_title "NEW USER"
   _read_input_text "Type your username: "
+  echo -ne "${BGREEN}"
   read -r NEW_USER
+  echo -ne "${RESET}"
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     _print_warning "You must be type a username!"
     _read_input_text "Type your username: "
+    echo -ne "${BGREEN}"
     read -r NEW_USER
+    echo -ne "${RESET}"
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
@@ -933,7 +945,8 @@ _read_input_text() {
 }
 
 _read_input_option() {
-  printf "%s" "${PURPLE}$1${RESET}"
+  echo
+  printf "%s" "${YELLOW}$1${RESET}"
   read -r OPTION
 }
 
