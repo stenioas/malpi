@@ -1047,25 +1047,25 @@ _start_screen() {
   LOGO_LINES=19
   CURSOR_POSITION_X=$(( (T_COLS - LOGO_COLS)/2 ))
   CURSOR_POSITION_Y=$(( (T_LINES - LOGO_LINES)/2 ))
-  tput cup ${CURSOR_POSITION_X} ${CURSOR_POSITION_Y}; echo -e "${BGREEN}               -@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 1 )); echo -e "              .##@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 2 )); echo -e "             .####@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 3 )); echo -e "             @#####@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 4 )); echo -e "           . *######@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 5 )); echo -e "          .##@o@#####@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 6 )); echo -e "         /############@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 7 )); echo -e "        /##############@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 8 )); echo -e "       @######@**%######@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 9 )); echo -e "      @######\`     %#####o"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 10 )); echo -e "     @######@       ######%"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 11 )); echo -e "   -@#######h       ######@.\`"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 12 )); echo -e "  /#####h**\`\`       \`**%@####@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 13 )); echo -e " @H@*\`                    \`*%#@"
-  tput cup ${CURSOR_POSITION_X} $(( CURSOR_POSITION_Y + 14 )); echo -e "*\`                            \`*${RESET}"
+  tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BGREEN}               -@"
+  tput cup $(( CURSOR_POSITION_Y + 1 )) ${CURSOR_POSITION_X}; echo -e "              .##@"
+  tput cup $(( CURSOR_POSITION_Y + 2 )) ${CURSOR_POSITION_X}; echo -e "             .####@"
+  tput cup $(( CURSOR_POSITION_Y + 3 )) ${CURSOR_POSITION_X}; echo -e "             @#####@"
+  tput cup $(( CURSOR_POSITION_Y + 4 )) ${CURSOR_POSITION_X}; echo -e "           . *######@"
+  tput cup $(( CURSOR_POSITION_Y + 5 )) ${CURSOR_POSITION_X}; echo -e "          .##@o@#####@"
+  tput cup $(( CURSOR_POSITION_Y + 6 )) ${CURSOR_POSITION_X}; echo -e "         /############@"
+  tput cup $(( CURSOR_POSITION_Y + 7 )) ${CURSOR_POSITION_X}; echo -e "        /##############@"
+  tput cup $(( CURSOR_POSITION_Y + 8 )) ${CURSOR_POSITION_X}; echo -e "       @######@**%######@"
+  tput cup $(( CURSOR_POSITION_Y + 9 )) ${CURSOR_POSITION_X}; echo -e "      @######\`     %#####o"
+  tput cup $(( CURSOR_POSITION_Y + 10 )) ${CURSOR_POSITION_X}; echo -e "     @######@       ######%"
+  tput cup $(( CURSOR_POSITION_Y + 11 )) ${CURSOR_POSITION_X}; echo -e "   -@#######h       ######@.\`"
+  tput cup $(( CURSOR_POSITION_Y + 12 )) ${CURSOR_POSITION_X}; echo -e "  /#####h**\`\`       \`**%@####@"
+  tput cup $(( CURSOR_POSITION_Y + 13 )) ${CURSOR_POSITION_X}; echo -e " @H@*\`                    \`*%#@"
+  tput cup $(( CURSOR_POSITION_Y + 14 )) ${CURSOR_POSITION_X}; echo -e "*\`                            \`*${RESET}"
   echo
-  tput cup $(( CURSOR_POSITION_X - 2 )) $(( CURSOR_POSITION_Y + 16 )); echo -e "${BBLACK}  My Personal ${RESET}${PURPLE}Arclinux${RESET}${BBLACK} Installer${RESET}"
-  tput cup $(( CURSOR_POSITION_X - 2 )) $(( CURSOR_POSITION_Y + 17 )); echo -e "${BBLACK}        By Stenio Silveira${RESET}"
-  tput cup $(( CURSOR_POSITION_X - 2 )) $(( CURSOR_POSITION_Y + 18 )); echo -e "${BGREEN}https://github.com/stenioas/myarch${RESET}\n"
+  tput cup $(( CURSOR_POSITION_Y + 16 )) $(( CURSOR_POSITION_X - 2 )); echo -e "${BBLACK}  My Personal ${RESET}${PURPLE}Arclinux${RESET}${BBLACK} Installer${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 17 )) $(( CURSOR_POSITION_X - 2 )); echo -e "${BBLACK}        By Stenio Silveira${RESET}"
+  tput cup $(( CURSOR_POSITION_Y + 18 )) $(( CURSOR_POSITION_X - 2 )); echo -e "${BGREEN}https://github.com/stenioas/myarch${RESET}\n"
 }
 
 # ----------------------------------------------------------------------#
