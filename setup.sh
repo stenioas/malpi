@@ -1045,7 +1045,7 @@ _start_screen() {
   T_LINES=$(tput lines)
   LOGO_COLS=42
   LOGO_LINES=28
-  BORDER_COLOR=${BBLUE}
+  BORDER_COLOR=${BBLACK}
   CURSOR_POSITION_X=$(( (T_COLS - LOGO_COLS)/2 ))
   CURSOR_POSITION_Y=$(( (T_LINES - LOGO_LINES)/2 ))
   tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}╓───────────────────────────────────────╖${RESET}"
