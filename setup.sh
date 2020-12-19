@@ -908,7 +908,7 @@ _print_title() {
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
   echo -ne "${BWHITE}╔${RESET}"; echo -ne "${BWHITE}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${T_RIGHT}"; echo -e "${BWHITE}═╗${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BBLACK}║${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BWHITE}║${RESET}"
   echo -ne "${BWHITE}╚${RESET}"; echo -ne "${BWHITE}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}╝${RESET}"
 }
 
@@ -927,16 +927,17 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "${BWHITE}  $1${RESET}"
-  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "\n${BBLACK} ┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "${BWHITE}   $1${RESET}"
+  echo -ne "${BBLACK} └${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}  SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
-  echo -ne "${BWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}┘${RESET}"
+  echo -ne "\n${BBLACK} ┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "${BWHITE}   SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
+  echo -ne "${BBLACK} └${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
@@ -957,7 +958,7 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 22 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 12 - REM_COLS ))
   echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
@@ -980,7 +981,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BWHITE}$1${RESET}"
+  printf "%s" "${BGREEN}→ ${RESET}${BWHITE}$1${RESET}"
 }
 
 _read_input_option() {
