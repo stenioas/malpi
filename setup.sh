@@ -907,7 +907,7 @@ _print_title() {
   echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${BBLACK}"
   echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
-  echo -e "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${BBLACK}"
+  echo -ne "${BBLACK}╚${RESET}"; echo -e "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${BBLACK}"
 }
 
 _print_title_alert() {
@@ -925,14 +925,14 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE} $1${RESET}"; echo -e "${BBLACK}│${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 4 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "\n${BWHITE} $1 ${RESET}"; echo -e "${BBLACK}║${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}╜${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}  SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
-  echo -ne " "; echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BWHITE} SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION: ${RESET}"; echo -e "${BBLACK}║${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}╜${RESET}"
 }
 
 _print_info() {
