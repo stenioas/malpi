@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BGREEN}→ ${RESET}"
+      PROMPT1="${BBLACK}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -370,6 +370,7 @@ _install_kernel() {
     fi
   done
   if [[ "${KERNEL_VERSION}" = "linux" || "${KERNEL_VERSION}" = "linux-lts" ]]; then
+    _print_subtitle "PACKAGES"
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -379,6 +380,7 @@ _install_kernel() {
     read -r KERNEL_VERSION
     echo -ne "${RESET}"
     echo
+    _print_subtitle "PACKAGES"
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -390,18 +392,18 @@ _install_kernel() {
 
 _fstab_generate() {
   _print_title "FSTAB"
+  echo
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
-  else
-    _pause_function
   fi
 }
 
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
+  echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
   _print_action "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
@@ -418,6 +420,7 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
+  echo
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_action "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
@@ -429,6 +432,7 @@ _set_localization() {
 
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
+  echo
   _read_input_text "Type a hostname: "
   echo -ne "${BGREEN}"
   read -r NEW_HOSTNAME
@@ -436,6 +440,7 @@ _set_network() {
   echo
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
+    echo
     _print_warning "You must be type a hostname!"
     _read_input_text "Type a hostname: "
     echo -ne "${BGREEN}"
@@ -480,6 +485,7 @@ _root_passwd() {
 
 _grub_generate() {
   _print_title "GRUB BOOTLOADER"
+  echo
   _read_input_text "Type a grub name entry: "
   echo -ne "${BGREEN}"
   read -r NEW_GRUB_NAME
@@ -487,6 +493,7 @@ _grub_generate() {
   echo
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
+    echo
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _read_input_text "Type a grub name entry: "
     echo -ne "${BGREEN}"
@@ -494,6 +501,7 @@ _grub_generate() {
     echo -ne "${RESET}"
     echo
   done
+  _print_subtitle "PACKAGES"
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing GRUB..."
   echo -ne "${CYAN}"
@@ -894,12 +902,13 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BGREEN}> ${RESET}${BWHITE}$1${RESET}"
+  echo -e "\n${BGREEN}> ${RESET}${YELLOW}$1${RESET}"
+  echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BGREEN}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
+  echo -e "\n${BGREEN}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
 }
 
 _print_info() {
