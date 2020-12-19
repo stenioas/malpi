@@ -897,14 +897,14 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "${BWHITE}$1${RESET} "
-  echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUTITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BWHITE}$1${RESET} "
+  echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUBTITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${BBLACK}┐${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
+  echo -ne "\n${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
   echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUTITLE - 19 )) | tr -d [:digit:]`${RESET}"
   echo -e "${BBLACK}┐${RESET}"
 }
@@ -967,9 +967,8 @@ _invalid_option() {
 }
 
 _pause_function() {
-  echo
   _print_line_bblack
-  read -e -sn 1 -p "${BBLACK} Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BBLACK}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
@@ -1079,7 +1078,7 @@ ${BYELLOW}  *\`                            \`*${RESET}
 
 
 EOF
-tput cup 14 44
+tput cup 15 45
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
