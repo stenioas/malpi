@@ -181,22 +181,24 @@ _initial_info() {
   timedatectl set-ntp true
   cat <<EOF
 
-${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
-${CYAN}  * This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
-${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
-${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
-${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
-${CYAN}  * This script does not support ${BYELLOW}SWAP${RESET}.
-${CYAN}  * This script will create three subvolumes:${RESET}
-${CYAN}      - ${BYELLOW}@${RESET}${CYAN} for /${RESET}
-${CYAN}      - ${BYELLOW}@home${RESET}${CYAN} for /home${RESET}
-${CYAN}      - ${BYELLOW}@.snapshots${RESET}${CYAN} for /.snapshots${RESET}
-${CYAN}  * This script, for now, sets zoneinfo as America/Fortaleza.${RESET}
-${CYAN}  * This script sets hwclock as UTC.${RESET}
+${BRED}┌────────────────────────────────────────────────────────────────────────────────────┐${RESET}
+${WHITE}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
+${WHITE}  * This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${WHITE} as default bootloader.${RESET}
+${WHITE}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${WHITE} and${RESET}${BYELLOW} ROOT.${RESET}
+${WHITE}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${WHITE} format.${RESET}
+${WHITE}  * The ESP partition can be formatted if the user wants to.${RESET}
+${WHITE}  * This script does not support ${BYELLOW}SWAP${RESET}.
+${WHITE}  * This script will create three subvolumes:${RESET}
+${WHITE}      - ${BYELLOW}@${RESET}${WHITE} for /${RESET}
+${WHITE}      - ${BYELLOW}@home${RESET}${WHITE} for /home${RESET}
+${WHITE}      - ${BYELLOW}@.snapshots${RESET}${WHITE} for /.snapshots${RESET}
+${WHITE}  * This script, for now, sets zoneinfo as America/Fortaleza.${RESET}
+${WHITE}  * This script sets hwclock as UTC.${RESET}
   
 ${BYELLOW}  * This script is not yet complete!${RESET}
   
 ${BWHITE}  * Btw, thank's for your time!${RESET}
+${BRED}└────────────────────────────────────────────────────────────────────────────────────┘${RESET}
 EOF
   echo
   _print_line_red
@@ -966,7 +968,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 15 - REM_COLS ))
-  echo -ne "${GREEN}$1${RESET}${WHITE} $2${RESET} "
+  echo -ne "${PURPLE}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
