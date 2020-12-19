@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BBLACK}→ ${RESET}"
+      PROMPT1="${BYELLOW}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -289,9 +289,11 @@ _format_partitions() {
     _print_action "Mount" "@.snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
+    _pause_function
   }
 
   _format_efi_partition() {
+    _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select_partition "EFI"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -305,7 +307,7 @@ _format_partitions() {
     _read_input_option "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _print_danger "All data on the partition will be LOST!"
-      _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
+      _read_input_option "${BRED}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
         _print_action "Format" "${EFI_PARTITION}"
@@ -871,30 +873,30 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BWHITE}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BWHITE}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_line_red() {
-  echo -e "${RED}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_red() {
   T_COLS=$(tput cols)
-  echo -e "${RED}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_line_bblack() {
-  echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_bblack() {
   T_COLS=$(tput cols)
-  echo -e "${BBLACK}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -903,11 +905,11 @@ _print_title() {
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
   T_LEFT="${BBLACK}║ ${RESET}${BGREEN} $1${RESET}"
-  T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${BBLACK}"
-  echo -e "${T_RIGHT}"
-  echo -e "${T_LEFT}"
-  echo -ne "${BBLACK}╚${RESET}"; echo -e "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${BBLACK}"
+  T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
+  echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 3 )) | tr -d [:digit:]`${BBLACK}"
+  echo -ne "${T_RIGHT}"; echo -e "${BBLACK}╗${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BBLACK}║${RESET}"
+  echo -ne "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${BBLACK}"; echo -e "${BBLACK}╝${RESET}"
 }
 
 _print_title_alert() {
@@ -993,7 +995,7 @@ _invalid_option() {
 
 _pause_function() {
   echo
-  _print_line_bblack
+  _print_dline_bblack
   read -e -sn 1 -p "${BCYAN}Press any key to continue...${RESET}"
 }
 
@@ -1087,12 +1089,12 @@ setfont
 cat <<EOF
 
 ${BYELLOW}                 -@                 ${RESET}  
-${BYELLOW}                .##@                ${RESET}${BWHITE}   ███╗   ███╗    █████╗    ██╗    ██╗       ${RESET}
-${BYELLOW}               .####@               ${RESET}${BWHITE}   ████╗ ████║   ██╔══██╗   ██║    ██║       ${RESET}
-${BYELLOW}               @#####@              ${RESET}${BWHITE}   ██╔████╔██║   ███████║   ██║ █╗ ██║       ${RESET}
-${BYELLOW}             . *######@             ${RESET}${BWHITE}   ██║╚██╔╝██║   ██╔══██║   ██║███╗██║       ${RESET}
-${BYELLOW}            .##@o@#####@            ${RESET}${BWHITE}   ██║ ╚═╝ ██║██╗██║  ██║██╗╚███╔███╔╝██╗    ${RESET}
-${BYELLOW}           /############@           ${RESET}${BWHITE}   ╚═╝     ╚═╝╚═╝╚═╝  ╚═╝╚═╝ ╚══╝╚══╝ ╚═╝    ${RESET}  
+${BYELLOW}                .##@                ${RESET}${CYAN}   ███╗   ███╗    █████╗    ██╗    ██╗       ${RESET}
+${BYELLOW}               .####@               ${RESET}${CYAN}   ████╗ ████║   ██╔══██╗   ██║    ██║       ${RESET}
+${BYELLOW}               @#####@              ${RESET}${CYAN}   ██╔████╔██║   ███████║   ██║ █╗ ██║       ${RESET}
+${BYELLOW}             . *######@             ${RESET}${CYAN}   ██║╚██╔╝██║   ██╔══██║   ██║███╗██║       ${RESET}
+${BYELLOW}            .##@o@#####@            ${RESET}${CYAN}   ██║ ╚═╝ ██║██╗██║  ██║██╗╚███╔███╔╝██╗    ${RESET}
+${BYELLOW}           /############@           ${RESET}${CYAN}   ╚═╝     ╚═╝╚═╝╚═╝  ╚═╝╚═╝ ╚══╝╚══╝ ╚═╝    ${RESET}  
 ${BYELLOW}          /##############@          ${RESET}${PURPLE}   ---------- My Arch Way! ------------      ${RESET}
 ${BYELLOW}         @######@**%######@         ${RESET}${BBLACK} ╓───────────────────────────────────────╖   ${RESET}
 ${BYELLOW}        @######\`     %#####o       ${RESET}${BBLACK}  ║  https://github.com/stenioas/myarch   ║  ${RESET}
