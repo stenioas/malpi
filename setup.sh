@@ -210,7 +210,7 @@ ${BWHITE}   - Btw, thank's for your time!${RESET}
 ${BRED} └──────────────────────────────────────────────────────────────────┘${RESET}
 EOF
   _print_line_red
-  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BWHITE}Press any key to continue...${RESET}"
 }
 
 _rank_mirrors() {
@@ -535,14 +535,14 @@ _grub_generate() {
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
   _print_subtitle "CONFIGS"
-  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 59 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -ne "${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
   echo -e "  ${PURPLE}Selected Disk:${RESET} ${INSTALL_DISK}"
   echo -e "  ${PURPLE}Root partition:${RESET} ${ROOT_PARTITION}"
   echo -e "  ${PURPLE}EFI partition:${RESET} ${EFI_PARTITION}"
   echo -e "  ${PURPLE}Kernel version:${RESET} ${KERNEL_VERSION}"
   echo -e "  ${PURPLE}Hostname:${RESET} ${NEW_HOSTNAME}"
   echo -e "  ${PURPLE}Grubname:${RESET} ${NEW_GRUB_NAME}"
-  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' 59 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
   _print_info "Your new system has been installed!"
   echo
@@ -975,7 +975,7 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 15 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
   echo -ne "${PURPLE}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
@@ -983,15 +983,15 @@ _print_action() {
 }
 
 _print_ok() {
+  tput rc
   tput cub 5
   echo -e "${BGREEN}OK${RESET}"
-  tput rc
 }
 
 _print_fail() {
-  tput cub 5
-  echo -e "${BRED}FAIL${RESET}"
   tput rc
+  tput cub 6
+  echo -e "${BRED}FAIL${RESET}"
 }
 
 _print_bye() {
