@@ -907,7 +907,7 @@ _print_title() {
   echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${BBLACK}"
   echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
-  echo -ne "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${BBLACK}"
+  echo -e "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${BBLACK}"
 }
 
 _print_title_alert() {
