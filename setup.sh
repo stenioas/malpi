@@ -222,7 +222,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle "Select disk:"
+  _print_subtitle "SELECT DISK:"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -234,8 +234,6 @@ _select_disk() {
   _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
-  else
-    _pause_function
   fi
 }
 
@@ -270,6 +268,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
+    echo
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -306,17 +305,20 @@ _format_partitions() {
       _print_danger "All data on the partition will be LOST!"
       _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
+        echo
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       else
+        echo
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
     else
+      echo
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
       _print_action "Mount" "${EFI_PARTITION}"
       mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
@@ -346,12 +348,12 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  _print_subtitle "Packages"
+  _print_subtitle "PACKAGES"
   _pacstrap_install "base base-devel"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
-  _print_subtitle "Services"
+  _print_subtitle "SERVICES"
   _print_action "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
@@ -359,7 +361,7 @@ _install_base() {
 
 _install_kernel() {
   _print_title "KERNEL"
-  _print_subtitle "Select your kernel:"
+  _print_subtitle "SELECT KERNEL VERSION:"
   KERNEL_LIST=("linux" "linux-lts" "Other")
   select KERNEL_VERSION in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_VERSION}" "${KERNEL_LIST[@]}"; then
@@ -468,14 +470,14 @@ _mkinitcpio_generate() {
 _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
-  _print_subtitle "Type a new root password:"
+  _print_subtitle "TYPE A NEW ROOT PASSWORD:"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
     _print_warning "The password does not match!"
-    _print_subtitle "Type root password:"
+    _print_subtitle "TYPE A NEW ROOT PASSWORD:"
     echo -ne "${CYAN}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
     echo -ne "${RESET}"
@@ -484,7 +486,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "GRUB BOOTLOADER"
+  _print_title "BOOTLOADER"
   echo
   _read_input_text "Type a grub name entry: "
   echo -ne "${BGREEN}"
@@ -492,7 +494,7 @@ _grub_generate() {
   echo -ne "${RESET}"
   echo
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
-    _print_title "GRUB BOOTLOADER"
+    _print_title "BOOTLOADER"
     echo
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
     _read_input_text "Type a grub name entry: "
@@ -503,11 +505,11 @@ _grub_generate() {
   done
   _print_subtitle "PACKAGES"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "Installing GRUB..."
+  _print_subtitle "GRUB INSTALL"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
-  _print_subtitle "Generating grub.cfg..."
+  _print_subtitle "GRUB CONFIGURATION FILE"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
@@ -567,7 +569,7 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     _print_action "Create user" "${NEW_USER}"
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
-    _print_subtitle "Type user password:"
+    _print_subtitle "TYPE A NEW USER PASSWORD:"
     passwd ${NEW_USER}
     _print_info "Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -615,7 +617,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle "Select video card:"
+  _print_subtitle "SELECT VIDEO DRIVER:"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -641,13 +643,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  _print_subtitle "Utils..."
+  _print_subtitle "UTILITIES"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Compression tools..."
+  _print_subtitle "COMPRESSION TOOLS"
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Extra filesystem tools..."
+  _print_subtitle "FILESYSTEM TOOLS"
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Sound tools..."
+  _print_subtitle "SOUND TOOLS"
   _package_install "alsa-utils pulseaudio"
   _pause_function
 }
@@ -655,9 +657,12 @@ _install_extra_pkgs() {
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
   PS3="$PROMPT1"
+  echo
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    _print_subtitle "PACKAGES"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
+    _print_subtitle "SERVICES"
     _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
@@ -680,7 +685,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_subtitle "Select your desktop:"
+  _print_subtitle "SELECT YOUR DESKTOP:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -694,29 +699,45 @@ _install_desktop() {
   echo
   
   if [[ "${DESKTOP}" == "Gnome" ]]; then
+    _print_title "GNOME DESKTOP"
+    _print_subtitle "PACKAGES"
     _group_package_install "gnome"
     _group_package_install "gnome-extra"
     _package_install "gnome-tweaks"
 
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
+    _print_title "PLASMA DESKTOP"
+    _print_subtitle "PACKAGES"
     _package_install "plasma kde-applications packagekit-qt5"
 
   elif [[ "${DESKTOP}" == "Xfce" ]]; then
+    _print_title "XFCE DESKTOP"
+    _print_subtitle "PACKAGES"
     _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "i3-gaps" ]]; then
+    _print_title "I3-GAPS"
+    _print_subtitle "PACKAGES"
     _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Bspwm" ]]; then
+    _print_title "BSPWM"
+    _print_subtitle "PACKAGES"
     _print_warning "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Awesome" ]]; then
+    _print_title "AWESOME WM"
+    _print_subtitle "PACKAGES"
     _print_warning "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Openbox" ]]; then
+    _print_title "OPENBOX"
+    _print_subtitle "PACKAGES"
     _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Qtile" ]]; then
+    _print_title "QTILE"
+    _print_subtitle "PACKAGES"
     _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "None" ]]; then
@@ -902,13 +923,14 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BGREEN}> ${RESET}${YELLOW}$1${RESET}"
-  echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"
+  echo -e "\n${YELLOW}  $1${RESET}"
+  echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 5 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BGREEN}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
+  echo -e "\n${BWHITE}  Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
+  echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 23 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_info() {
@@ -929,7 +951,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( 100 - 11 - REM_COLS ))
-  echo -ne "${CYAN}$1${RESET}${BCYAN} $2${RESET} "
+  echo -ne "${BBLUE}$1${RESET}${BCYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
