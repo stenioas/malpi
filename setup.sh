@@ -212,9 +212,9 @@ _rank_mirrors() {
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
   _print_subtitle "Running..."
-  _print_item "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
+  _print_item "Running" "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_item "pacman -Syy"
+  _print_item "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -362,7 +362,7 @@ _install_base() {
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
   _print_subtitle "Enabling services..."
-  _print_item "NetworkManager"
+  _print_item "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
 }
@@ -402,7 +402,7 @@ _install_kernel() {
 _fstab_generate() {
   _print_title "FSTAB"
   _print_subtitle "Generating fstab..."
-  _print_item "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
+  _print_item "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -415,15 +415,15 @@ _fstab_generate() {
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   _print_subtitle "Running..."
-  _print_item "timedatectl set-ntp true"
+  _print_item "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
-  _print_item "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
+  _print_item "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  _print_item "hwclock --systohc --utc"
+  _print_item "Running" "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _pause_function
@@ -432,11 +432,11 @@ _set_timezone_and_clock() {
 _set_localization() {
   _print_title "LOCALIZATION"
   _print_subtitle "Running..."
-  _print_item "locale-gen"
+  _print_item "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
-  _print_item "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  _print_item "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
-  _print_item "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  _print_item "Running" "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
   _pause_function  
 }
@@ -457,9 +457,9 @@ _set_network() {
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_subtitle "Setting..."
-  _print_item "hostname file"
+  _print_item "Setting" "hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  _print_item "hosts file"
+  _print_item "Setting" "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
@@ -593,12 +593,13 @@ _enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
-      _print_item "Multilib"
+      _print_item "Enabling" "Multilib"
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && _print_ok
     else
+      _print_item "Enabling" "Multilib"
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
-      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf && _print_ok
     fi
   fi
   _print_subtitle "Updating mirrors..."
@@ -672,7 +673,7 @@ _install_laptop_pkgs() {
     _print_subtitle "Installing packages..."
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_subtitle "Enabling services..."
-    _print_item "Bluetooth"
+    _print_item "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
     -_print_info "Nothing to do!"
@@ -763,7 +764,7 @@ _install_display_manager() {
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     _print_subtitle "Services"
-    _print_item "LightDM"
+    _print_item "Enabling" "LightDM"
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -775,13 +776,13 @@ _install_display_manager() {
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
     _print_subtitle "Services"
-    _print_item "GDM"
+    _print_item "Enabling" "GDM"
     sudo systemctl enable gdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
     _print_subtitle "Services"
-    _print_item "SDDM"
+    _print_item "Enabling" "SDDM"
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
@@ -947,19 +948,22 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( 100 - 11 - REM_COLS ))
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
+  REM_DOTS=$(( 100 - 25 - REM_COLS ))
+  echo -ne "${BGREEN}$1${RESET}${BWHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '-' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
 
 _print_item() {
-  REM_COLS=${#1}
-  echo -ne "${BBLACK}[      ]${RESET}${WHITE} $1${RESET}"
+  REM_COLS=$(( ${#1} + ${#2} ))
+  REM_DOTS=$(( 100 - 25 - REM_COLS ))
+  echo -ne "${BGREEN}$1${RESET}${BWHITE} $2${RESET} "
+  echo -ne "${BBLACK}`seq -s '-' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK} [      ]${RESET}"
 }
 
 _print_ok() {
-  tput cub 4
+  tput cub 5
   echo -e "${BGREEN}OK${RESET}"
 }
 
@@ -1023,14 +1027,14 @@ _package_install() { # install pacman package
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      _print_item "${PKG}"
+      _print_item "Installing" "${PKG}"
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
         _print_error
       fi
     else
-      _print_item "${PKG}"
+      _print_item "Installing" "${PKG}"
       _print_ok
     fi
   done
@@ -1048,7 +1052,7 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    _print_item "${PKG}"
+    _print_item "Installing" "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
