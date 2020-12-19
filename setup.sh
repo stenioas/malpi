@@ -874,26 +874,27 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${CYAN}╣${RESET}${BG_CYAN}${BWHITE}   $1   ${RESET}${CYAN}╠${RESET}"
+  T_LEFT="${BBLACK}╣${RESET}${BGREEN}   $1   ${RESET}${BBLACK}╠${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${CYAN}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
 _print_title_alert() {
   clear
   T_COLS=$(tput cols)
-  T_APP_TITLE=$(echo ${#APP_TITLE})
-  T_TITLE=$(echo ${#1})
-  T_LEFT="${RED}█▓▒░${RESET}${BWHITE}    $1    ${RESET}${RED}░▒▓█${RESET}"
-  T_RIGHT="${RED}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${RED}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 24 )) | tr -d [:digit:]`${RESET}"
+  T_APP_TITLE=${#APP_TITLE}
+  T_TITLE=${#1}
+  T_LEFT="${BBLACK}╣${RESET}${BRED}   $1   ${RESET}${BBLACK}╠${RESET}"
+  T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
-  _print_dline_red
+  echo -ne "${T_LEFT}"
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
+  echo
 }
 
 _print_subtitle() {
