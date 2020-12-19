@@ -212,6 +212,8 @@ _rank_mirrors() {
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
+  echo
+  _print_line_bblack
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
@@ -252,9 +254,8 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    echo
-    _print_danger "All data on the partition will be LOST!"
     _print_select_partition "ROOT"
+    _print_danger "All data on the partition will be LOST!"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -397,6 +398,8 @@ _fstab_generate() {
   echo
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
+  echo
+  _print_line_bblack
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
@@ -492,7 +495,6 @@ _grub_generate() {
   echo -ne "${BGREEN}"
   read -r NEW_GRUB_NAME
   echo -ne "${RESET}"
-  echo
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "BOOTLOADER"
     echo
@@ -501,7 +503,6 @@ _grub_generate() {
     echo -ne "${BGREEN}"
     read -r NEW_GRUB_NAME
     echo -ne "${RESET}"
-    echo
   done
   _print_subtitle "PACKAGES"
   _pacstrap_install "grub grub-btrfs efibootmgr"
@@ -923,7 +924,7 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${YELLOW}  $1${RESET}"
+  echo -e "\n${BWHITE}  $1${RESET}"
   echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 5 )) | tr -d [:digit:]`${RESET}"
 }
 
@@ -951,7 +952,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( 100 - 11 - REM_COLS ))
-  echo -ne "${BBLUE}$1${RESET}${BCYAN} $2${RESET} "
+  echo -ne "${BLUE}$1${RESET}${BCYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
@@ -977,7 +978,6 @@ _read_input_text() {
 }
 
 _read_input_option() {
-  echo
   printf "%s" "${YELLOW}$1${RESET}"
   read -r OPTION
 }
@@ -991,6 +991,7 @@ _invalid_option() {
 }
 
 _pause_function() {
+  echo
   _print_line_bblack
   read -e -sn 1 -p "${BCYAN}Press any key to continue...${RESET}"
 }
