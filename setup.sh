@@ -1075,25 +1075,21 @@ _start_screen() {
   BORDER_COLOR=${BBLACK}
   echo -e "${BORDER_COLOR} ╓─────────────────────────────────────────╖${RESET}"
   echo -e "${BORDER_COLOR} ║                                         ║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                    -\`${RESET}                   ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                   .o+\`${RESET}                  ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                  \`ooo/${RESET}                  ${BORDER_COLOR}║${RESET} "
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                 \`+oooo:${RESET}                 ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                \`+oooooo:${RESET}                ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                -+oooooo+:${RESET}               ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}              \`/:-:++oooo+:${RESET}              ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}             \`/++++/+++++++:${RESET}             ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}            \`/++++++++++++++:${RESET}            ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}           \`/+++ooooooooooooo/\`${RESET}          ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}          ./ooosssso++osssssso+\`${RESET}         ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}         .oossssso-\`\`\`\`/ossssss+\`${RESET}        ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}        -osssssso.      :ssssssso.${RESET}       ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}       :osssssss/        osssso+++.${RESET}      ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}      /ossssssss/        +ssssooo/-${RESET}      ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}    \`/ossssso+/:-        -:/+osssso+-${RESET}    ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}   \`+sso+:-\`                 \`.-/+oso:${RESET}   ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}  \`++:.                           \`-/+/${RESET}  ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}  .\`                                 \`${RESET}   ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                    -@${RESET}                   ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                   .##@${RESET}                  ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                  .####@${RESET}                  ${BORDER_COLOR}║${RESET} "
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                  @#####@${RESET}                 ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                . *######@${RESET}                ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}               .##@o@#####@${RESET}               ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}              /############@${RESET}              ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}             /##############@${RESET}             ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}            @######@**%######@${RESET}            ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}           @######\`     %#####o${RESET}          ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}          @######@       ######%${RESET}         ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}        -@#######h       ######@.\`${RESET}        ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}       /#####h**\`\`       \`**%@####@${RESET}       ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}      @H@*\`                    \`*%#@${RESET}      ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}     *\`                            \`*${RESET}      ${BORDER_COLOR}║${RESET}"
   echo -e "${BORDER_COLOR} ║                                         ║${RESET}"
   echo -e "${BORDER_COLOR} ╟─────────────────────────────────────────╢${RESET}"
   echo -e "${BORDER_COLOR} ║${RESET}   ${YELLOW}https://github.com/stenioas/myarch${RESET}    ${BORDER_COLOR}║${RESET}"
@@ -1103,7 +1099,7 @@ _start_screen() {
   echo
   read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
 }
-
+ 
 # ----------------------------------------------------------------------#
 
 ### EXECUTION
