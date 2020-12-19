@@ -1048,7 +1048,6 @@ EOF
     usage
     exit 1
 }
-_check_connection
 clear
 setfont
 
@@ -1072,9 +1071,11 @@ ${BYELLOW}  *\`                            \`*${RESET}
 
 
 EOF
+tput cup 15 40
+read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+_check_connection
 
 while [[ "$1" ]]; do
-  read -e -sn 1 -p "${BWHITE}                           Press any key to start!${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
