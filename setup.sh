@@ -379,6 +379,7 @@ _install_kernel() {
     fi
   done
   if [[ "${KERNEL}" = "linux" || "${OPTION}" = "linux-lts" ]]; then
+    _print_subtitle "\nInstalling packages..."
     _pacstrap_install "${KERNEL}"
     _pacstrap_install "${KERNEL}-headers"
     _pacstrap_install "linux-firmware"
@@ -387,6 +388,7 @@ _install_kernel() {
     echo -ne "${BGREEN}"
     read -r KERNEL
     echo -ne "${RESET}"
+    _print_subtitle "\nInstalling packages..."
     _pacstrap_install "${KERNEL}"
     _pacstrap_install "${KERNEL}-headers"
     _pacstrap_install "linux-firmware"
@@ -530,10 +532,12 @@ _finish_install() {
   echo -e "Hostname: ${NEW_HOSTNAME}"
   echo -e "Grubname: ${NEW_GRUB_NAME}"
   echo -e "-----------------------------------"
+  echo
   _print_info "Your new system has been installed!"
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
+      _print_subtitle "\nInstalling packages..."
       _package_install "wget"
     fi
     _print_subtitle "\nDownloading..."
