@@ -946,26 +946,22 @@ _print_danger() {
 }
 
 _print_action() {
-  REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( 100 - 11 - REM_COLS ))
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
-  echo -ne "${BBLACK}`seq -s '-' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BBLACK} [      ]${RESET}"
+  COLS_VAR=$(( ${#1} + ${#2} + 1 ))
+  echo -ne "${BBLACK}[      ]${RESET}${BBLACK} $1${RESET}${WHITE} $2${RESET}"
 }
 
 _print_item() {
-  REM_COLS=${#1}
-  REM_DOTS=$(( 100 - 11 - REM_COLS ))
+  COLS_VAR=${#1}
   echo -ne "${BBLACK}[      ]${RESET}${WHITE} $1${RESET}"
 }
 
 _print_ok() {
-  tput cub 4
+  tput cub $(( COLS_VAR + 6 ))
   echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_error() {
-  tput cub $(( REM_COLS + 6 ))
+  tput cub $(( COLS_VAR + 6 ))
   echo -e "${BRED}FAIL${RESET}"
 }
 
