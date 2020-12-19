@@ -1089,12 +1089,12 @@ setfont
 cat <<EOF
 
 ${BYELLOW}                 -@                 ${RESET}
-${BYELLOW}                .##@                ${RESET}${CYAN}     ██████╗  █████╗    ██╗        ██╗         ${RESET}
-${BYELLOW}               .####@               ${RESET}${CYAN}     ██╔══██╗██╔══██╗   ██║        ██║         ${RESET}
-${BYELLOW}               @#####@              ${RESET}${CYAN}     ██████╔╝███████║   ██║        ██║         ${RESET}
-${BYELLOW}             . *######@             ${RESET}${CYAN}     ██╔═══╝ ██╔══██║   ██║        ██║         ${RESET}
-${BYELLOW}            .##@o@#####@            ${RESET}${CYAN}     ██║██╗  ██║  ██║██╗███████╗██╗██║██╗      ${RESET}
-${BYELLOW}           /############@           ${RESET}${CYAN}     ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝      ${RESET}
+${BYELLOW}                .##@                ${RESET}${CYAN}   ██████╗  █████╗    ██╗        ██╗           ${RESET}
+${BYELLOW}               .####@               ${RESET}${CYAN}   ██╔══██╗██╔══██╗   ██║        ██║           ${RESET}
+${BYELLOW}               @#####@              ${RESET}${CYAN}   ██████╔╝███████║   ██║        ██║           ${RESET}
+${BYELLOW}             . *######@             ${RESET}${CYAN}   ██╔═══╝ ██╔══██║   ██║        ██║           ${RESET}
+${BYELLOW}            .##@o@#####@            ${RESET}${CYAN}   ██║██╗  ██║  ██║██╗███████╗██╗██║██╗        ${RESET}
+${BYELLOW}           /############@           ${RESET}${CYAN}   ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝        ${RESET}
 ${BYELLOW}          /##############@          ${RESET}${PURPLE}   ---------- My Arch Way! ------------      ${RESET}
 ${BYELLOW}         @######@**%######@         ${RESET}${BBLACK} ╓───────────────────────────────────────╖   ${RESET}
 ${BYELLOW}        @######\`     %#####o       ${RESET}${BBLACK}  ║  https://github.com/stenioas/myarch   ║  ${RESET}
