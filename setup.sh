@@ -874,7 +874,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BBLACK}╣${RESET}${BGREEN}   $1   ${RESET}${BBLACK}╠${RESET}"
+  T_LEFT="${BBLACK}║${RESET}${BGREEN}   $1   ${RESET}${BBLACK}╠${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
@@ -888,7 +888,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BBLACK}╣${RESET}${BRED}   $1   ${RESET}${BBLACK}╠${RESET}"
+  T_LEFT="${BBLACK}║${RESET}${BRED}   $1   ${RESET}${BBLACK}╠${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
@@ -931,7 +931,7 @@ _print_action() {
   REM_DOTS=$(( 100 - 11 - REM_COLS ))
   echo -ne "${CYAN}$1${RESET}${BCYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BCYAN} [      ]${RESET}"
+  echo -ne "${BBLACK} [      ]${RESET}"
 }
 
 _print_ok() {
