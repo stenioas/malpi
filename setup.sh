@@ -1088,25 +1088,25 @@ setfont
 
 cat <<EOF
 
-${BYELLOW}                 -@                 ${RESET}
-${BYELLOW}                .##@                ${RESET}${CYAN}   ██████╗  █████╗    ██╗        ██╗           ${RESET}
-${BYELLOW}               .####@               ${RESET}${CYAN}   ██╔══██╗██╔══██╗   ██║        ██║           ${RESET}
-${BYELLOW}               @#####@              ${RESET}${CYAN}   ██████╔╝███████║   ██║        ██║           ${RESET}
-${BYELLOW}             . *######@             ${RESET}${CYAN}   ██╔═══╝ ██╔══██║   ██║        ██║           ${RESET}
-${BYELLOW}            .##@o@#####@            ${RESET}${CYAN}   ██║██╗  ██║  ██║██╗███████╗██╗██║██╗        ${RESET}
-${BYELLOW}           /############@           ${RESET}${CYAN}   ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝        ${RESET}
-${BYELLOW}          /##############@          ${RESET}${PURPLE}   ---------- My Arch Way! ------------      ${RESET}
-${BYELLOW}         @######@**%######@         ${RESET}${BBLACK} ╓───────────────────────────────────────╖   ${RESET}
-${BYELLOW}        @######\`     %#####o       ${RESET}${BBLACK}  ║  https://github.com/stenioas/myarch   ║  ${RESET}
-${BYELLOW}       @######@       ######%       ${RESET}${BBLACK} ║    My Personal Arclinux Installer     ║   ${RESET}
-${BYELLOW}     -@#######h       ######@.\`    ${RESET}${BBLACK}  ║        By Stenio Silveira             ║  ${RESET}
-${BYELLOW}    /#####h**\`\`       \`**%@####@ ${RESET}${BBLACK}    ╙───────────────────────────────────────╜${RESET}
-${BYELLOW}   @H@*\`                    \`*%#@ ${RESET}
+${BYELLOW}                 -@                ${RESET}
+${BYELLOW}                .##@               ${RESET}${CYAN}  ██████╗  █████╗    ██╗        ██╗           ${RESET}
+${BYELLOW}               .####@              ${RESET}${CYAN}  ██╔══██╗██╔══██╗   ██║        ██║           ${RESET}
+${BYELLOW}               @#####@             ${RESET}${CYAN}  ██████╔╝███████║   ██║        ██║           ${RESET}
+${BYELLOW}             . *######@            ${RESET}${CYAN}  ██╔═══╝ ██╔══██║   ██║        ██║           ${RESET}
+${BYELLOW}            .##@o@#####@           ${RESET}${CYAN}  ██║██╗  ██║  ██║██╗███████╗██╗██║██╗        ${RESET}
+${BYELLOW}           /############@          ${RESET}${CYAN}  ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝        ${RESET}
+${BYELLOW}          /##############@         ${RESET}${PURPLE}  ---------- My Arch Way! ------------      ${RESET}
+${BYELLOW}         @######@**%######@        ${RESET}${BBLACK}╓───────────────────────────────────────╖   ${RESET}
+${BYELLOW}        @######\`     %#####o      ${RESET}${BBLACK} ║  https://github.com/stenioas/myarch   ║  ${RESET}
+${BYELLOW}       @######@       ######%      ${RESET}${BBLACK}║    My Personal Arclinux Installer     ║   ${RESET}
+${BYELLOW}     -@#######h       ######@.\`   ${RESET}${BBLACK} ║        By Stenio Silveira             ║  ${RESET}
+${BYELLOW}    /#####h**\`\`       \`**%@####@${RESET}${BBLACK}   ╙───────────────────────────────────────╜${RESET}
+${BYELLOW}   @H@*\`                    \`*%#@${RESET}
 ${BYELLOW}  *\`                            \`*${RESET}
 
 
 EOF
-tput cup 15 46
+tput cup 15 44
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
