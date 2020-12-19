@@ -381,6 +381,7 @@ _install_kernel() {
     echo -ne "${BGREEN}"
     read -r KERNEL_VERSION
     echo -ne "${RESET}"
+    echo
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -435,6 +436,7 @@ _set_network() {
   echo -ne "${BGREEN}"
   read -r NEW_HOSTNAME
   echo -ne "${RESET}"
+  echo
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
     _print_warning "You must be type a hostname!"
@@ -442,6 +444,7 @@ _set_network() {
     echo -ne "${BGREEN}"
     read -r NEW_HOSTNAME
     echo -ne "${RESET}"
+    echo
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_action "Setting" "hostname file"
@@ -463,7 +466,7 @@ _mkinitcpio_generate() {
 _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
-  _print_subtitle "Type root password:"
+  _print_subtitle "Type a new root password:"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   echo -ne "${RESET}"
@@ -484,6 +487,7 @@ _grub_generate() {
   echo -ne "${BGREEN}"
   read -r NEW_GRUB_NAME
   echo -ne "${RESET}"
+  echo
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "GRUB BOOTLOADER"
     _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
@@ -491,6 +495,7 @@ _grub_generate() {
     echo -ne "${BGREEN}"
     read -r NEW_GRUB_NAME
     echo -ne "${RESET}"
+    echo
   done
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing GRUB..."
@@ -543,6 +548,7 @@ _create_new_user() {
   echo -ne "${BGREEN}"
   read -r NEW_USER
   echo -ne "${RESET}"
+  echo
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     _print_warning "You must be type a username!"
@@ -550,6 +556,7 @@ _create_new_user() {
     echo -ne "${BGREEN}"
     read -r NEW_USER
     echo -ne "${RESET}"
+    echo
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
@@ -890,14 +897,16 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "${BWHITE}$1${RESET}"
-  echo -e "${BBLACK}`seq -s '─' 87 | tr -d [:digit:]`${RESET}"
+  echo -ne "${BWHITE}$1${RESET} "
+  echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUTITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}┐${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
-  echo -e "${BBLACK}`seq -s '─' 87 | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
+  echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUTITLE - 19 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}┐${RESET}"
 }
 
 _print_info() {
@@ -941,7 +950,6 @@ _print_bye() {
 
 _read_input_text() {
   printf "%s" "${BWHITE}$1${RESET}"
-  echo
 }
 
 _read_input_option() {
@@ -989,14 +997,14 @@ _package_install() { # install pacman package
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      _print_action "Installing" "${PKG}"
+      _print_action "" "${PKG}"
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
         _print_fail
       fi
     else
-      _print_action "Installing" "${PKG}"
+      _print_action "" "${PKG}"
       _print_ok
     fi
   done
@@ -1014,7 +1022,7 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    _print_action "Installing" "${PKG}"
+    _print_action "" "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
@@ -1071,7 +1079,7 @@ ${BYELLOW}  *\`                            \`*${RESET}
 
 
 EOF
-tput cup 15 40
+tput cup 14 44
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
