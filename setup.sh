@@ -180,6 +180,7 @@ _initial_info() {
   _print_title_alert "IMPORTANT"
   timedatectl set-ntp true
   cat <<EOF
+
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
 ${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
@@ -198,7 +199,6 @@ ${BYELLOW}  * This script is not yet complete!${RESET}
 ${BWHITE}  * Btw, thank's for your time!${RESET}
 
 EOF
-  _print_dline_bblack
   _pause_function
 }
 
@@ -875,7 +875,6 @@ _print_title() {
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
   echo -e "${BBLACK}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
-  echo
 }
 
 _print_title_alert() {
@@ -889,7 +888,6 @@ _print_title_alert() {
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
   echo -e "${BBLACK}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
-  echo
 }
 
 _print_subtitle() {
