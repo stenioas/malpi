@@ -872,13 +872,14 @@ _print_dline_bblack() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  T_APP_TITLE=$(echo ${#APP_TITLE})
-  T_TITLE=$(echo ${#1})
-  T_LEFT="${CYAN}╣${RESET}${BG_CYAN}${BWHITE}  $1  ${RESET}${CYAN}╠${RESET}"
+  T_APP_TITLE=${#APP_TITLE}
+  T_TITLE=${#1}
+  T_LEFT="${CYAN}╣${RESET}${BG_CYAN}${BWHITE}   $1   ${RESET}${CYAN}╠${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${BLACK}`seq -s '═' $(( T_COLS - T_TITLE - T_APP_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
   echo -e "${T_RIGHT}"
+  echo -ne "${T_LEFT}"
+  echo -e "${CYAN}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
