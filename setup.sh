@@ -450,12 +450,6 @@ _set_network() {
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
-  _print_subtitle "Hosts file content:"
-  cat <<EOF 
-127.0.0.1 localhost.localdomain localhost
-::1 localhost.localdomain localhost
-127.0.1.1 ${YELLOW}${NEW_HOSTNAME}${RESET}.localdomain ${YELLOW}${NEW_HOSTNAME}${RESET}
-EOF
   _pause_function  
 }
 
@@ -896,14 +890,14 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}$1${RESET}"
-  echo -e "${BBLACK}`seq -s '-' 87 | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}$1${RESET}"
+  echo -e "${BBLACK}`seq -s '─' 87 | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
   echo -e "${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
-  echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 19 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '─' 87 | tr -d [:digit:]`${RESET}"
 }
 
 _print_info() {
@@ -947,6 +941,7 @@ _print_bye() {
 
 _read_input_text() {
   printf "%s" "${BWHITE}$1${RESET}"
+  echo
 }
 
 _read_input_option() {
