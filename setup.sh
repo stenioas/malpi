@@ -961,7 +961,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
+  echo -ne "${GREEN}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
