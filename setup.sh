@@ -198,7 +198,9 @@ ${BYELLOW}  * This script is not yet complete!${RESET}
   
 ${BWHITE}  * Btw, thank's for your time!${RESET}
 EOF
-  _pause_function
+  echo
+  _print_line_red
+  read -e -sn 1 -p "${BRED}Press any key to continue...${RESET}"
 }
 
 _rank_mirrors() {
@@ -887,12 +889,12 @@ _print_dline() {
 }
 
 _print_line_red() {
-  echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BRED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_red() {
   T_COLS=$(tput cols)
-  echo -e "${RED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BRED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_line_bblack() {
@@ -922,7 +924,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BRED}║ ${RESET}${RED} $1${RESET}"
+  T_LEFT="${BRED}║ ${RESET}${BRED} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
   echo -ne "${BRED}╔${RESET}"; echo -ne "${BRED}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${T_RIGHT}"; echo -e "${BRED}═╗${RESET}"
