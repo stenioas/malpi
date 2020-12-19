@@ -934,7 +934,7 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BRED}║ ${RESET}${BRED} $1${RESET}"
+  T_LEFT="${BRED}║ ${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
   echo -ne "${BRED}╔${RESET}"; echo -ne "${BRED}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${T_RIGHT}"; echo -e "${BRED}═╗${RESET}"
@@ -953,7 +953,7 @@ _print_subtitle() {
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
   echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "${BWHITE}  SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION${RESET}"
+  echo -e "${BWHITE}  SELECT${RESET}${BGREEN} $1${RESET}${BWHITE} PARTITION${RESET}"
   echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
@@ -979,16 +979,19 @@ _print_action() {
   echo -ne "${PURPLE}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
+  tput sc
 }
 
 _print_ok() {
   tput cub 5
   echo -e "${BGREEN}OK${RESET}"
+  tput rc
 }
 
 _print_fail() {
   tput cub 5
   echo -e "${BRED}FAIL${RESET}"
+  tput rc
 }
 
 _print_bye() {
