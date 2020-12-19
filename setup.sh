@@ -211,10 +211,9 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  _print_subtitle "Running..."
-  _print_item "Running" "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
+  _print_action "Running" "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_item "Running" "pacman -Syy"
+  _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -275,7 +274,6 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_subtitle "Setting partition..."
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -313,20 +311,17 @@ _format_partitions() {
       _print_danger "All data on the partition will be LOST!"
       _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
-        _print_subtitle "Setting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       else
-        _print_subtitle "Setting partition..."
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
     else
-      _print_subtitle "Setting partition..."
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
       _print_action "Mount" "${EFI_PARTITION}"
       mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
@@ -356,13 +351,11 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  _print_subtitle "Installing packages..."
   _pacstrap_install "base base-devel"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
-  _print_subtitle "Enabling services..."
-  _print_item "Enabling" "NetworkManager"
+  _print_action "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
 }
@@ -380,7 +373,6 @@ _install_kernel() {
     fi
   done
   if [[ "${KERNEL_VERSION}" = "linux" || "${KERNEL_VERSION}" = "linux-lts" ]]; then
-    _print_subtitle "Installing packages..."
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -389,7 +381,6 @@ _install_kernel() {
     echo -ne "${BGREEN}"
     read -r KERNEL_VERSION
     echo -ne "${RESET}"
-    _print_subtitle "Installing packages..."
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -401,8 +392,7 @@ _install_kernel() {
 
 _fstab_generate() {
   _print_title "FSTAB"
-  _print_subtitle "Generating fstab..."
-  _print_item "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
+  _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -414,16 +404,15 @@ _fstab_generate() {
 
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
-  _print_subtitle "Running..."
-  _print_item "Running" "timedatectl set-ntp true"
+  _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
-  _print_item "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
+  _print_action "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  _print_item "Running" "hwclock --systohc --utc"
+  _print_action "Running" "hwclock --systohc --utc"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _pause_function
@@ -431,12 +420,11 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
-  _print_subtitle "Running..."
-  _print_item "Running" "locale-gen"
+  _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
-  _print_item "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  _print_action "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
-  _print_item "Running" "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  _print_action "Running" "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
   _pause_function  
 }
@@ -456,10 +444,9 @@ _set_network() {
     echo -ne "${RESET}"
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  _print_subtitle "Setting..."
-  _print_item "Setting" "hostname file"
+  _print_action "Setting" "hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
-  _print_item "Setting" "hosts file"
+  _print_action "Setting" "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
@@ -511,7 +498,6 @@ _grub_generate() {
     read -r NEW_GRUB_NAME
     echo -ne "${RESET}"
   done
-  _print_subtitle "Installing Packages..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Installing GRUB..."
   echo -ne "${CYAN}"
@@ -538,11 +524,9 @@ _finish_install() {
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
-      _print_subtitle "Installing packages..."
       _package_install "wget"
     fi
-    _print_subtitle "Downloading..."
-    _print_action "Download" "setup.sh"
+    _print_action "Downloading" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -593,30 +577,28 @@ _enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
-      _print_item "Enabling" "Multilib"
+      _print_action "Enabling" "Multilib"
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && _print_ok
     else
-      _print_item "Enabling" "Multilib"
+      _print_action "Enabling" "Multilib"
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf && _print_ok
     fi
   fi
-  _print_subtitle "Updating mirrors..."
+  _print_action "Updating mirrors..."
   pacman -Syy
   _pause_function
 }
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
-  _print_subtitle "Installing packages..."
   _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
   _pause_function
 }
 
 _install_xorg() {
   _print_title "XORG"
-  _print_subtitle "Installing packages..."
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
@@ -627,7 +609,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle "Select video card:\n"
+  _print_subtitle "Select video card:"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -635,7 +617,6 @@ _install_vga() {
       _invalid_option
     fi
   done
-  _print_subtitle "Installing packages..."
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
@@ -654,13 +635,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  _print_subtitle "Installing Utils..."
+  _print_subtitle "Utils..."
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Installing compression tools..."
+  _print_subtitle "Compression tools..."
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Installing extra filesystem tools..."
+  _print_subtitle "Extra filesystem tools..."
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Installing sound tools..."
+  _print_subtitle "Sound tools..."
   _package_install "alsa-utils pulseaudio"
   _pause_function
 }
@@ -670,10 +651,8 @@ _install_laptop_pkgs() {
   PS3="$PROMPT1"
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "Installing packages..."
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_subtitle "Enabling services..."
-    _print_item "Enabling" "Bluetooth"
+    _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
     -_print_info "Nothing to do!"
@@ -763,8 +742,7 @@ _install_display_manager() {
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    _print_subtitle "Services"
-    _print_item "Enabling" "LightDM"
+    _print_action "Enabling" "LightDM"
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
@@ -775,14 +753,12 @@ _install_display_manager() {
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
     _package_install "gdm"
-    _print_subtitle "Services"
-    _print_item "Enabling" "GDM"
+    _print_action "Enabling" "GDM"
     sudo systemctl enable gdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _package_install "sddm"
-    _print_subtitle "Services"
-    _print_item "Enabling" "SDDM"
+    _print_action "Enabling" "SDDM"
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
@@ -814,7 +790,6 @@ _install_apps() {
   PS3="$PROMPT1"
   _read_input_option "Install custom apps? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "Installing packages..."
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
     _package_install "firefox firefox-i18n-pt-br"
     _package_install "steam"
@@ -922,7 +897,7 @@ _print_title_alert() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   echo -e "\n${BWHITE}$1${RESET}"
-  echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '-' 87 | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
@@ -933,33 +908,25 @@ _print_select_partition() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}INFO:${RESET}${BCYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING:${RESET}${BCYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER:${RESET}${CYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER:${RESET}${BCYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( 100 - 25 - REM_COLS ))
-  echo -ne "${BGREEN}$1${RESET}${BWHITE} $2${RESET} "
-  echo -ne "${BBLACK}`seq -s '-' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BBLACK} [      ]${RESET}"
-}
-
-_print_item() {
-  REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( 100 - 25 - REM_COLS ))
-  echo -ne "${BGREEN}$1${RESET}${BWHITE} $2${RESET} "
-  echo -ne "${BBLACK}`seq -s '-' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BBLACK} [      ]${RESET}"
+  echo -ne "${PURPLE}$1${RESET}${BCYAN} $2${RESET} "
+  echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BCYAN} [      ]${RESET}"
 }
 
 _print_ok() {
@@ -967,8 +934,8 @@ _print_ok() {
   echo -e "${BGREEN}OK${RESET}"
 }
 
-_print_error() {
-  tput cub $(( REM_COLS + 6 ))
+_print_fail() {
+  tput cub 5
   echo -e "${BRED}FAIL${RESET}"
 }
 
@@ -1027,14 +994,14 @@ _package_install() { # install pacman package
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      _print_item "Installing" "${PKG}"
+      _print_action "Installing" "${PKG}"
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        _print_error
+        _print_fail
       fi
     else
-      _print_item "Installing" "${PKG}"
+      _print_action "Installing" "${PKG}"
       _print_ok
     fi
   done
@@ -1052,11 +1019,11 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    _print_item "Installing" "${PKG}"
+    _print_action "Installing" "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      _print_error
+      _print_fail
     fi
   done
 }
