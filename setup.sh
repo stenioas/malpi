@@ -874,10 +874,10 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=$(echo ${#APP_TITLE})
   T_TITLE=$(echo ${#1})
-  T_LEFT="${BBLACK}█▓▒░${RESET}${BWHITE}    $1    ${RESET}${BBLACK}░▒▓█${RESET}"
-  T_RIGHT="${BBLACK}█▓▒░${RESET}${BBLACK}    ${APP_TITLE}${RESET}"
+  T_LEFT="${CYAN}░▒▓█${RESET}${BG_CYAN}${BWHITE}    $1    ${RESET}${CYAN}█▓▒░${RESET}"
+  T_RIGHT="${CYAN}░▒▓█${RESET}${BLACK}    ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BBLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 24 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BLACK}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 24 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   _print_dline_bblack
 }
@@ -926,8 +926,8 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( 100 - 25 - REM_COLS ))
-  echo -ne "${PURPLE}$1${RESET}${BCYAN} $2${RESET} "
+  REM_DOTS=$(( 100 - 11 - REM_COLS ))
+  echo -ne "${CYAN}$1${RESET}${BCYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BCYAN} [      ]${RESET}"
 }
@@ -968,7 +968,7 @@ _invalid_option() {
 
 _pause_function() {
   _print_line_bblack
-  read -e -sn 1 -p "${BBLACK}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BCYAN}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
@@ -996,14 +996,14 @@ _package_install() { # install pacman package
   }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
-      _print_action "" "${PKG}"
+      _print_action "Installing" "${PKG}"
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
         _print_fail
       fi
     else
-      _print_action "" "${PKG}"
+      _print_action "Installing" "${PKG}"
       _print_ok
     fi
   done
@@ -1021,7 +1021,7 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    _print_action "" "${PKG}"
+    _print_action "Installing" "${PKG}"
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
@@ -1078,7 +1078,7 @@ ${BYELLOW}  *\`                            \`*${RESET}
 
 
 EOF
-tput cup 15 45
+tput cup 15 46
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
