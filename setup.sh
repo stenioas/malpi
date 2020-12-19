@@ -1113,27 +1113,27 @@ setfont
 
 cat <<EOF
 
-                 -@
-                .##@                   ███╗   ███╗    █████╗    ██╗    ██╗
-               .####@                  ████╗ ████║   ██╔══██╗   ██║    ██║
-               @#####@                 ██╔████╔██║   ███████║   ██║ █╗ ██║
-             . *######@                ██║╚██╔╝██║   ██╔══██║   ██║███╗██║
-            .##@o@#####@               ██║ ╚═╝ ██║██╗██║  ██║██╗╚███╔███╔╝██╗
-           /############@              ╚═╝     ╚═╝╚═╝╚═╝  ╚═╝╚═╝ ╚══╝╚══╝ ╚═╝  
-          /##############@                        My Arch Way!
-         @######@**%######@          ╓───────────────────────────────────────╖
-        @######\`     %#####o         ║  https://github.com/stenioas/myarch   ║
-       @######@       ######%        ║    My Personal Arclinux Installer     ║
-     -@#######h       ######@.\`      ║        By Stenio Silveira             ║
-    /#####h**\`\`       \`**%@####@     ╙───────────────────────────────────────╜
-   @H@*\`                    \`*%#@
-  *\`                            \`*
+${BYELLOW}                 -@                 ${RESET}  
+${BYELLOW}                .##@                ${RESET}${BWHITE}   ███╗   ███╗    █████╗    ██╗    ██╗       ${RESET}
+${BYELLOW}               .####@               ${RESET}${BWHITE}   ████╗ ████║   ██╔══██╗   ██║    ██║       ${RESET}
+${BYELLOW}               @#####@              ${RESET}${BWHITE}   ██╔████╔██║   ███████║   ██║ █╗ ██║       ${RESET}
+${BYELLOW}             . *######@             ${RESET}${BWHITE}   ██║╚██╔╝██║   ██╔══██║   ██║███╗██║       ${RESET}
+${BYELLOW}            .##@o@#####@            ${RESET}${BWHITE}   ██║ ╚═╝ ██║██╗██║  ██║██╗╚███╔███╔╝██╗    ${RESET}
+${BYELLOW}           /############@           ${RESET}${BWHITE}   ╚═╝     ╚═╝╚═╝╚═╝  ╚═╝╚═╝ ╚══╝╚══╝ ╚═╝    ${RESET}  
+${BYELLOW}          /##############@          ${RESET}${PURPLE}   ---------- My Arch Way! ------------      ${RESET}
+${BYELLOW}         @######@**%######@         ${RESET}${BBLACK} ╓───────────────────────────────────────╖   ${RESET}
+${BYELLOW}        @######\`     %#####o       ${RESET}${BBLACK}  ║  https://github.com/stenioas/myarch   ║  ${RESET}
+${BYELLOW}       @######@       ######%       ${RESET}${BBLACK} ║    My Personal Arclinux Installer     ║   ${RESET}
+${BYELLOW}     -@#######h       ######@.\`    ${RESET}${BBLACK}  ║        By Stenio Silveira             ║  ${RESET}
+${BYELLOW}    /#####h**\`\`       \`**%@####@ ${RESET}${BBLACK}    ╙───────────────────────────────────────╜${RESET}
+${BYELLOW}   @H@*\`                    \`*%#@ ${RESET}
+${BYELLOW}  *\`                            \`*${RESET}
 
---------------------------------------------------------------------------------------------------
+
 EOF
 
 while [[ "$1" ]]; do
-  read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
+  read -e -sn 1 -p "${BWHITE}  Press any key to start!${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
