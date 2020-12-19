@@ -73,7 +73,7 @@
       BG_WHITE=$(tput setab 7)
 
     # --- ESSENTIALS
-      APP_TITLE="myarchway 0.1"
+      APP_TITLE="pali 0.1"
       NEW_LANGUAGE="pt_BR"
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
@@ -89,7 +89,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BYELLOW}→ ${RESET}"
+      PROMPT1="${BGREEN}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -306,8 +306,7 @@ _format_partitions() {
     done
     _read_input_option "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _print_danger "All data on the partition will be LOST!"
-      _read_input_option "${BRED}Confirm format EFI partition? [y/N]: ${RESET}"
+      _read_input_option "${BRED}All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
         _print_action "Format" "${EFI_PARTITION}"
@@ -338,11 +337,11 @@ _format_partitions() {
   _check_mountpoint() {
     if mount | grep "$2" &> /dev/null; then
       echo
-      _print_info "Partition successfully mounted!"
+      _print_info "Partition(s) successfully mounted!"
       _disable_partition "$1"
     else
       echo
-      _print_warning "Partition not successfully mounted!"
+      _print_warning "Partition(s) not successfully mounted!"
     fi
   }
   _format_root_partition
@@ -927,14 +926,16 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE} $1 ${RESET}"; echo -e "${BBLACK}│${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -e "\n${BWHITE} $1${RESET}"
+  echo -ne "${BBWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( COLS_SUBTITLE + 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBWHITE}┘${RESET}"
+  echo
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE} SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION: ${RESET}"; echo -e "${BBLACK}│${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -e "\n${BWHITE} SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
+  echo -ne "${BBWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( COLS_SUBTITLE + 20 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}┘${RESET}"
+  echo
 }
 
 _print_info() {
@@ -954,14 +955,14 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 22 - REM_COLS ))
   echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
-  echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
 
 _print_ok() {
-  tput cub 4
+  tput cub 5
   echo -e "${BGREEN}OK${RESET}"
 }
 
@@ -996,7 +997,7 @@ _invalid_option() {
 _pause_function() {
   echo
   _print_dline_bblack
-  read -e -sn 1 -p "${BCYAN}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
