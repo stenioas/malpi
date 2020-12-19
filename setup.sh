@@ -257,6 +257,7 @@ _format_partitions() {
   _format_root_partition() {
     _print_select_partition "ROOT"
     _print_danger "All data on the partition will be LOST!"
+    echo
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -903,12 +904,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BBLACK}║ ${RESET}${BGREEN} $1${RESET}"
+  T_LEFT="${BWHITE}║ ${RESET}${BGREEN} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${BBLACK}"
-  echo -ne "${T_RIGHT}"; echo -e "${BBLACK}═╗${RESET}"
+  echo -ne "${BWHITE}╔${RESET}"; echo -ne "${BWHITE}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${BWHITE}═╗${RESET}"
   echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BBLACK}║${RESET}"
-  echo -ne "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${BBLACK}"; echo -e "${BBLACK}╝${RESET}"
+  echo -ne "${BWHITE}╚${RESET}"; echo -ne "${BWHITE}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}╝${RESET}"
 }
 
 _print_title_alert() {
@@ -926,15 +927,16 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE} $1${RESET}"
-  echo -ne "${BBWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( COLS_SUBTITLE + 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBWHITE}┘${RESET}"
+  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "${BWHITE}  $1${RESET}"
+  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE} SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
-  echo -ne "${BBWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( COLS_SUBTITLE + 20 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}┘${RESET}"
+  echo -e "\n${BWHITE}  SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
+  echo -ne "${BWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}┘${RESET}"
   echo
 }
 
