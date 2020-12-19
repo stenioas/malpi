@@ -1073,33 +1073,31 @@ EOF
 
 _start_screen() {
   BORDER_COLOR=${BBLACK}
+  echo
+  echo -e "                 -@"
+  echo -e "                .##@"
+  echo -e "               .####@"
+  echo -e "               @#####@"
+  echo -e "             . *######@"
+  echo -e "            .##@o@#####@"
+  echo -e "           /############@"
+  echo -e "          /##############@"
+  echo -e "         @######@**%######@"
+  echo -e "        @######\`     %#####o"
+  echo -e "       @######@       ######%"
+  echo -e "     -@#######h       ######@.\`"
+  echo -e "    /#####h**\`\`       \`**%@####@"
+  echo -e "   @H@*\`                    \`*%#@"
+  echo -e "  *\`                            \`*"
+  echo
   echo -e "${BORDER_COLOR} ╓─────────────────────────────────────────╖${RESET}"
-  echo -e "${BORDER_COLOR} ║                                         ║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                    -@${RESET}                   ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                   .##@${RESET}                  ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                  .####@${RESET}                  ${BORDER_COLOR}║${RESET} "
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                  @#####@${RESET}                 ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                . *######@${RESET}                ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}               .##@o@#####@${RESET}               ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}              /############@${RESET}              ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}             /##############@${RESET}             ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}            @######@**%######@${RESET}            ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}           @######\`     %#####o${RESET}          ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}          @######@       ######%${RESET}         ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}        -@#######h       ######@.\`${RESET}        ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}       /#####h**\`\`       \`**%@####@${RESET}       ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}      @H@*\`                    \`*%#@${RESET}      ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}     *\`                            \`*${RESET}      ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║                                         ║${RESET}"
-  echo -e "${BORDER_COLOR} ╟─────────────────────────────────────────╢${RESET}"
   echo -e "${BORDER_COLOR} ║${RESET}   ${YELLOW}https://github.com/stenioas/myarch${RESET}    ${BORDER_COLOR}║${RESET}"
   echo -e "${BORDER_COLOR} ║${RESET}     ${PURPLE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${PURPLE} Installer${RESET}      ${BORDER_COLOR}║${RESET}"
   echo -e "${BORDER_COLOR} ║${RESET}           ${CYAN}By${RESET}${BBLACK} Stenio Silveira${RESET}            ${BORDER_COLOR}║${RESET}"
   echo -e "${BORDER_COLOR} ╙─────────────────────────────────────────╜${RESET}"
   echo
-  read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
 }
- 
+
 # ----------------------------------------------------------------------#
 
 ### EXECUTION
@@ -1111,9 +1109,30 @@ _start_screen() {
 _check_connection
 clear
 setfont
-_start_screen
+#_start_screen
+
+cat <<EOF
+
+                 -@                __  __                        _                           _ 
+                .##@              |  \/  |                      | |                         | |
+               .####@             | \  / |_   _    __ _ _ __ ___| |__   __      ____ _ _   _| |
+               @#####@            | |\/| | | | |  / _` | '__/ __| '_ \  \ \ /\ / / _` | | | | |
+             . *######@           | |  | | |_| | | (_| | | | (__| | | |  \ V  V / (_| | |_| |_|
+            .##@o@#####@          |_|  |_|\__, |  \__,_|_|  \___|_| |_|   \_/\_/ \__,_|\__, (_)
+           /############@                  __/ |                                        __/ |  
+          /##############@                |___/                                        |___/    
+         @######@**%######@             ╓───────────────────────────────────────────────╖
+        @######\`     %#####o           ║      https://github.com/stenioas/myarch       ║
+       @######@       ######%           ║        My Personal Arclinux Installer         ║
+     -@#######h       ######@.\`        ║            By Stenio Silveira                 ║
+    /#####h**\`\`       \`**%@####@     ╙───────────────────────────────────────────────╜
+   @H@*\`                    \`*%#@
+  *\`                            \`*
+--------------------------------------------------------------------------------------------------
+EOF
 
 while [[ "$1" ]]; do
+  read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
