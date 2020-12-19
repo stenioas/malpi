@@ -197,7 +197,6 @@ ${CYAN}  * This script sets hwclock as UTC.${RESET}
 ${BYELLOW}  * This script is not yet complete!${RESET}
   
 ${BWHITE}  * Btw, thank's for your time!${RESET}
-
 EOF
   _pause_function
 }
@@ -926,41 +925,41 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE} $1${RESET}"
-  echo -ne " "; echo -e "${YELLOW}`seq -s '=' $(( COLS_SUBTITLE + 2 )) | tr -d [:digit:]`${RESET}"
+  echo -e "\n${BWHITE}  $1${RESET}"
+  echo -ne " "; echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE} Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
-  echo -ne " "; echo -e "${YELLOW}`seq -s '=' $(( COLS_SUBTITLE + 22 )) | tr -d [:digit:]`${RESET}"
+  echo -e "\n${BWHITE}  SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
+  echo -ne " "; echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${RESET}${BCYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}INFO:${RESET}${BWHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING:${RESET}${BCYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING:${RESET}${BWHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER:${RESET}${BCYAN} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER:${RESET}${BWHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
-  echo -ne "${BLUE}$1${RESET}${BCYAN} $2${RESET} "
+  echo -ne "${BLUE}$1${RESET}${CYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
 
 _print_ok() {
-  tput cub 5
+  tput cub 4
   echo -e "${BGREEN}OK${RESET}"
 }
 
@@ -976,7 +975,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}> ${RESET}${BWHITE}$1${RESET}"
+  printf "%s" "${BWHITE}$1${RESET}"
 }
 
 _read_input_option() {
