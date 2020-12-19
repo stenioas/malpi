@@ -494,6 +494,7 @@ _root_passwd() {
   echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
+    echo
     _print_warning "The password does not match!"
     _print_subtitle "TYPE A NEW ROOT PASSWORD"
     echo -ne "${CYAN}"
@@ -513,7 +514,7 @@ _grub_generate() {
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "BOOTLOADER"
     echo
-    _print_warning "YOU MUST BE TYPE A GRUB NAME ENTRY!"
+    _print_warning "You must be type a grub name entry!"
     _read_input_text "Type a grub name entry: "
     echo -ne "${BGREEN}"
     read -r NEW_GRUB_NAME
@@ -534,8 +535,7 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
-  _print_subtitle "CONFIGS"
-  echo -ne "${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
   echo -e "  ${PURPLE}Selected Disk:${RESET} ${INSTALL_DISK}"
   echo -e "  ${PURPLE}Root partition:${RESET} ${ROOT_PARTITION}"
   echo -e "  ${PURPLE}EFI partition:${RESET} ${EFI_PARTITION}"
@@ -579,6 +579,7 @@ _create_new_user() {
   echo
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
+    echo
     _print_warning "You must be type a username!"
     _read_input_text "Type your username: "
     echo -ne "${BGREEN}"
@@ -592,9 +593,11 @@ _create_new_user() {
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
     _print_subtitle "TYPE A NEW USER PASSWORD"
     passwd ${NEW_USER}
+    echo
     _print_info "Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
   else
+  echo
     _print_info "User ${NEW_USER} already exists!"
   fi
   _pause_function
@@ -615,7 +618,7 @@ _enable_multilib(){
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf && _print_ok
     fi
   fi
-  _print_action "Updating mirrors..."
+  _print_subtitle "UPDATING MIRRORS"
   pacman -Syy
   _pause_function
 }
@@ -776,7 +779,7 @@ _install_display_manager() {
   _print_title "DISPLAY MANAGER"
   PS3="$PROMPT1"
   DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
-  _print_warning " * Select your option:\n"
+  _print_subtitle "SELECT YOUR DISPLAY MANAGER"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
       break
