@@ -121,6 +121,7 @@ _setup_install(){
     _select_disk
     _format_partitions
     _install_base
+    _install_kernel
     _fstab_generate
     _set_timezone_and_clock
     _set_localization
@@ -356,13 +357,42 @@ _install_base() {
   _print_title "BASE"
   _print_subtitle "Installing packages..."
   _pacstrap_install "base base-devel"
-  _pacstrap_install "linux linux-headers linux-lts linux-lts-headers linux-firmware"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
   _print_subtitle "\nEnabling services..."
   _print_item "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
+  _pause_function
+}
+
+_install_kernel() {
+  _print_title "KERNEL"
+  _print_subtitle "Installing packages..."
+  KERNEL_LIST=("linux" "linux-lts" "Other")
+  select KERNEL in "${KERNEL_LIST[@]}"; do
+    if _contains_element "${KERNEL}" "${KERNEL_LIST[@]}"; then
+      KERNEL="${KERNEL}"
+      break;
+    else
+      _invalid_option
+    fi
+  done
+  if [[ "${KERNEL}" = "linux" || "${OPTION}" = "linux-lts" ]]; then
+    _pacstrap_install "${KERNEL}"
+    _pacstrap_install "${KERNEL}-headers"
+    _pacstrap_install "linux-firmware"
+  elif [[ "${KERNEL}" = "Other" ]]; then
+    _read_input_text "Type kernel do you want install: "
+    echo -ne "${BGREEN}"
+    read -r KERNEL
+    echo -ne "${RESET}"
+    _pacstrap_install "${KERNEL}"
+    _pacstrap_install "${KERNEL}-headers"
+    _pacstrap_install "linux-firmware"
+  else
+    _print_info "You have not installed a kernel, remember this."
+  fi
   _pause_function
 }
 
@@ -573,12 +603,14 @@ _enable_multilib(){
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
+  _print_subtitle "Installing packages..."
   _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
   _pause_function
 }
 
 _install_xorg() {
   _print_title "XORG"
+  _print_subtitle "Installing packages..."
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
@@ -598,6 +630,7 @@ _install_vga() {
     fi
   done
   _print_title "VIDEO DRIVER"
+  _print_subtitle "Installing packages..."
   echo -e "${BGREEN}==> ${BWHITE}${VIDEO_CARD}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
 
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
@@ -621,13 +654,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  _print_subtitle "Installing Utils"
+  _print_subtitle "Installing Utils..."
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Installing compression tools"
+  _print_subtitle "\nInstalling compression tools..."
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Installing extra filesystem tools"
+  _print_subtitle "\nInstalling extra filesystem tools..."
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Installing sound tools"
+  _print_subtitle "\nInstalling sound tools..."
   _package_install "alsa-utils pulseaudio"
   _pause_function
 }
@@ -638,9 +671,9 @@ _install_laptop_pkgs() {
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "LAPTOP PACKAGES"
-    _print_subtitle "Packages"
+    _print_subtitle "Installing packages..."
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_subtitle "Services"
+    _print_subtitle "\nEnabling services..."
     _print_item "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
@@ -663,7 +696,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_warning " * Select your option:\n"
+  _print_sub "Select your desktop:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
