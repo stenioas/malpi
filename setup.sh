@@ -212,8 +212,8 @@ _rank_mirrors() {
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   echo
-  _print_line_bblack
-  _read_input_option "Edit your mirrorlist file? [y/N]: "
+  _print_line
+  _read_input_option " Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
   fi
@@ -223,7 +223,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle "SELECT DISK:"
+  _print_subtitle "SELECT DISK"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -233,8 +233,8 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   echo
-  _print_line_bblack
-  _read_input_option "Edit disk partitions? [y/N]: "
+  _print_line
+  _read_input_option " Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
@@ -305,9 +305,9 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    _read_input_option "Format EFI partition? [y/N]: "
+    _read_input_option " Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _read_input_option "${BRED}All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
+      _read_input_option "${BRED} All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
         _print_action "Format" "${EFI_PARTITION}"
@@ -402,8 +402,8 @@ _fstab_generate() {
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   echo
-  _print_line_bblack
-  _read_input_option "Edit your fstab file? [y/N]: "
+  _print_line
+  _read_input_option " Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   fi
@@ -476,14 +476,14 @@ _mkinitcpio_generate() {
 _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
-  _print_subtitle "TYPE A NEW ROOT PASSWORD:"
+  _print_subtitle "TYPE A NEW ROOT PASSWORD"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
     _print_warning "The password does not match!"
-    _print_subtitle "TYPE A NEW ROOT PASSWORD:"
+    _print_subtitle "TYPE A NEW ROOT PASSWORD"
     echo -ne "${CYAN}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
     echo -ne "${RESET}"
@@ -531,6 +531,7 @@ _finish_install() {
   echo -e "-----------------------------------"
   echo
   _print_info "Your new system has been installed!"
+  echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
@@ -540,7 +541,7 @@ _finish_install() {
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
+  _read_input_option "${BRED} Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -573,7 +574,7 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     _print_action "Create user" "${NEW_USER}"
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
-    _print_subtitle "TYPE A NEW USER PASSWORD:"
+    _print_subtitle "TYPE A NEW USER PASSWORD"
     passwd ${NEW_USER}
     _print_info "Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -958,7 +959,7 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 12 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
   echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
@@ -1000,7 +1001,7 @@ _invalid_option() {
 _pause_function() {
   echo
   _print_dline_bblack
-  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN} Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
