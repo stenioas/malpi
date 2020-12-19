@@ -182,27 +182,35 @@ _initial_info() {
   cat <<EOF
 ${BRED} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
-${WHITE}   * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
-${WHITE}   * This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${WHITE} as default bootloader.${RESET}
-${WHITE}   * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${WHITE} and${RESET}${BYELLOW} ROOT.${RESET}
-${WHITE}   * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${WHITE} format.${RESET}
-${WHITE}   * The ESP partition can be formatted if the user wants to.${RESET}
-${WHITE}   * This script does not support ${BYELLOW}SWAP${RESET}.
-${WHITE}   * This script will create three subvolumes:${RESET}
-${WHITE}       - ${BYELLOW}@${RESET}${WHITE} for /${RESET}
-${WHITE}       - ${BYELLOW}@home${RESET}${WHITE} for /home${RESET}
-${WHITE}       - ${BYELLOW}@.snapshots${RESET}${WHITE} for /.snapshots${RESET}
-${WHITE}   * This script, for now, sets zoneinfo as America/Fortaleza.${RESET}
-${WHITE}   * This script sets hwclock as UTC.${RESET}
+${WHITE}   - This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
+
+${WHITE}   - This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${WHITE} as default bootloader.${RESET}
+
+${WHITE}   - This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${WHITE} and${RESET}${BYELLOW} ROOT.${RESET}
+
+${WHITE}   - This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${WHITE} format.${RESET}
+
+${WHITE}   - The ESP partition can be formatted if the user wants to.${RESET}
+
+${WHITE}   - This script does not support ${BYELLOW}SWAP${RESET}.
+
+${WHITE}   - This script will create three subvolumes:${RESET}
+${WHITE}         ${BYELLOW}@${RESET}${WHITE} for /${RESET}
+${WHITE}         ${BYELLOW}@home${RESET}${WHITE} for /home${RESET}
+${WHITE}         ${BYELLOW}@.snapshots${RESET}${WHITE} for /.snapshots${RESET}
+
+${WHITE}   - This script, for now, sets zoneinfo as America/Fortaleza.${RESET}
+
+${WHITE}   - This script sets hwclock as UTC.${RESET}
   
-${BYELLOW}   * This script is not yet complete!${RESET}
+${BYELLOW}   - This script is not yet complete!${RESET}
   
-${BWHITE}   * Btw, thank's for your time!${RESET}
+${BWHITE}   - Btw, thank's for your time!${RESET}
 
 ${BRED} └──────────────────────────────────────────────────────────────────┘${RESET}
 EOF
   _print_line_red
-  read -e -sn 1 -p "${BRED}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
 }
 
 _rank_mirrors() {
