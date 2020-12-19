@@ -212,8 +212,8 @@ _rank_mirrors() {
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   echo
-  _print_line
-  _read_input_option " Edit your mirrorlist file? [y/N]: "
+  _print_dline
+  _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
   fi
@@ -233,8 +233,8 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   echo
-  _print_line
-  _read_input_option " Edit disk partitions? [y/N]: "
+  _print_dline
+  _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
   fi
@@ -305,9 +305,9 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    _read_input_option " Format EFI partition? [y/N]: "
+    _read_input_option "Format EFI partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      _read_input_option "${BRED} All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
+      _read_input_option "${BRED}All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
         _print_action "Format" "${EFI_PARTITION}"
@@ -402,8 +402,8 @@ _fstab_generate() {
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   echo
-  _print_line
-  _read_input_option " Edit your fstab file? [y/N]: "
+  _print_dline
+  _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
   fi
@@ -537,11 +537,12 @@ _finish_install() {
     if ! _is_package_installed "wget"; then
       _package_install "wget"
     fi
+    _print_subtitle "DOWNLOAD"
     _print_action "Downloading" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
-  _read_input_option "${BRED} Reboot system now? [y/N]: ${RESET}"
+  _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
@@ -928,17 +929,17 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BBLACK} ┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "${BWHITE}   $1${RESET}"
-  echo -ne "${BBLACK} └${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "${BWHITE}  $1${RESET}"
+  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BBLACK} ┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "${BWHITE}   SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION:${RESET}"
-  echo -ne "${BBLACK} └${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "${BWHITE}  SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION${RESET}"
+  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
@@ -977,8 +978,8 @@ _print_fail() {
 
 _print_bye() {
   echo
-  _print_line_bblack
-  echo -e "${BGREEN} Bye!${RESET}\n"
+  _print_dline
+  echo -e "${BGREEN}Bye!${RESET}\n"
 }
 
 _read_input_text() {
@@ -1000,8 +1001,8 @@ _invalid_option() {
 
 _pause_function() {
   echo
-  _print_dline_bblack
-  read -e -sn 1 -p "${BGREEN} Press any key to continue...${RESET}"
+  _print_dline
+  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
