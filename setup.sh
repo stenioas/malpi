@@ -959,7 +959,7 @@ _print_item() {
   echo -ne "${BBLACK}[      ]${RESET}${WHITE} $1${RESET}"
 }
 
-_print_ok() {[      ]
+_print_ok() {
   tput cub 4
   echo -e "${BGREEN}OK${RESET}"
 }
