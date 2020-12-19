@@ -212,7 +212,7 @@ _rank_mirrors() {
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   echo
-  _print_dline
+  _print_line
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
@@ -233,7 +233,7 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   echo
-  _print_dline
+  _print_line
   _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -365,7 +365,7 @@ _install_base() {
 
 _install_kernel() {
   _print_title "KERNEL"
-  _print_subtitle "SELECT KERNEL VERSION:"
+  _print_subtitle "SELECT KERNEL VERSION"
   KERNEL_LIST=("linux" "linux-lts" "Other")
   select KERNEL_VERSION in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_VERSION}" "${KERNEL_LIST[@]}"; then
@@ -402,7 +402,7 @@ _fstab_generate() {
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   echo
-  _print_dline
+  _print_line
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
@@ -523,12 +523,14 @@ _grub_generate() {
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
   _print_subtitle "CONFIGS"
-  echo -e "Root partition: ${ROOT_PARTITION}"
-  echo -e "EFI partition: ${EFI_PARTITION}"
-  echo -e "Kernel: ${KERNEL_VERSION}"
-  echo -e "Hostname: ${NEW_HOSTNAME}"
-  echo -e "Grubname: ${NEW_GRUB_NAME}"
-  echo -e "-----------------------------------"
+  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 59 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "  ${PURPLE}Selected Disk:${RESET} ${INSTALL_DISK}"
+  echo -e "  ${PURPLE}Root partition:${RESET} ${ROOT_PARTITION}"
+  echo -e "  ${PURPLE}EFI partition:${RESET} ${EFI_PARTITION}"
+  echo -e "  ${PURPLE}Kernel version:${RESET} ${KERNEL_VERSION}"
+  echo -e "  ${PURPLE}Hostname:${RESET} ${NEW_HOSTNAME}"
+  echo -e "  ${PURPLE}Grubname:${RESET} ${NEW_GRUB_NAME}"
+  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' 59 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
   _print_info "Your new system has been installed!"
   echo
@@ -542,6 +544,7 @@ _finish_install() {
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
+  echo
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -623,7 +626,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle "SELECT VIDEO DRIVER:"
+  _print_subtitle "SELECT VIDEO DRIVER"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -691,7 +694,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_subtitle "SELECT YOUR DESKTOP:"
+  _print_subtitle "SELECT YOUR DESKTOP"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -919,12 +922,12 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BBLACK}║${RESET}${BRED}   $1   ${RESET}${BBLACK}╠${RESET}"
-  T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
-  echo -e "${T_RIGHT}"
-  echo -ne "${T_LEFT}"
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
+  T_LEFT="${BRED}║ ${RESET}${RED} $1${RESET}"
+  T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
+  echo -ne "${BRED}╔${RESET}"; echo -ne "${BRED}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${BRED}═╗${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BRED}║${RESET}"
+  echo -ne "${BRED}╚${RESET}"; echo -ne "${BRED}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BRED}╝${RESET}"
 }
 
 _print_subtitle() {
@@ -960,7 +963,7 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 15 - REM_COLS ))
   echo -ne "${GREEN}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
@@ -978,7 +981,7 @@ _print_fail() {
 
 _print_bye() {
   echo
-  _print_dline
+  _print_line
   echo -e "${BGREEN}Bye!${RESET}\n"
 }
 
@@ -1001,7 +1004,7 @@ _invalid_option() {
 
 _pause_function() {
   echo
-  _print_dline
+  _print_line
   read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
 }
 
