@@ -178,6 +178,7 @@ _setup_user(){
 
 _initial_info() {
   _print_title_alert "IMPORTANT"
+  timedatectl set-ntp true
   cat <<EOF
 
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
@@ -274,7 +275,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
-    _print_subtitle "\nSetting partition..."
+    _print_subtitle "Setting partition..."
     _print_action "Format" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
@@ -312,20 +313,20 @@ _format_partitions() {
       _print_danger "All data on the partition will be LOST!"
       _read_input_option "${BPURPLE}Confirm format EFI partition? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
-        _print_subtitle "\nSetting partition..."
+        _print_subtitle "Setting partition..."
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       else
-        _print_subtitle "\nSetting partition..."
+        _print_subtitle "Setting partition..."
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
         mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
       fi
     else
-      _print_subtitle "\nSetting partition..."
+      _print_subtitle "Setting partition..."
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
       _print_action "Mount" "${EFI_PARTITION}"
       mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
@@ -360,7 +361,7 @@ _install_base() {
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
-  _print_subtitle "\nEnabling services..."
+  _print_subtitle "Enabling services..."
   _print_item "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
@@ -368,7 +369,7 @@ _install_base() {
 
 _install_kernel() {
   _print_title "KERNEL"
-  _print_subtitle "Installing packages..."
+  _print_subtitle "Select your kernel:"
   KERNEL_LIST=("linux" "linux-lts" "Other")
   select KERNEL in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL}" "${KERNEL_LIST[@]}"; then
@@ -378,8 +379,8 @@ _install_kernel() {
       _invalid_option
     fi
   done
-  if [[ "${KERNEL}" = "linux" || "${OPTION}" = "linux-lts" ]]; then
-    _print_subtitle "\nInstalling packages..."
+  if [[ "${KERNEL}" = "linux" || "${KERNEL}" = "linux-lts" ]]; then
+    _print_subtitle "Installing packages..."
     _pacstrap_install "${KERNEL}"
     _pacstrap_install "${KERNEL}-headers"
     _pacstrap_install "linux-firmware"
@@ -388,12 +389,12 @@ _install_kernel() {
     echo -ne "${BGREEN}"
     read -r KERNEL
     echo -ne "${RESET}"
-    _print_subtitle "\nInstalling packages..."
+    _print_subtitle "Installing packages..."
     _pacstrap_install "${KERNEL}"
     _pacstrap_install "${KERNEL}-headers"
     _pacstrap_install "linux-firmware"
   else
-    _print_info "You have not installed a kernel, remember this."
+    _print_warning "You have not installed a kernel, remember this."
   fi
   _pause_function
 }
@@ -455,14 +456,14 @@ _set_network() {
     echo -ne "${RESET}"
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  _print_subtitle "\nSetting..."
+  _print_subtitle "Setting..."
   _print_item "hostname file"
   echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
   _print_item "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
-  _print_subtitle "\nHosts file content:"
+  _print_subtitle "Hosts file content:"
   cat <<EOF 
 127.0.0.1 localhost.localdomain localhost
 ::1 localhost.localdomain localhost
@@ -510,13 +511,13 @@ _grub_generate() {
     read -r NEW_GRUB_NAME
     echo -ne "${RESET}"
   done
-  _print_subtitle "\nInstalling Packages..."
+  _print_subtitle "Installing Packages..."
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "\nInstalling GRUB..."
+  _print_subtitle "Installing GRUB..."
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
-  _print_subtitle "\nGenerating grub.cfg..."
+  _print_subtitle "Generating grub.cfg..."
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
@@ -537,10 +538,10 @@ _finish_install() {
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     if ! _is_package_installed "wget"; then
-      _print_subtitle "\nInstalling packages..."
+      _print_subtitle "Installing packages..."
       _package_install "wget"
     fi
-    _print_subtitle "\nDownloading..."
+    _print_subtitle "Downloading..."
     _print_action "Download" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
@@ -574,8 +575,8 @@ _create_new_user() {
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
-    useradd -m -g users -G wheel ${NEW_USER}
     _print_action "Create user" "${NEW_USER}"
+    useradd -m -g users -G wheel ${NEW_USER} && _print_ok
     _print_subtitle "Type user password:"
     passwd ${NEW_USER}
     _print_info "Privileges added."
@@ -624,7 +625,7 @@ _install_xorg() {
 _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
-  VIDEO_CARD_LIST=("Intel" "AMD" "Nvidia" "Virtualbox");
+  VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_subtitle "Select video card:\n"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
@@ -633,19 +634,13 @@ _install_vga() {
       _invalid_option
     fi
   done
-  _print_title "VIDEO DRIVER"
   _print_subtitle "Installing packages..."
-  echo -e "${BGREEN}==> ${BWHITE}${VIDEO_CARD}${RESET} ${BGREEN}[ SELECTED ]${RESET}"
-
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
-
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
     _print_warning "It's not working yet..."
-
   elif [[ "$VIDEO_CARD" == "Nvidia" ]]; then
     _print_warning "It's not working yet..."
-
   elif [[ "$VIDEO_CARD" == "Virtualbox" ]]; then
     _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
 
@@ -660,11 +655,11 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   _print_subtitle "Installing Utils..."
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "\nInstalling compression tools..."
+  _print_subtitle "Installing compression tools..."
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "\nInstalling extra filesystem tools..."
+  _print_subtitle "Installing extra filesystem tools..."
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "\nInstalling sound tools..."
+  _print_subtitle "Installing sound tools..."
   _package_install "alsa-utils pulseaudio"
   _pause_function
 }
@@ -674,10 +669,9 @@ _install_laptop_pkgs() {
   PS3="$PROMPT1"
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_title "LAPTOP PACKAGES"
     _print_subtitle "Installing packages..."
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_subtitle "\nEnabling services..."
+    _print_subtitle "Enabling services..."
     _print_item "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
   else
@@ -700,7 +694,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_sub "Select your desktop:"
+  _print_subtitle "Select your desktop:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -818,8 +812,8 @@ _install_apps() {
   _print_title "CUSTOM APPS"
   PS3="$PROMPT1"
   _read_input_option "Install custom apps? [y/N]: "
-  echo -e "\n"
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    _print_subtitle "Installing packages..."
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
     _package_install "firefox firefox-i18n-pt-br"
     _package_install "steam"
@@ -851,7 +845,7 @@ _install_pamac() {
   _print_title "PAMAC"
   PS3="$PROMPT1"
   _read_input_option "Install pamac? [y/N]: "
-  echo -e "\n"
+  _print_subtitle "Installing PAMAC..."
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "pamac"; then
       [[ -d pamac ]] && rm -rf pamac
@@ -926,7 +920,7 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "${BWHITE}$1${RESET}"
+  echo -e "\n${BWHITE}$1${RESET}"
   echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
@@ -1078,41 +1072,36 @@ EOF
 }
 
 _start_screen() {
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
-  LOGO_COLS=42
-  LOGO_LINES=28
   BORDER_COLOR=${BBLACK}
-  CURSOR_POSITION_X=$(( (T_COLS - LOGO_COLS)/2 ))
-  CURSOR_POSITION_Y=$(( (T_LINES - LOGO_LINES)/2 ))
-  tput cup ${CURSOR_POSITION_Y} ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}╓─────────────────────────────────────────╖${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 1 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║                                         ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 2 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}                    -\`${RESET}                   ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 3 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}                   .o+\`${RESET}                  ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 4 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}                  \`ooo/${RESET}                  ${BORDER_COLOR}║${RESET} "
-  tput cup $(( CURSOR_POSITION_Y + 5 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}                 \`+oooo:${RESET}                 ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 6 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}                \`+oooooo:${RESET}                ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 7 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}                -+oooooo+:${RESET}               ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 8 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}              \`/:-:++oooo+:${RESET}              ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 9 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}             \`/++++/+++++++:${RESET}             ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 10 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}            \`/++++++++++++++:${RESET}            ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 11 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}           \`/+++ooooooooooooo/\`${RESET}          ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 12 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}          ./ooosssso++osssssso+\`${RESET}         ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 13 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}         .oossssso-\`\`\`\`/ossssss+\`${RESET}        ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 14 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}        -osssssso.      :ssssssso.${RESET}       ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 15 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}       :osssssss/        osssso+++.${RESET}      ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 16 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}      /ossssssss/        +ssssooo/-${RESET}      ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 17 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}    \`/ossssso+/:-        -:/+osssso+-${RESET}    ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 18 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}   \`+sso+:-\`                 \`.-/+oso:${RESET}   ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 19 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}  \`++:.                           \`-/+/${RESET}  ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 20 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}${BYELLOW}  .\`                                 \`${RESET}   ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 21 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║                                         ║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 22 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}╟─────────────────────────────────────────╢${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 23 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}   ${YELLOW}https://github.com/stenioas/myarch${RESET}    ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 24 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}     ${PURPLE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${PURPLE} Installer${RESET}      ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 25 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}║${RESET}           ${CYAN}By${RESET}${BBLACK} Stenio Silveira${RESET}            ${BORDER_COLOR}║${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 26 )) ${CURSOR_POSITION_X}; echo -e "${BORDER_COLOR}╙─────────────────────────────────────────╜${RESET}"
-  tput cup $(( CURSOR_POSITION_Y + 28 )) ${CURSOR_POSITION_X}; read -e -sn 1 -p "${BWHITE}          Press any key to start!${RESET}"
+  echo -e "${BORDER_COLOR} ╓─────────────────────────────────────────╖${RESET}"
+  echo -e "${BORDER_COLOR} ║                                         ║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                    -\`${RESET}                   ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                   .o+\`${RESET}                  ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                  \`ooo/${RESET}                  ${BORDER_COLOR}║${RESET} "
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                 \`+oooo:${RESET}                 ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                \`+oooooo:${RESET}                ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}                -+oooooo+:${RESET}               ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}              \`/:-:++oooo+:${RESET}              ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}             \`/++++/+++++++:${RESET}             ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}            \`/++++++++++++++:${RESET}            ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}           \`/+++ooooooooooooo/\`${RESET}          ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}          ./ooosssso++osssssso+\`${RESET}         ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}         .oossssso-\`\`\`\`/ossssss+\`${RESET}        ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}        -osssssso.      :ssssssso.${RESET}       ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}       :osssssss/        osssso+++.${RESET}      ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}      /ossssssss/        +ssssooo/-${RESET}      ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}    \`/ossssso+/:-        -:/+osssso+-${RESET}    ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}   \`+sso+:-\`                 \`.-/+oso:${RESET}   ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}  \`++:.                           \`-/+/${RESET}  ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}${BYELLOW}  .\`                                 \`${RESET}   ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║                                         ║${RESET}"
+  echo -e "${BORDER_COLOR} ╟─────────────────────────────────────────╢${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}   ${YELLOW}https://github.com/stenioas/myarch${RESET}    ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}     ${PURPLE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${PURPLE} Installer${RESET}      ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ║${RESET}           ${CYAN}By${RESET}${BBLACK} Stenio Silveira${RESET}            ${BORDER_COLOR}║${RESET}"
+  echo -e "${BORDER_COLOR} ╙─────────────────────────────────────────╜${RESET}"
+  echo
+  read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
 }
 
 # ----------------------------------------------------------------------#
@@ -1126,7 +1115,6 @@ _start_screen() {
 _check_connection
 clear
 setfont
-timedatectl set-ntp true
 _start_screen
 
 while [[ "$1" ]]; do
