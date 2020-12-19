@@ -254,6 +254,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
+    echo
     _print_danger "All data on the partition will be LOST!"
     _print_select_partition "ROOT"
     PS3="$PROMPT1"
@@ -290,7 +291,6 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    echo
     _print_select_partition "EFI"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -346,10 +346,12 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
+  _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
+  _print_subtitle "Services"
   _print_action "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
@@ -892,16 +894,12 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE}$1${RESET} "
-  echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUBTITLE - 1 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${BBLACK}┐${RESET}"
+  echo -ne "\n${BGREEN}> ${RESET}${BWHITE}$1${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
-  echo -ne "${BBLACK}`seq -s '─' $(( 100 - COLS_SUTITLE - 19 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${BBLACK}┐${RESET}"
+  echo -ne "\n${BGREEN}> ${RESET}${BWHITE}Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET} "
 }
 
 _print_info() {
@@ -944,7 +942,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BWHITE}$1${RESET}"
+  printf "%s" "${BGREEN}> ${RESET}${BWHITE}$1${RESET}"
 }
 
 _read_input_option() {
