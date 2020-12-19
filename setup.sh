@@ -233,6 +233,8 @@ _select_disk() {
     fi
   done
   INSTALL_DISK=${DEVICE}
+  echo
+  _print_line_bblack
   _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -870,30 +872,30 @@ _install_pamac() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BWHITE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BWHITE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BWHITE}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_line_red() {
-  echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_red() {
   T_COLS=$(tput cols)
-  echo -e "${RED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${RED}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_line_bblack() {
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_bblack() {
   T_COLS=$(tput cols)
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -901,12 +903,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BBLACK}║${RESET}${BGREEN}   $1   ${RESET}${BBLACK}╠${RESET}"
+  T_LEFT="${BBLACK}# ${RESET}${BGREEN} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"
+  echo -ne "${BBLACK}`seq -s '=' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${BBLACK}"
   echo -e "${T_RIGHT}"
-  echo -ne "${T_LEFT}"
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS - T_TITLE - 7 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${T_LEFT}"
+  _print_dline_bblack
 }
 
 _print_title_alert() {
@@ -924,14 +926,14 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}  $1${RESET}"
-  echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 5 )) | tr -d [:digit:]`${RESET}"
+  echo -e "\n${BWHITE} $1${RESET}"
+  echo -ne " "; echo -e "${YELLOW}`seq -s '=' $(( COLS_SUBTITLE + 2 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}  Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
-  echo -e "${YELLOW}`seq -s '═' $(( COLS_SUBTITLE + 23 )) | tr -d [:digit:]`${RESET}"
+  echo -e "\n${BWHITE} Select${RESET}${BYELLOW} $1${RESET}${BWHITE} partition:${RESET}"
+  echo -ne " "; echo -e "${YELLOW}`seq -s '=' $(( COLS_SUBTITLE + 22 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_info() {
@@ -951,7 +953,7 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( 100 - 11 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
   echo -ne "${BLUE}$1${RESET}${BCYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
