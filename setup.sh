@@ -371,27 +371,27 @@ _install_kernel() {
   _print_title "KERNEL"
   _print_subtitle "Select your kernel:"
   KERNEL_LIST=("linux" "linux-lts" "Other")
-  select KERNEL in "${KERNEL_LIST[@]}"; do
-    if _contains_element "${KERNEL}" "${KERNEL_LIST[@]}"; then
-      KERNEL="${KERNEL}"
+  select KERNEL_VERSION in "${KERNEL_LIST[@]}"; do
+    if _contains_element "${KERNEL_VERSION}" "${KERNEL_LIST[@]}"; then
+      KERNEL_VERSION="${KERNEL_VERSION}"
       break;
     else
       _invalid_option
     fi
   done
-  if [[ "${KERNEL}" = "linux" || "${KERNEL}" = "linux-lts" ]]; then
+  if [[ "${KERNEL_VERSION}" = "linux" || "${KERNEL_VERSION}" = "linux-lts" ]]; then
     _print_subtitle "Installing packages..."
-    _pacstrap_install "${KERNEL}"
-    _pacstrap_install "${KERNEL}-headers"
+    _pacstrap_install "${KERNEL_VERSION}"
+    _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
-  elif [[ "${KERNEL}" = "Other" ]]; then
+  elif [[ "${KERNEL_VERSION}" = "Other" ]]; then
     _read_input_text "Type kernel do you want install: "
     echo -ne "${BGREEN}"
-    read -r KERNEL
+    read -r KERNEL_VERSION
     echo -ne "${RESET}"
     _print_subtitle "Installing packages..."
-    _pacstrap_install "${KERNEL}"
-    _pacstrap_install "${KERNEL}-headers"
+    _pacstrap_install "${KERNEL_VERSION}"
+    _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
   else
     _print_warning "You have not installed a kernel, remember this."
@@ -411,7 +411,7 @@ _fstab_generate() {
     _pause_function
   fi
 }
-genfstab -U /mnt > /mnt/etc/fstab
+
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   _print_subtitle "Running..."
@@ -529,7 +529,7 @@ _finish_install() {
   _print_subtitle "CONFIGS"
   echo -e "Root partition: ${ROOT_PARTITION}"
   echo -e "EFI partition: ${EFI_PARTITION}"
-  echo -e "Kernel: linux and linux-lts"
+  echo -e "Kernel: ${KERNEL_VERSION}"
   echo -e "Hostname: ${NEW_HOSTNAME}"
   echo -e "Grubname: ${NEW_GRUB_NAME}"
   echo -e "-----------------------------------"
@@ -1055,7 +1055,7 @@ _pacstrap_install() { # install pacstrap package
 }
 
 usage() {
-    cat <<EOF
+  cat <<EOF
 
 usage: ${0##*/} [flags]
 
@@ -1071,33 +1071,6 @@ arch-setup 0.1
 EOF
 }
 
-_start_screen() {
-  BORDER_COLOR=${BBLACK}
-  echo
-  echo -e "                 -@"
-  echo -e "                .##@"
-  echo -e "               .####@"
-  echo -e "               @#####@"
-  echo -e "             . *######@"
-  echo -e "            .##@o@#####@"
-  echo -e "           /############@"
-  echo -e "          /##############@"
-  echo -e "         @######@**%######@"
-  echo -e "        @######\`     %#####o"
-  echo -e "       @######@       ######%"
-  echo -e "     -@#######h       ######@.\`"
-  echo -e "    /#####h**\`\`       \`**%@####@"
-  echo -e "   @H@*\`                    \`*%#@"
-  echo -e "  *\`                            \`*"
-  echo
-  echo -e "${BORDER_COLOR} ╓─────────────────────────────────────────╖${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}   ${YELLOW}https://github.com/stenioas/myarch${RESET}    ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}     ${PURPLE}My Personal ${RESET}${BWHITE}Arclinux${RESET}${PURPLE} Installer${RESET}      ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ║${RESET}           ${CYAN}By${RESET}${BBLACK} Stenio Silveira${RESET}            ${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR} ╙─────────────────────────────────────────╜${RESET}"
-  echo
-}
-
 # ----------------------------------------------------------------------#
 
 ### EXECUTION
@@ -1109,7 +1082,6 @@ _start_screen() {
 _check_connection
 clear
 setfont
-#_start_screen
 
 cat <<EOF
 
@@ -1133,7 +1105,7 @@ ${BYELLOW}  *\`                            \`*${RESET}
 EOF
 
 while [[ "$1" ]]; do
-  read -e -sn 1 -p "${BWHITE}  Press any key to start!${RESET}"
+  read -e -sn 1 -p "${BWHITE}                           Press any key to start!${RESET}"
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
