@@ -180,12 +180,8 @@ _initial_info() {
   _print_title_alert "IMPORTANT"
   timedatectl set-ntp true
   cat <<EOF
-
 ${CYAN}  * This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 ${CYAN}  * This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${CYAN} as default bootloader.${RESET}
-${CYAN}  * This script installs the following kernels and their respective headers:${RESET}
-${CYAN}      - ${RESET}${BYELLOW}linux${RESET}
-${CYAN}      - ${RESET}${BYELLOW}linux-lts${RESET}
 ${CYAN}  * This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${CYAN} and${RESET}${BYELLOW} ROOT.${RESET}
 ${CYAN}  * This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${CYAN} format.${RESET}
 ${CYAN}  * The ESP partition can be formatted if the user wants to.${RESET}
@@ -202,8 +198,8 @@ ${BYELLOW}  * This script is not yet complete!${RESET}
 ${BWHITE}  * Btw, thank's for your time!${RESET}
 
 EOF
-  echo -e "${RED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-  read -e -sn 1 -p "${BRED} Press any key to continue...${RESET}"
+  _print_dline_bblack
+  _pause_function
 }
 
 _rank_mirrors() {
@@ -211,6 +207,7 @@ _rank_mirrors() {
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
+  echo
   _print_action "Running" "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_action "Running" "pacman -Syy"
@@ -218,8 +215,6 @@ _rank_mirrors() {
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
-  else
-    _pause_function
   fi
 }
 
