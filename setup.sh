@@ -902,12 +902,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BBLACK}# ${RESET}${BGREEN} $1${RESET}"
+  T_LEFT="${BBLACK}║ ${RESET}${BGREEN} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BBLACK}`seq -s '=' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${BBLACK}"
+  echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${BBLACK}"
   echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
-  _print_dline_bblack
+  echo -ne "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS )) | tr -d [:digit:]`${BBLACK}"
 }
 
 _print_title_alert() {
@@ -925,8 +925,8 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE}  $1${RESET}"
-  echo -ne " "; echo -e "${BBLACK}`seq -s '-' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BWHITE} $1${RESET}"; echo -e "${BBLACK}│${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 4 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
 }
 
 _print_select_partition() {
@@ -953,7 +953,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
-  echo -ne "${BLUE}$1${RESET}${CYAN} $2${RESET} "
+  echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS + 1 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [      ]${RESET}"
 }
