@@ -73,7 +73,7 @@
       BG_WHITE=$(tput setab 7)
 
     # --- ESSENTIALS
-      APP_TITLE="myarch-setup 0.1"
+      APP_TITLE="myarchway 0.1"
       NEW_LANGUAGE="pt_BR"
       NEW_ZONE="America"
       NEW_SUBZONE="Fortaleza"
@@ -906,8 +906,8 @@ _print_title() {
   T_TITLE=${#1}
   T_LEFT="${BBLACK}║ ${RESET}${BGREEN} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 3 )) | tr -d [:digit:]`${BBLACK}"
-  echo -ne "${T_RIGHT}"; echo -e "${BBLACK}╗${RESET}"
+  echo -ne "${BBLACK}╔${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${BBLACK}"
+  echo -ne "${T_RIGHT}"; echo -e "${BBLACK}═╗${RESET}"
   echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BBLACK}║${RESET}"
   echo -ne "${BBLACK}╚${RESET}"; echo -ne "${BBLACK}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${BBLACK}"; echo -e "${BBLACK}╝${RESET}"
 }
@@ -927,14 +927,14 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE} $1 ${RESET}"; echo -e "${BBLACK}║${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}╜${RESET}"
+  echo -ne "\n${BWHITE} $1 ${RESET}"; echo -e "${BBLACK}│${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BWHITE} SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION: ${RESET}"; echo -e "${BBLACK}║${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}╜${RESET}"
+  echo -ne "\n${BWHITE} SELECT${RESET}${BYELLOW} $1${RESET}${BWHITE} PARTITION: ${RESET}"; echo -e "${BBLACK}│${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
 }
 
 _print_info() {
