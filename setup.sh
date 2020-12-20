@@ -537,16 +537,16 @@ _grub_generate() {
 
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
+  echo
+  _print_info "Your new system has been installed!"
   echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "  ${PURPLE}Selected Disk:${RESET} ${INSTALL_DISK}"
+  echo -e "  ${PURPLE}Disk:${RESET} ${INSTALL_DISK}"
   echo -e "  ${PURPLE}Root partition:${RESET} ${ROOT_PARTITION}"
   echo -e "  ${PURPLE}EFI partition:${RESET} ${EFI_PARTITION}"
   echo -e "  ${PURPLE}Kernel version:${RESET} ${KERNEL_VERSION}"
   echo -e "  ${PURPLE}Hostname:${RESET} ${NEW_HOSTNAME}"
   echo -e "  ${PURPLE}Grubname:${RESET} ${NEW_GRUB_NAME}"
   echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
-  echo
-  _print_info "Your new system has been installed!"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -558,13 +558,16 @@ _finish_install() {
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
+  _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
     reboot
+  else
+    clear
+    _print_bye
+    exit 0
   fi
-  _print_bye
-  exit 0
 }
 
 # --- END INSTALL SECTION --- >
@@ -1012,9 +1015,7 @@ _print_exists() {
 }
 
 _print_bye() {
-  echo
-  _print_line
-  echo -e "${BGREEN}Bye!${RESET}\n"
+  echo -e "\n${BGREEN}Bye!${RESET}\n"
 }
 
 _read_input_text() {
