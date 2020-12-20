@@ -876,6 +876,7 @@ _install_apps() {
 
 _install_pamac() {
   _print_title "AUR HELPER"
+  echo
   _read_input_option "Install pamac? [y/N]: "
   _print_subtitle "PAMAC"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
@@ -884,11 +885,14 @@ _install_pamac() {
       git clone https://aur.archlinux.org/pamac-aur.git pamac
       cd pamac
       makepkg -csi --noconfirm
+      _pause_function
     else
       _print_info "Pamac is already installed!"
+      _pause_function
     fi
   fi
   _print_title "AUR HELPER"
+  echo
   _read_input_option "Install yay? [y/N]: "
   _print_subtitle "YAY"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
@@ -900,10 +904,11 @@ _install_pamac() {
       git clone https://aur.archlinux.org/yay.git yay
       cd yay
       makepkg -csi --noconfirm
+      _pause_function
     else
       _print_info "Yay is already installed!"
+      _pause_function
     fi
-    _pause_function
   fi
 }
 
