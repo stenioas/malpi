@@ -937,8 +937,10 @@ _print_title() {
   T_TITLE=${#1}
   T_LEFT="${BWHITE}  $1  ${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
-  echo -ne "${T_LEFT}"; echo -e "${BBLACK}`seq -s '─' $(( T_COLS - T_TITLE )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( T_TITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -ne "${BBLACK}┐${RESET}"
+  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - T_TITLE - 6 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
+  echo -e "${T_LEFT}"
+  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( T_TITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
 }
 
 _print_title_alert() {
