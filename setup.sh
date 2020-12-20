@@ -622,7 +622,6 @@ _enable_multilib(){
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf && _print_ok
     fi
   fi
-  _print_subtitle "UPDATING MIRRORS"
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   _pause_function
@@ -796,10 +795,11 @@ _install_display_manager() {
   done
   _print_title "DISPLAY MANAGER"
   DMANAGER_CHOICE=$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')
-  echo -e " ${PURPLE}${DMANAGER_CHOICE}${RESET}\n"
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
+    _print_subtitle "LIGHTDM PACKAGES"
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
+    _print_subtitle "SERVICES"
     _print_action "Enabling" "LightDM"
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
@@ -834,7 +834,8 @@ _install_display_manager() {
 
 _finish_desktop() {
   _print_title "THIRD STEP FINISHED"
-  _print_info "[ OPTIONAL ] Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
+  echo
+  _print_info "Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
   _pause_function
   exit 0
 }
@@ -845,7 +846,7 @@ _finish_desktop() {
 
 _install_apps() {
   _print_title "CUSTOM APPS"
-  PS3="$PROMPT1"
+  echo
   _read_input_option "Install custom apps? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
@@ -869,17 +870,14 @@ _install_apps() {
     _package_install "papirus-icon-theme"
     _package_install "capitaine-cursors"
     _package_install "ttf-dejavu"
-  else
-    echo -e " ${BYELLOW}* Nothing to do!${RESET}"
+    _pause_function
   fi
-  _pause_function
 }
 
 _install_pamac() {
-  _print_title "PAMAC"
-  PS3="$PROMPT1"
+  _print_title "AUR HELPER"
   _read_input_option "Install pamac? [y/N]: "
-  _print_subtitle "Installing PAMAC..."
+  _print_subtitle "PAMAC"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "pamac"; then
       [[ -d pamac ]] && rm -rf pamac
@@ -887,12 +885,26 @@ _install_pamac() {
       cd pamac
       makepkg -csi --noconfirm
     else
-      echo -e " ${BCYAN}Pamac${RESET} - ${BYELLOW}Is already installed!${RESET}"
+      _print_info "Pamac is already installed!"
     fi
-  else
-    echo -e " ${BYELLOW}* Nothing to do!${RESET}"
   fi
-  _pause_function
+  _print_title "AUR HELPER"
+  _read_input_option "Install yay? [y/N]: "
+  _print_subtitle "YAY"
+  if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
+    if ! is_package_installed "yay" ; then
+      _print_subtitle "PACKAGES"
+      _package_install "base-devel git go"
+      sudo pacman -D --asdeps go
+      [[ -d yay ]] && rm -rf yay
+      git clone https://aur.archlinux.org/yay.git yay
+      cd yay
+      makepkg -csi --noconfirm
+    else
+      _print_info "Yay is already installed!"
+    fi
+    _pause_function
+  fi
 }
 
 # --- END USER SECTION --- >
