@@ -166,7 +166,7 @@ _setup_user(){
       exit 1
     }
     _install_apps
-    _install_pamac
+    _install_aurhelper
     exit 0
 }
 
@@ -874,29 +874,13 @@ _install_apps() {
   fi
 }
 
-_install_pamac() {
-  _print_title "AUR HELPER"
-  echo
-  _read_input_option "Install pamac? [y/N]: "
-  _print_subtitle "PAMAC"
-  if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
-    if ! _is_package_installed "pamac"; then
-      [[ -d pamac ]] && rm -rf pamac
-      git clone https://aur.archlinux.org/pamac-aur.git pamac
-      cd pamac
-      makepkg -csi --noconfirm
-      _pause_function
-    else
-      _print_info "Pamac is already installed!"
-      _pause_function
-    fi
-  fi
+_install_aurhelper() {
   _print_title "AUR HELPER"
   echo
   _read_input_option "Install yay? [y/N]: "
   _print_subtitle "YAY"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
-    if ! is_package_installed "yay" ; then
+    if ! _is_package_installed "yay" ; then
       _print_subtitle "PACKAGES"
       _package_install "base-devel git go"
       sudo pacman -D --asdeps go
@@ -1108,16 +1092,11 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    if ! _is_package_installed "${PKG}"; then
-      _print_action "Installing" "${PKG}"
-      if _pacstrap_was_installed "${PKG}"; then
-        _print_ok
-      else
-        _print_fail
-      fi
+    _print_action "Installing" "${PKG}"
+    if _pacstrap_was_installed "${PKG}"; then
+      _print_ok
     else
-      _print_action "Installing" "${PKG}"
-      _print_exists
+      _print_fail
     fi
   done
 }
