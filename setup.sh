@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# pali: My Personal Arch Linux Installer - Install and Configure Archlinux
+# pali: Personal Arch Linux Installer - Install and configure my Arch
 #
 # ----------------------------------------------------------------------#
 #
@@ -8,30 +8,6 @@
 #   Archfi script by Matmaoul - github.com/Matmoul
 #   Aui script by Helmuthdu - github.com/helmuthdu
 #   pos-alpine script by terminalroot - github.com/terroo
-#
-# ----------------------------------------------------------------------#
-#
-# The MIT License (MIT)
-#
-# Copyright (c) 2020 Stenio Silveira
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
 #
 # ----------------------------------------------------------------------#
 
@@ -209,8 +185,7 @@ ${BWHITE}   - Btw, thank's for your time!${RESET}
 
 ${BRED} └──────────────────────────────────────────────────────────────────┘${RESET}
 EOF
-  _print_line_red
-  read -e -sn 1 -p "${BWHITE}Press any key to continue...${RESET}"
+  _pause_function
 }
 
 _rank_mirrors() {
@@ -364,6 +339,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
+  _print_action "Updating"
   pacman -Sy archlinux-keyring &> /dev/null
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
@@ -455,9 +431,7 @@ _set_network() {
   _print_title "NETWORK CONFIGURATION"
   echo
   _read_input_text "Type a hostname: "
-  echo -ne "${BGREEN}"
   read -r NEW_HOSTNAME
-  echo -ne "${RESET}"
   echo
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
@@ -465,9 +439,7 @@ _set_network() {
     _print_warning "You must be type a hostname!"
     echo
     _read_input_text "Type a hostname: "
-    echo -ne "${BGREEN}"
     read -r NEW_HOSTNAME
-    echo -ne "${RESET}"
     echo
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
@@ -491,17 +463,13 @@ _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
   _print_subtitle "Type a new root password"
-  echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
-  echo -ne "${RESET}"
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
     echo
     _print_warning "The password does not match!"
     _print_subtitle "Type a new root password"
-    echo -ne "${CYAN}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
-    echo -ne "${RESET}"
   done
   _pause_function
 }
@@ -510,29 +478,21 @@ _grub_generate() {
   _print_title "BOOTLOADER"
   echo
   _read_input_text "Type a grub name entry: "
-  echo -ne "${BGREEN}"
   read -r NEW_GRUB_NAME
-  echo -ne "${RESET}"
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "BOOTLOADER"
     echo
     _print_warning "You must be type a grub name entry!"
     echo
     _read_input_text "Type a grub name entry: "
-    echo -ne "${BGREEN}"
     read -r NEW_GRUB_NAME
-    echo -ne "${RESET}"
   done
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
   _print_subtitle "Grub install"
-  echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
-  echo -ne "${RESET}"
   _print_subtitle "Grub configuration file"
-  echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
-  echo -ne "${RESET}"
   _pause_function  
 }
 
@@ -558,7 +518,7 @@ _finish_install() {
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
-  _print_line
+  _print_line_bblack
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -577,18 +537,14 @@ _create_new_user() {
   _print_title "NEW USER"
   echo
   _read_input_text "Type your username: "
-  echo -ne "${BGREEN}"
   read -r NEW_USER
-  echo -ne "${RESET}"
   echo
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     echo
     _print_warning "You must be type a username!"
     _read_input_text "Type your username: "
-    echo -ne "${BGREEN}"
     read -r NEW_USER
-    echo -ne "${RESET}"
     echo
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
@@ -940,7 +896,7 @@ _print_title() {
   T_LEFT="${WHITE}│ ${RESET}${BGREEN} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
   echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${BWHITE}─┐${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${WHITE}─┐${RESET}"
   echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${WHITE}│${RESET}"
   echo -ne "${WHITE}└${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${WHITE}┘${RESET}"
 }
@@ -953,7 +909,7 @@ _print_title_alert() {
   T_LEFT="${WHITE}│ ${RESET}${BRED} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
   echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${BWHITE}─┐${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${WHITE}─┐${RESET}"
   echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${WHITE}│${RESET}"
   echo -ne "${WHITE}└${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${WHITE}┘${RESET}"
 }
@@ -970,7 +926,7 @@ _print_select_partition() {
   COLS_SUBTITLE=${#1}
   #echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
   echo -e "\n${BWHITE} SELECT${RESET}${BGREEN} $1${RESET}${BWHITE} PARTITION${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 20 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
