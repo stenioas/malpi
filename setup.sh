@@ -935,12 +935,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BWHITE}  $1  ${RESET}"
+  T_LEFT="${BGREEN}  $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( T_TITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -ne "${BBLACK}┐${RESET}"
-  echo -ne "`seq -s ' ' $(( T_COLS - T_APP_TITLE - T_TITLE - 6 )) | tr -d [:digit:]`"; echo -e "${T_RIGHT}"
+  echo -ne "${BWHITE}┌${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${BWHITE}─┐${RESET}"
   echo -e "${T_LEFT}"
-  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( T_TITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "${BWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}┘${RESET}"
 }
 
 _print_title_alert() {
