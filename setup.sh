@@ -623,7 +623,8 @@ _enable_multilib(){
     fi
   fi
   _print_subtitle "UPDATING MIRRORS"
-  pacman -Syy
+  _print_action "Running" "pacman -Syy"
+  pacman -Syy &> /dev/null && _print_ok
   _pause_function
 }
 
