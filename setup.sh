@@ -574,6 +574,7 @@ _finish_install() {
 
 _create_new_user() {
   _print_title "NEW USER"
+  echo
   _read_input_text "Type your username: "
   echo -ne "${BGREEN}"
   read -r NEW_USER
@@ -611,9 +612,11 @@ _enable_multilib(){
   if [[ $ARCHI == x86_64 ]]; then
     local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $_has_multilib ]]; then
+      echo
       _print_action "Enabling" "Multilib"
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && _print_ok
     else
+      echo
       _print_action "Enabling" "Multilib"
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
@@ -627,12 +630,14 @@ _enable_multilib(){
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
+  _print_subtitle "PACKAGES"
   _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
   _pause_function
 }
 
 _install_xorg() {
   _print_title "XORG"
+  _print_subtitle "PACKAGES"
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
@@ -652,12 +657,14 @@ _install_vga() {
     fi
   done
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
+    _print_subtitle "PACKAGES"
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" == "Nvidia" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" == "Virtualbox" ]]; then
+    _print_subtitle "PACKAGES"
     _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
 
   else
@@ -691,10 +698,8 @@ _install_laptop_pkgs() {
     _print_subtitle "SERVICES"
     _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
-  else
-    -_print_info "Nothing to do!"
+    _pause_function
   fi
-  _pause_function
 }
 
 _finish_config() {
