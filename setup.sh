@@ -199,7 +199,7 @@ _rank_mirrors() {
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   echo
-  _print_line
+  _print_line_bblack
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
@@ -220,7 +220,7 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   echo
-  _print_line
+  _print_line_bblack
   _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -339,8 +339,8 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  _print_action "Updating"
-  pacman -Sy archlinux-keyring &> /dev/null
+  _print_action "Installing" "archlinux-keyring"
+  pacman -Sy --noconfirm archlinux-keyring &> /dev/null && _print_ok
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "intel-ucode"
@@ -391,7 +391,7 @@ _fstab_generate() {
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   echo
-  _print_line
+  _print_line_bblack
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
