@@ -235,7 +235,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle "SELECT DISK"
+  _print_subtitle "Select disk"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -365,12 +365,12 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   pacman -Sy archlinux-keyring &> /dev/null
-  _print_subtitle "PACKAGES"
+  _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
-  _print_subtitle "SERVICES"
+  _print_subtitle "Services"
   _print_action "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
   _pause_function
@@ -378,7 +378,7 @@ _install_base() {
 
 _install_kernel() {
   _print_title "KERNEL"
-  _print_subtitle "SELECT KERNEL VERSION"
+  _print_subtitle "Select kernel version"
   KERNEL_LIST=("linux" "linux-lts" "Other")
   select KERNEL_VERSION in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_VERSION}" "${KERNEL_LIST[@]}"; then
@@ -389,7 +389,7 @@ _install_kernel() {
     fi
   done
   if [[ "${KERNEL_VERSION}" = "linux" || "${KERNEL_VERSION}" = "linux-lts" ]]; then
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -399,7 +399,7 @@ _install_kernel() {
     read -r KERNEL_VERSION
     echo -ne "${RESET}"
     echo
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
     _pacstrap_install "linux-firmware"
@@ -490,7 +490,7 @@ _mkinitcpio_generate() {
 _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
-  _print_subtitle "TYPE A NEW ROOT PASSWORD"
+  _print_subtitle "Type a new root password"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   echo -ne "${RESET}"
@@ -498,7 +498,7 @@ _root_passwd() {
     _print_title "ROOT PASSWORD"
     echo
     _print_warning "The password does not match!"
-    _print_subtitle "TYPE A NEW ROOT PASSWORD"
+    _print_subtitle "Type a new root password"
     echo -ne "${CYAN}"
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
     echo -ne "${RESET}"
@@ -523,13 +523,13 @@ _grub_generate() {
     read -r NEW_GRUB_NAME
     echo -ne "${RESET}"
   done
-  _print_subtitle "PACKAGES"
+  _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
-  _print_subtitle "GRUB INSTALL"
+  _print_subtitle "Grub install"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   echo -ne "${RESET}"
-  _print_subtitle "GRUB CONFIGURATION FILE"
+  _print_subtitle "Grub configuration file"
   echo -ne "${CYAN}"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   echo -ne "${RESET}"
@@ -551,9 +551,8 @@ _finish_install() {
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "PACKAGES"
+    echo
     _package_install "wget"
-    _print_subtitle "DOWNLOAD"
     _print_action "Downloading" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
   fi
@@ -596,7 +595,7 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     _print_action "Create user" "${NEW_USER}"
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
-    _print_subtitle "TYPE A NEW USER PASSWORD"
+    _print_subtitle "Type a new user password"
     passwd ${NEW_USER}
     echo
     _print_info "Privileges added."
@@ -717,7 +716,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_subtitle "SELECT YOUR DESKTOP"
+  _print_subtitle "Select your desktop"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -732,44 +731,44 @@ _install_desktop() {
   
   if [[ "${DESKTOP}" == "Gnome" ]]; then
     _print_title "GNOME DESKTOP"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _group_package_install "gnome"
     _group_package_install "gnome-extra"
     _package_install "gnome-tweaks"
 
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
     _print_title "PLASMA DESKTOP"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "plasma kde-applications packagekit-qt5"
 
   elif [[ "${DESKTOP}" == "Xfce" ]]; then
     _print_title "XFCE DESKTOP"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "i3-gaps" ]]; then
     _print_title "I3-GAPS"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Bspwm" ]]; then
     _print_title "BSPWM"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _print_warning "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Awesome" ]]; then
     _print_title "AWESOME WM"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _print_warning "It's not working yet..."
 
   elif [[ "${DESKTOP}" == "Openbox" ]]; then
     _print_title "OPENBOX"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "Qtile" ]]; then
     _print_title "QTILE"
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
   elif [[ "${DESKTOP}" == "None" ]]; then
@@ -787,7 +786,7 @@ _install_display_manager() {
   _print_title "DISPLAY MANAGER"
   PS3="$PROMPT1"
   DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
-  _print_subtitle "SELECT YOUR DISPLAY MANAGER"
+  _print_subtitle "Select display manager"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
       break
@@ -799,9 +798,9 @@ _install_display_manager() {
   DMANAGER_CHOICE=$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
-    _print_subtitle "LIGHTDM PACKAGES"
+    _print_subtitle "Packages"
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    _print_subtitle "SERVICES"
+    _print_subtitle "Services"
     _print_action "Enabling" "LightDM"
     sudo systemctl enable lightdm &> /dev/null && _print_ok
 
@@ -812,12 +811,16 @@ _install_display_manager() {
     _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
+    _print_subtitle "Packages"
     _package_install "gdm"
+    _print_subtitle "Services"
     _print_action "Enabling" "GDM"
     sudo systemctl enable gdm &> /dev/null && _print_ok
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
+    _print_subtitle "Packages"
     _package_install "sddm"
+    _print_subtitle "Services"
     _print_action "Enabling" "SDDM"
     sudo systemctl enable sddm &> /dev/null && _print_ok
 
@@ -883,7 +886,7 @@ _install_aurhelper() {
   _print_subtitle "YAY"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "yay" ; then
-      _print_subtitle "PACKAGES"
+      _print_subtitle "Packages"
       _package_install "base-devel git go"
       sudo pacman -D --asdeps go
       [[ -d yay ]] && rm -rf yay
@@ -934,12 +937,12 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BWHITE}│ ${RESET}${BGREEN} $1${RESET}"
+  T_LEFT="${WHITE}│ ${RESET}${BGREEN} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BWHITE}┌${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${T_RIGHT}"; echo -e "${BWHITE}─┐${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BWHITE}│${RESET}"
-  echo -ne "${BWHITE}└${RESET}"; echo -ne "${BWHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BWHITE}┘${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${WHITE}│${RESET}"
+  echo -ne "${WHITE}└${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${WHITE}┘${RESET}"
 }
 
 _print_title_alert() {
@@ -947,43 +950,43 @@ _print_title_alert() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BRED}║ ${RESET}${BWHITE} $1${RESET}"
+  T_LEFT="${WHITE}│ ${RESET}${BRED} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BRED}╔${RESET}"; echo -ne "${BRED}`seq -s '═' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${BRED}═╗${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BRED}║${RESET}"
-  echo -ne "${BRED}╚${RESET}"; echo -ne "${BRED}`seq -s '═' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BRED}╝${RESET}"
+  echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${BWHITE}─┐${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${WHITE}│${RESET}"
+  echo -ne "${WHITE}└${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${WHITE}┘${RESET}"
 }
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   #echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "\n${BWHITE}  $1${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 4 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -e "\n${BWHITE} $1${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
 _print_select_partition() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "${BWHITE}  SELECT${RESET}${BGREEN} $1${RESET}${BWHITE} PARTITION${RESET}"
-  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  #echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
+  echo -e "\n${BWHITE} SELECT${RESET}${BGREEN} $1${RESET}${BWHITE} PARTITION${RESET}"
+  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${RESET}${BWHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING:${RESET}${BWHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}WARNING:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER:${RESET}${BWHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
@@ -1018,7 +1021,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}→ ${RESET}${BWHITE}$1${RESET}"
+  printf "%s" "${YELLOW}→ $1${RESET}"
 }
 
 _read_input_option() {
