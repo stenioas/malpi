@@ -462,6 +462,7 @@ _set_network() {
     _print_title "NETWORK CONFIGURATION"
     echo
     _print_warning "You must be type a hostname!"
+    echo
     _read_input_text "Type a hostname: "
     echo -ne "${BGREEN}"
     read -r NEW_HOSTNAME
@@ -515,6 +516,7 @@ _grub_generate() {
     _print_title "BOOTLOADER"
     echo
     _print_warning "You must be type a grub name entry!"
+    echo
     _read_input_text "Type a grub name entry: "
     echo -ne "${BGREEN}"
     read -r NEW_GRUB_NAME
@@ -1017,6 +1019,7 @@ _contains_element() {
 }
 
 _invalid_option() {
+  echo
     _print_warning "Invalid option. Try again..."
 }
 
