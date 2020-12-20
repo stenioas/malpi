@@ -632,14 +632,14 @@ _enable_multilib(){
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
-  _print_subtitle "PACKAGES"
+  _print_subtitle "Packages"
   _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
   _pause_function
 }
 
 _install_xorg() {
   _print_title "XORG"
-  _print_subtitle "PACKAGES"
+  _print_subtitle "Packages"
   _group_package_install "xorg"
   _group_package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
@@ -650,7 +650,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle "SELECT VIDEO DRIVER"
+  _print_subtitle "Select video driver"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -659,14 +659,14 @@ _install_vga() {
     fi
   done
   if [[ "$VIDEO_CARD" == "Intel" ]]; then
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" == "AMD" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" == "Nvidia" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" == "Virtualbox" ]]; then
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
 
   else
@@ -678,13 +678,13 @@ _install_vga() {
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  _print_subtitle "UTILITIES"
+  _print_subtitle "Utilities"
   _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "COMPRESSION TOOLS"
+  _print_subtitle "Compression tools"
   _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "FILESYSTEM TOOLS"
+  _print_subtitle "Filesystem tools"
   _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "SOUND TOOLS"
+  _print_subtitle "Sound tools"
   _package_install "alsa-utils pulseaudio"
   _pause_function
 }
@@ -695,9 +695,9 @@ _install_laptop_pkgs() {
   echo
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "PACKAGES"
+    _print_subtitle "Packages"
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_subtitle "SERVICES"
+    _print_subtitle "Services"
     _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null && _print_ok
     _pause_function
@@ -706,7 +706,6 @@ _install_laptop_pkgs() {
 
 _finish_config() {
   _print_title "SECOND STEP FINISHED"
-  _pause_function
   exit 0
 }
 
@@ -959,7 +958,7 @@ _print_title_alert() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   #echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "\n${WHITE}  $1${RESET}"
+  echo -e "\n${BWHITE}  $1${RESET}"
   echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 4 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
@@ -1038,8 +1037,8 @@ _invalid_option() {
 
 _pause_function() {
   echo
-  _print_line
-  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
+  _print_line_bblack
+  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
