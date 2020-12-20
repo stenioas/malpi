@@ -550,9 +550,8 @@ _finish_install() {
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    if ! _is_package_installed "wget"; then
-      _package_install "wget"
-    fi
+    _print_subtitle "PACKAGES"
+    _package_install "wget"
     _print_subtitle "DOWNLOAD"
     _print_action "Downloading" "setup.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
@@ -985,23 +984,29 @@ _print_danger() {
 
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 11 - REM_COLS ))
+  REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
   echo -ne "${PURPLE}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BBLACK} [      ]${RESET}"
+  echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
 }
 
 _print_ok() {
   tput rc
-  tput cub 5
+  tput cub 6
   echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_fail() {
   tput rc
-  tput cub 6
+  tput cub 7
   echo -e "${BRED}FAIL${RESET}"
+}
+
+_print_exists() {
+  tput rc
+  tput cub 8
+  echo -e "${YELLOW}EXISTS${RESET}"
 }
 
 _print_bye() {
@@ -1035,6 +1040,7 @@ _pause_function() {
 }
 
 _umount_partitions() {
+  echo
   _print_info "UMOUNTING PARTITIONS"
   umount -R ${ROOT_MOUNTPOINT}
 }
@@ -1067,7 +1073,7 @@ _package_install() { # install pacman package
       fi
     else
       _print_action "Installing" "${PKG}"
-      _print_ok
+      _print_exists
     fi
   done
 }
@@ -1084,11 +1090,16 @@ _pacstrap_install() { # install pacstrap package
     return 1
   }
   for PKG in $1; do
-    _print_action "Installing" "${PKG}"
-    if _pacstrap_was_installed "${PKG}"; then
-      _print_ok
+    if ! _is_package_installed "${PKG}"; then
+      _print_action "Installing" "${PKG}"
+      if _pacstrap_was_installed "${PKG}"; then
+        _print_ok
+      else
+        _print_fail
+      fi
     else
-      _print_fail
+      _print_action "Installing" "${PKG}"
+      _print_exists
     fi
   done
 }
