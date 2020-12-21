@@ -897,7 +897,7 @@ _print_title_alert() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   echo -e "\n $1"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
@@ -923,7 +923,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
+  echo -ne "$1${CYAN} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
@@ -952,11 +952,11 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BLUE}$1${RESET}"
+  printf "%s" "${YELLOW}$1${RESET}"
 }
 
 _read_input_option() {
-  printf "%s" "${BLUE}$1${RESET}"
+  printf "%s" "${YELLOW}$1${RESET}"
   read -r OPTION
 }
 
