@@ -200,7 +200,7 @@ _rank_mirrors() {
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   echo
-  _print_line_bblack
+  _print_line
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
@@ -221,7 +221,7 @@ _select_disk() {
   done
   INSTALL_DISK=${DEVICE}
   echo
-  _print_line_bblack
+  _print_line
   _read_input_option "Edit disk partitions? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     cfdisk ${INSTALL_DISK}
@@ -386,7 +386,7 @@ _fstab_generate() {
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
   echo
-  _print_line_bblack
+  _print_line
   _read_input_option "Edit your fstab file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
@@ -513,7 +513,7 @@ _finish_install() {
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
-  _print_line_bblack
+  _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _umount_partitions
@@ -857,30 +857,12 @@ _install_aurhelper() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BWHITE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BWHITE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_line_red() {
-  echo -e "${BRED}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_dline_red() {
-  T_COLS=$(tput cols)
-  echo -e "${BRED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_line_bblack() {
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_dline_bblack() {
-  T_COLS=$(tput cols)
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -889,12 +871,12 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BWHITE} $1  ${RESET}"
+  T_LEFT="${BORDER_COLOR}>${RESET}${BWHITE} $1  ${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -ne "${T_LEFT}"
-  echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_TITLE - 2 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${T_LEFT}"
+  _print_dline
 }
 
 _print_title_alert() {
@@ -987,7 +969,8 @@ _invalid_option() {
 }
 
 _pause_function() {
-  echo -e "\n${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo
+  _print_line
   read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
 }
 
