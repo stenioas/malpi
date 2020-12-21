@@ -950,7 +950,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${PURPLE}$1${RESET}${WHITE} $2${RESET} "
+  echo -ne "${CYAN}$1${RESET}${BWHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
@@ -1092,15 +1092,23 @@ setfont
 
 cat <<EOF
 
-${BGREEN}    ██████╗  █████╗    ██╗        ██╗     ${RESET}${PURPLE}   ──────────── My Arch Way ────────────  ${RESET}
-${BGREEN}    ██╔══██╗██╔══██╗   ██║        ██║     ${RESET}${BBLACK} ╓───────────────────────────────────────╖${RESET}
-${BGREEN}    ██████╔╝███████║   ██║        ██║     ${RESET}${BBLACK} ║  https://github.com/stenioas/myarch   ║${RESET}
-${BGREEN}    ██╔═══╝ ██╔══██║   ██║        ██║     ${RESET}${BBLACK} ║     Personal Arch Linux Installer     ║${RESET}
-${BGREEN}    ██║██╗  ██║  ██║██╗███████╗██╗██║██╗  ${RESET}${BBLACK} ║          By Stenio Silveira           ║${RESET}
-${BGREEN}    ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝  ${RESET}${BBLACK} ╙───────────────────────────────────────╜${RESET}
+${BGREEN} ╓────────────────────────────────────────╖${RESET}
+${BGREEN} ║                                        ║${RESET}
+${BGREEN} ║  ██████╗  █████╗    ██╗        ██╗     ║${RESET}
+${BGREEN} ║  ██╔══██╗██╔══██╗   ██║        ██║     ║${RESET}
+${BGREEN} ║  ██████╔╝███████║   ██║        ██║     ║${RESET}
+${BGREEN} ║  ██╔═══╝ ██╔══██║   ██║        ██║     ║${RESET}
+${BGREEN} ║  ██║██╗  ██║  ██║██╗███████╗██╗██║██╗  ║${RESET}
+${BGREEN} ║  ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝  ║${RESET}
+${BGREEN} ╙───────────── My Arch Way ──────────────╜${RESET}
+${BBLACK} ╓────────────────────────────────────────╖${RESET}
+${BBLACK} ║   https://github.com/stenioas/myarch   ║${RESET}
+${BBLACK} ║     Personal Arch Linux Installer      ║${RESET}
+${BBLACK} ║          By Stenio Silveira            ║${RESET}
+${BBLACK} ╙────────────────────────────────────────╜${RESET}
+
 EOF
-tput cup 8 2
-read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
 _check_connection
 
 while [[ "$1" ]]; do
