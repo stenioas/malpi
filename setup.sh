@@ -889,11 +889,12 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BWHITE}  $1  ${RESET}"
+  T_LEFT="${BWHITE} $1  ${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_APP_TITLE )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
+  echo -ne "${T_LEFT}"
+  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 2 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
@@ -951,10 +952,10 @@ _print_ok() {
   echo -e "${GREEN}OK${RESET}"
 }
 
-_print_fail() {
+_print_failed() {
   tput rc
-  tput cub 7
-  echo -e "${BRED}FAIL${RESET}"
+  tput cub 8
+  echo -e "${BRED}FAILED${RESET}"
 }
 
 _print_exists() {
@@ -986,8 +987,8 @@ _invalid_option() {
 }
 
 _pause_function() {
-  echo -e "\n${BBLACK}`seq -s '-' 30 | tr -d [:digit:]`${RESET}"
-  read -e -sn 1 -p "${WHITE} Press any key to continue...${RESET}"
+  echo -e "\n${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
@@ -1020,7 +1021,7 @@ _package_install() { # install pacman package
       if _package_was_installed "${PKG}"; then
         _print_ok
       else
-        _print_fail
+        _print_failed
       fi
     else
       _print_action "Installing" "${PKG}"
@@ -1045,7 +1046,7 @@ _pacstrap_install() { # install pacstrap package
     if _pacstrap_was_installed "${PKG}"; then
       _print_ok
     else
-      _print_fail
+      _print_failed
     fi
   done
 }
