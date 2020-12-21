@@ -243,7 +243,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_subtitle_select "Select ${BYELLOW}ROOT${RESET} partition:"
+    _print_subtitle_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
     PS3="$PROMPT1"
@@ -283,7 +283,7 @@ _format_partitions() {
 
   _format_efi_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
-    _print_subtitle_select "Select ${BYELLOW}EFI${RESET} partition:"
+    _print_subtitle_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -340,7 +340,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET} version:"
+  _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
   KERNEL_LIST=("linux" "linux-lts" "Other")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
@@ -600,7 +600,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle_select "Select ${BYELLOW}VIDEO${RESET} driver:"
+  _print_subtitle_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -871,11 +871,10 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BWHITE}$1${RESET}"
+  T_LEFT="${BORDER_COLOR}#${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -ne "${BORDER_COLOR}`seq -s ' ' $(( (T_COLS - T_TITLE)/2 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_LEFT}"
   _print_dline
 }
@@ -883,15 +882,15 @@ _print_title() {
 _print_title_alert() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${WHITE}
+  BORDER_COLOR=${BRED}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}│ ${RESET}${BRED} $1${RESET}"
-  T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BORDER_COLOR}┌${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${BORDER_COLOR}─┐${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BORDER_COLOR}│${RESET}"
-  echo -ne "${BORDER_COLOR}└${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}┘${RESET}"
+  T_LEFT="${BORDER_COLOR}#${RESET}${BWHITE} $1${RESET}"
+  T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${T_RIGHT}"
+  echo -e "${T_LEFT}"
+  _print_dline
 }
 
 _print_subtitle() {
@@ -902,7 +901,7 @@ _print_subtitle() {
 }
 
 _print_subtitle_select() {
-  echo -e "\n$1\n"
+  echo -e "\n${BCYAN}$1${RESET}\n"
 }
 
 _print_info() {
