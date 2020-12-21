@@ -881,7 +881,8 @@ _print_title() {
   echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 12 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}╚${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_TITLE + 10 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}╩${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 12 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
