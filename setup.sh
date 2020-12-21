@@ -878,6 +878,8 @@ _print_title() {
   T_TITLE=${#1}
   T_LEFT="${BORDER_COLOR}║${RESET}${BWHITE}     $1     ${RESET}${BORDER_COLOR}║${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
+  echo -ne "${BORDER_COLOR}╔${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_TITLE + 11 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BORDER_COLOR}╗${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
