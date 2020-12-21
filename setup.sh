@@ -156,6 +156,7 @@ _setup_user(){
 _initial_info() {
   _print_title_alert "IMPORTANT"
   timedatectl set-ntp true
+  _print_info "Bluetooth is a standard for the short-range wireless interconnection of cellular phones, computers, and other electronic devices. In Linux, the canonical implementation of the Bluetooth protocol stack is BlueZ"
   cat <<EOF
 ${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
@@ -931,7 +932,7 @@ _print_subtitle_select() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 20 ))
 }
 
 _print_warning() {
