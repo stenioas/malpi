@@ -243,7 +243,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}ROOT${RESET}${BWHITE} partition:"
+    _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}ROOT${RESET}${BWHITE} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
     PS3="$PROMPT1"
@@ -283,7 +283,7 @@ _format_partitions() {
 
   _format_efi_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
-    _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}EFI${RESET}${BWHITE} partition:"
+    _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}EFI${RESET}${BWHITE} partition:${RESET}"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -340,9 +340,9 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  echo
-  _print_action "Installing" "archlinux-keyring"
-  pacman -Sy --noconfirm archlinux-keyring &> /dev/null && _print_ok
+  #echo
+  #_print_action "Installing" "archlinux-keyring"
+  #pacman -Sy --noconfirm archlinux-keyring &> /dev/null && _print_ok
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "intel-ucode"
@@ -918,13 +918,13 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BWHITE} $1${RESET}"
+  echo -e "\n${WHITE} $1${RESET}"
   echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
 _print_subtitle_select() {
-  echo -e "\n $1\n"
+  echo -e "\n$1\n"
 }
 
 _print_info() {
@@ -945,7 +945,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${CYAN}$1${RESET}${BWHITE} $2${RESET} "
+  echo -ne "${BBLACK}$1${RESET}${WHITE} $2${RESET} "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
@@ -954,7 +954,7 @@ _print_action() {
 _print_ok() {
   tput rc
   tput cub 6
-  echo -e "${BGREEN}OK${RESET}"
+  echo -e "${GREEN}OK${RESET}"
 }
 
 _print_fail() {
