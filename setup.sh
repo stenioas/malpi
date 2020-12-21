@@ -156,7 +156,6 @@ _setup_user(){
 _initial_info() {
   _print_title_alert "IMPORTANT"
   timedatectl set-ntp true
-  _print_info "Bluetooth is a standard for the short-range wireless interconnection of cellular phones, computers, and other electronic devices. In Linux, the canonical implementation of the Bluetooth protocol stack is BlueZ"
   cat <<EOF
 ${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
@@ -341,50 +340,41 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  #echo
-  #_print_action "Installing" "archlinux-keyring"
-  #pacman -Sy --noconfirm archlinux-keyring &> /dev/null && _print_ok
+  _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET} version:"
+  KERNEL_LIST=("linux" "linux-lts" "Other")
+  select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
+    if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
+      KERNEL_CHOICE="${KERNEL_CHOICE}"
+      break;
+    else
+      _invalid_option
+    fi
+  done
+  if [[ "${KERNEL_CHOICE}" = "linux" || "${KERNEL_CHOICE}" = "linux-lts" ]]; then
+    KERNEL_VERSION=${KERNEL_CHOICE}
+  else [[ "${KERNEL_CHOICE}" = "Other" ]]; then
+    _read_input_text "Type kernel do you want install: "
+    read -r KERNEL_VERSION
+    echo
+    while [[ "${KERNEL_VERSION}" = "" ]]; do
+      _print_warning "You must be type a kernel name!"
+      echo
+      _read_input_text "Type kernel do you want install: "
+      read -r KERNEL_VERSION
+      echo
+    done
+  fi
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
+  _pacstrap_install "${KERNEL_VERSION}"
+  _pacstrap_install "${KERNEL_VERSION}-headers"
+  _pacstrap_install "linux-firmware"
   _pacstrap_install "intel-ucode"
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
   _print_subtitle "Services"
   _print_action "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
-  _pause_function
-}
-
-_install_kernel() {
-  _print_title "KERNEL"
-  _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET} version:"
-  KERNEL_LIST=("linux" "linux-lts" "Other")
-  select KERNEL_VERSION in "${KERNEL_LIST[@]}"; do
-    if _contains_element "${KERNEL_VERSION}" "${KERNEL_LIST[@]}"; then
-      KERNEL_VERSION="${KERNEL_VERSION}"
-      break;
-    else
-      _invalid_option
-    fi
-  done
-  if [[ "${KERNEL_VERSION}" = "linux" || "${KERNEL_VERSION}" = "linux-lts" ]]; then
-    _print_subtitle "Packages"
-    _pacstrap_install "${KERNEL_VERSION}"
-    _pacstrap_install "${KERNEL_VERSION}-headers"
-    _pacstrap_install "linux-firmware"
-  elif [[ "${KERNEL_VERSION}" = "Other" ]]; then
-    _read_input_text "Type kernel do you want install: "
-    echo -ne "${BGREEN}"
-    read -r KERNEL_VERSION
-    echo -ne "${RESET}"
-    echo
-    _print_subtitle "Packages"
-    _pacstrap_install "${KERNEL_VERSION}"
-    _pacstrap_install "${KERNEL_VERSION}-headers"
-    _pacstrap_install "linux-firmware"
-  else
-    _print_warning "You have not installed a kernel, remember this."
-  fi
   _pause_function
 }
 
@@ -465,13 +455,13 @@ _mkinitcpio_generate() {
 _root_passwd() {
   PASSWD_CHECK=0
   _print_title "ROOT PASSWORD"
-  _print_subtitle "Type a new root password"
+  echo
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
     _print_title "ROOT PASSWORD"
     echo
     _print_warning "The password does not match!"
-    _print_subtitle "Type a new root password"
+    echo
     arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   done
   _pause_function
@@ -932,7 +922,7 @@ _print_subtitle_select() {
 
 _print_info() {
   T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 20 ))
+  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_warning() {
