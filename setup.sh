@@ -986,9 +986,8 @@ _invalid_option() {
 }
 
 _pause_function() {
-  echo
-  _print_line_bblack
-  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
+  echo -e "\n${BBLACK}`seq -s '-' 30 | tr -d [:digit:]`${RESET}"
+  read -e -sn 1 -p "${WHITE} Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
