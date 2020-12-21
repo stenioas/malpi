@@ -353,13 +353,13 @@ _install_base() {
   if [[ "${KERNEL_CHOICE}" = "linux" || "${KERNEL_CHOICE}" = "linux-lts" ]]; then
     KERNEL_VERSION=${KERNEL_CHOICE}
   elif [[ "${KERNEL_CHOICE}" = "Other" ]]; then
-    _read_input_text "Type kernel do you want install: "
+    _read_input_text "Type kernel do you want install:"
     read -r KERNEL_VERSION
     echo
     while [[ "${KERNEL_VERSION}" = "" ]]; do
       _print_warning "You must be type a kernel name!"
       echo
-      _read_input_text "Type kernel do you want install: "
+      _read_input_text "Type kernel do you want install:"
       read -r KERNEL_VERSION
       echo
     done
@@ -425,7 +425,7 @@ _set_localization() {
 _set_network() {
   _print_title "NETWORK CONFIGURATION"
   echo
-  _read_input_text "Type a hostname: "
+  _read_input_text "Type a hostname:"
   read -r NEW_HOSTNAME
   echo
   while [[ "${NEW_HOSTNAME}" == "" ]]; do
@@ -433,7 +433,7 @@ _set_network() {
     echo
     _print_warning "You must be type a hostname!"
     echo
-    _read_input_text "Type a hostname: "
+    _read_input_text "Type a hostname:"
     read -r NEW_HOSTNAME
     echo
   done
@@ -472,14 +472,14 @@ _root_passwd() {
 _grub_generate() {
   _print_title "BOOTLOADER"
   echo
-  _read_input_text "Type a grub name entry: "
+  _read_input_text "Type a grub name entry:"
   read -r NEW_GRUB_NAME
   while [[ "${NEW_GRUB_NAME}" == "" ]]; do
     _print_title "BOOTLOADER"
     echo
     _print_warning "You must be type a grub name entry!"
     echo
-    _read_input_text "Type a grub name entry: "
+    _read_input_text "Type a grub name entry:"
     read -r NEW_GRUB_NAME
   done
   _print_subtitle "Packages"
@@ -531,14 +531,14 @@ _finish_install() {
 _create_new_user() {
   _print_title "NEW USER"
   echo
-  _read_input_text "Type your username: "
+  _read_input_text "Type your username:"
   read -r NEW_USER
   echo
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     echo
     _print_warning "You must be type a username!"
-    _read_input_text "Type your username: "
+    _read_input_text "Type your username:"
     read -r NEW_USER
     echo
   done
@@ -873,7 +873,7 @@ _print_dline_red() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${WHITE}
+  BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
   T_LEFT="${BORDER_COLOR}#${RESET}${BWHITE} $1${RESET}"
@@ -957,7 +957,7 @@ _print_bye() {
 
 _read_input_text() {
   printf "%s" "${BCYAN}$1${RESET}"
-  echo -ne "${BBLACK}→ ${RESET}"
+  echo -ne "\n${BBLACK}→ ${RESET}"
 }
 
 _read_input_option() {
