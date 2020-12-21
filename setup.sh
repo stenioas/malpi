@@ -5,6 +5,7 @@
 # ----------------------------------------------------------------------#
 #
 # References:
+#   Arch Wiki - wiki.archlinux.org
 #   Archfi script by Matmaoul - github.com/Matmoul
 #   Aui script by Helmuthdu - github.com/helmuthdu
 #   pos-alpine script by terminalroot - github.com/terroo
@@ -339,6 +340,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
+  echo
   _print_action "Installing" "archlinux-keyring"
   pacman -Sy --noconfirm archlinux-keyring &> /dev/null && _print_ok
   _print_subtitle "Packages"
@@ -1090,25 +1092,14 @@ setfont
 
 cat <<EOF
 
-${BYELLOW}                 -@                ${RESET}
-${BYELLOW}                .##@               ${RESET}${CYAN}  ██████╗  █████╗    ██╗        ██╗           ${RESET}
-${BYELLOW}               .####@              ${RESET}${CYAN}  ██╔══██╗██╔══██╗   ██║        ██║           ${RESET}
-${BYELLOW}               @#####@             ${RESET}${CYAN}  ██████╔╝███████║   ██║        ██║           ${RESET}
-${BYELLOW}             . *######@            ${RESET}${CYAN}  ██╔═══╝ ██╔══██║   ██║        ██║           ${RESET}
-${BYELLOW}            .##@o@#####@           ${RESET}${CYAN}  ██║██╗  ██║  ██║██╗███████╗██╗██║██╗        ${RESET}
-${BYELLOW}           /############@          ${RESET}${CYAN}  ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝        ${RESET}
-${BYELLOW}          /##############@         ${RESET}${PURPLE}  ---------- My Arch Way! ------------      ${RESET}
-${BYELLOW}         @######@**%######@        ${RESET}${BBLACK}╓───────────────────────────────────────╖   ${RESET}
-${BYELLOW}        @######\`     %#####o      ${RESET}${BBLACK} ║  https://github.com/stenioas/myarch   ║  ${RESET}
-${BYELLOW}       @######@       ######%      ${RESET}${BBLACK}║    My Personal Arclinux Installer     ║   ${RESET}
-${BYELLOW}     -@#######h       ######@.\`   ${RESET}${BBLACK} ║        By Stenio Silveira             ║  ${RESET}
-${BYELLOW}    /#####h**\`\`       \`**%@####@${RESET}${BBLACK}   ╙───────────────────────────────────────╜${RESET}
-${BYELLOW}   @H@*\`                    \`*%#@${RESET}
-${BYELLOW}  *\`                            \`*${RESET}
-
-
+${BGREEN}    ██████╗  █████╗    ██╗        ██╗     ${RESET}${PURPLE}   ──────────── My Arch Way ────────────  ${RESET}
+${BGREEN}    ██╔══██╗██╔══██╗   ██║        ██║     ${RESET}${BBLACK} ╓───────────────────────────────────────╖${RESET}
+${BGREEN}    ██████╔╝███████║   ██║        ██║     ${RESET}${BBLACK} ║  https://github.com/stenioas/myarch   ║${RESET}
+${BGREEN}    ██╔═══╝ ██╔══██║   ██║        ██║     ${RESET}${BBLACK} ║     Personal Arch Linux Installer     ║${RESET}
+${BGREEN}    ██║██╗  ██║  ██║██╗███████╗██╗██║██╗  ${RESET}${BBLACK} ║        By Stenio Silveira             ║${RESET}
+${BGREEN}    ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝  ${RESET}${BBLACK} ╙───────────────────────────────────────╜${RESET}
 EOF
-tput cup 15 44
+tput cup 8 2
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
