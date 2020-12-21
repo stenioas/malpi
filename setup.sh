@@ -886,15 +886,14 @@ _print_dline_bblack() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${WHITE}
+  BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}│ ${RESET}${BWHITE} $1${RESET}"
-  T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${BORDER_COLOR}┌${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${BORDER_COLOR}─┐${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BORDER_COLOR}│${RESET}"
-  echo -ne "${BORDER_COLOR}└${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}┘${RESET}"
+  T_LEFT="${BWHITE}  $1  ${RESET}"
+  T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
+  echo -ne "${T_LEFT}"
+  echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${T_RIGHT}"
 }
 
 _print_title_alert() {
@@ -969,11 +968,11 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${YELLOW}→ $1${RESET}"
+  printf "%s" "${BLUE}$1${RESET}"
 }
 
 _read_input_option() {
-  printf "%s" "${YELLOW}$1${RESET}"
+  printf "%s" "${BLUE}$1${RESET}"
   read -r OPTION
 }
 
