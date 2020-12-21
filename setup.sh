@@ -157,7 +157,7 @@ _initial_info() {
   _print_title_alert "IMPORTANT"
   timedatectl set-ntp true
   cat <<EOF
-${BRED} ┌──────────────────────────────────────────────────────────────────┐${RESET}
+${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
 ${WHITE}   - This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
 
@@ -184,7 +184,7 @@ ${BYELLOW}   - This script is not yet complete!${RESET}
   
 ${BWHITE}   - Btw, thank's for your time!${RESET}
 
-${BRED} └──────────────────────────────────────────────────────────────────┘${RESET}
+${BBLACK} └──────────────────────────────────────────────────────────────────┘${RESET}
 EOF
   _pause_function
 }
