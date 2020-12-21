@@ -159,26 +159,26 @@ _initial_info() {
   cat <<EOF
 ${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
-${WHITE}   - This script supports ${RESET}${BYELLOW}UEFI only${RESET}.
+   - This script supports ${BYELLOW}UEFI${RESET} only.
 
-${WHITE}   - This script, for now, will install ${RESET}${BYELLOW}GRUB${RESET}${WHITE} as default bootloader.${RESET}
+   - This script, for now, will install ${BYELLOW}GRUB${RESET} as default bootloader.
 
-${WHITE}   - This script will only consider two partitions, ${RESET}${BYELLOW}ESP${RESET}${WHITE} and${RESET}${BYELLOW} ROOT.${RESET}
+   - This script will only consider two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
 
-${WHITE}   - This script will format the root partition in ${RESET}${BYELLOW}BTRFS${RESET}${WHITE} format.${RESET}
+   - This script will format the root partition in ${BYELLOW}BTRFS${RESET} format.
 
-${WHITE}   - The ESP partition can be formatted if the user wants to.${RESET}
+   - The ESP partition can be formatted if the user wants to.
 
-${WHITE}   - This script does not support ${BYELLOW}SWAP${RESET}.
+   - This script does not support ${BYELLOW}SWAP${RESET}.
 
-${WHITE}   - This script will create three subvolumes:${RESET}
-${WHITE}         ${BYELLOW}@${RESET}${WHITE} for /${RESET}
-${WHITE}         ${BYELLOW}@home${RESET}${WHITE} for /home${RESET}
-${WHITE}         ${BYELLOW}@.snapshots${RESET}${WHITE} for /.snapshots${RESET}
+   - This script will create three subvolumes:
+         ${BYELLOW}@${RESET} for /
+         ${BYELLOW}@home${RESET} for /home
+         ${BYELLOW}@.snapshots${RESET} for /.snapshots
 
-${WHITE}   - This script, for now, sets zoneinfo as America/Fortaleza.${RESET}
+   - This script, for now, sets zoneinfo as America/Fortaleza.
 
-${WHITE}   - This script sets hwclock as UTC.${RESET}
+   - This script sets hwclock as UTC.
   
 ${BYELLOW}   - This script is not yet complete!${RESET}
   
@@ -893,32 +893,34 @@ _print_dline_bblack() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
+  BORDER_COLOR=${WHITE}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${WHITE}│ ${RESET}${BWHITE} $1${RESET}"
+  T_LEFT="${BORDER_COLOR}│ ${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${WHITE}─┐${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${WHITE}│${RESET}"
-  echo -ne "${WHITE}└${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${WHITE}┘${RESET}"
+  echo -ne "${BORDER_COLOR}┌${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${BORDER_COLOR}─┐${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BORDER_COLOR}│${RESET}"
+  echo -ne "${BORDER_COLOR}└${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}┘${RESET}"
 }
 
 _print_title_alert() {
   clear
   T_COLS=$(tput cols)
+  BORDER_COLOR=${WHITE}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${WHITE}│ ${RESET}${BRED} $1${RESET}"
+  T_LEFT="${BORDER_COLOR}│ ${RESET}${BRED} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
-  echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${T_RIGHT}"; echo -e "${WHITE}─┐${RESET}"
-  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${WHITE}│${RESET}"
-  echo -ne "${WHITE}└${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${WHITE}┘${RESET}"
+  echo -ne "${BORDER_COLOR}┌${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_RIGHT}"; echo -e "${BORDER_COLOR}─┐${RESET}"
+  echo -ne "${T_LEFT}"; echo -ne "`seq -s ' ' $(( T_COLS - T_TITLE - 3 )) | tr -d [:digit:]`"; echo -e "${BORDER_COLOR}│${RESET}"
+  echo -ne "${BORDER_COLOR}└${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( T_COLS - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}┘${RESET}"
 }
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${WHITE} $1${RESET}"
+  echo -e "\n $1"
   echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
