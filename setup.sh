@@ -857,12 +857,12 @@ _install_aurhelper() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BLUE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BLUE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_red() {
@@ -873,16 +873,16 @@ _print_dline_red() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${BLUE}
+  BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}║${RESET}${BG_BLUE}${BWHITE}     $1     ${RESET}${BORDER_COLOR}║${RESET}"
+  T_LEFT="${BORDER_COLOR}║${RESET}${BWHITE}     $1     ${RESET}${BORDER_COLOR}║${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -ne "${BORDER_COLOR}╩${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_TITLE + 11 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BORDER_COLOR}╩${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 12 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}╩${RESET}"; echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 11 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
