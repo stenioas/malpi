@@ -873,12 +873,12 @@ _print_dline_red() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${BBLACK}
+  BORDER_COLOR=${BLUE}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
   T_LEFT="${BORDER_COLOR}${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -e "${T_LEFT}"
+  echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 3 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
