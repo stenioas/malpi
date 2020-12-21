@@ -857,17 +857,17 @@ _install_aurhelper() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BLUE}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BBLACK}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BLUE}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_dline_red() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BRED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
@@ -876,12 +876,12 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}#${RESET}${BWHITE} $1${RESET}"
+  T_LEFT="${BORDER_COLOR}${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
-  echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
@@ -890,12 +890,12 @@ _print_title_alert() {
   BORDER_COLOR=${BRED}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}#${RESET}${BWHITE} $1${RESET}"
+  T_LEFT="${BORDER_COLOR}${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
-  echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_subtitle() {
