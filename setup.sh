@@ -900,7 +900,7 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BG_BLUE}${BCYAN} $1 ${RESET}${BLUE}║${RESET}"
+  echo -e "\n${BLUE}║${RESET}${BG_BLUE}${BCYAN} $1 ${RESET}${BLUE}║${RESET}"
   #echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BCYAN}┘${RESET}"
   echo
 }
