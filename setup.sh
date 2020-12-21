@@ -1096,7 +1096,7 @@ ${BGREEN}    ██████╗  █████╗    ██╗        █�
 ${BGREEN}    ██╔══██╗██╔══██╗   ██║        ██║     ${RESET}${BBLACK} ╓───────────────────────────────────────╖${RESET}
 ${BGREEN}    ██████╔╝███████║   ██║        ██║     ${RESET}${BBLACK} ║  https://github.com/stenioas/myarch   ║${RESET}
 ${BGREEN}    ██╔═══╝ ██╔══██║   ██║        ██║     ${RESET}${BBLACK} ║     Personal Arch Linux Installer     ║${RESET}
-${BGREEN}    ██║██╗  ██║  ██║██╗███████╗██╗██║██╗  ${RESET}${BBLACK} ║        By Stenio Silveira             ║${RESET}
+${BGREEN}    ██║██╗  ██║  ██║██╗███████╗██╗██║██╗  ${RESET}${BBLACK} ║          By Stenio Silveira           ║${RESET}
 ${BGREEN}    ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝  ${RESET}${BBLACK} ╙───────────────────────────────────────╜${RESET}
 EOF
 tput cup 8 2
