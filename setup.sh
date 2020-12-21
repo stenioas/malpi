@@ -865,6 +865,11 @@ _print_dline() {
   echo -e "${BBLACK}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
+_print_dline_red() {
+  T_COLS=$(tput cols)
+  echo -e "${BRED}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+}
+
 _print_title() {
   clear
   T_COLS=$(tput cols)
@@ -890,13 +895,13 @@ _print_title_alert() {
   echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -e "${T_LEFT}"
-  _print_dline
+  _print_dline_red
 }
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n $1"
-  echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  echo -e "\n ${BG_BLUE}${BCYAN}$1${RESET}"
+  #echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BCYAN}┘${RESET}"
   echo
 }
 
@@ -922,7 +927,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "$1${CYAN} $2${RESET} "
+  echo -ne "${BCYAN}$1${RESET} $2 "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
@@ -951,11 +956,11 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${YELLOW}$1${RESET}"
+  printf "%s" "${BCYAN}$1${RESET}"
 }
 
 _read_input_option() {
-  printf "%s" "${YELLOW}$1${RESET}"
+  printf "%s" "${PURPLE}$1${RESET}"
   read -r OPTION
 }
 
