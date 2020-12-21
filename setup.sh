@@ -211,7 +211,7 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle "Select disk"
+  _print_subtitle_select "${BWHITE}Select disk:${RESET}"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -243,7 +243,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_select_partition "ROOT"
+    _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}ROOT${RESET}${BWHITE} partition:"
     _print_danger "All data on the partition will be LOST!"
     echo
     PS3="$PROMPT1"
@@ -283,7 +283,7 @@ _format_partitions() {
 
   _format_efi_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
-    _print_select_partition "EFI"
+    _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}EFI${RESET}${BWHITE} partition:"
     PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -356,7 +356,7 @@ _install_base() {
 
 _install_kernel() {
   _print_title "KERNEL"
-  _print_subtitle "Select kernel version"
+  _print_subtitle_select "${BWHITE}Select ${RESET}${BYELLOW}KERNEL ${RESET}${BWHITE}version:${RESET}"
   KERNEL_LIST=("linux" "linux-lts" "Other")
   select KERNEL_VERSION in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_VERSION}" "${KERNEL_LIST[@]}"; then
@@ -607,7 +607,7 @@ _install_vga() {
   _print_title "VIDEO DRIVER"
   PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle "Select video driver"
+  _print_subtitle_select "${BWHITE}Select ${BYELLOW}VIDEO${RESET} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -674,7 +674,7 @@ _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_subtitle "Select your desktop"
+  _print_subtitle_select "${BWHITE}Select your desktop or wm:${RESET}"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -744,7 +744,7 @@ _install_display_manager() {
   _print_title "DISPLAY MANAGER"
   PS3="$PROMPT1"
   DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
-  _print_subtitle "Select display manager"
+  _print_subtitle_select "${BWHITE}Select display manager:${RESET}"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
       break
@@ -895,7 +895,7 @@ _print_title() {
   T_COLS=$(tput cols)
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${WHITE}│ ${RESET}${BGREEN} $1${RESET}"
+  T_LEFT="${WHITE}│ ${RESET}${BWHITE} $1${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE} ${RESET}"
   echo -ne "${WHITE}┌${RESET}"; echo -ne "${WHITE}`seq -s '─' $(( T_COLS - T_APP_TITLE - 4 )) | tr -d [:digit:]`${RESET}"
   echo -ne "${T_RIGHT}"; echo -e "${WHITE}─┐${RESET}"
@@ -918,18 +918,13 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  #echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
   echo -e "\n${BWHITE} $1${RESET}"
   echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
 }
 
-_print_select_partition() {
-  COLS_SUBTITLE=${#1}
-  #echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 21 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "\n${BWHITE} SELECT${RESET}${BGREEN} $1${RESET}${BWHITE} PARTITION${RESET}"
-  echo -ne "${BBLACK}`seq -s '─' $(( COLS_SUBTITLE + 20 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
-  echo
+_print_subtitle_select() {
+  echo -e "\n $1\n"
 }
 
 _print_info() {
