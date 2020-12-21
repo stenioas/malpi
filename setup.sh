@@ -66,7 +66,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BBLACK}:> ${RESET}"
+      PROMPT1="${BBLACK}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -154,8 +154,8 @@ _setup_user(){
 # --- INSTALL SECTION --- >
 
 _initial_info() {
-  _print_title_alert "IMPORTANT"
   timedatectl set-ntp true
+  _print_title_alert "IMPORTANT"
   cat <<EOF
 ${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
@@ -873,7 +873,7 @@ _print_dline_red() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${BBLACK}
+  BORDER_COLOR=${BWHITE}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
   T_LEFT="${BORDER_COLOR}#${RESET}${BWHITE} $1${RESET}"
@@ -900,13 +900,13 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n ${BG_YELLOW}${BCYAN}[ $1 ]${RESET}"
+  echo -e "\n${BG_BLUE}${BCYAN}║ $1 ║${RESET}"
   #echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BCYAN}┘${RESET}"
   echo
 }
 
 _print_subtitle_select() {
-  echo -e "\n${BYELLOW}$1${RESET}\n"
+  echo -e "\n${BCYAN}$1${RESET}\n"
 }
 
 _print_info() {
@@ -927,7 +927,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${BCYAN}$1${RESET} $2 "
+  echo -ne "${BLUE}$1${RESET} $2 "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
@@ -957,10 +957,11 @@ _print_bye() {
 
 _read_input_text() {
   printf "%s" "${BCYAN}$1${RESET}"
+  echo -ne "${BBLACK}→ ${RESET}"
 }
 
 _read_input_option() {
-  printf "%s" "${BYELLOW}$1${RESET}"
+  printf "%s" "${YELLOW}$1${RESET}"
   read -r OPTION
 }
 
