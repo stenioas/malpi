@@ -66,7 +66,7 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BGREEN}→ ${RESET}"
+      PROMPT1="${BBLACK}:> ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -906,7 +906,7 @@ _print_subtitle() {
 }
 
 _print_subtitle_select() {
-  echo -e "\n${YELLOW}$1${RESET}\n"
+  echo -e "\n${BYELLOW}$1${RESET}\n"
 }
 
 _print_info() {
@@ -960,7 +960,7 @@ _read_input_text() {
 }
 
 _read_input_option() {
-  printf "%s" "${WHITE}$1${RESET}"
+  printf "%s" "${BYELLOW}$1${RESET}"
   read -r OPTION
 }
 
