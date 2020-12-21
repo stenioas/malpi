@@ -900,13 +900,13 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n ${BG_BLUE}${BCYAN}$1${RESET}"
+  echo -e "\n ${BG_YELLOW}${BCYAN}[ $1 ]${RESET}"
   #echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BCYAN}┘${RESET}"
   echo
 }
 
 _print_subtitle_select() {
-  echo -e "\n${BCYAN}$1${RESET}\n"
+  echo -e "\n${YELLOW}$1${RESET}\n"
 }
 
 _print_info() {
@@ -960,17 +960,17 @@ _read_input_text() {
 }
 
 _read_input_option() {
-  printf "%s" "${PURPLE}$1${RESET}"
+  printf "%s" "${WHITE}$1${RESET}"
   read -r OPTION
 }
 
 _contains_element() {
-    for e in "${@:2}"; do [[ "$e" == "$1" ]] && break; done;
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && break; done;
 }
 
 _invalid_option() {
   echo
-    _print_warning "Invalid option. Try again..."
+  _print_warning "Invalid option. Try again..."
 }
 
 _pause_function() {
