@@ -352,7 +352,7 @@ _install_base() {
   done
   if [[ "${KERNEL_CHOICE}" = "linux" || "${KERNEL_CHOICE}" = "linux-lts" ]]; then
     KERNEL_VERSION=${KERNEL_CHOICE}
-  else [[ "${KERNEL_CHOICE}" = "Other" ]]; then
+  elif [[ "${KERNEL_CHOICE}" = "Other" ]]; then
     _read_input_text "Type kernel do you want install: "
     read -r KERNEL_VERSION
     echo
@@ -363,6 +363,8 @@ _install_base() {
       read -r KERNEL_VERSION
       echo
     done
+  else
+    _print_warning "You have not installed a linux kernel!"
   fi
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
