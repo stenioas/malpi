@@ -11,62 +11,86 @@
 #   pos-alpine script by terminalroot - github.com/terroo
 #
 # ----------------------------------------------------------------------#
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2018 Marcos Oliveira
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# ----------------------------------------------------------------------#
 
 ### VARS
 
-    # --- COLORS
-      BOLD=$(tput bold)
-      UNDERLINE=$(tput sgr 0 1)
-      RESET=$(tput sgr0)
+  # --- COLORS
+    BOLD=$(tput bold)
+    UNDERLINE=$(tput sgr 0 1)
+    RESET=$(tput sgr0)
 
-      # Regular Colors
-      BLACK=$(tput setaf 0)
-      RED=$(tput setaf 1)
-      GREEN=$(tput setaf 2)
-      YELLOW=$(tput setaf 3)
-      BLUE=$(tput setaf 4)
-      PURPLE=$(tput setaf 5)
-      CYAN=$(tput setaf 6)
-      WHITE=$(tput setaf 7)
+    # Regular Colors
+    BLACK=$(tput setaf 0)
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    BLUE=$(tput setaf 4)
+    PURPLE=$(tput setaf 5)
+    CYAN=$(tput setaf 6)
+    WHITE=$(tput setaf 7)
 
-      # Bold Colors
-      BBLACK=${BOLD}${BLACK}
-      BRED=${BOLD}${RED}
-      BGREEN=${BOLD}${GREEN}
-      BYELLOW=${BOLD}${YELLOW}
-      BBLUE=${BOLD}${BLUE}
-      BPURPLE=${BOLD}${PURPLE}
-      BCYAN=${BOLD}${CYAN}
-      BWHITE=${BOLD}${WHITE}
+    # Bold Colors
+    BBLACK=${BOLD}${BLACK}
+    BRED=${BOLD}${RED}
+    BGREEN=${BOLD}${GREEN}
+    BYELLOW=${BOLD}${YELLOW}
+    BBLUE=${BOLD}${BLUE}
+    BPURPLE=${BOLD}${PURPLE}
+    BCYAN=${BOLD}${CYAN}
+    BWHITE=${BOLD}${WHITE}
 
-      # Background Colors
-      BG_BLACK=$(tput setab 0)
-      BG_RED=$(tput setab 1)
-      BG_GREEN=$(tput setab 2)
-      BG_YELLOW=$(tput setab 3)
-      BG_BLUE=$(tput setab 4)
-      BG_PURPLE=$(tput setab 5)
-      BG_CYAN=$(tput setab 6)
-      BG_WHITE=$(tput setab 7)
+    # Background Colors
+    BG_BLACK=$(tput setab 0)
+    BG_RED=$(tput setab 1)
+    BG_GREEN=$(tput setab 2)
+    BG_YELLOW=$(tput setab 3)
+    BG_BLUE=$(tput setab 4)
+    BG_PURPLE=$(tput setab 5)
+    BG_CYAN=$(tput setab 6)
+    BG_WHITE=$(tput setab 7)
 
-    # --- ESSENTIALS
-      APP_TITLE="pali 0.1"
-      NEW_LANGUAGE="pt_BR"
-      NEW_ZONE="America"
-      NEW_SUBZONE="Fortaleza"
-      NEW_GRUB_NAME="Archlinux"
-      T_COLS=$(tput cols)
-      T_LINES=$(tput lines)
-      TRIM=0
+  # --- ESSENTIALS
+    APP_TITLE="pali 0.1"
+    NEW_LANGUAGE="pt_BR"
+    NEW_ZONE="America"
+    NEW_SUBZONE="Fortaleza"
+    NEW_GRUB_NAME="Archlinux"
+    T_COLS=$(tput cols)
+    T_LINES=$(tput lines)
+    TRIM=0
 
-    # --- MOUNTPOINTS
-      EFI_PARTITION="/dev/sda1"
-      EFI_MOUNTPOINT="/boot/efi"
-      ROOT_PARTITION="/dev/sda3"
-      ROOT_MOUNTPOINT="/mnt"
+  # --- MOUNTPOINTS
+    EFI_PARTITION="/dev/sda1"
+    EFI_MOUNTPOINT="/boot/efi"
+    ROOT_PARTITION="/dev/sda3"
+    ROOT_MOUNTPOINT="/mnt"
 
-    # --- PROMPT
-      PROMPT1="${BCYAN}→ ${RESET}"
+  # --- PROMPT
+    PROMPT1="${BYELLOW}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -513,7 +537,7 @@ _finish_install() {
     echo
     _package_install "wget"
     _print_action "Downloading" "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok || _print_failed
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -877,15 +901,15 @@ _print_dline_red() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${WHITE}
+  BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}══╣${RESET}${BG_WHITE}${BLACK}   $1   ${RESET}${BORDER_COLOR}╠${RESET}"
+  T_LEFT="${BORDER_COLOR}═╣${RESET}${BGREEN}   $1   ${RESET}${BORDER_COLOR}╠${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 9 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 8 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
@@ -904,8 +928,7 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BLUE}──╢${RESET}${BG_BLUE}${BCYAN} $1 ${RESET}${BLUE}║${RESET}"
-  #echo -ne "${BCYAN}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BCYAN}┘${RESET}"
+  echo -e "\n${BLUE}║${RESET}${BG_BLUE}${BCYAN} $1 ${RESET}${BLUE}║${RESET}"
   echo
 }
 
