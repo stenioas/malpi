@@ -905,7 +905,7 @@ _print_title() {
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
   T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BYELLOW}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
-  T_RIGHT="${BBLACK}▓▒░ ${APP_TITLE}${RESET}"
+  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 17 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
@@ -918,8 +918,8 @@ _print_title_alert() {
   BORDER_COLOR=${RED}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BBRED}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
-  T_RIGHT="${BBLACK}▓▒░ ${APP_TITLE}${RESET}"
+  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BRED}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
+  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 17 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
