@@ -557,6 +557,7 @@ _finish_install() {
 # --- CONFIG SECTION --- >
 
 _create_new_user() {
+  PASSWD_CHECK=0
   _print_title "NEW USER"
   echo
   _read_input_text "Type your username:"
@@ -574,8 +575,14 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     _print_action "Create user" "${NEW_USER}"
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
-    _print_subtitle "Type a new user password"
-    passwd ${NEW_USER}
+    _print_subtitle_select "Type a new user password"
+    passwd ${NEW_USER} && PASSWD_CHECK=1
+    while [[ $PASSWD_CHECK == 0 ]]; do
+      echo
+      _print_warning "The password does not match!"
+      echo
+      passwd ${NEW_USER} && PASSWD_CHECK=1;
+    done
     echo
     _print_info "Privileges added."
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
@@ -928,7 +935,7 @@ _print_title_alert() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BLUE}║${RESET}${BG_BLUE}${BCYAN} $1 ${RESET}${BLUE}║${RESET}"
+  echo -e "\n${BBLACK}║${RESET}${BCYAN} $1${RESET}"
   echo
 }
 
