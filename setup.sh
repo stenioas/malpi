@@ -557,7 +557,6 @@ _finish_install() {
 # --- CONFIG SECTION --- >
 
 _create_new_user() {
-  PASSWD_CHECK=0
   _print_title "NEW USER"
   echo
   _read_input_text "Type your username:"
@@ -566,6 +565,7 @@ _create_new_user() {
     _print_title "NEW USER"
     echo
     _print_warning "You must be type a username!"
+    echo
     _read_input_text "Type your username:"
     read -r NEW_USER
   done
@@ -581,15 +581,8 @@ _create_new_user() {
     echo
     _print_info "User ${NEW_USER} already exists!"
   fi
-  echo
   _print_subtitle_select "Type a new user password"
-  passwd ${NEW_USER} && PASSWD_CHECK=1
-  while [[ $PASSWD_CHECK == 0 ]]; do
-    echo
-    _print_warning "The password does not match!"
-    echo
-    passwd ${NEW_USER} && PASSWD_CHECK=1;
-  done
+  passwd ${NEW_USER}
   _pause_function
 }
 
@@ -922,20 +915,20 @@ _print_title() {
 _print_title_alert() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${BRED}
+  BORDER_COLOR=${RED}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}${RESET}${BWHITE} $1${RESET}"
-  T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
+  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BBRED}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
+  T_RIGHT="${BBLACK}▓▒░ ${APP_TITLE}${RESET}"
+  echo -ne "${T_LEFT}"
+  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 17 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -e "${T_LEFT}"
-  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BBLACK}║${RESET}${BCYAN} $1${RESET}"
+  echo -e "\n${BBLACK}<${RESET}${BCYAN} $1 ${RESET}${BBLACK}>${RESET}"
   echo
 }
 
@@ -961,7 +954,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${BLUE}$1${RESET} $2 "
+  echo -ne "${BBLACK}$1${RESET} $2 "
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
