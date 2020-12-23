@@ -562,17 +562,16 @@ _create_new_user() {
   echo
   _read_input_text "Type your username:"
   read -r NEW_USER
-  echo
   while [[ "${NEW_USER}" == "" ]]; do
     _print_title "NEW USER"
     echo
     _print_warning "You must be type a username!"
     _read_input_text "Type your username:"
     read -r NEW_USER
-    echo
   done
   NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
+    echo
     _print_action "Create user" "${NEW_USER}"
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
