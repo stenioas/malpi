@@ -581,7 +581,15 @@ _create_new_user() {
     _print_info "User ${NEW_USER} already exists!"
   fi
   _print_subtitle_select "Type a new user password"
-  passwd ${NEW_USER}
+  PASSWD_CHECK=0
+  passwd ${NEW_USER} && PASSWD_CHECK=1;
+  while [[ $PASSWD_CHECK == 0 ]]; do
+    echo
+    _print_warning "The password does not match!"
+    _print_subtitle_select "Type a new user password"
+    echo
+    passwd ${NEW_USER} && PASSWD_CHECK=1;
+  done
   _pause_function
 }
 
@@ -668,7 +676,6 @@ _install_extra_pkgs() {
 
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
-  PS3="$PROMPT1"
   echo
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
