@@ -537,7 +537,7 @@ _finish_install() {
     echo
     _package_install "wget"
     _print_action "Downloading" "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/myarch/setup.sh" &> /dev/null && _print_ok || _print_failed
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/setup.sh" &> /dev/null && _print_ok || _print_failed
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -904,10 +904,10 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}█║${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}║${RESET}"
+  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BYELLOW}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
   T_RIGHT="${BBLACK}▓▒░ ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 22 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 17 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
 }
 
