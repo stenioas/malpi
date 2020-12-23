@@ -66,11 +66,11 @@
       ROOT_MOUNTPOINT="/mnt"
 
     # --- PROMPT
-      PROMPT1="${BBLACK}→ ${RESET}"
+      PROMPT1="${BCYAN}→ ${RESET}"
 
 # ----------------------------------------------------------------------#
 
-### TESTS
+### TEST FUNCTIONS
 
 _check_connection() {
     _connection_test() {
@@ -89,62 +89,63 @@ _check_connection() {
 ### CORE FUNCTIONS
 
 _setup_install(){
-    [[ $(id -u) != 0 ]] && {
-      _print_warning "Only for 'root'.\n"
-      exit 1
-    }
-    _initial_info
-    _rank_mirrors
-    _select_disk
-    _format_partitions
-    _install_base
-    _install_kernel
-    _fstab_generate
-    _set_timezone_and_clock
-    _set_localization
-    _set_network
-    _mkinitcpio_generate
-    _root_passwd
-    _grub_generate
-    _finish_install
-    exit 0
+  [[ $(id -u) != 0 ]] && {
+    _print_warning "Only for 'root'.\n"
+    exit 1
+  }
+  _initial_section
+  _initial_info
+  _rank_mirrors
+  _select_disk
+  _format_partitions
+  _install_base
+  _install_kernel
+  _fstab_generate
+  _set_timezone_and_clock
+  _set_localization
+  _set_network
+  _mkinitcpio_generate
+  _root_passwd
+  _grub_generate
+  _finish_install
+  exit 0
 }
 
 _setup_config(){
-    [[ $(id -u) != 0 ]] && {
-      _print_warning "Only for 'root'.\n"
-      exit 1
-    }
-    _create_new_user
-    _enable_multilib
-    _install_essential_pkgs
-    _install_xorg
-    _install_vga
-    _install_extra_pkgs
-    _install_laptop_pkgs
-    _finish_config
-    exit 0
+  [[ $(id -u) != 0 ]] && {
+    _print_warning "Only for 'root'.\n"
+    exit 1
+  }
+  _create_new_user
+  _enable_multilib
+  _install_essential_pkgs
+  _install_xorg
+  _install_vga
+  _install_extra_pkgs
+  _install_laptop_pkgs
+  _finish_config
+  exit 0
 }
 
 _setup_desktop(){
-    [[ $(id -u) != 0 ]] && {
-      _print_warning "Only for 'root'.\n"
-      exit 1
-    }
-    _install_desktop
-    _install_display_manager
-    _finish_desktop
-    exit 0
+  [[ $(id -u) != 0 ]] && {
+    _print_warning "Only for 'root'.\n"
+    exit 1
+  }
+  _install_desktop
+  _install_display_manager
+  _finish_desktop
+  exit 0
 }
 
 _setup_user(){
-    [[ $(id -u) != 1000 ]] && {
-      _print_warning "Only for 'normal user'.\n"
-      exit 1
-    }
-    _install_apps
-    _install_aurhelper
-    exit 0
+  [[ $(id -u) != 1000 ]] && {
+    _print_warning "Only for 'normal user'.\n"
+    exit 1
+  }
+  _install_apps
+  _install_aurhelper
+  exit 0
 }
 
 # ----------------------------------------------------------------------#
@@ -153,8 +154,11 @@ _setup_user(){
 
 # --- INSTALL SECTION --- >
 
-_initial_info() {
+_initial_section() {
   timedatectl set-ntp true
+}
+
+_initial_info() {
   _print_title_alert "IMPORTANT"
   cat <<EOF
 ${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
@@ -873,18 +877,15 @@ _print_dline_red() {
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${BBLACK}
+  BORDER_COLOR=${WHITE}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}║${RESET}${BWHITE}     $1     ${RESET}${BORDER_COLOR}║${RESET}"
+  T_LEFT="${BORDER_COLOR}║${RESET}${BG_WHITE}${BLACK}   $1   ${RESET}${BORDER_COLOR}║${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${BORDER_COLOR}╔${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_TITLE + 11 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${BORDER_COLOR}╗${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_TITLE - T_APP_TITLE - 13 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
-  echo -ne "${BORDER_COLOR}╩${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '═' $(( T_TITLE + 11 )) | tr -d [:digit:]`${RESET}"
-  echo -ne "${BORDER_COLOR}╩${RESET}"; echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 11 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${T_LEFT}"
+  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 8 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
@@ -959,8 +960,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BCYAN}$1${RESET}"
-  echo -ne "\n${BBLACK}→ ${RESET}"
+  printf "%s" "${BCYAN}$1 ${RESET}"
 }
 
 _read_input_option() {
