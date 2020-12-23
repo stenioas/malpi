@@ -578,7 +578,7 @@ _create_new_user() {
     echo
     _print_info "Privileges added."
   else
-  echo
+    echo
     _print_info "User ${NEW_USER} already exists!"
   fi
   echo
