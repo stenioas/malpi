@@ -575,21 +575,22 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     _print_action "Create user" "${NEW_USER}"
     useradd -m -g users -G wheel ${NEW_USER} && _print_ok
-    _print_subtitle_select "Type a new user password"
-    passwd ${NEW_USER} && PASSWD_CHECK=1
-    while [[ $PASSWD_CHECK == 0 ]]; do
-      echo
-      _print_warning "The password does not match!"
-      echo
-      passwd ${NEW_USER} && PASSWD_CHECK=1;
-    done
+    sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
     echo
     _print_info "Privileges added."
-    sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
   else
   echo
     _print_info "User ${NEW_USER} already exists!"
   fi
+  echo
+  _print_subtitle_select "Type a new user password"
+  passwd ${NEW_USER} && PASSWD_CHECK=1
+  while [[ $PASSWD_CHECK == 0 ]]; do
+    echo
+    _print_warning "The password does not match!"
+    echo
+    passwd ${NEW_USER} && PASSWD_CHECK=1;
+  done
   _pause_function
 }
 
