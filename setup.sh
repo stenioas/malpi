@@ -179,40 +179,39 @@ _setup_user(){
 # --- INSTALL SECTION --- >
 
 _initial_section() {
+  clear
   timedatectl set-ntp true
+  pacman -Sy archlinux-keyring
 }
 
 _initial_info() {
   _print_title_alert "IMPORTANT"
   cat <<EOF
-${BBLACK} ┌──────────────────────────────────────────────────────────────────┐${RESET}
 
-   - This script supports ${BYELLOW}UEFI${RESET} only.
+  - This script supports ${BYELLOW}UEFI${RESET} only.
 
-   - This script, for now, will install ${BYELLOW}GRUB${RESET} as default bootloader.
+  - This script, for now, will install ${BYELLOW}GRUB${RESET} as default bootloader.
 
-   - This script will only consider two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
+  - This script will only consider two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
 
-   - This script will format the root partition in ${BYELLOW}BTRFS${RESET} format.
+  - This script will format the root partition in ${BYELLOW}BTRFS${RESET} format.
 
-   - The ESP partition can be formatted if the user wants to.
+  - The ESP partition can be formatted if the user wants to.
 
-   - This script does not support ${BYELLOW}SWAP${RESET}.
+  - This script does not support ${BYELLOW}SWAP${RESET}.
 
-   - This script will create three subvolumes:
-         ${BYELLOW}@${RESET} for /
-         ${BYELLOW}@home${RESET} for /home
-         ${BYELLOW}@.snapshots${RESET} for /.snapshots
+  - This script will create three subvolumes:
+        ${BYELLOW}@${RESET} for /
+        ${BYELLOW}@home${RESET} for /home
+        ${BYELLOW}@.snapshots${RESET} for /.snapshots
 
-   - This script, for now, sets zoneinfo as America/Fortaleza.
+  - This script, for now, sets zoneinfo as America/Fortaleza.
 
-   - This script sets hwclock as UTC.
+  - This script sets hwclock as UTC.
   
-${BYELLOW}   - This script is not yet complete!${RESET}
+${BYELLOW}  - This script is not yet complete!${RESET}
   
-${BWHITE}   - Btw, thank's for your time!${RESET}
-
-${BBLACK} └──────────────────────────────────────────────────────────────────┘${RESET}
+${BWHITE}  - Btw, thank's for your time!${RESET}
 EOF
   _pause_function
 }
