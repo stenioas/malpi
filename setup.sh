@@ -904,12 +904,12 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}═╣║║${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}║║╠${RESET}"
+  T_LEFT="${BORDER_COLOR}█║${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}░▒▓█${RESET}"
   T_RIGHT="${BBLACK} ${APP_TITLE}${RESET}"
   echo -ne "${BORDER_COLOR}`seq -s ' ' $(( T_COLS - T_APP_TITLE - 1 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -ne "${T_LEFT}"
-  echo -e "${BORDER_COLOR}`seq -s '═' $(( T_COLS - T_TITLE - 12 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - 11 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title_alert() {
