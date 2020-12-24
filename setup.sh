@@ -101,7 +101,7 @@ _check_connection() {
       ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
     }
     if ! _connection_test; then
-      _print_title_alert "CONNECTION"
+      _print_title "CONNECTION"
       _print_warning "You are not connected. Solve this problem and run this script again."
       _print_bye
       exit 1
@@ -185,8 +185,10 @@ _initial_section() {
 }
 
 _initial_info() {
-  _print_title_alert "IMPORTANT"
+  _print_title "README"
   cat <<EOF
+
+  ${BRED}IMPORTANT${RESET}
 
   - This script supports ${BYELLOW}UEFI${RESET} only.
 
@@ -213,8 +215,7 @@ ${BYELLOW}  - This script is not yet complete!${RESET}
   
 ${BWHITE}  - Btw, thank's for your time!${RESET}
 EOF
-  echo -e "\n${RED}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
+  _pause_function
 }
 
 _rank_mirrors() {
@@ -900,23 +901,9 @@ _print_title() {
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
   T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BYELLOW}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
-  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
+  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK}   ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
-  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 17 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${T_RIGHT}"
-  echo -e "${BORDER_COLOR}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_title_alert() {
-  clear
-  T_COLS=$(tput cols)
-  BORDER_COLOR=${RED}
-  T_APP_TITLE=${#APP_TITLE}
-  T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BRED}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
-  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK} ${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 17 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
   echo -e "${T_RIGHT}"
   echo -e "${BORDER_COLOR}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
