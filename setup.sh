@@ -213,7 +213,8 @@ ${BYELLOW}  - This script is not yet complete!${RESET}
   
 ${BWHITE}  - Btw, thank's for your time!${RESET}
 EOF
-  _pause_function
+  echo -e "\n${RED}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
 }
 
 _rank_mirrors() {
@@ -587,7 +588,6 @@ _create_new_user() {
     echo
     _print_warning "The password does not match!"
     _print_subtitle_select "Type a new user password"
-    echo
     passwd ${NEW_USER} && PASSWD_CHECK=1;
   done
   _pause_function
@@ -865,10 +865,9 @@ _install_apps() {
 }
 
 _install_aurhelper() {
-  _print_title "AUR HELPER"
+  _print_title "YAY"
   echo
   _read_input_option "Install yay? [y/N]: "
-  _print_subtitle "YAY"
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
@@ -891,17 +890,7 @@ _install_aurhelper() {
 ### OTHER FUNCTIONS
 
 _print_line() {
-  echo -e "${BBLACK}`seq -s '─' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_dline() {
-  T_COLS=$(tput cols)
-  echo -e "${BBLACK}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
-}
-
-_print_dline_red() {
-  T_COLS=$(tput cols)
-  echo -e "${BRED}`seq -s '═' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 _print_title() {
