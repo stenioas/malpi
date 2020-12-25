@@ -497,6 +497,7 @@ _set_localization() {
     while ! _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; do
       echo
       _print_warning "Your choice is not available!"
+      echo
       _read_input_text "Type your keymap:"
       read -r KEYMAP_CHOICE
     done
