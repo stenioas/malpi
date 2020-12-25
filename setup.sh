@@ -1,6 +1,11 @@
 #!/bin/sh
 #
-# pali: Personal Arch Linux Installer - Install and configure my Arch
+# Personal Arch Linux Installer (pali)
+# ----------------------------------------------------------------------#
+#
+# author    : stenioas
+#             https://github.com/stenioas
+# project   : https://github.com/stenioas/stenio
 #
 # ----------------------------------------------------------------------#
 #
@@ -146,6 +151,8 @@ _setup_config(){
   _install_essential_pkgs
   _install_xorg
   _install_vga
+  _install_desktop
+  _install_display_manager
   _install_extra_pkgs
   _install_laptop_pkgs
   _finish_config
@@ -157,9 +164,6 @@ _setup_desktop(){
     _print_warning "Only for 'root'.\n"
     exit 1
   }
-  _install_desktop
-  _install_display_manager
-  _finish_desktop
   exit 0
 }
 
@@ -680,42 +684,6 @@ _install_vga() {
   _pause_function
 }
 
-_install_extra_pkgs() {
-  _print_title "EXTRA PACKAGES"
-  _print_subtitle "Utilities"
-  _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Compression tools"
-  _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Filesystem tools"
-  _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Sound tools"
-  _package_install "alsa-utils pulseaudio"
-  _pause_function
-}
-
-_install_laptop_pkgs() {
-  _print_title "LAPTOP PACKAGES"
-  echo
-  _read_input_option "Install laptop packages? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "Packages"
-    _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_subtitle "Services"
-    _print_action "Enabling" "Bluetooth"
-    systemctl enable bluetooth &> /dev/null && _print_ok
-    _pause_function
-  fi
-}
-
-_finish_config() {
-  _print_title "SECOND STEP FINISHED"
-  exit 0
-}
-
-# --- END CONFIG SECTION --- >
-
-# --- DESKTOP SECTION --- >
-
 _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
   PS3="$PROMPT1"
@@ -841,15 +809,42 @@ _install_display_manager() {
   _pause_function
 }
 
-_finish_desktop() {
-  _print_title "THIRD STEP FINISHED"
+_install_extra_pkgs() {
+  _print_title "EXTRA PACKAGES"
+  _print_subtitle "Utilities"
+  _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
+  _print_subtitle "Compression tools"
+  _package_install "zip unzip unrar p7zip lzop"
+  _print_subtitle "Filesystem tools"
+  _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
+  _print_subtitle "Sound tools"
+  _package_install "alsa-utils pulseaudio"
+  _pause_function
+}
+
+_install_laptop_pkgs() {
+  _print_title "LAPTOP PACKAGES"
+  echo
+  _read_input_option "Install laptop packages? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    _print_subtitle "Packages"
+    _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
+    _print_subtitle "Services"
+    _print_action "Enabling" "Bluetooth"
+    systemctl enable bluetooth &> /dev/null && _print_ok
+    _pause_function
+  fi
+}
+
+_finish_config() {
+  _print_title "SECOND STEP FINISHED"
   echo
   _print_info "Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
   _pause_function
   exit 0
 }
 
-# --- END DESKTOP SECTION --- >
+# --- END CONFIG SECTION --- >
 
 # --- USER SECTION --- >
 
@@ -1077,7 +1072,6 @@ usage: ${0##*/} [flags]
 
     --install | -i         First step, only root user.
     --config  | -c         Second step, only root user.
-    --desktop | -d         Third step, only root user.
     --user    | -u         Last step, only normal user.
 
 arch-setup 0.1
@@ -1098,20 +1092,15 @@ setfont
 
 cat <<EOF
 
-${BGREEN} ╓────────────────────────────────────────╖${RESET}
-${BGREEN} ║                                        ║${RESET}
-${BGREEN} ║  ██████╗  █████╗    ██╗        ██╗     ║${RESET}
-${BGREEN} ║  ██╔══██╗██╔══██╗   ██║        ██║     ║${RESET}
-${BGREEN} ║  ██████╔╝███████║   ██║        ██║     ║${RESET}
-${BGREEN} ║  ██╔═══╝ ██╔══██║   ██║        ██║     ║${RESET}
-${BGREEN} ║  ██║██╗  ██║  ██║██╗███████╗██╗██║██╗  ║${RESET}
-${BGREEN} ║  ╚═╝╚═╝  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝╚═╝  ║${RESET}
-${BGREEN} ╙───────────── My Arch Way ──────────────╜${RESET}
-${BBLACK} ╓────────────────────────────────────────╖${RESET}
-${BBLACK} ║   https://github.com/stenioas/myarch   ║${RESET}
-${BBLACK} ║     Personal Arch Linux Installer      ║${RESET}
-${BBLACK} ║          By Stenio Silveira            ║${RESET}
-${BBLACK} ╙────────────────────────────────────────╜${RESET}
+${BGREEN} ┌─────────────────────────────────┐${RESET}${BBLACK} ╓────────────────────────────────────────╖${RESET}
+${BGREEN} │                                 │${RESET}${BBLACK} ║   https://github.com/stenioas/myarch   ║${RESET}
+${BGREEN} │   ██████╗  █████╗ ██╗     ██╗   │${RESET}${BBLACK} ║     Personal Arch Linux Installer      ║${RESET}
+${BGREEN} │   ██╔══██╗██╔══██╗██║     ██║   │${RESET}${BBLACK} ║          By Stenio Silveira            ║${RESET}
+${BGREEN} │   ██████╔╝███████║██║     ██║   │${RESET}${BBLACK} ╙────────────────────────────────────────╜${RESET}
+${BGREEN} │   ██╔═══╝ ██╔══██║██║     ██║   │${RESET}
+${BGREEN} │   ██║     ██║  ██║███████╗██║   │${RESET}
+${BGREEN} │   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │${RESET}
+${BGREEN} └────────── My Arch Way ──────────┘${RESET}
 
 EOF
 read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
@@ -1121,7 +1110,6 @@ while [[ "$1" ]]; do
   case "$1" in
     --install|-i) _setup_install;;
     --config|-c) _setup_config;;
-    --desktop|-d) _setup_desktop;;
     --user|-u) _setup_user;;
   esac
   shift
