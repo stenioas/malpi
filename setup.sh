@@ -218,12 +218,27 @@ EOF
 
 _rank_mirrors() {
   _print_title "MIRRORS"
+  PS3="$PROMPT1"
+  ITEMS=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
+  COUNTRY_LIST=()
+  for ITEM in ${ITEMS}; do
+  	COUNTRY_LIST+=("${ITEM%%.*}")
+  done
+  _print_subtitle_select "Select your country:"
+  select COUNTRY_CHOICE in "${COUNTRY_LIST[@]}"; do
+    if contains_element "${COUNTRY_CHOICE}" "${COUNTRY_LIST[@]}"; then
+      COUNTRY_CHOICE="${COUNTRY_CHOICE}"
+      break
+    else
+      invalid_option
+    fi
+  done
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
   echo
-  _print_action "Running" "reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist"
-  reflector -c Brazil --sort score --save /etc/pacman.d/mirrorlist && _print_ok
+  _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
+  reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist && _print_ok
   _print_action "Running" "pacman -Syy"
   pacman -Syy &> /dev/null && _print_ok
   echo
@@ -446,15 +461,6 @@ _fstab_generate() {
 
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
-  echo
-  _print_action "Running" "timedatectl set-ntp true"
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
-  _print_action "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
-  arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   CLOCK_LIST=("UTC" "Localtime")
   _print_subtitle_select "Select timescale:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
@@ -465,6 +471,15 @@ _set_timezone_and_clock() {
       _invalid_option
     fi
   done
+  echo
+  _print_action "Running" "timedatectl set-ntp true"
+  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
+  _print_action "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
+  arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
+  arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
+  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
     echo
     _print_action "Running" "hwclock --systohc --utc"
@@ -474,7 +489,6 @@ _set_timezone_and_clock() {
     _print_action "Running" "hwclock --systohc --localtime"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null && _print_ok
   fi
-  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _pause_function
 }
 
@@ -502,6 +516,7 @@ _set_localization() {
       read -r KEYMAP_CHOICE
     done
   fi
+  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   echo
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
@@ -612,7 +627,7 @@ _finish_install() {
   _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
-    _umount_partitions
+    clear
     reboot
   else
     _print_bye
