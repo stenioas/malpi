@@ -925,7 +925,7 @@ _print_title() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${PURPLE}║${RESET}${BG_PURPLE}${BCYAN} $1 ${RESET}${PURPLE}║${RESET}"
+  echo -e "\n${BBLACK}║${RESET}${BCYAN} $1 ${RESET}${BBLACK}║${RESET}"
   echo -e "${BORDER_COLOR}`seq -s '-' $(( COLS_SUBTITLE + 4 )) | tr -d [:digit:]`${RESET}"
   echo
 }
