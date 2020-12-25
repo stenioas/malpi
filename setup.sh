@@ -923,7 +923,7 @@ _print_title() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BBLACK}>${RESET}${BCYAN}  $1  ${RESET}${BBLACK}<${RESET}"
+  echo -e "\n${BBLACK}[${RESET}${BCYAN}  $1  ${RESET}${BBLACK}]${RESET}"
   echo
 }
 
