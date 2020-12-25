@@ -153,8 +153,6 @@ _setup_config(){
   _install_vga
   _install_desktop
   _install_display_manager
-  _install_extra_pkgs
-  _install_laptop_pkgs
   _finish_config
   exit 0
 }
@@ -165,6 +163,8 @@ _setup_user(){
     exit 1
   }
   _initial_user
+  _install_extra_pkgs
+  _install_laptop_pkgs
   _install_apps
   _install_aurhelper
   exit 0
@@ -393,12 +393,34 @@ _install_base() {
   else
     _print_warning "You have not installed a linux kernel!"
   fi
+  _print_subtitle_select "Select your microcode:${RESET}"
+  MICROCODE_LIST=("amd-ucode" "intel-ucode" "none")
+  select MICROCODE_CHOICE in "${MICROCODE_LIST[@]}"; do
+    if _contains_element "${MICROCODE_CHOICE}" "${MICROCODE_LIST[@]}"; then
+      MICROCODE_CHOICE="${MICROCODE_CHOICE}"
+      break;
+    else
+      _invalid_option
+    fi
+  done
+  if [[ "${MICROCODE_CHOICE}" = "amd-ucode" ]]; then
+    MICROCODE_VERSION=${MICROCODE_CHOICE}
+  elif [[ "${MICROCODE_CHOICE}" = "intel-ucode" ]]; then
+    MICROCODE_VERSION=${MICROCODE_CHOICE}
+  elif [[ "${MICROCODE_CHOICE}" = "none" ]]; then
+    MICROCODE_VERSION=${MICROCODE_CHOICE}
+    _print_warning "You have not installed a microcode!"
+  else
+    _print_warning "You have not installed a microcode!"
+  fi
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "${KERNEL_VERSION}"
   _pacstrap_install "${KERNEL_VERSION}-headers"
   _pacstrap_install "linux-firmware"
-  _pacstrap_install "intel-ucode"
+  if [[ "${MICROCODE_VERSION}" != "none" ]]; then
+    _pacstrap_install "${MICROCODE_VERSION}"
+  fi
   _pacstrap_install "btrfs-progs"
   _pacstrap_install "networkmanager"
   _print_subtitle "Services"
@@ -528,6 +550,11 @@ _grub_generate() {
   done
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
+  echo
+  _read_input_option "Install os-prober? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    _pacstrap_install "os-prober"
+  fi
   _print_subtitle "Grub install"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
   _print_subtitle "Grub configuration file"
@@ -802,6 +829,25 @@ _install_display_manager() {
   _pause_function
 }
 
+_finish_config() {
+  _print_title "SECOND STEP FINISHED"
+  echo
+  _print_info "Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
+  _pause_function
+  exit 0
+}
+
+# --- END CONFIG SECTION --- >
+
+# --- USER SECTION --- >
+
+_initial_user() {
+  _print_title "UPDATE MIRRORS"
+  echo
+  sudo pacman -Syy
+  _pause_function
+}
+
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   _print_subtitle "Utilities"
@@ -827,25 +873,6 @@ _install_laptop_pkgs() {
     systemctl enable bluetooth &> /dev/null && _print_ok
     _pause_function
   fi
-}
-
-_finish_config() {
-  _print_title "SECOND STEP FINISHED"
-  echo
-  _print_info "Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
-  _pause_function
-  exit 0
-}
-
-# --- END CONFIG SECTION --- >
-
-# --- USER SECTION --- >
-
-_initial_user() {
-  _print_title "UPDATE MIRRORS"
-  echo
-  sudo pacman -Syy
-  _pause_function
 }
 
 _install_apps() {
@@ -1105,7 +1132,7 @@ ${BGREEN} │   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═
 ${BGREEN} └──────${RESET}${BBLACK} By Stenio Silveira ${RESET}${BGREEN}───────┘${RESET}
 
 EOF
-read -e -sn 1 -p "${BWHITE}            Press any key to start!${RESET}"
+read -e -sn 1 -p "${BWHITE}       Press any key to start!${RESET}"
 _check_connection
 
 while [[ "$1" ]]; do
