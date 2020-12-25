@@ -187,8 +187,9 @@ _initial_section() {
 
 _initial_info() {
   _print_title "README"
-  _print_subtitle "${BRED}IMPORTANT${RESET}"
-  cat <<EOF  
+  cat <<EOF
+
+${BG_RED}${BWHITE} IMPORTANT ${RESET}
 
   - This script supports ${BYELLOW}UEFI${RESET} only.
 
@@ -442,6 +443,7 @@ _set_timezone_and_clock() {
       _invalid_option
     fi
   done
+  _print_subtitle_select "Select timescale:"
   if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
     _print_action "Running" "hwclock --systohc --utc"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
@@ -596,13 +598,13 @@ _create_new_user() {
     echo
     _print_info "User ${NEW_USER} already exists!"
   fi
-  _print_subtitle_select "Type a new user password"
+  _print_subtitle_select "Type a new user password:"
   PASSWD_CHECK=0
   passwd ${NEW_USER} && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
     echo
     _print_warning "The password does not match!"
-    _print_subtitle_select "Type a new user password"
+    _print_subtitle_select "Type a new user password:"
     passwd ${NEW_USER} && PASSWD_CHECK=1;
   done
   _pause_function
@@ -922,9 +924,11 @@ _print_title() {
 }
 
 _print_subtitle() {
+  T_COLS=$(tput cols)
+  BORDER_COLOR=${BBLACK}
   COLS_SUBTITLE=${#1}
-  echo -ne "\n${BBLACK}--|${RESET}${BCYAN}  $1  ${RESET}${BBLACK}|--${RESET}"
-  echo -e "${BORDER_COLOR}`seq -s '-' $(( T_COLS - 9 )) | tr -d [:digit:]`${RESET}"
+  echo -ne "\n${BBLACK}─┤${RESET}${BCYAN}  $1  ${RESET}${BBLACK}├─${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '─' $(( T_COLS - COLS_SUBTITLE - 7 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
