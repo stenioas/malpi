@@ -848,10 +848,18 @@ _finish_config() {
 
 # --- USER SECTION --- >
 
+_initial_user() {
+  _print_title "UPDATE MIRRORS"
+  echo
+  sudo pacman -Syy
+  _pause_function
+}
+
 _install_apps() {
   _print_title "CUSTOM APPS"
   echo
   _read_input_option "Install custom apps? [y/N]: "
+  echo
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
     _package_install "firefox firefox-i18n-pt-br"
@@ -860,7 +868,7 @@ _install_apps() {
     _package_install "inkscape"
     _package_install "vlc"
     _package_install "telegram-desktop"
-    if ${DESKTOP} == "Plasma" ; then
+    if [[ ${DESKTOP} = "Plasma" ]]; then
       _package_install "transmission-qt"
     else
       _package_install "transmission-gtk"
@@ -882,6 +890,7 @@ _install_aurhelper() {
   _print_title "YAY"
   echo
   _read_input_option "Install yay? [y/N]: "
+  echo
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
@@ -893,6 +902,7 @@ _install_aurhelper() {
       makepkg -csi --noconfirm
       _pause_function
     else
+      echo
       _print_info "Yay is already installed!"
       _pause_function
     fi
