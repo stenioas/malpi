@@ -181,7 +181,7 @@ _setup_user(){
 _initial_section() {
   clear
   timedatectl set-ntp true
-  pacman -Sy archlinux-keyring
+  pacman -Sy --noconfirm archlinux-keyring
 }
 
 _initial_info() {
@@ -433,8 +433,22 @@ _set_timezone_and_clock() {
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  _print_action "Running" "hwclock --systohc --utc"
-  arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
+  CLOCK_LIST=("UTC" "Localtime")
+  select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
+    if _contains_element "${CLOCK_CHOICE}" "${CLOCK_LIST[@]}"; then
+      CLOCK_CHOICE="${CLOCK_CHOICE}"
+      break;
+    else
+      _invalid_option
+    fi
+  done
+  if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
+    _print_action "Running" "hwclock --systohc --utc"
+    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
+  else
+    _print_action "Running" "hwclock --systohc --localtime"
+    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null && _print_ok
+  fi
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _pause_function
 }
