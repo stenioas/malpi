@@ -445,9 +445,11 @@ _set_timezone_and_clock() {
     fi
   done
   if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
+    echo
     _print_action "Running" "hwclock --systohc --utc"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   else
+    echo
     _print_action "Running" "hwclock --systohc --localtime"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null && _print_ok
   fi
@@ -926,9 +928,9 @@ _print_title() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   BORDER_COLOR=${BBLACK}
-  echo -ne " ${BORDER_COLOR}╓${RESET}"; echo -ne " ${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e " ${BORDER_COLOR}╖${RESET}"
+  echo -ne "\n ${BORDER_COLOR}╓${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╖${RESET}"
   echo -e " ${BORDER_COLOR}║${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}║${RESET}"
-  echo -ne " ${BORDER_COLOR}╙${RESET}"; echo -ne " ${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e " ${BORDER_COLOR}╜${RESET}"
+  echo -ne " ${BORDER_COLOR}╙${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╜${RESET}"
   echo
 }
 
