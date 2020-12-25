@@ -17,11 +17,27 @@ baseurl=https://raw.githubusercontent.com/MatMoul/archfi/master
 cpl=0
 skipfont="0"
 fspkgs=""
-NEWT_COLORS='
-  window=,red
-  border=white,red
-  textbox=white,red
-  button=black,white
+export NEWT_COLORS='
+	root=white,red
+	window=white,gray
+	border=lightgray,gray
+	shadow=white,black
+	button=black,green
+	actbutton=black,red
+	compactbutton=lightgray,black
+	title=yellow,gray
+	roottext=red,black
+	textbox=lightgray,gray
+	acttextbox=gray,white
+	entry=black,lightgray
+	disentry=gray,black
+	checkbox=black,lightgray
+	actcheckbox=black,green
+	emptyscale=,lightgray
+	fullscale=,brown
+	listbox=black,lightgray
+	actlistbox=lightgray,black
+	actsellistbox=black,green
 '
 # --------------------------------------------------------
 mainmenu(){
