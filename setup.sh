@@ -926,9 +926,9 @@ _print_title() {
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
   BORDER_COLOR=${BBLACK}
-  echo -e "\n${BORDER_COLOR}`seq -s '-' $(( COLS_SUBTITLE + 5 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${BORDER_COLOR}║${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}║${RESET}"
-  echo -e "${BORDER_COLOR}`seq -s '-' $(( COLS_SUBTITLE + 5 )) | tr -d [:digit:]`${RESET}"
+  echo -ne " ${BORDER_COLOR}╓${RESET}"; echo -ne " ${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e " ${BORDER_COLOR}╖${RESET}"
+  echo -e " ${BORDER_COLOR}║${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}║${RESET}"
+  echo -ne " ${BORDER_COLOR}╙${RESET}"; echo -ne " ${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e " ${BORDER_COLOR}╜${RESET}"
   echo
 }
 
