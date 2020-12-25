@@ -435,6 +435,7 @@ _set_timezone_and_clock() {
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   CLOCK_LIST=("UTC" "Localtime")
+  _print_subtitle_select "Select timescale:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
     if _contains_element "${CLOCK_CHOICE}" "${CLOCK_LIST[@]}"; then
       CLOCK_CHOICE="${CLOCK_CHOICE}"
@@ -443,7 +444,6 @@ _set_timezone_and_clock() {
       _invalid_option
     fi
   done
-  _print_subtitle_select "Select timescale:"
   if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
     _print_action "Running" "hwclock --systohc --utc"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
@@ -916,7 +916,7 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   T_APP_TITLE=${#APP_TITLE}
   T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BYELLOW}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
+  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
   T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK}   ${APP_TITLE}${RESET}"
   echo -ne "${T_LEFT}"
   echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
@@ -924,7 +924,9 @@ _print_title() {
 }
 
 _print_subtitle() {
-  echo -e "\n${PURPLE}║${RESET}${BG_PURPLE}${BCYAN} $1 ${RESET}${PURPLE}║${RESET}"
+  COLS_SUBTITLE=${#1}
+  echo -ne "\n${PURPLE}║${RESET}${BG_PURPLE}${BCYAN} $1 ${RESET}${PURPLE}║${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '-' $(( COLS_SUBTITLE + 4 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
