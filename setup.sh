@@ -924,7 +924,7 @@ _print_title() {
 }
 
 _print_subtitle() {
-  echo -e "\n${YELLOW}║${RESET}${BG_YELLOW}${BCYAN} $1 ${RESET}${YELLOW}║${RESET}"
+  echo -e "\n${PURPLE}║${RESET}${BG_PURPLE}${BCYAN} $1 ${RESET}${PURPLE}║${RESET}"
   echo
 }
 
