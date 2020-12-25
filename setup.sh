@@ -102,6 +102,7 @@ _check_connection() {
     }
     if ! _connection_test; then
       _print_title "CONNECTION"
+      echo
       _print_warning "You are not connected. Solve this problem and run this script again."
       _print_bye
       exit 1
@@ -923,7 +924,7 @@ _print_title() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BBLACK}[${RESET}${BCYAN}  $1  ${RESET}${BBLACK}]${RESET}"
+  echo -e "\n${BBLACK}---${RESET}${BCYAN} $1${RESET}${BBLACK} ---${RESET}"
   echo
 }
 
