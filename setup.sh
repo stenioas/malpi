@@ -924,10 +924,7 @@ _print_title() {
 }
 
 _print_subtitle() {
-  T_COLS=$(tput cols)
-  BORDER_COLOR=${BBLACK}
-  COLS_SUBTITLE=${#1}
-  echo -ne "\n${BBLACK}║${RESET}${BCYAN} $1${RESET}"
+  echo -e "\n${YELLOW}║${RESET}${BG_YELLOW}${BCYAN} $1 ${RESET}${YELLOW}║${RESET}"
   echo
 }
 
