@@ -159,19 +159,12 @@ _setup_config(){
   exit 0
 }
 
-_setup_desktop(){
-  [[ $(id -u) != 0 ]] && {
-    _print_warning "Only for 'root'.\n"
-    exit 1
-  }
-  exit 0
-}
-
 _setup_user(){
   [[ $(id -u) != 1000 ]] && {
     _print_warning "Only for 'normal user'.\n"
     exit 1
   }
+  _initial_user
   _install_apps
   _install_aurhelper
   exit 0
@@ -902,7 +895,6 @@ _install_aurhelper() {
       makepkg -csi --noconfirm
       _pause_function
     else
-      echo
       _print_info "Yay is already installed!"
       _pause_function
     fi
