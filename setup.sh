@@ -186,7 +186,7 @@ _initial_info() {
   _print_title "README"
   cat <<EOF
 
-  ${RED}║${RESET}${BG_RED}${BWHITE} IMPORTANT ${RESET}${RED}║${RESET}
+   ${RED}║${RESET}${BG_RED}${BWHITE} IMPORTANT ${RESET}${RED}║${RESET}
 
   - This script supports ${BYELLOW}UEFI${RESET} only.
 
@@ -486,10 +486,12 @@ _set_localization() {
 	for ITEM in ${ITEMS}; do
 		KEYMAP_LIST+=("${ITEM%%.*}")
 	done
+  echo
   _print_info "The br-abnt2 keymap will be configured by default!"
   echo
   _read_input_option "Set a different keymap? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo
     _read_input_text "Type your keymap:"
     read -r KEYMAP_CHOICE
     while ! _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; do
@@ -971,13 +973,18 @@ _print_title() {
   echo -e "${T_RIGHT}"
 }
 
+#_print_subtitle() {
+#  COLS_SUBTITLE=${#1}
+#  BORDER_COLOR=${BBLACK}
+#  echo -ne "\n ${BORDER_COLOR}╓${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╖${RESET}"
+#  echo -e " ${BORDER_COLOR}║${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}║${RESET}"
+#  echo -ne " ${BORDER_COLOR}╙${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╜${RESET}"
+#  echo
+#}
+
 _print_subtitle() {
-  COLS_SUBTITLE=${#1}
   BORDER_COLOR=${BBLACK}
-  echo -ne "\n ${BORDER_COLOR}╓${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╖${RESET}"
-  echo -e " ${BORDER_COLOR}║${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}║${RESET}"
-  echo -ne " ${BORDER_COLOR}╙${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╜${RESET}"
-  echo
+  echo -e "\n${BORDER_COLOR}::${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
 }
 
 _print_subtitle_select() {
