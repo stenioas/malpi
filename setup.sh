@@ -481,16 +481,25 @@ _set_timezone_and_clock() {
 _set_localization() {
   _print_title "LOCALIZATION"
   PS3="${PROMPT1}"
-	KEYMAP_LIST=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V)
-  _print_subtitle_select "Select keymap:"
-  select KEYMAP_CHOICE in "${KEYMAP_LIST[@]}"; do
-    if _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; then
-      KEYMAP_CHOICE="${KEYMAP_CHOICE}"
-      break;
-    else
-      _invalid_option
-    fi
-  done
+	ITEMS=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V)
+	KEYMAP_LIST=()
+	for ITEM in ${ITEMS}; do
+		KEYMAP_LIST+=("${ITEM%%.*}")
+	done
+  _print_info "The br-abnt2 keymap will be configured by default!"
+  echo
+  _read_input_option "Set a different keymap? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    _read_input_text "Type your keymap:"
+    read -r KEYMAP_CHOICE
+    while ! _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; do
+      echo
+      _print_warning "Your choice is not available!"
+      _read_input_text "Type your keymap:"
+      read -r KEYMAP_CHOICE
+    done
+  fi
+  echo
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_action "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
