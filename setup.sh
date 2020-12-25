@@ -409,9 +409,11 @@ _install_base() {
     MICROCODE_VERSION=${MICROCODE_CHOICE}
   elif [[ "${MICROCODE_CHOICE}" = "none" ]]; then
     MICROCODE_VERSION=${MICROCODE_CHOICE}
-    _print_warning "You have not installed a microcode!"
+    echo
+    _print_info "You have not installed a microcode!"
   else
-    _print_warning "You have not installed a microcode!"
+    echo
+    _print_info "You have not installed a microcode!"
   fi
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
@@ -478,13 +480,23 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
-  echo
+  PS3="${PROMPT1}"
+	KEYMAP_LIST=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V)
+  _print_subtitle_select "Select keymap:"
+  select KEYMAP_CHOICE in "${KEYMAP_LIST[@]}"; do
+    if _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; then
+      KEYMAP_CHOICE="${KEYMAP_CHOICE}"
+      break;
+    else
+      _invalid_option
+    fi
+  done
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
   _print_action "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
   echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
-  _print_action "Running" "echo KEYMAP=br-abnt2 > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=br-abnt2" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
+  _print_action "Running" "echo KEYMAP=${KEYMAP_CHOICE} > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
+  echo "KEYMAP=${KEYMAP_CHOICE}" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
   _pause_function  
 }
 
@@ -553,6 +565,7 @@ _grub_generate() {
   echo
   _read_input_option "Install os-prober? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo
     _pacstrap_install "os-prober"
   fi
   _print_subtitle "Grub install"
