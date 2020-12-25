@@ -1094,16 +1094,16 @@ setfont
 
 cat <<EOF
 
-${BGREEN} ┌─────────────────────────────────┐${RESET}${BBLACK} ╓────────────────────────────────────────╖${RESET}
-${BGREEN} │                                 │${RESET}${BBLACK} ║   https://github.com/stenioas/myarch   ║${RESET}
-${BGREEN} │   ██████╗  █████╗ ██╗     ██╗   │${RESET}${BBLACK} ║     Personal Arch Linux Installer      ║${RESET}
-${BGREEN} │   ██╔══██╗██╔══██╗██║     ██║   │${RESET}${BBLACK} ║          By Stenio Silveira            ║${RESET}
-${BGREEN} │   ██████╔╝███████║██║     ██║   │${RESET}${BBLACK} ╙────────────────────────────────────────╜${RESET}
+${BGREEN} ┌─────────────────────────────────┐${RESET}
+${BGREEN} │                                 │${RESET}
+${BGREEN} │   ██████╗  █████╗ ██╗     ██╗   │${RESET}
+${BGREEN} │   ██╔══██╗██╔══██╗██║     ██║   │${RESET}
+${BGREEN} │   ██████╔╝███████║██║     ██║   │${RESET}
 ${BGREEN} │   ██╔═══╝ ██╔══██║██║     ██║   │${RESET}
 ${BGREEN} │   ██║     ██║  ██║███████╗██║   │${RESET}
 ${BGREEN} │   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │${RESET}
 ${BGREEN} └────────── My Arch Way ──────────┘${RESET}
-
+${BBLACK}         By Stenio Silveira         ${RESET}
 EOF
 read -e -sn 1 -p "${BWHITE} Press any key to start!${RESET}"
 _check_connection
