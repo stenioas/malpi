@@ -187,9 +187,8 @@ _initial_section() {
 
 _initial_info() {
   _print_title "README"
-  cat <<EOF
-
-  ${BRED}IMPORTANT${RESET}
+  _print_subtitle "${BRED}IMPORTANT${RESET}"
+  cat <<EOF  
 
   - This script supports ${BYELLOW}UEFI${RESET} only.
 
@@ -924,7 +923,8 @@ _print_title() {
 
 _print_subtitle() {
   COLS_SUBTITLE=${#1}
-  echo -e "\n${BBLACK}---${RESET}${BCYAN} $1${RESET}${BBLACK} ---${RESET}"
+  echo -ne "\n${BBLACK}--|${RESET}${BCYAN}  $1  ${RESET}${BBLACK}|--${RESET}"
+  echo -e "${BORDER_COLOR}`seq -s '-' $(( T_COLS - 9 )) | tr -d [:digit:]`${RESET}"
   echo
 }
 
