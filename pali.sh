@@ -294,22 +294,22 @@ _format_partitions() {
     fi
     echo
     _print_action "Format" "${ROOT_PARTITION}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null && _print_ok
+    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null & PID=$!;_progress $PID
     mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
     _print_action "Create subvolume" "@"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!;_progress $PID
     _print_action "Create subvolume" "@home"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!;_progress $PID
     _print_action "Create subvolume" "@.snapshots"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null && _print_ok
+    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null & PID=$!;_progress $PID
     umount -R ${ROOT_MOUNTPOINT} &> /dev/null
     _print_action "Mount" "@"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null && _print_ok
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!;_progress $PID
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
     _print_action "Mount" "@home"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null && _print_ok
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null & PID=$!;_progress $PID
     _print_action "Mount" "@.snapshots"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null && _print_ok
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null & PID=$!;_progress $PID
     _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
     _pause_function
   }
@@ -331,21 +331,21 @@ _format_partitions() {
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
         _print_action "Format" "${EFI_PARTITION}"
-        mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null && _print_ok
+        mkfs.fat -F32 ${EFI_PARTITION} &> /dev/null & PID=$!;_progress $PID
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
-        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
+        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!;_progress $PID
       else
         echo
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
         _print_action "Mount" "${EFI_PARTITION}"
-        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
+        mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!;_progress $PID
       fi
     else
       echo
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
       _print_action "Mount" "${EFI_PARTITION}"
-      mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null && _print_ok
+      mount -t vfat ${EFI_PARTITION} ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!;_progress $PID
     fi
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
   }
@@ -432,7 +432,7 @@ _install_base() {
   _pacstrap_install "networkmanager"
   _print_subtitle "Services"
   _print_action "Enabling" "NetworkManager"
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null && _print_ok
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null & PID=$!;_progress $PID
   _pause_function
 }
 
@@ -440,7 +440,7 @@ _fstab_generate() {
   _print_title "FSTAB"
   echo
   _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
-  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab && _print_ok
+  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab & PID=$!;_progress $PID
   echo
   _print_line
   _read_input_option "Edit your fstab file? [y/N]: "
@@ -483,19 +483,19 @@ _set_timezone_and_clock() {
   done
   echo
   _print_action "Running" "timedatectl set-ntp true"
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
+  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!;_progress $PID
   _print_action "Running" "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime &> /dev/null && _print_ok
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime &> /dev/null & PID=$!;_progress $PID
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
     _print_action "Running" "hwclock --systohc --utc"
-    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
+    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null & PID=$!;_progress $PID
   else
     _print_action "Running" "hwclock --systohc --localtime"
-    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null && _print_ok
+    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null & PID=$!;_progress $PID
   fi
   _pause_function
 }
@@ -528,11 +528,11 @@ _set_localization() {
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   echo
   _print_action "Running" "locale-gen"
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null && _print_ok
+  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null & PID=$!;_progress $PID
   _print_action "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf && _print_ok
+  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf & PID=$!;_progress $PID
   _print_action "Running" "echo KEYMAP=${KEYMAP_CHOICE} > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=${KEYMAP_CHOICE}" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf && _print_ok
+  echo "KEYMAP=${KEYMAP_CHOICE}" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf & PID=$!;_progress $PID
   _pause_function  
 }
 
@@ -553,11 +553,11 @@ _set_network() {
   done
   NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_action "Setting" "hostname file"
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname && _print_ok
+  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname & PID=$!;_progress $PID
   _print_action "Setting" "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts && _print_ok
+  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts & PID=$!;_progress $PID
   _pause_function  
 }
 
@@ -629,7 +629,7 @@ _finish_install() {
     echo
     _package_install "wget"
     _print_action "Downloading" "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null && _print_ok || _print_failed
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!;_progress $PID || _print_failed
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -665,7 +665,7 @@ _create_new_user() {
   if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
     echo
     _print_action "Create user" "${NEW_USER}"
-    useradd -m -g users -G wheel ${NEW_USER} && _print_ok
+    useradd -m -g users -G wheel ${NEW_USER} & PID=$!;_progress $PID
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
     echo
     _print_info "Privileges added."
@@ -693,17 +693,17 @@ _enable_multilib(){
     if [[ -z $_has_multilib ]]; then
       echo
       _print_action "Enabling" "Multilib"
-      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && _print_ok
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf & PID=$!;_progress $PID
     else
       echo
       _print_action "Enabling" "Multilib"
       sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
       local _has_multilib=$(( _has_multilib + 1 ))
-      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf && _print_ok
+      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf & PID=$!;_progress $PID
     fi
   fi
   _print_action "Running" "pacman -Syy"
-  pacman -Syy &> /dev/null && _print_ok
+  pacman -Syy &> /dev/null & PID=$!;_progress $PID
   _pause_function
 }
 
@@ -840,7 +840,7 @@ _install_display_manager() {
     _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
     _print_subtitle "Services"
     _print_action "Enabling" "LightDM"
-    sudo systemctl enable lightdm &> /dev/null && _print_ok
+    sudo systemctl enable lightdm &> /dev/null & PID=$!;_progress $PID
 
   elif [[ "${DMANAGER}" == "Lxdm" ]]; then
     _print_warning "It's not working yet..."
@@ -853,14 +853,14 @@ _install_display_manager() {
     _package_install "gdm"
     _print_subtitle "Services"
     _print_action "Enabling" "GDM"
-    sudo systemctl enable gdm &> /dev/null && _print_ok
+    sudo systemctl enable gdm &> /dev/null & PID=$!;_progress $PID
 
   elif [[ "${DMANAGER}" == "SDDM" ]]; then
     _print_subtitle "Packages"
     _package_install "sddm"
     _print_subtitle "Services"
     _print_action "Enabling" "SDDM"
-    sudo systemctl enable sddm &> /dev/null && _print_ok
+    sudo systemctl enable sddm &> /dev/null & PID=$!;_progress $PID
 
   elif [[ "${DMANAGER}" == "Xinit" ]]; then
     _print_warning "It's not working yet..."
@@ -915,7 +915,7 @@ _install_laptop_pkgs() {
     _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
     _print_subtitle "Services"
     _print_action "Enabling" "Bluetooth"
-    systemctl enable bluetooth &> /dev/null && _print_ok
+    systemctl enable bluetooth &> /dev/null & PID=$!;_progress $PID
     _pause_function
   fi
 }
@@ -1059,7 +1059,7 @@ _progress() {
     kill -0 "$PID" &> /dev/null;
     if [[ $? == 0 ]]; then
       tput rc
-      tput cub 6
+      tput cub 5
       _spinny
       sleep 0.25
     else
