@@ -399,18 +399,19 @@ _install_base() {
       ;;
     Another)
       echo
-      _read_input_text "Type kernel do you want install:"
+      _read_input_text "Type the kernel package name do you want install:"
       read -r KERNEL_VERSION
       echo
       while [[ "${KERNEL_VERSION}" = "" ]]; do
         _print_warning "You must be type a kernel name!"
         echo
-        _read_input_text "Type kernel do you want install:"
+        _read_input_text "Type the kernel package name do you want install:"
         read -r KERNEL_VERSION
         echo
       done
       ;;
   esac
+  _print_title "BASE"
   _print_subtitle_select "Select your microcode:${RESET}"
   MICROCODE_LIST=("amd-ucode" "intel-ucode" "none")
   select MICROCODE_CHOICE in "${MICROCODE_LIST[@]}"; do
@@ -429,10 +430,14 @@ _install_base() {
       MICROCODE_VERSION=${MICROCODE_CHOICE}
       ;;
     none)
-      echo
-      _print_info "You have not installed a microcode!"
+      MICROCODE_VERSION=${MICROCODE_CHOICE}
       ;;
   esac
+  _print_title "BASE"
+  echo
+  echo -e "${PURPLE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "${PURPLE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "${KERNEL_VERSION}"
@@ -520,6 +525,7 @@ _set_timezone_and_clock() {
 }
 
 _set_localization() {
+  setfont ter-114b
   _print_title "LOCALIZATION"
   LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'))
   _print_subtitle_select "Select your language:"
@@ -542,6 +548,7 @@ _set_localization() {
       invalid_option
     fi
   done
+  setfont ter-118b
   _print_title "LOCALIZATION"
   echo
   echo -e "${PURPLE}Language: ${RESET}${LOCALE}"
