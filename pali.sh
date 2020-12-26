@@ -1180,8 +1180,7 @@ EOF
 _start_screen() {
   COLS_LOGO=47
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - 29)/2 )); echo -e "${GREEN}Personal Arch Linux Installer${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "┌────────────────${GREEN} My Arch Way ${RESET}────────────────┐"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "┌─────────────────────────────────────────────┐"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│    ________  ________  ___       ___        │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   |\   __  \|\   __  \|\  \     |\  \       │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   \ \  \|\  \ \  \|\  \ \  \    \ \  \      │"
@@ -1190,8 +1189,10 @@ _start_screen() {
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│      \ \__\    \ \__\ \__\ \_______\ \__\   │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│       \|__|     \|__|\|__|\|_______|\|__|   │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│                                             │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "└────────────${GREEN} By Stenio Silveira ${RESET}─────────────┘"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "└─────── Personal Arch Linux Installer ───────┘"
   echo
+  tput cuf $(( (T_COLS - 12)/2 )); echo -e "${PURPLE}My Arch way!${RESET}"
+  tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
 }
 
 # ----------------------------------------------------------------------#
