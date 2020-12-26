@@ -218,7 +218,6 @@ EOF
 
 _rank_mirrors() {
   _print_title "MIRRORS"
-  PS3="$PROMPT1"
   SAVEIFS=$IFS
   IFS=$'\n'
   COUNTRY_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
@@ -250,7 +249,6 @@ _rank_mirrors() {
 
 _select_disk() {
   _print_title "PARTITION THE DISKS"
-  PS3="$PROMPT1"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_subtitle_select "Select disk:"
   select DEVICE in "${DEVICES_LIST[@]}"; do
@@ -287,7 +285,6 @@ _format_partitions() {
     _print_subtitle_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
-    PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -325,7 +322,6 @@ _format_partitions() {
   _format_efi_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_subtitle_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
-    PS3="$PROMPT1"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -493,7 +489,6 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
-  PS3="${PROMPT1}"
 	ITEMS=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V)
 	KEYMAP_LIST=()
 	for ITEM in ${ITEMS}; do
@@ -715,7 +710,6 @@ _install_xorg() {
 
 _install_vga() {
   _print_title "VIDEO DRIVER"
-  PS3="$PROMPT1"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_subtitle_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -745,7 +739,6 @@ _install_vga() {
 
 _install_desktop() {
   _print_title "DESKTOP OR WINDOW MANAGER"
-  PS3="$PROMPT1"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
   _print_subtitle_select "Select your desktop or wm:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -815,7 +808,6 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "DISPLAY MANAGER"
-  PS3="$PROMPT1"
   DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
   _print_subtitle_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
