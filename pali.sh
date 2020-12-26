@@ -80,8 +80,8 @@
 
   # --- ESSENTIALS
     APP_TITLE="pali"
-    APP_VERSION="0.1.1"
-    NEW_LANGUAGE="pt_BR"
+    APP_VERSION="0.01"
+    LANGUAGE="pt_BR"
     NEW_GRUB_NAME="Archlinux"
     T_COLS=$(tput cols)
     T_LINES=$(tput lines)
@@ -94,7 +94,7 @@
     ROOT_MOUNTPOINT="/mnt"
 
   # --- PROMPT
-    PS3="${BYELLOW}>${RESET}"
+    PS3="${BYELLOW}> ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -184,7 +184,7 @@ _important_info() {
   _print_title "README"
   cat <<EOF
 
-   ${RED}║${RESET}${BG_RED}${BWHITE} IMPORTANT ${RESET}${RED}║${RESET}
+  ${BG_RED}${BWHITE} IMPORTANT ${RESET}
 
   - This script supports ${BYELLOW}UEFI${RESET} only.
 
@@ -1180,7 +1180,8 @@ EOF
 _start_screen() {
   COLS_LOGO=47
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "┌──────────────── My Arch Way ────────────────┐"
+  tput cuf $(( (T_COLS - 29)/2 )); echo -e "${GREEN}Personal Arch Linux Installer${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "┌────────────────${GREEN} My Arch Way ${RESET}────────────────┐"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│    ________  ________  ___       ___        │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   |\   __  \|\   __  \|\  \     |\  \       │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   \ \  \|\  \ \  \|\  \ \  \    \ \  \      │"
@@ -1189,7 +1190,7 @@ _start_screen() {
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│      \ \__\    \ \__\ \__\ \_______\ \__\   │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│       \|__|     \|__|\|__|\|_______|\|__|   │"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│                                             │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "└────────────${CYAN} By Stenio Silveira ${RESET}─────────────┘"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "└────────────${GREEN} By Stenio Silveira ${RESET}─────────────┘"
   echo
 }
 
