@@ -999,7 +999,7 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_TITLE} ${APP_VERSION}${RESET}"
   echo -e "${BWHITE} $1${RESET}"
   _print_line
 }
@@ -1139,23 +1139,13 @@ _is_package_installed() {
 }
 
 _package_install() { # install pacman package
-  _package_was_installed() {
-    for PKG in $1; do
-      if [[ $(id -u) == 0 ]]; then
-        pacman -S --noconfirm --needed "${PKG}" &> /dev/null && return 0;
-      else
-        sudo pacman -S --noconfirm --needed "${PKG}" &> /dev/null && return 0;
-      fi
-    done
-    return 1
-  }
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
       _print_action "Installing" "${PKG}"
-      if _package_was_installed "${PKG}"; then
-        _print_ok
+      if [[ $(id -u) == 0 ]]; then
+        pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!;_progress $PID
       else
-        _print_failed
+        sudo pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!;_progress $PID
       fi
     else
       _print_action "Installing" "${PKG}"
@@ -1169,19 +1159,9 @@ _group_package_install() { # install a package group
 }
 
 _pacstrap_install() { # install pacstrap package
-  _pacstrap_was_installed() {
-    for PKG in $1; do
-      pacstrap "${ROOT_MOUNTPOINT}" "${PKG}" &> /dev/null && return 0;
-    done
-    return 1
-  }
   for PKG in $1; do
     _print_action "Installing" "${PKG}"
-    if _pacstrap_was_installed "${PKG}"; then
-      _print_ok
-    else
-      _print_failed
-    fi
+    pacstrap "${ROOT_MOUNTPOINT}" "${PKG}" &> /dev/null & PID=$!;_progress $PID
   done
 }
 
