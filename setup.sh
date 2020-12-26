@@ -219,7 +219,10 @@ EOF
 _rank_mirrors() {
   _print_title "MIRRORS"
   PS3="$PROMPT1"
+  SAVEIFS=$IFS
+  IFS=$'\n'
   COUNTRY_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
+  IFS=$SAVEIFS
   _print_subtitle_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRY_LIST[@]}"; do
     if _contains_element "${COUNTRY_CHOICE}" "${COUNTRY_LIST[@]}"; then
