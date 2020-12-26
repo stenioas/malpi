@@ -184,8 +184,6 @@ _important_info() {
   _print_title "README"
   cat <<EOF
 
-  ${BG_RED}${BWHITE} IMPORTANT ${RESET}
-
   - This script supports ${BYELLOW}UEFI${RESET} only.
 
   - This script, for now, will install ${BYELLOW}GRUB${RESET} as default bootloader.
@@ -1191,10 +1189,9 @@ _start_screen() {
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│                                             │${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}└─────── Personal Arch Linux Installer ───────┘${RESET}"
   echo
-  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
-  echo -e "\n\n\n"
   tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
-  tput cuf $(( (T_COLS - 11)/2 )); echo -e "${PURPLE}My Arch way!${RESET}"
+  echo -e "\n\n\n"
+  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 }
 
 # ----------------------------------------------------------------------#
