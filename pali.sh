@@ -79,7 +79,8 @@
     BG_WHITE=$(tput setab 7)
 
   # --- ESSENTIALS
-    APP_TITLE="pali 0.1"
+    APP_TITLE="PALI"
+    APP_VERSION="2020.12.26.0.2"
     NEW_LANGUAGE="pt_BR"
     NEW_ZONE="America"
     NEW_SUBZONE="Fortaleza"
@@ -1002,8 +1003,9 @@ _print_line() {
 _print_title() {
   clear
   BORDER_COLOR=${BBLACK}
-  _print_line
-  echo -e "${BORDER_COLOR} >_ ${APP_TITLE} -${RESET}${BGREEN} $1${RESET}"
+  COLS_APP_VERSION=${#APP_VERSION}
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_VERSION - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}${APP_VERSION}${RESET}"
+  echo -e "${BORDER_COLOR} ${APP_TITLE} >${RESET}${BGREEN} $1${RESET}"
   _print_line
 }
 
