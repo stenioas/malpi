@@ -375,7 +375,7 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
-  KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "Other")
+  KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "Another")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
       KERNEL_CHOICE="${KERNEL_CHOICE}"
@@ -397,7 +397,7 @@ _install_base() {
     Linux-hardened)
       KERNEL_VERSION="linux-hardened"
       ;;
-    Other)
+    Another)
       echo
       _read_input_text "Type kernel do you want install:"
       read -r KERNEL_VERSION
