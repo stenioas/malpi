@@ -1180,19 +1180,21 @@ EOF
 _start_screen() {
   COLS_LOGO=47
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "┌─────────────────────────────────────────────┐"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│    ________  ________  ___       ___        │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   |\   __  \|\   __  \|\  \     |\  \       │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   \ \  \|\  \ \  \|\  \ \  \    \ \  \      │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│    \ \   ____\ \   __  \ \  \    \ \  \     │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│     \ \  \___|\ \  \ \  \ \  \____\ \  \    │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│      \ \__\    \ \__\ \__\ \_______\ \__\   │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│       \|__|     \|__|\|__|\|_______|\|__|   │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│                                             │"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "└─────── Personal Arch Linux Installer ───────┘"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│    ________  ________  ___       ___        │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│   |\   __  \|\   __  \|\  \     |\  \       │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│   \ \  \|\  \ \  \|\  \ \  \    \ \  \      │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│    \ \   ____\ \   __  \ \  \    \ \  \     │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│     \ \  \___|\ \  \ \  \ \  \____\ \  \    │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│      \ \__\    \ \__\ \__\ \_______\ \__\   │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│       \|__|     \|__|\|__|\|_______|\|__|   │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│                                             │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}└─────── Personal Arch Linux Installer ───────┘${RESET}"
   echo
-  tput cuf $(( (T_COLS - 12)/2 )); echo -e "${PURPLE}My Arch way!${RESET}"
-  tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
+  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+  echo -e "\n\n\n"
+  tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
+  tput cuf $(( (T_COLS - 11)/2 )); echo -e "${PURPLE}My Arch way!${RESET}"
 }
 
 # ----------------------------------------------------------------------#
@@ -1206,8 +1208,6 @@ _start_screen() {
 clear
 setfont ter-118b
 _start_screen
-tput cuf $(( (T_COLS - 23)/2 ))
-read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
 while [[ "$1" ]]; do
