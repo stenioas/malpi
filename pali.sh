@@ -634,7 +634,7 @@ _finish_install() {
     echo
     _package_install "wget"
     _print_action "Downloading" "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/setup.sh" &> /dev/null && _print_ok || _print_failed
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null && _print_ok || _print_failed
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -986,17 +986,23 @@ _print_line() {
   echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
+#_print_title() {
+#  clear
+#  T_COLS=$(tput cols)
+#  BORDER_COLOR=${BBLACK}
+#  T_APP_TITLE=${#APP_TITLE}
+#  T_TITLE=${#1}
+#  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
+#  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK}   ${APP_TITLE}${RESET}"
+#  echo -ne "${T_LEFT}"
+#  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
+#  echo -e "${T_RIGHT}"
+#}
+
 _print_title() {
-  clear
-  T_COLS=$(tput cols)
   BORDER_COLOR=${BBLACK}
-  T_APP_TITLE=${#APP_TITLE}
-  T_TITLE=${#1}
-  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
-  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK}   ${APP_TITLE}${RESET}"
-  echo -ne "${T_LEFT}"
-  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
-  echo -e "${T_RIGHT}"
+  echo -ne "${BORDER_COLOR} >_ ${APP_TITLE} -${RESET}${BGREEN} $1${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
 }
 
 #_print_subtitle() {
@@ -1164,7 +1170,6 @@ EOF
 }
 
 _start_screen() {
-  tput cuf $(( (T_COLS - 35)/2 ))
   echo -e "\n\n\n\n\n"
   tput cuf $(( (T_COLS - 35)/2 )); echo -e "┌────────── My Arch Way ──────────┐"
   tput cuf $(( (T_COLS - 35)/2 )); echo -e "│                                 │"
@@ -1187,7 +1192,7 @@ _start_screen() {
     exit 1
 }
 clear
-setfont ter-114n
+setfont
 _start_screen
 tput cuf $(( (T_COLS - 23)/2 ))
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
