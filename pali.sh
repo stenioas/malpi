@@ -201,7 +201,9 @@ _important_info() {
         ${BYELLOW}@${RESET} for /
         ${BYELLOW}@home${RESET} for /home
         ${BYELLOW}@.snapshots${RESET} for /.snapshots
-  
+
+  - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
+
 ${BRED}  - This script is not yet complete!${RESET}
   
 ${BWHITE}  - Btw, thank's for your time!${RESET}
@@ -373,7 +375,7 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
-  KERNEL_LIST=("linux" "linux-lts" "Other")
+  KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "Other")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
       KERNEL_CHOICE="${KERNEL_CHOICE}"
@@ -382,22 +384,33 @@ _install_base() {
       _invalid_option
     fi
   done
-  if [[ "${KERNEL_CHOICE}" = "linux" || "${KERNEL_CHOICE}" = "linux-lts" ]]; then
-    KERNEL_VERSION=${KERNEL_CHOICE}
-  elif [[ "${KERNEL_CHOICE}" = "Other" ]]; then
-    _read_input_text "Type kernel do you want install:"
-    read -r KERNEL_VERSION
-    echo
-    while [[ "${KERNEL_VERSION}" = "" ]]; do
-      _print_warning "You must be type a kernel name!"
+  case $KERNEL_CHOICE in
+    Linux)
+      KERNEL_VERSION="linux"
+      ;;
+    Linux-lts)
+      KERNEL_VERSION="linux-lts"
+      ;;
+    Linux-zen)
+      KERNEL_VERSION="linux-zen"
+      ;;
+    Linux-hardened)
+      KERNEL_VERSION="linux-hardened"
+      ;;
+    Other)
       echo
       _read_input_text "Type kernel do you want install:"
       read -r KERNEL_VERSION
       echo
-    done
-  else
-    _print_warning "You have not installed a linux kernel!"
-  fi
+      while [[ "${KERNEL_VERSION}" = "" ]]; do
+        _print_warning "You must be type a kernel name!"
+        echo
+        _read_input_text "Type kernel do you want install:"
+        read -r KERNEL_VERSION
+        echo
+      done
+      ;;
+  esac
   _print_subtitle_select "Select your microcode:${RESET}"
   MICROCODE_LIST=("amd-ucode" "intel-ucode" "none")
   select MICROCODE_CHOICE in "${MICROCODE_LIST[@]}"; do
@@ -457,6 +470,7 @@ _set_timezone_and_clock() {
   select ZONE in "${ZONE_LIST[@]}"; do
     if _contains_element "$ZONE" "${ZONE_LIST[@]}"; then
       SUBZONE_LIST=($(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///'))
+      _print_title "TIME ZONE AND SYSTEM CLOCK"
       _print_subtitle_select "Select your subzone:"
       select SUBZONE in "${SUBZONE_LIST[@]}"; do
         if _contains_element "$SUBZONE" "${SUBZONE_LIST[@]}"; then
@@ -471,6 +485,7 @@ _set_timezone_and_clock() {
     fi
   done
   # CLOCK SECTION
+  _print_title "TIME ZONE AND SYSTEM CLOCK"
   CLOCK_LIST=("UTC" "Localtime")
   _print_subtitle_select "Select timescale:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
@@ -481,6 +496,10 @@ _set_timezone_and_clock() {
       _invalid_option
     fi
   done
+  _print_title "TIME ZONE AND SYSTEM CLOCK"
+  echo
+  echo -e "${PURPLE}Timezone: ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${PURPLE}Clock: ${RESET}${CLOCK_CHOICE}"
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!;_progress $PID
@@ -1061,7 +1080,7 @@ _progress() {
       tput rc
       tput cub 5
       _spinny
-      sleep 0.25
+      sleep 0.1
     else
       wait "$PID"
       RETCODE=$?
