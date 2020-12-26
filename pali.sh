@@ -1165,15 +1165,15 @@ EOF
 _start_screen() {
   tput cuf $(( (T_COLS - 35)/2 ))
   echo -e "\n\n\n\n\n"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "┌────────── My Arch Way ──────────┐"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│                                 │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██████╗  █████╗ ██╗     ██╗   │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██╔══██╗██╔══██╗██║     ██║   │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██████╔╝███████║██║     ██║   │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██╔═══╝ ██╔══██║██║     ██║   │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██║     ██║  ██║███████╗██║   │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │"
-  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "└──────${CYAN} By Stenio Silveira ${RESET}───────┘"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "┌────────── My Arch Way ──────────┐"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│                                 │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██████╗  █████╗ ██╗     ██╗   │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██╔══██╗██╔══██╗██║     ██║   │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██████╔╝███████║██║     ██║   │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██╔═══╝ ██╔══██║██║     ██║   │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██║     ██║  ██║███████╗██║   │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │"
+  tput cuf $(( (T_COLS - 35)/2 )); echo -e "└──────${CYAN} By Stenio Silveira ${RESET}───────┘"
   echo
 }
 
