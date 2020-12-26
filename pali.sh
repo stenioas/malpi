@@ -236,14 +236,15 @@ _rank_mirrors() {
   echo
   _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
   reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist && _print_ok
-  _print_action "Running" "pacman -Syy"
-  pacman -Syy &> /dev/null && _print_ok
   echo
-  _print_line
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     nano /etc/pacman.d/mirrorlist
+    _print_title "MIRRORS"
   fi
+  _print_subtitle "Updating"
+  pacman -Syy
+  _pause_function
 }
 
 _select_disk() {
@@ -1008,8 +1009,8 @@ _print_title() {
 #}
 
 _print_subtitle() {
-  BORDER_COLOR=${BBLACK}
-  echo -e "\n${BORDER_COLOR}::${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
+  BORDER_COLOR=${BGREEN}
+  echo -e "\n${BORDER_COLOR}::${RESET}${BGREEN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
 }
 
 _print_subtitle_select() {
