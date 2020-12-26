@@ -200,12 +200,8 @@ _important_info() {
         ${BYELLOW}@${RESET} for /
         ${BYELLOW}@home${RESET} for /home
         ${BYELLOW}@.snapshots${RESET} for /.snapshots
-
-  - This script, for now, sets zoneinfo as America/Fortaleza.
-
-  - This script sets hwclock as UTC.
   
-${BYELLOW}  - This script is not yet complete!${RESET}
+${BRED}  - This script is not yet complete!${RESET}
   
 ${BWHITE}  - Btw, thank's for your time!${RESET}
 EOF
@@ -1187,7 +1183,7 @@ _start_screen() {
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│      \ \__\    \ \__\ \__\ \_______\ \__\   │${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│       \|__|     \|__|\|__|\|_______|\|__|   │${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│                                             │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}└─────── Personal Arch Linux Installer ───────┘${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}└─────── ${PURPLE}Personal Arch Linux Installer${RESET}${BBLACK} ───────┘${RESET}"
   echo
   tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
