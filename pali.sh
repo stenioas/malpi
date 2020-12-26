@@ -1000,9 +1000,11 @@ _print_line() {
 #}
 
 _print_title() {
+  clear
   BORDER_COLOR=${BBLACK}
-  echo -ne "${BORDER_COLOR} >_ ${APP_TITLE} -${RESET}${BGREEN} $1${RESET}"
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
+  _print_line
+  echo -e "${BORDER_COLOR} >_ ${APP_TITLE} -${RESET}${BGREEN} $1${RESET}"
+  _print_line
 }
 
 #_print_subtitle() {
