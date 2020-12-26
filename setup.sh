@@ -412,18 +412,18 @@ _install_base() {
       _invalid_option
     fi
   done
-  if [[ "${MICROCODE_CHOICE}" = "amd-ucode" ]]; then
-    MICROCODE_VERSION=${MICROCODE_CHOICE}
-  elif [[ "${MICROCODE_CHOICE}" = "intel-ucode" ]]; then
-    MICROCODE_VERSION=${MICROCODE_CHOICE}
-  elif [[ "${MICROCODE_CHOICE}" = "none" ]]; then
-    MICROCODE_VERSION=${MICROCODE_CHOICE}
-    echo
-    _print_info "You have not installed a microcode!"
-  else
-    echo
-    _print_info "You have not installed a microcode!"
-  fi
+  case ${MICROCODE_CHOICE} in
+    amd-ucode)
+      MICROCODE_VERSION=${MICROCODE_CHOICE}
+      ;;
+    intel-ucode)
+      MICROCODE_VERSION=${MICROCODE_CHOICE}
+      ;;
+    none)
+      echo
+      _print_info "You have not installed a microcode!"
+      ;;
+  esac
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "${KERNEL_VERSION}"
@@ -893,7 +893,6 @@ _finish_config() {
 
 _initial_user() {
   _print_title "UPDATE MIRRORS"
-  echo
   sudo pacman -Syy
   _pause_function
 }
@@ -1163,6 +1162,21 @@ arch-setup 0.1
 EOF
 }
 
+_start_screen() {
+  tput cuf $(( (T_COLS - 35)/2 ))
+  echo -e "\n\n\n\n\n"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "┌────────── My Arch Way ──────────┐"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│                                 │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██████╗  █████╗ ██╗     ██╗   │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██╔══██╗██╔══██╗██║     ██║   │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██████╔╝███████║██║     ██║   │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██╔═══╝ ██╔══██║██║     ██║   │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ██║     ██║  ██║███████╗██║   │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "│   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │"
+  echo -ne "${BBLACK}`seq -s ' ' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"; echo -e "└──────${CYAN} By Stenio Silveira ${RESET}───────┘"
+  echo
+}
+
 # ----------------------------------------------------------------------#
 
 ### EXECUTION
@@ -1172,22 +1186,10 @@ EOF
     exit 1
 }
 clear
-setfont
-
-cat <<EOF
-
-${BGREEN} ┌────────── My Arch Way ──────────┐${RESET}
-${BGREEN} │                                 │${RESET}
-${BGREEN} │   ██████╗  █████╗ ██╗     ██╗   │${RESET}
-${BGREEN} │   ██╔══██╗██╔══██╗██║     ██║   │${RESET}
-${BGREEN} │   ██████╔╝███████║██║     ██║   │${RESET}
-${BGREEN} │   ██╔═══╝ ██╔══██║██║     ██║   │${RESET}
-${BGREEN} │   ██║     ██║  ██║███████╗██║   │${RESET}
-${BGREEN} │   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │${RESET}
-${BGREEN} └──────${RESET}${BBLACK} By Stenio Silveira ${RESET}${BGREEN}───────┘${RESET}
-
-EOF
-read -e -sn 1 -p "${BWHITE}       Press any key to start!${RESET}"
+setfont ter-114n
+_start_screen
+tput cuf $(( (T_COLS - 23)/2 ))
+read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 _check_connection
 
 while [[ "$1" ]]; do
