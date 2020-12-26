@@ -219,18 +219,14 @@ EOF
 _rank_mirrors() {
   _print_title "MIRRORS"
   PS3="$PROMPT1"
-  ITEMS=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
-  COUNTRY_LIST=()
-  for ITEM in ${ITEMS}; do
-  	COUNTRY_LIST+=("${ITEM%%.*}")
-  done
+  COUNTRY_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
   _print_subtitle_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRY_LIST[@]}"; do
-    if contains_element "${COUNTRY_CHOICE}" "${COUNTRY_LIST[@]}"; then
+    if _contains_element "${COUNTRY_CHOICE}" "${COUNTRY_LIST[@]}"; then
       COUNTRY_CHOICE="${COUNTRY_CHOICE}"
       break
     else
-      invalid_option
+      _invalid_option
     fi
   done
   if [[ ! -f /etc/pacman.d/mirrorlist.backup ]]; then
