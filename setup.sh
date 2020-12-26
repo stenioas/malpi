@@ -123,13 +123,12 @@ _setup_install(){
     _print_warning "Only for 'root'.\n"
     exit 1
   }
-  _initial_section
-  _initial_info
+  _initial
+  _important_info
   _rank_mirrors
   _select_disk
   _format_partitions
   _install_base
-  _install_kernel
   _fstab_generate
   _set_timezone_and_clock
   _set_localization
@@ -176,13 +175,13 @@ _setup_user(){
 
 # --- INSTALL SECTION --- >
 
-_initial_section() {
+_initial() {
   clear
   timedatectl set-ntp true
   pacman -Sy --noconfirm archlinux-keyring
 }
 
-_initial_info() {
+_important_info() {
   _print_title "README"
   cat <<EOF
 
@@ -456,6 +455,26 @@ _fstab_generate() {
 
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
+  # ZONE SECTION
+  ZONE_LIST=($(timedatectl list-timezones | sed 's/\/.*$//' | uniq))
+  _print_subtitle_select "Select your zone:"
+  select ZONE in "${ZONE_LIST[@]}"; do
+    if _contains_element "$ZONE" "${ZONE_LIST[@]}"; then
+      SUBZONE_LIST=($(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///'))
+      _print_subtitle_select "Select your subzone:"
+      select SUBZONE in "${SUBZONE_LIST[@]}"; do
+        if _contains_element "$SUBZONE" "${SUBZONE_LIST[@]}"; then
+          break
+        else
+          _invalid_option
+        fi
+      done
+      break
+    else
+      _invalid_option
+    fi
+  done
+  # CLOCK SECTION
   CLOCK_LIST=("UTC" "Localtime")
   _print_subtitle_select "Select timescale:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
@@ -469,18 +488,16 @@ _set_timezone_and_clock() {
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null && _print_ok
-  _print_action "Running" "ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${NEW_ZONE}/${NEW_SUBZONE} /etc/localtime &> /dev/null && _print_ok
+  _print_action "Running" "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime &> /dev/null && _print_ok
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
-    echo
     _print_action "Running" "hwclock --systohc --utc"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null && _print_ok
   else
-    echo
     _print_action "Running" "hwclock --systohc --localtime"
     arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null && _print_ok
   fi
@@ -509,6 +526,8 @@ _set_localization() {
       _read_input_text "Type your keymap:"
       read -r KEYMAP_CHOICE
     done
+  else
+    KEYMAP_CHOICE="br-abnt2"
   fi
   sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   echo
