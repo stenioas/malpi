@@ -86,6 +86,7 @@
     T_COLS=$(tput cols)
     T_LINES=$(tput lines)
     TRIM=0
+    SPIN="/-\|" #SPINNER POSITION
 
   # --- MOUNTPOINTS
     EFI_PARTITION="/dev/sda1"
@@ -228,7 +229,8 @@ _rank_mirrors() {
   fi
   echo
   _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
-  reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist && _print_ok
+  reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist &
+  PID=$!;_progress $PID
   echo
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -1049,6 +1051,34 @@ _print_action() {
   tput sc
 }
 
+_progress() {
+  _spinny() {
+    echo -ne "\b${SPIN:i++%${#SPIN}:1}"
+  }
+  while true; do
+    kill -0 "$PID" &> /dev/null;
+    if [[ $? == 0 ]]; then
+      tput rc
+      tput cub 6
+      _spinny
+      sleep 0.25
+    else
+      wait "$PID"
+      RETCODE=$?
+      if [[ $RETCODE == 0 ]] || [[ $RETCODE == 255 ]]; then
+        tput rc
+        tput cub 6
+        echo -e "${GREEN}OK${RESET}"
+      else
+        tput rc
+        tput cub 8
+        echo -e "${BRED}FAILED${RESET}"
+      fi
+      break
+    fi
+  done
+}
+
 _print_ok() {
   tput rc
   tput cub 6
@@ -1210,5 +1240,6 @@ while [[ "$1" ]]; do
     --user|-u) _setup_user;;
   esac
   shift
+  setfont
   _print_bye && exit 0
 done
