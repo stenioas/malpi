@@ -1004,8 +1004,9 @@ _print_title() {
   clear
   BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_VERSION - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_VERSION}${RESET}"
-  echo -e "${BORDER_COLOR} ${APP_TITLE} >${RESET}${BGREEN} $1${RESET}${BORDER_COLOR} >${RESET}"
+  COLS_APP_TITLE=${#APP_TITLE}
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -e "${BWHITE} $1${RESET}"
   _print_line
 }
 
@@ -1019,12 +1020,17 @@ _print_title() {
 #}
 
 _print_subtitle() {
-  BORDER_COLOR=${BGREEN}
-  echo -e "\n${BORDER_COLOR}::${RESET}${BGREEN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
+  BORDER_COLOR=${BCYAN}
+  echo -e "\n${BORDER_COLOR}::${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
 }
 
 _print_subtitle_select() {
   echo -e "\n${BCYAN}$1${RESET}\n"
+}
+
+_print_info() {
+  T_COLS=$(tput cols)
+  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_info() {
