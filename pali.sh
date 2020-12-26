@@ -499,7 +499,7 @@ _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   echo
   echo -e "${PURPLE}Timezone: ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${PURPLE}Clock: ${RESET}${CLOCK_CHOICE}"
+  echo -e "${PURPLE}Clock:    ${RESET}${CLOCK_CHOICE}"
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!;_progress $PID
@@ -521,35 +521,37 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
-	ITEMS=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V)
-	KEYMAP_LIST=()
-	for ITEM in ${ITEMS}; do
-		KEYMAP_LIST+=("${ITEM%%.*}")
-	done
+  LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'))
+  _print_subtitle_select "Select your language:"
+  select LOCALE in "${LOCALE_LIST[@]}"; do
+    if _contains_element "$LOCALE" "${LOCALE_LIST[@]}"; then
+      LOCALE_UTF8="${LOCALE}.UTF-8"
+      break
+    else
+      _invalid_option
+    fi
+  done
+  _print_title "LOCALIZATION"
+  _print_subtitle_select "Select your keymap:"
+	KEYMAP_LIST=($(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g'))
+  select KEYMAP_CHOICE in "${KEYMAP_LIST[@]}"; do
+    if contains_element "$KEYMAP_CHOICE" "${KEYMAP_LIST[@]}"; then
+      loadkeys "$KEYMAP_CHOICE"
+      break
+    else
+      invalid_option
+    fi
+  done
+  _print_title "LOCALIZATION"
   echo
-  _print_info "The br-abnt2 keymap will be configured by default!"
+  echo -e "${PURPLE}Language: ${RESET}${LOCALE}"
+  echo -e "${PURPLE}Keymap:   ${RESET}${KEYMAP_CHOICE}"
   echo
-  _read_input_option "Set a different keymap? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    echo
-    _read_input_text "Type your keymap:"
-    read -r KEYMAP_CHOICE
-    while ! _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; do
-      echo
-      _print_warning "Your choice is not available!"
-      echo
-      _read_input_text "Type your keymap:"
-      read -r KEYMAP_CHOICE
-    done
-  else
-    KEYMAP_CHOICE="br-abnt2"
-  fi
-  sed -i 's/#\('pt_BR'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
-  echo
+  sed -i 's/#\('${LOCALE}'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null & PID=$!;_progress $PID
-  _print_action "Running" "echo LANG=pt_BR.UTF-8 > ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo "LANG=pt_BR.UTF-8" > ${ROOT_MOUNTPOINT}/etc/locale.conf & PID=$!;_progress $PID
+  _print_action "Running" "echo LANG=${LOCALE_UTF8} > ${ROOT_MOUNTPOINT}/etc/locale.conf"
+  echo 'LANG="'"${LOCALE_UTF8}"'"' > ${ROOT_MOUNTPOINT}/etc/locale.conf & PID=$!;_progress $PID
   _print_action "Running" "echo KEYMAP=${KEYMAP_CHOICE} > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
   echo "KEYMAP=${KEYMAP_CHOICE}" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf & PID=$!;_progress $PID
   _pause_function  
@@ -635,12 +637,17 @@ _finish_install() {
   echo
   _print_info "Your new system has been installed!"
   echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "  ${PURPLE}Disk:${RESET} ${INSTALL_DISK}"
-  echo -e "  ${PURPLE}Root partition:${RESET} ${ROOT_PARTITION}"
-  echo -e "  ${PURPLE}EFI partition:${RESET} ${EFI_PARTITION}"
-  echo -e "  ${PURPLE}Kernel version:${RESET} ${KERNEL_VERSION}"
-  echo -e "  ${PURPLE}Hostname:${RESET} ${NEW_HOSTNAME}"
-  echo -e "  ${PURPLE}Grubname:${RESET} ${NEW_GRUB_NAME}"
+  echo -e "  ${PURPLE}Disk:           ${RESET}${INSTALL_DISK}"
+  echo -e "  ${PURPLE}Root partition: ${RESET}${ROOT_PARTITION}"
+  echo -e "  ${PURPLE}EFI partition:  ${RESET}${EFI_PARTITION}"
+  echo -e "  ${PURPLE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "  ${PURPLE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo -e "  ${PURPLE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "  ${PURPLE}Timescale:      ${RESET}${CLOCK_CHOICE}"
+  echo -e "  ${PURPLE}Language:       ${RESET}${LOCALE}"
+  echo -e "  ${PURPLE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
+  echo -e "  ${PURPLE}Hostname:       ${RESET}${NEW_HOSTNAME}"
+  echo -e "  ${PURPLE}Grubname:       ${RESET}${NEW_GRUB_NAME}"
   echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
@@ -1080,7 +1087,7 @@ _progress() {
       tput rc
       tput cub 5
       _spinny
-      sleep 0.1
+      sleep 0.2
     else
       wait "$PID"
       RETCODE=$?
