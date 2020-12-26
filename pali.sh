@@ -1053,7 +1053,7 @@ _print_action() {
 
 _progress() {
   _spinny() {
-    echo -ne "\b${SPIN:i++%${#SPIN}:1}"
+    echo -ne "\b${BYELLOW}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
     kill -0 "$PID" &> /dev/null;
