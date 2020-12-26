@@ -80,10 +80,8 @@
 
   # --- ESSENTIALS
     APP_TITLE="pali"
-    APP_VERSION="2020.12.26.0.2"
+    APP_VERSION="0.1.1"
     NEW_LANGUAGE="pt_BR"
-    NEW_ZONE="America"
-    NEW_SUBZONE="Fortaleza"
     NEW_GRUB_NAME="Archlinux"
     T_COLS=$(tput cols)
     T_LINES=$(tput lines)
@@ -96,7 +94,7 @@
     ROOT_MOUNTPOINT="/mnt"
 
   # --- PROMPT
-    PS3="${BYELLOW}→> ${RESET}"
+    PS3="${BYELLOW}>${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -1180,16 +1178,18 @@ EOF
 }
 
 _start_screen() {
+  COLS_LOGO=47
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "┌────────── My Arch Way ──────────┐"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│                                 │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██████╗  █████╗ ██╗     ██╗   │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██╔══██╗██╔══██╗██║     ██║   │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██████╔╝███████║██║     ██║   │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██╔═══╝ ██╔══██║██║     ██║   │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ██║     ██║  ██║███████╗██║   │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "│   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝   │"
-  tput cuf $(( (T_COLS - 35)/2 )); echo -e "└──────${CYAN} By Stenio Silveira ${RESET}───────┘"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "┌──────────────── My Arch Way ────────────────┐"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│    ________  ________  ___       ___        │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   |\   __  \|\   __  \|\  \     |\  \       │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│   \ \  \|\  \ \  \|\  \ \  \    \ \  \      │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│    \ \   ____\ \   __  \ \  \    \ \  \     │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│     \ \  \___|\ \  \ \  \ \  \____\ \  \    │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│      \ \__\    \ \__\ \__\ \_______\ \__\   │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│       \|__|     \|__|\|__|\|_______|\|__|   │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "│                                             │"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "└────────────${CYAN} By Stenio Silveira ${RESET}─────────────┘"
   echo
 }
 
@@ -1202,7 +1202,7 @@ _start_screen() {
     exit 1
 }
 clear
-setfont
+setfont ter-118b
 _start_screen
 tput cuf $(( (T_COLS - 23)/2 ))
 read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
