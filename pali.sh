@@ -79,7 +79,7 @@
     BG_WHITE=$(tput setab 7)
 
   # --- ESSENTIALS
-    APP_TITLE="PALI"
+    APP_TITLE="pali"
     APP_VERSION="2020.12.26.0.2"
     NEW_LANGUAGE="pt_BR"
     NEW_ZONE="America"
@@ -1004,8 +1004,8 @@ _print_title() {
   clear
   BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_VERSION - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}${APP_VERSION}${RESET}"
-  echo -e "${BORDER_COLOR} ${APP_TITLE} >${RESET}${BGREEN} $1${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_VERSION - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_VERSION}${RESET}"
+  echo -e "${BORDER_COLOR} ${APP_TITLE} >${RESET}${BGREEN} $1${RESET}${BORDER_COLOR} >${RESET}"
   _print_line
 }
 
@@ -1045,7 +1045,7 @@ _print_danger() {
 _print_action() {
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${BBLACK}$1${RESET} $2 "
+  echo -ne "${CYAN}$1${RESET}${BWHITE} $2 ${RESET}"
   echo -ne "${BBLACK}`seq -s '.' $(( REM_DOTS )) | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
