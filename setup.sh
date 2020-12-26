@@ -95,7 +95,7 @@
     ROOT_MOUNTPOINT="/mnt"
 
   # --- PROMPT
-    PS3=$(echo -e "\n${BYELLOW}>_ ${RESET}")
+    PS3="${BYELLOW}→> ${RESET}"
 
 # ----------------------------------------------------------------------#
 
