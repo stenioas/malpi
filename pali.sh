@@ -503,8 +503,8 @@ _set_timezone_and_clock() {
   done
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   echo
-  echo -e "${PURPLE}Timezone: ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${PURPLE}Clock:    ${RESET}${CLOCK_CHOICE}"
+  echo -e "${PURPLE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${PURPLE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!;_progress $PID
@@ -655,27 +655,26 @@ _grub_generate() {
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
   echo
-  _print_info "Your new system has been installed!"
-  echo -ne "\n${BBLACK}┌${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┐${RESET}"
-  echo -e "  ${PURPLE}Disk:           ${RESET}${INSTALL_DISK}"
-  echo -e "  ${PURPLE}Root partition: ${RESET}${ROOT_PARTITION}"
-  echo -e "  ${PURPLE}EFI partition:  ${RESET}${EFI_PARTITION}"
-  echo -e "  ${PURPLE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "  ${PURPLE}Microcode:      ${RESET}${MICROCODE_VERSION}"
-  echo -e "  ${PURPLE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "  ${PURPLE}Timescale:      ${RESET}${CLOCK_CHOICE}"
-  echo -e "  ${PURPLE}Language:       ${RESET}${LOCALE}"
-  echo -e "  ${PURPLE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
-  echo -e "  ${PURPLE}Hostname:       ${RESET}${NEW_HOSTNAME}"
-  echo -e "  ${PURPLE}Grubname:       ${RESET}${NEW_GRUB_NAME}"
-  echo -ne "${BBLACK}└${RESET}"; echo -ne "${BBLACK}`seq -s '─' 30 | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}┘${RESET}"
+  _print_info "Your new system has been installed! CHECK YOUR CONFIGURATION!"
+  echo
+  echo -e "${PURPLE}Disk:           ${RESET}${INSTALL_DISK}"
+  echo -e "${PURPLE}Root partition: ${RESET}${ROOT_PARTITION}"
+  echo -e "${PURPLE}EFI partition:  ${RESET}${EFI_PARTITION}"
+  echo -e "${PURPLE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "${PURPLE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo -e "${PURPLE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${PURPLE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
+  echo -e "${PURPLE}Language:       ${RESET}${LOCALE}"
+  echo -e "${PURPLE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
+  echo -e "${PURPLE}Hostname:       ${RESET}${NEW_HOSTNAME}"
+  echo -e "${PURPLE}Grubname:       ${RESET}${NEW_GRUB_NAME}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
     _package_install "wget"
     _print_action "Downloading" "setup.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!;_progress $PID || _print_failed
+    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!;_progress $PID
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -1045,23 +1044,19 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 1 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_TITLE} ${APP_VERSION}${RESET}"
   echo -e "${BWHITE} $1${RESET}"
   _print_line
 }
 
 #_print_subtitle() {
-#  COLS_SUBTITLE=${#1}
-#  BORDER_COLOR=${BBLACK}
-#  echo -ne "\n ${BORDER_COLOR}╓${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╖${RESET}"
-#  echo -e " ${BORDER_COLOR}║${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}║${RESET}"
-#  echo -ne " ${BORDER_COLOR}╙${RESET}"; echo -ne "${BORDER_COLOR}`seq -s '─' $(( COLS_SUBTITLE + 3 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR}╜${RESET}"
-#  echo
+#  BORDER_COLOR=${BCYAN}
+#  echo -e "\n${BORDER_COLOR}::${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
 #}
 
 _print_subtitle() {
   BORDER_COLOR=${BCYAN}
-  echo -e "\n${BORDER_COLOR}::${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
+  echo -e "\n${BG_YELLOW}${BCYAN}  $1  ${RESET}\n"
 }
 
 _print_subtitle_select() {
@@ -1099,7 +1094,7 @@ _print_action() {
 
 _progress() {
   _spinny() {
-    echo -ne "\b${BYELLOW}${SPIN:i++%${#SPIN}:1}${RESET}"
+    echo -ne "\b${BBLUE}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
     kill -0 "$PID" &> /dev/null;
@@ -1123,24 +1118,6 @@ _progress() {
       break
     fi
   done
-}
-
-_print_ok() {
-  tput rc
-  tput cub 6
-  echo -e "${GREEN}OK${RESET}"
-}
-
-_print_failed() {
-  tput rc
-  tput cub 8
-  echo -e "${BRED}FAILED${RESET}"
-}
-
-_print_exists() {
-  tput rc
-  tput cub 8
-  echo -e "${YELLOW}EXISTS${RESET}"
 }
 
 _print_bye() {
@@ -1195,7 +1172,9 @@ _package_install() { # install pacman package
       fi
     else
       _print_action "Installing" "${PKG}"
-      _print_exists
+      tput rc
+      tput cub 8
+      echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
 }
