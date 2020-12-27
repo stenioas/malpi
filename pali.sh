@@ -207,7 +207,7 @@ EOF
 
 _initial() {
   clear
-  _print_title "SCRIPT FONT"
+  _print_title "FONT SIZE"
   _print_subtitle_select "Select a console font:"
   FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Very large (ter-120n)" "Very large bold (ter-120b)" "Unchanged")
   select FONT in "${FONTS_LIST[@]}"; do
@@ -218,37 +218,27 @@ _initial() {
       _invalid_option
     fi
   done
-  case $FONT in
-    Very small (ter-112n))
-      setfont ter-112n
-      ;;
-    Small (ter-114n))
-      setfont ter-114n
-      ;;
-    Small bold (ter-114b))
-      setfont ter-114b
-      ;;
-    Normal (ter-116n))
-      setfont ter-116n
-      ;;
-    Normal bold (ter-116b))
-      setfont ter-116b
-      ;;
-    Large (ter-118n))
-      setfont ter-118n
-      ;;
-    Large bold (ter-118b))
-      setfont ter-118b
-      ;;
-    Very large (ter-120n))
-      setfont ter-120n
-      ;;
-    Very large bold (ter-120b))
-      setfont ter-120b
-      ;;
-    Unchanged)
-      ;;
-  esac
+  if [[ "$FONT" = "Very small (ter-112n)" ]]; then
+    setfont ter-112n
+  elif [[ "$FONT" = "Small (ter-114n)" ]]; then
+    setfont ter-114n
+  elif [[ "$FONT" = "Small bold (ter-114b)" ]]; then
+    setfont ter-114b
+  elif [[ "$FONT" = "Normal (ter-116n)" ]]; then
+    setfont ter-116n
+  elif [[ "$FONT" = "Normal bold (ter-116b)" ]]; then
+    setfont ter-116b
+  elif [[ "$FONT" = "Large (ter-118n)" ]]; then
+    setfont ter-118n
+  elif [[ "$FONT" = "Large bold (ter-118b)" ]]; then
+    setfont ter-118b
+  elif [[ "$FONT" = "Very large (ter-120n)" ]]; then
+    setfont ter-120n
+  elif [[ "$FONT" = "Very large bold (ter-120b)" ]]; then
+    setfont ter-120b
+  elif [[ "$FONT" = "Unchanged" ]]; then
+    setfont ter-112n
+  fi
   _print_title "LOADING REQUIRED DATA..."
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
