@@ -525,7 +525,9 @@ _set_timezone_and_clock() {
 }
 
 _set_localization() {
-  setfont ter-114b
+  setfont ter-116b
+  T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
   _print_title "LOCALIZATION"
   LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'))
   _print_subtitle_select "Select your language:"
@@ -537,18 +539,29 @@ _set_localization() {
       _invalid_option
     fi
   done
+  setfont ter-116b
+  T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
   _print_title "LOCALIZATION"
-  _print_subtitle_select "Select your keymap:"
 	KEYMAP_LIST=($(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g'))
-  select KEYMAP_CHOICE in "${KEYMAP_LIST[@]}"; do
-    if contains_element "$KEYMAP_CHOICE" "${KEYMAP_LIST[@]}"; then
-      loadkeys "$KEYMAP_CHOICE"
-      break
-    else
-      invalid_option
-    fi
-  done
-  setfont ter-118b
+  KEYMAP_CHOICE="br-abnt2"
+  echo
+  _print_info "The default keymap will be set to 'br-abnt2' !"
+  echo
+  _read_input_option "Change default keymap? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    echo
+    _read_input_text "Type your keymap:"
+    read -r KEYMAP_CHOICE
+    while ! _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; do
+      _print_title "LOCALIZATION"
+      echo
+      _print_warning "This option is not available!"
+      echo
+      _read_input_text "Type your keymap:"
+      read -r KEYMAP_CHOICE
+    done
+  fi
   _print_title "LOCALIZATION"
   echo
   echo -e "${PURPLE}Language: ${RESET}${LOCALE}"
@@ -1242,7 +1255,7 @@ _start_screen() {
     exit 1
 }
 clear
-setfont ter-118b
+setfont ter-116b
 _start_screen
 _check_connection
 
