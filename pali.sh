@@ -247,8 +247,11 @@ _initial() {
   timedatectl set-ntp true & PID=$!; _progress $PID
   _print_action "Updating" "archlinux-keyring"
   pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
+  SAVEIFS=$IFS
+  IFS=$'\n'
   _print_action "Loading" "countries list"
   COUNTRIES_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g')) & PID=$!; _progress $PID
+  IFS=$SAVEIFS
   _print_action "Loading" "devices list"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk')) & PID=$!; _progress $PID
   _print_action "Loading" "timezones list"
@@ -261,9 +264,6 @@ _initial() {
 
 _rank_mirrors() {
   _print_title "MIRRORS"
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  IFS=$SAVEIFS
   _print_subtitle_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
     if _contains_element "${COUNTRY_CHOICE}" "${COUNTRIES_LIST[@]}"; then
@@ -1283,7 +1283,6 @@ _start_screen() {
     exit 1
 }
 clear
-setfont ter-116b
 _start_screen
 _check_connection
 
