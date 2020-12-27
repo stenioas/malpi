@@ -247,23 +247,14 @@ _initial() {
   timedatectl set-ntp true & PID=$!; _progress $PID
   _print_action "Updating" "archlinux-keyring"
   pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  _print_action "Loading" "countries list"
-  COUNTRIES_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g')) & PID=$!; _progress $PID
-  IFS=$SAVEIFS
-  _print_action "Loading" "devices list"
-  DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk')) & PID=$!; _progress $PID
-  _print_action "Loading" "timezones list"
-  ZONE_LIST=($(timedatectl list-timezones | sed 's/\/.*$//' | uniq)) & PID=$!; _progress $PID
-  _print_action "Loading" "locale list"
-  LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')) & PID=$!; _progress $PID
-  _print_action "Loading" "keymap list"
-	KEYMAP_LIST=($(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g')) & PID=$!; _progress $PID
 }
 
 _rank_mirrors() {
   _print_title "MIRRORS"
+  SAVEIFS=$IFS
+  IFS=$'\n'
+  COUNTRIES_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
+  IFS=$SAVEIFS
   _print_subtitle_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
     if _contains_element "${COUNTRY_CHOICE}" "${COUNTRIES_LIST[@]}"; then
@@ -292,6 +283,7 @@ _rank_mirrors() {
 
 _select_disk() {
   _print_title "PARTITION THE DISKS"
+  DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_subtitle_select "Select disk:"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
@@ -515,6 +507,7 @@ _fstab_generate() {
 _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   # ZONE SECTION
+  ZONE_LIST=($(timedatectl list-timezones | sed 's/\/.*$//' | uniq))
   _print_subtitle_select "Select your zone:"
   select ZONE in "${ZONE_LIST[@]}"; do
     if _contains_element "$ZONE" "${ZONE_LIST[@]}"; then
@@ -570,6 +563,7 @@ _set_timezone_and_clock() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
+  LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'))
   _print_subtitle_select "Select your language:"
   select LOCALE in "${LOCALE_LIST[@]}"; do
     if _contains_element "$LOCALE" "${LOCALE_LIST[@]}"; then
@@ -580,6 +574,7 @@ _set_localization() {
     fi
   done
   _print_title "LOCALIZATION"
+	KEYMAP_LIST=($(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g'))
   KEYMAP_CHOICE="br-abnt2"
   echo
   _print_info "The default keymap will be set to 'br-abnt2' !"
