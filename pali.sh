@@ -206,37 +206,6 @@ EOF
 }
 
 _initial() {
-  clear
-  _print_title "FONT SIZE"
-  _print_subtitle_select "Select a console font:"
-  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Very large (ter-120n)" "Very large bold (ter-120b)" "Unchanged")
-  select FONT in "${FONTS_LIST[@]}"; do
-    if _contains_element "${FONT}" "${FONTS_LIST[@]}"; then
-      FONT="${FONT}"
-      break
-    else
-      _invalid_option
-    fi
-  done
-  if [[ "$FONT" = "Very small (ter-112n)" ]]; then
-    setfont ter-112n
-  elif [[ "$FONT" = "Small (ter-114n)" ]]; then
-    setfont ter-114n
-  elif [[ "$FONT" = "Small bold (ter-114b)" ]]; then
-    setfont ter-114b
-  elif [[ "$FONT" = "Normal (ter-116n)" ]]; then
-    setfont ter-116n
-  elif [[ "$FONT" = "Normal bold (ter-116b)" ]]; then
-    setfont ter-116b
-  elif [[ "$FONT" = "Large (ter-118n)" ]]; then
-    setfont ter-118n
-  elif [[ "$FONT" = "Large bold (ter-118b)" ]]; then
-    setfont ter-118b
-  elif [[ "$FONT" = "Very large (ter-120n)" ]]; then
-    setfont ter-120n
-  elif [[ "$FONT" = "Very large bold (ter-120b)" ]]; then
-    setfont ter-120b
-  fi
   _print_title "LOADING REQUIRED DATA..."
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
@@ -703,7 +672,7 @@ _finish_install() {
     echo
     _package_install "wget"
     _print_action "Downloading" "pali.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
+    wget -O ${ROOT_MOUNTPOINT}/root/ "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -1054,7 +1023,7 @@ _install_aurhelper() {
 _print_line() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  echo -e "${BBLACK}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${CYAN}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 #_print_title() {
@@ -1165,7 +1134,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BCYAN}$1 ${RESET}"
+  printf "%s" "${BBLUE}$1 ${RESET}"
 }
 
 _read_input_option() {
@@ -1230,6 +1199,39 @@ _pacstrap_install() { # install pacstrap package
   done
 }
 
+_setfont() {
+  _print_title "FONT SIZE"
+  _print_subtitle_select "Select a console font:"
+  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Very large (ter-120n)" "Very large bold (ter-120b)" "Unchanged")
+  select FONT in "${FONTS_LIST[@]}"; do
+    if _contains_element "${FONT}" "${FONTS_LIST[@]}"; then
+      FONT="${FONT}"
+      break
+    else
+      _invalid_option
+    fi
+  done
+  if [[ "$FONT" = "Very small (ter-112n)" ]]; then
+    setfont ter-112n
+  elif [[ "$FONT" = "Small (ter-114n)" ]]; then
+    setfont ter-114n
+  elif [[ "$FONT" = "Small bold (ter-114b)" ]]; then
+    setfont ter-114b
+  elif [[ "$FONT" = "Normal (ter-116n)" ]]; then
+    setfont ter-116n
+  elif [[ "$FONT" = "Normal bold (ter-116b)" ]]; then
+    setfont ter-116b
+  elif [[ "$FONT" = "Large (ter-118n)" ]]; then
+    setfont ter-118n
+  elif [[ "$FONT" = "Large bold (ter-118b)" ]]; then
+    setfont ter-118b
+  elif [[ "$FONT" = "Very large (ter-120n)" ]]; then
+    setfont ter-120n
+  elif [[ "$FONT" = "Very large bold (ter-120b)" ]]; then
+    setfont ter-120b
+  fi
+}
+
 usage() {
   cat <<EOF
 
@@ -1265,6 +1267,7 @@ _start_screen() {
   tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+  _setfont
 }
 
 # ----------------------------------------------------------------------#
