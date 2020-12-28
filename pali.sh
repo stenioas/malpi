@@ -1279,7 +1279,7 @@ _start_screen() {
     exit 1
 }
 clear
-
+setfont ter-116b
 _start_screen
 _check_connection
 
