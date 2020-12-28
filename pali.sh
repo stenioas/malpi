@@ -672,7 +672,7 @@ _finish_install() {
     echo
     _package_install "wget"
     _print_action "Downloading" "pali.sh"
-    wget -O ${ROOT_MOUNTPOINT}/root/ "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
+    wget -P ${ROOT_MOUNTPOINT}/root/ "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
   echo
@@ -1279,6 +1279,7 @@ _start_screen() {
     exit 1
 }
 clear
+pacman -S --needed --noconfirm terminus-font &> /dev/null
 setfont ter-116b
 _start_screen
 _check_connection
