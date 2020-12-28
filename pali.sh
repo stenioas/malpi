@@ -470,8 +470,8 @@ _install_base() {
   esac
   _print_title "BASE"
   echo
-  echo -e "${BLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "${BLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo -e "${BBLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "${BBLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
   echo
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
@@ -538,8 +538,8 @@ _set_timezone_and_clock() {
   done
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   echo
-  echo -e "${BLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${BLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
+  echo -e "${BBLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${BBLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
@@ -593,8 +593,8 @@ _set_localization() {
   fi
   _print_title "LOCALIZATION"
   echo
-  echo -e "${BLUE}Language: ${RESET}${LOCALE}"
-  echo -e "${BLUE}Keymap:   ${RESET}${KEYMAP_CHOICE}"
+  echo -e "${BBLUE}Language: ${RESET}${LOCALE}"
+  echo -e "${BBLUE}Keymap:   ${RESET}${KEYMAP_CHOICE}"
   echo
   sed -i 's/#\('${LOCALE}'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Running" "locale-gen"
@@ -686,17 +686,17 @@ _finish_install() {
   echo
   _print_info "Your new system has been installed! CHECK YOUR CONFIGURATION!"
   echo
-  echo -e "${BLUE}Disk:           ${RESET}${INSTALL_DISK}"
-  echo -e "${BLUE}Root partition: ${RESET}${ROOT_PARTITION}"
-  echo -e "${BLUE}EFI partition:  ${RESET}${EFI_PARTITION}"
-  echo -e "${BLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "${BLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
-  echo -e "${BLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${BLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
-  echo -e "${BLUE}Language:       ${RESET}${LOCALE}"
-  echo -e "${BLUE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
-  echo -e "${BLUE}Hostname:       ${RESET}${HOSTNAME}"
-  echo -e "${BLUE}Grubname:       ${RESET}${GRUB_NAME}"
+  echo -e "${BBLUE}Disk:           ${RESET}${INSTALL_DISK}"
+  echo -e "${BBLUE}Root partition: ${RESET}${ROOT_PARTITION}"
+  echo -e "${BBLUE}EFI partition:  ${RESET}${EFI_PARTITION}"
+  echo -e "${BBLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "${BBLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo -e "${BBLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${BBLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
+  echo -e "${BBLUE}Language:       ${RESET}${LOCALE}"
+  echo -e "${BBLUE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
+  echo -e "${BBLUE}Hostname:       ${RESET}${HOSTNAME}"
+  echo -e "${BBLUE}Grubname:       ${RESET}${GRUB_NAME}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -1090,11 +1090,11 @@ _print_title() {
 
 _print_subtitle() {
   BORDER_COLOR=${BCYAN}
-  echo -e "\n${BG_PURPLE}${BWHITE}  $1  ${RESET}\n"
+  echo -e "\n${BWHITE}:: $1${RESET}\n"
 }
 
 _print_subtitle_select() {
-  echo -e "\n${BCYAN}$1${RESET}\n"
+  echo -e "\n${BWHITE}$1${RESET}\n"
 }
 
 _print_info() {
