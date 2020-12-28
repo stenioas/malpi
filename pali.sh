@@ -90,7 +90,7 @@
 
   # --- MOUNTPOINTS
     EFI_PARTITION="/dev/sda1"
-    EFI_MOUNTPOINT="/boot/efi"
+    EFI_MOUNTPOINT="/boot"
     ROOT_PARTITION="/dev/sda3"
     ROOT_MOUNTPOINT="/mnt"
 
