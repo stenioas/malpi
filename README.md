@@ -1,8 +1,4 @@
 <h1 align="center">
-  MALPI
-</h1>
-
-<h1 align="center">
   My <a href=https://www.archlinux.org/>Arch Linux</a> Personal Installer
 </h1>
 <p align="center"><strong>My Arch Linux Personal Installer</strong>, a simple and amateur shell script for installing Arch Linux on my personal computers. You can use and modify it as you prefer. The <strong>malpi</strong> script offers two steps when installing Arch Linux.</p>
