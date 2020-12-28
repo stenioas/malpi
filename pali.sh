@@ -82,7 +82,7 @@
     APP_TITLE="pali"
     APP_VERSION="0.01"
     LANGUAGE="pt_BR"
-    NEW_GRUB_NAME="Archlinux"
+    GRUB_NAME="Archlinux"
     T_COLS=$(tput cols)
     T_LINES=$(tput lines)
     TRIM=0
@@ -612,24 +612,24 @@ _set_network() {
   _print_title "NETWORK CONFIGURATION"
   echo
   _read_input_text "Type a hostname:"
-  read -r NEW_HOSTNAME
+  read -r HOSTNAME
   echo
-  while [[ "${NEW_HOSTNAME}" == "" ]]; do
+  while [[ "${HOSTNAME}" == "" ]]; do
     _print_title "NETWORK CONFIGURATION"
     echo
     _print_warning "You must be type a hostname!"
     echo
     _read_input_text "Type a hostname:"
-    read -r NEW_HOSTNAME
+    read -r HOSTNAME
     echo
   done
-  NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
+  HOSTNAME=$(echo "$HOSTNAME" | tr '[:upper:]' '[:lower:]')
   _print_action "Setting" "hostname file"
-  echo ${NEW_HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname & PID=$!; _progress $PID
+  echo ${HOSTNAME} > ${ROOT_MOUNTPOINT}/etc/hostname & PID=$!; _progress $PID
   _print_action "Setting" "hosts file"
   echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
   echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts & PID=$!; _progress $PID
+  echo -e "127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts & PID=$!; _progress $PID
   _pause_function  
 }
 
@@ -659,14 +659,14 @@ _grub_generate() {
   _print_title "BOOTLOADER"
   echo
   _read_input_text "Type a grub name entry:"
-  read -r NEW_GRUB_NAME
-  while [[ "${NEW_GRUB_NAME}" == "" ]]; do
+  read -r GRUB_NAME
+  while [[ "${GRUB_NAME}" == "" ]]; do
     _print_title "BOOTLOADER"
     echo
     _print_warning "You must be type a grub name entry!"
     echo
     _read_input_text "Type a grub name entry:"
-    read -r NEW_GRUB_NAME
+    read -r GRUB_NAME
   done
   _print_subtitle "Packages"
   _pacstrap_install "grub grub-btrfs efibootmgr"
@@ -677,7 +677,7 @@ _grub_generate() {
     _pacstrap_install "os-prober"
   fi
   _print_subtitle "Grub install"
-  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=${NEW_GRUB_NAME} --recheck
+  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=${GRUB_NAME} --recheck
   _print_subtitle "Grub configuration file"
   arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
   _pause_function  
@@ -697,8 +697,8 @@ _finish_install() {
   echo -e "${PURPLE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
   echo -e "${PURPLE}Language:       ${RESET}${LOCALE}"
   echo -e "${PURPLE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
-  echo -e "${PURPLE}Hostname:       ${RESET}${NEW_HOSTNAME}"
-  echo -e "${PURPLE}Grubname:       ${RESET}${NEW_GRUB_NAME}"
+  echo -e "${PURPLE}Hostname:       ${RESET}${HOSTNAME}"
+  echo -e "${PURPLE}Grubname:       ${RESET}${GRUB_NAME}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -728,35 +728,35 @@ _create_new_user() {
   _print_title "NEW USER"
   echo
   _read_input_text "Type your username:"
-  read -r NEW_USER
-  while [[ "${NEW_USER}" == "" ]]; do
+  read -r USERNAME
+  while [[ "${USERNAME}" == "" ]]; do
     _print_title "NEW USER"
     echo
     _print_warning "You must be type a username!"
     echo
     _read_input_text "Type your username:"
-    read -r NEW_USER
+    read -r USERNAME
   done
-  NEW_USER=$(echo "$NEW_USER" | tr '[:upper:]' '[:lower:]')
-  if [[ "$(grep ${NEW_USER} /etc/passwd)" == "" ]]; then
+  USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
+  if [[ "$(grep ${USERNAME} /etc/passwd)" == "" ]]; then
     echo
-    _print_action "Create user" "${NEW_USER}"
-    useradd -m -g users -G wheel ${NEW_USER} & PID=$!; _progress $PID
+    _print_action "Create user" "${USERNAME}"
+    useradd -m -g users -G wheel ${USERNAME} & PID=$!; _progress $PID
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
     echo
     _print_info "Privileges added."
   else
     echo
-    _print_info "User ${NEW_USER} already exists!"
+    _print_info "User ${USERNAME} already exists!"
   fi
   _print_subtitle_select "Type a new user password:"
   PASSWD_CHECK=0
-  passwd ${NEW_USER} && PASSWD_CHECK=1;
+  passwd ${USERNAME} && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
     echo
     _print_warning "The password does not match!"
     _print_subtitle_select "Type a new user password:"
-    passwd ${NEW_USER} && PASSWD_CHECK=1;
+    passwd ${USERNAME} && PASSWD_CHECK=1;
   done
   _pause_function
 }
@@ -1077,12 +1077,12 @@ _print_title() {
   clear
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  BORDER_COLOR=${BBLACK}
+  BORDER_COLOR=${BWHITE}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BORDER_COLOR} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
   echo -e "${BWHITE} $1${RESET}"
-  _print_line
+  echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
 #_print_subtitle() {
@@ -1092,7 +1092,7 @@ _print_title() {
 
 _print_subtitle() {
   BORDER_COLOR=${BCYAN}
-  echo -e "\n${BG_YELLOW}${BCYAN}  $1  ${RESET}\n"
+  echo -e "\n${BG_PURPLE}${BWHITE}  $1  ${RESET}\n"
 }
 
 _print_subtitle_select() {
@@ -1278,6 +1278,7 @@ _start_screen() {
     exit 1
 }
 clear
+
 _start_screen
 _check_connection
 
