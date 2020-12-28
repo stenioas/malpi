@@ -1,4 +1,6 @@
-# malpi
+<h1 align="center">
+  MALPI
+</h1>
 
 <h1 align="center">
   My <a href=https://www.archlinux.org/>Arch Linux</a> Personal Installer
@@ -26,11 +28,11 @@
 ### curl
 	curl -L stenioas.github.io/malpi/malpi > malpi
 
-### git
-	git clone git://github.com/stenioas/malpi
-
 ### wget
 	wget stenioas.github.io/malpi/malpi
+
+### git
+	git clone git://github.com/stenioas/malpi
 
 ## How to use
 
