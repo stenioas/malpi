@@ -236,8 +236,6 @@ _initial() {
     setfont ter-120n
   elif [[ "$FONT" = "Very large bold (ter-120b)" ]]; then
     setfont ter-120b
-  elif [[ "$FONT" = "Unchanged" ]]; then
-    setfont ter-112n
   fi
   _print_title "LOADING REQUIRED DATA..."
   T_COLS=$(tput cols)
@@ -472,8 +470,8 @@ _install_base() {
   esac
   _print_title "BASE"
   echo
-  echo -e "${PURPLE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "${PURPLE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo -e "${BLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "${BLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
   echo
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
@@ -540,8 +538,8 @@ _set_timezone_and_clock() {
   done
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   echo
-  echo -e "${PURPLE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${PURPLE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
+  echo -e "${BLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${BLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
@@ -595,8 +593,8 @@ _set_localization() {
   fi
   _print_title "LOCALIZATION"
   echo
-  echo -e "${PURPLE}Language: ${RESET}${LOCALE}"
-  echo -e "${PURPLE}Keymap:   ${RESET}${KEYMAP_CHOICE}"
+  echo -e "${BLUE}Language: ${RESET}${LOCALE}"
+  echo -e "${BLUE}Keymap:   ${RESET}${KEYMAP_CHOICE}"
   echo
   sed -i 's/#\('${LOCALE}'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Running" "locale-gen"
@@ -688,23 +686,23 @@ _finish_install() {
   echo
   _print_info "Your new system has been installed! CHECK YOUR CONFIGURATION!"
   echo
-  echo -e "${PURPLE}Disk:           ${RESET}${INSTALL_DISK}"
-  echo -e "${PURPLE}Root partition: ${RESET}${ROOT_PARTITION}"
-  echo -e "${PURPLE}EFI partition:  ${RESET}${EFI_PARTITION}"
-  echo -e "${PURPLE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "${PURPLE}Microcode:      ${RESET}${MICROCODE_VERSION}"
-  echo -e "${PURPLE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${PURPLE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
-  echo -e "${PURPLE}Language:       ${RESET}${LOCALE}"
-  echo -e "${PURPLE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
-  echo -e "${PURPLE}Hostname:       ${RESET}${HOSTNAME}"
-  echo -e "${PURPLE}Grubname:       ${RESET}${GRUB_NAME}"
+  echo -e "${BLUE}Disk:           ${RESET}${INSTALL_DISK}"
+  echo -e "${BLUE}Root partition: ${RESET}${ROOT_PARTITION}"
+  echo -e "${BLUE}EFI partition:  ${RESET}${EFI_PARTITION}"
+  echo -e "${BLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
+  echo -e "${BLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
+  echo -e "${BLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
+  echo -e "${BLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
+  echo -e "${BLUE}Language:       ${RESET}${LOCALE}"
+  echo -e "${BLUE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
+  echo -e "${BLUE}Hostname:       ${RESET}${HOSTNAME}"
+  echo -e "${BLUE}Grubname:       ${RESET}${GRUB_NAME}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
     _package_install "wget"
-    _print_action "Downloading" "setup.sh"
+    _print_action "Downloading" "pali.sh"
     wget -O ${ROOT_MOUNTPOINT}/root/setup.sh "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -1077,10 +1075,10 @@ _print_title() {
   clear
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  BORDER_COLOR=${BWHITE}
+  BORDER_COLOR=${CYAN}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}`seq -s '=' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
   echo -e "${BWHITE} $1${RESET}"
   echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
