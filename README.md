@@ -46,7 +46,7 @@ Finnaly, launch the script first step:
 
 Then follow the on-screen instructions to completion.
 
-Important informations:
+### Important informations: ###
 
 1. This script supports [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) only.
 2. This script will only consider [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT** partitions.
@@ -57,7 +57,7 @@ Important informations:
 	- **@** for /
 	- **@home** for /home
 	- **@.snapshots** for /.snapshots
-7. This script, for now, supports [**XORG**](https://wiki.archlinux.org/index.php/Xorg) only(Wayland will be available soon).
+7. This script, for now, supports [**XORG**](https://wiki.archlinux.org/index.php/Xorg) only(*Wayland will be available soon*).
 8. This script, for now, installs the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader by default(*Systemd-boot will be available soon*).
 9. This script can be cancelled at any time with **CTRL+C**.
 10. **THIS SCRIPT IS NOT YET COMPLETE!**
