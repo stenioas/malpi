@@ -1095,14 +1095,8 @@ _print_subtitle_select() {
 }
 
 _print_item() {
-  REM_COLS=$(( 30 - ${#1} ))
-  echo -ne "${BLUE}$1: ${RESET}"; echo -ne "`seq -s '' $(( REM_COLS + 1 )) | tr -d [:digit:]`"; echo -e "$2"
-}
-
-_print_info() {
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
-  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  REM_COLS=$(( 20 - ${#1} ))
+  echo -ne "${BLUE}$1: ${RESET}"; echo -ne "`seq -s ' ' $(( REM_COLS + 1 )) | tr -d [:digit:]`"; echo -e "$2"
 }
 
 _print_info() {
