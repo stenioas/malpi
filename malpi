@@ -8,7 +8,31 @@
 # project   : https://github.com/stenioas/malpi
 #
 # ----------------------------------------------------------------------#
-
+# 
+# MIT License
+# 
+# Copyright (c) 2020 Stenio Almeida da Silveira
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# ----------------------------------------------------------------------#
+#
 ### VARS
 
   # --- COLORS
@@ -172,9 +196,11 @@ _initial_readme() {
 
   - ${BYELLOW}SWAP${RESET} is not supported..
 
-  - Only ${BYELLOW}XORG${RESET} is supported${PURPLE}(Wayland will be available soon)${RESET}.
+  - ${BYELLOW}NetworkManager${RESET} is installed by default ${PURPLE}(Systemd-networkd will be available soon)${RESET}
 
-  - The ${BYELLOW}GRUB${RESET} bootloader is installed by default${PURPLE}(Systemd-boot will be available soon)${RESET}.
+  - Only ${BYELLOW}XORG${RESET} is supported ${PURPLE}(Wayland will be available soon)${RESET}.
+
+  - The ${BYELLOW}GRUB${RESET} bootloader is installed by default ${PURPLE}(Systemd-boot will be available soon)${RESET}.
 
   - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
@@ -359,7 +385,7 @@ _format_partitions() {
 _install_base() {
   _print_title "BASE"
   _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
-  KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "Another")
+  KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "None")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
       KERNEL_CHOICE="${KERNEL_CHOICE}"
@@ -381,23 +407,13 @@ _install_base() {
     Linux-hardened)
       KERNEL_VERSION="linux-hardened"
       ;;
-    Another)
-      echo
-      _read_input_text "Type the kernel package name do you want install:"
-      read -r KERNEL_VERSION
-      echo
-      while [[ "${KERNEL_VERSION}" = "" ]]; do
-        _print_warning "You must be type a kernel name!"
-        echo
-        _read_input_text "Type the kernel package name do you want install:"
-        read -r KERNEL_VERSION
-        echo
-      done
+    None)
+      KERNEL_VERSION="None"
       ;;
   esac
   _print_title "BASE"
   _print_subtitle_select "Select your microcode:${RESET}"
-  MICROCODE_LIST=("amd-ucode" "intel-ucode" "none")
+  MICROCODE_LIST=("amd-ucode" "intel-ucode" "None")
   select MICROCODE_CHOICE in "${MICROCODE_LIST[@]}"; do
     if _contains_element "${MICROCODE_CHOICE}" "${MICROCODE_LIST[@]}"; then
       MICROCODE_CHOICE="${MICROCODE_CHOICE}"
@@ -408,13 +424,13 @@ _install_base() {
   done
   case ${MICROCODE_CHOICE} in
     amd-ucode)
-      MICROCODE_VERSION=${MICROCODE_CHOICE}
+      MICROCODE_VERSION="amd-ucode"
       ;;
     intel-ucode)
-      MICROCODE_VERSION=${MICROCODE_CHOICE}
+      MICROCODE_VERSION="intel-ucode"
       ;;
-    none)
-      MICROCODE_VERSION=${MICROCODE_CHOICE}
+    None)
+      MICROCODE_VERSION="None"
       ;;
   esac
   _print_title "BASE"
@@ -423,16 +439,23 @@ _install_base() {
   _print_item "Microcode" "${MICROCODE_VERSION}"
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
-  _pacstrap_install "${KERNEL_VERSION}"
-  _pacstrap_install "${KERNEL_VERSION}-headers"
-  _pacstrap_install "linux-firmware"
-  if [[ "${MICROCODE_VERSION}" != "none" ]]; then
+  _pacstrap_install "btrfs-progs"
+  if [[ "${KERNEL_VERSION}" != "None" ]]; then
+    _pacstrap_install "${KERNEL_VERSION}"
+    _pacstrap_install "${KERNEL_VERSION}-headers"
+    _pacstrap_install "linux-firmware"
+  fi
+  if [[ "${MICROCODE_VERSION}" != "None" ]]; then
     _pacstrap_install "${MICROCODE_VERSION}"
   fi
-  _pacstrap_install "btrfs-progs"
-  _pacstrap_install "networkmanager"
-  _print_subtitle "Services"
-  _print_action "Enabling" "NetworkManager"
+  echo
+  _read_input_option "Install NetworkManager? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+  echo
+    _pacstrap_install "networkmanager"
+    _print_subtitle "Services"
+    _print_action "Enabling" "NetworkManager"
+  fi
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null & PID=$!; _progress $PID
   _pause_function
 }
@@ -580,6 +603,12 @@ _set_network() {
 }
 
 _mkinitcpio_generate() {
+  _print_title "INITRAMFS"
+  echo
+  _read_input_option "Edit your mkinitcpio.conf file? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    nano ${ROOT_MOUNTPOINT}/etc/mkinitcpio.conf
+  fi
   _print_title "INITRAMFS"
   echo
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
@@ -798,9 +827,9 @@ _install_vga() {
 }
 
 _install_desktop() {
-  _print_title "DESKTOP OR WINDOW MANAGER"
-  DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
-  _print_subtitle_select "Select your desktop or wm:"
+  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER"
+  DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
+  _print_subtitle_select "Select your desktop environment or window manager:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -808,25 +837,21 @@ _install_desktop() {
       _invalid_option
     fi
   done
-  _print_title "DESKTOP OR WINDOW MANAGER"
-  DESKTOP_CHOICE=$(echo "${DESKTOP}" | tr '[:lower:]' '[:upper:]')
-  echo -e " ${PURPLE}${DESKTOP_CHOICE}${RESET}"
-  echo
   
   if [[ "${DESKTOP}" == "Gnome" ]]; then
-    _print_title "GNOME DESKTOP"
+    _print_title "GNOME"
     _print_subtitle "Packages"
     _group_package_install "gnome"
     _group_package_install "gnome-extra"
     _package_install "gnome-tweaks"
 
   elif [[ "${DESKTOP}" == "Plasma" ]]; then
-    _print_title "PLASMA DESKTOP"
+    _print_title "KDE PLASMA"
     _print_subtitle "Packages"
     _package_install "plasma kde-applications packagekit-qt5"
 
   elif [[ "${DESKTOP}" == "Xfce" ]]; then
-    _print_title "XFCE DESKTOP"
+    _print_title "XFCE 4"
     _print_subtitle "Packages"
     _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
 
@@ -835,12 +860,12 @@ _install_desktop() {
     _print_subtitle "Packages"
     _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
 
-  elif [[ "${DESKTOP}" == "Bspwm" ]]; then
+  elif [[ "${DESKTOP}" == "Bspwm" ]]; then # NOT ADDED IN SELECT
     _print_title "BSPWM"
     _print_subtitle "Packages"
     _print_warning "It's not working yet..."
 
-  elif [[ "${DESKTOP}" == "Awesome" ]]; then
+  elif [[ "${DESKTOP}" == "Awesome" ]]; then # NOT ADDED IN SELECT
     _print_title "AWESOME WM"
     _print_subtitle "Packages"
     _print_warning "It's not working yet..."
@@ -868,7 +893,7 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "DISPLAY MANAGER"
-  DMANAGER_LIST=("Lightdm" "Lxdm" "Slim" "GDM" "SDDM" "Xinit" "None");
+  DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "None");
   _print_subtitle_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -877,8 +902,7 @@ _install_display_manager() {
       _invalid_option
     fi
   done
-  _print_title "DISPLAY MANAGER"
-  DMANAGER_CHOICE=$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')
+  _print_title "$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')"
 
   if [[ "${DMANAGER}" == "Lightdm" ]]; then
     _print_subtitle "Packages"
@@ -887,10 +911,10 @@ _install_display_manager() {
     _print_action "Enabling" "LightDM"
     sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
 
-  elif [[ "${DMANAGER}" == "Lxdm" ]]; then
+  elif [[ "${DMANAGER}" == "Lxdm" ]]; then # NOT ADDED IN SELECT
     _print_warning "It's not working yet..."
 
-  elif [[ "${DMANAGER}" == "Slim" ]]; then
+  elif [[ "${DMANAGER}" == "Slim" ]]; then # NOT ADDED IN SELECT
     _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "GDM" ]]; then
@@ -907,10 +931,11 @@ _install_display_manager() {
     _print_action "Enabling" "SDDM"
     sudo systemctl enable sddm &> /dev/null & PID=$!; _progress $PID
 
-  elif [[ "${DMANAGER}" == "Xinit" ]]; then
+  elif [[ "${DMANAGER}" == "Xinit" ]]; then # NOT ADDED IN SELECT
     _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" == "None" ]]; then
+    echo
     _print_info "Nothing to do!"
 
   else
@@ -1085,7 +1110,6 @@ _print_title() {
 #}
 
 _print_subtitle() {
-  BORDER_COLOR=${BCYAN}
   echo -e "\n${BWHITE}:: $1${RESET}\n"
 }
 
@@ -1095,7 +1119,7 @@ _print_subtitle_select() {
 
 _print_item() {
   REM_COLS=$(( 20 - ${#1} ))
-  echo -ne "${BLUE}$1 ${RESET}"; echo -ne "${BBLACK}`seq -s '.' $REM_COLS | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}:${RESET} $2"
+  echo -ne "${BLUE}$1 ${RESET}"; echo -ne "${BBLACK}`seq -s '.' $REM_COLS | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}:${RESET} $2 " | fold -sw $(( T_COLS - 18 )) | sed 's/^/\t\t/'
 }
 
 _print_info() {
@@ -1226,32 +1250,56 @@ _pacstrap_install() { # install pacstrap package
 }
 
 _setfont() {
-  _print_title "FONT SIZE - Just for malpi execution"
-  _print_subtitle_select "Select a console font:"
-  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Default")
-  select FONT in "${FONTS_LIST[@]}"; do
-    if _contains_element "${FONT}" "${FONTS_LIST[@]}"; then
-      FONT="${FONT}"
-      break
-    else
-      _invalid_option
-    fi
-  done
-  if [[ "$FONT" = "Very small (ter-112n)" ]]; then
-    setfont ter-112n
-  elif [[ "$FONT" = "Small (ter-114n)" ]]; then
-    setfont ter-114n
-  elif [[ "$FONT" = "Small bold (ter-114b)" ]]; then
-    setfont ter-114b
-  elif [[ "$FONT" = "Normal (ter-116n)" ]]; then
-    setfont ter-116n
-  elif [[ "$FONT" = "Normal bold (ter-116b)" ]]; then
-    setfont ter-116b
-  elif [[ "$FONT" = "Large (ter-118n)" ]]; then
-    setfont ter-118n
-  elif [[ "$FONT" = "Large bold (ter-118b)" ]]; then
-    setfont ter-118b
-  fi
+  FONTS_LIST=("ter-112n" "ter-114n" "ter-114b" "[ter-116n" "ter-116b" "ter-118n" "ter-118b")
+  FONT_CHOICE=""
+  FONT=""
+  _select_consolefont() {
+    _print_title "FONT SIZE - Just for malpi execution"
+    _print_subtitle_select "Select a console font:"
+    echo -e "1) [ter-112n] Very small"
+    echo -e "2) [ter-114n] Small"
+    echo -e "3) [ter-114b] Small bold"
+    echo -e "4) [ter-116n] Medium"
+    echo -e "5) [ter-116b] Medium bold - (Recommended)"
+    echo -e "6) [ter-118n] Large"
+    echo -e "7) [ter-118b] Large bold"
+    echo -e "8) Default"
+    echo
+    _read_input_option "${BYELLOW}> ${RESET}"
+    case $OPTION in
+      1)
+        setfont ter-112n
+        ;;
+      2)
+        setfont ter-114n
+        ;;
+      3)
+        setfont ter-114b
+        ;;
+      4)
+        setfont ter-116n
+        ;;
+      5)
+        setfont ter-116b
+        ;;
+      6)
+        setfont ter-118n
+        ;;
+      7)
+        setfont ter-118b
+        ;;
+      8)
+        setfont
+        ;;
+      *)
+        _invalid_option
+        _pause_function
+        _select_consolefont
+        ;;
+    esac
+    _select_consolefont
+    _pause_function
+  }
 }
 
 usage() {

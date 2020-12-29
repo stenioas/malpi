@@ -13,7 +13,7 @@
 ## Note
 * If you prefer you can partition your disk before launching this script.
 * You can first try it in a **Virtual Machine** if you prefer.
-* The script, temporarily, changes the console's font.
+* The console font will be changed while the script is running.
 * I have intentions of migrating this script to the [**whiptail**](https://linux.die.net/man/1/whiptail) tool.
 * The idea of ​​creating this script came from the desire to practice the shell language, nothing more.
 
@@ -46,10 +46,11 @@
 	- **@.snapshots** for /.snapshots
 5. The EFI partition can be formatted in FAT32 if the user wants to.
 6. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
-7. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported(*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
-8. The [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is installed by default(*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
-9. This script can be cancelled at any time with **CTRL+C**.
-10. **THIS SCRIPT IS NOT YET COMPLETE!**
+7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default (*[**Systemd-networkd**](https://wiki.archlinux.org/index.php/Systemd-networkd) will be available soon*)
+8. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported (*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
+9. The [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is installed by default (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
+10. This script can be cancelled at any time with **CTRL+C**.
+11. **THIS SCRIPT IS NOT YET COMPLETE!**
 
 ##### Tips:
   - A SWAP partition or SWAP file can be created after installing the system.
@@ -59,7 +60,7 @@
 
 > The first step offers the installation of the base system.
 
-boot with the last [Arch Linux image](https://www.archlinux.org/download/) with a [bootable device](https://wiki.archlinux.org/index.php/USB_flash_installation_media).
+Boot with the last [Arch Linux image](https://www.archlinux.org/download/) on a [bootable device](https://wiki.archlinux.org/index.php/USB_flash_installation_media).
 
 Then make sure you have Internet connection on the Arch iso. If you have a wireless connection the [`iwctl`](https://wiki.archlinux.org/index.php/Iwd#iwctl) command might be useful to you. You can also read the [Network configuration](https://wiki.archlinux.org/index.php/Network_configuration) from the Arch Linux guide for more detailed instructions.
 
@@ -71,19 +72,18 @@ Then follow the on-screen instructions to completion.
 ##### Features
 - Set console font
 - Timedatectl set ntp as true `timedatectl set-ntp true`
-- Updating archlinux-keyring
-- Rank mirrors by country
+- Update archlinux-keyring
+- Rank mirrors (*by country*)
 - Select disk and partitioning
 - Format and mount **EFI** and **ROOT** partitions
-- Select kernel version (*If the desired kernel is not available in the list, you can type it manually.*)
+- Select kernel version
 - Select microcode version
 - Install system base
 - Configure fstab
 - Configure timezone
-- Configure hardware clock
 - Configure localization
 - Configure network(***hostname** file and **hosts** file*)
-- Configure mkinitcpio
+- Configure initramfs
 - Configure root password
 - Install bootloader
 
@@ -137,4 +137,4 @@ Launch the second script step, after succeeding in the first step, with the comm
 - [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) script by [***Terminal Root***](https://terminalroot.com.br/)
 
 ---
-<h1 align="center">Btw, thank's for your time!</h1>
+<h1 align="center">Btw, thank you for taking the time to get to know my project.!</h1>
