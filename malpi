@@ -641,11 +641,11 @@ _finish_install() {
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
-    _package_install "wget"
     _print_action "Downloading" "malpi"
-    wget -P ${ROOT_MOUNTPOINT}/root/ "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
+    curl -L stenioas.github.io/malpi/malpi > malpi &> /dev/null & PID=$!; _progress $PID
   fi
-  cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
+  _print_action "Coping" "mirrorlist.backup"
+  cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
   _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
@@ -1076,7 +1076,7 @@ _print_subtitle_select() {
 
 _print_item() {
   REM_COLS=$(( 20 - ${#1} ))
-  echo -ne "${BBLUE}$1: ${RESET}"; echo -ne "`seq -s ' ' $(( REM_COLS + 1 )) | tr -d [:digit:]`"; echo -e "$2"
+  echo -ne "${BLUE}$1 ${RESET}"; echo -ne "${BLACK}`seq -s '.' $REM_COLS | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}:${RESET} $2"
 }
 
 _print_info() {
@@ -1207,7 +1207,7 @@ _pacstrap_install() { # install pacstrap package
 }
 
 _setfont() {
-  _print_title "FONT SIZE"
+  _print_title "FONT SIZE - Just for malpi execution"
   _print_subtitle_select "Select a console font:"
   FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Default")
   select FONT in "${FONTS_LIST[@]}"; do
