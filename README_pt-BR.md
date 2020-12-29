@@ -15,6 +15,7 @@
 * Você pode testar em uma **Máquina Virtual** primeiro se preferir.
 * O script, temporariamente, altera a fonte do console.
 * Tenho intensões de migrar o script para a ferramenta [**whiptail**](https://linux.die.net/man/1/whiptail).
+* A ideia de criar este script surgiu pela vontade de praticar a linguagem shell, nada mais.
 
 ## Pré-requisitos
 
@@ -39,16 +40,20 @@
 1. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
 2. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
 3. A partição raiz será formatada com o sistema de arquivos [**BTRFS**](https://wiki.archlinux.org/index.php/Btrfs_(Português)).
-4. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
-5. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
-6. Este script irá criar três [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
-	- **@** for /
-	- **@home** for /home
-	- **@.snapshots** for /.snapshots
+4. Este script irá criar três [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
+	- **@** para /
+	- **@home** para /home
+	- **@.snapshots** para /.snapshots
+5. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
+6. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
 7. Somente o [**XORG**](https://wiki.archlinux.org/index.php/Xorg_(Português)) é suportado(*[**Wayland**](https://wiki.archlinux.org/index.php/Wayland_(Português)) estará disponível em breve*).
 8. O carregador de inicialização [**GRUB**](https://wiki.archlinux.org/index.php/GRUB_(Português)) é instalado por padrão(*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estará disponível em breve*).
 9. O script pode ser cancelado a qualquer momento com **CTRL+C**.
 10. **ESTE SCRIPT AINDA NÃO ESTÁ COMPLETO!**
+
+##### Dicas:
+  - Uma partição ou arquivo SWAP pode ser criado após a instalação do sistema.
+  - A partição home pode ser migrada para outro disco ou partição após a instalação do sistema.
 
 ### Primeira etapa (*Instalação da base*)
 

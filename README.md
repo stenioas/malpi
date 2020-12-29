@@ -15,6 +15,7 @@
 * You can first try it in a **Virtual Machine** if you prefer.
 * The script, temporarily, changes the console's font.
 * I have intentions of migrating this script to the [**whiptail**](https://linux.die.net/man/1/whiptail) tool.
+* The idea of ​​creating this script came from the desire to practice the shell language, nothing more.
 
 ## Prerequisites
 
@@ -39,16 +40,20 @@
 1. Only [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) mode is supported.
 2. This script uses only two partitions, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT**.
 3. The root partition will be formatted with the [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) file system.
-4. The EFI partition can be formatted in FAT32 if the user wants to.
-5. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
-6. This script will create three [**subvolumes**](https://wiki.archlinux.org/index.php/btrfs#Subvolumes "subvolumes"):
+4. This script will create three [**subvolumes**](https://wiki.archlinux.org/index.php/btrfs#Subvolumes "subvolumes"):
 	- **@** for /
 	- **@home** for /home
 	- **@.snapshots** for /.snapshots
+5. The EFI partition can be formatted in FAT32 if the user wants to.
+6. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
 7. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported(*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
 8. The [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is installed by default(*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
 9. This script can be cancelled at any time with **CTRL+C**.
 10. **THIS SCRIPT IS NOT YET COMPLETE!**
+
+##### Tips:
+  - A SWAP partition or SWAP file can be created after installing the system.
+  - The home partition can be migrated to another disk or partition after installing the system.
 
 ### First Step (*Base installation*)
 
