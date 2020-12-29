@@ -1209,7 +1209,7 @@ _pacstrap_install() { # install pacstrap package
 _setfont() {
   _print_title "FONT SIZE"
   _print_subtitle_select "Select a console font:"
-  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Very large (ter-120n)" "Very large bold (ter-120b)" "Unchanged")
+  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Very large (ter-120n)" "Very large bold (ter-120b)" "Default")
   select FONT in "${FONTS_LIST[@]}"; do
     if _contains_element "${FONT}" "${FONTS_LIST[@]}"; then
       FONT="${FONT}"
@@ -1268,7 +1268,7 @@ _start_screen() {
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ██║ ╚═╝ ██║ ██║  ██║ ███████╗ ██║      ██║  │${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ╚═╝     ╚═╝ ╚═╝  ╚═╝ ╚══════╝ ╚═╝      ╚═╝  │${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│                                              │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}└─────── ${PURPLE}My Personal Arch Linux Installer${RESET}${BBLACK} ───────┘${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}└────── ${PURPLE}My Personal Arch Linux Installer${RESET}${BBLACK} ──────┘${RESET}"
   echo
   tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
@@ -1285,6 +1285,7 @@ _start_screen() {
     exit 1
 }
 clear
+setfont
 pacman -S --needed --noconfirm terminus-font &> /dev/null
 _start_screen
 _check_connection
