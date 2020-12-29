@@ -31,7 +31,7 @@
 	wget stenioas.github.io/malpi/malpi
 
 ### git
-	git clone git://github.com/stenioas/malpi
+	git clone https://github.com/stenioas/malpi
 
 ## How to use
 
@@ -75,7 +75,7 @@ Then follow the on-screen instructions to completion.
 - Rank mirrors by country
 - Select disk and partitioning
 - Format and mount **EFI** and **ROOT** partitions
-- Select kernel version (*You can enter the version of the kernel you want to install*)
+- Select kernel version (*If the desired kernel is not available in the list, you can type it manually.*)
 - Select microcode version
 - Install system base
 - Configure fstab

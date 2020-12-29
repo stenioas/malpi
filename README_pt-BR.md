@@ -31,7 +31,7 @@
 	wget stenioas.github.io/malpi/malpi
 
 ### git
-	git clone git://github.com/stenioas/malpi
+	git clone https://github.com/stenioas/malpi
 
 ## Como usar
 
@@ -61,7 +61,7 @@
 
 Inicialize a última [imagem do Arch Linux](https://www.archlinux.org/download/) com um [dispositivo bootável](https://wiki.archlinux.org/index.php/USB_flash_installation_media_(Português)).
 
-Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português))) do guia do Arch Linux para obter instruções mais detalhadas.
+Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português)) do guia do Arch Linux para obter instruções mais detalhadas.
 
 Finalmente, inicie a primeira etapa do script com o comando abaixo:
 
@@ -76,7 +76,7 @@ Em seguida, siga as instruções na tela para concluir.
 - Classifica os espelhos por país
 - Seleciona e particiona o disco
 - Formata e monta as partições **EFI** e **ROOT**
-- Seleciona a versão do kernel (*Você pode inserir a versão do kernel que você quer instalar*)
+- Seleciona a versão do kernel (*Caso o kernel desejado não esteja disponível na lista, você pode digitá-lo manualmente.*)
 - Seleciona a versão do microcode
 - Instala a base
 - Configura o fstab
