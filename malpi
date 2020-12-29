@@ -1260,20 +1260,18 @@ _pacstrap_install() { # install pacstrap package
 }
 
 _set_font() {
-  FONTS_LIST=("ter-112n" "ter-114n" "ter-114b" "[ter-116n" "ter-116b" "ter-118n" "ter-118b")
-  FONT_CHOICE=""
-  FONT=""
+  setfont ter-116b
   _select_consolefont() {
     _print_title "FONT SIZE - Just for malpi execution"
     _print_subtitle_select "Select a console font:"
-    echo -e "1) [ter-112n] Very small"
-    echo -e "2) [ter-114n] Small"
-    echo -e "3) [ter-114b] Small bold"
-    echo -e "4) [ter-116n] Medium"
-    echo -e "5) [ter-116b] Medium bold - (Recommended)"
-    echo -e "6) [ter-118n] Large"
-    echo -e "7) [ter-118b] Large bold"
-    echo -e "8) Default"
+    echo -e "1) Very small  12"
+    echo -e "2) Small       14"
+    echo -e "3) Small bold  14"
+    echo -e "4) Medium      16"
+    echo -e "5) Medium bold 16 - (Recommended)"
+    echo -e "6) Large       18"
+    echo -e "7) Large bold  18"
+    echo -e "8) Default archiso font"
     _read_input_option "${BYELLOW}> ${RESET}"
     case $OPTION in
       1)
@@ -1357,7 +1355,7 @@ _start_screen() {
 }
 clear
 pacman -S --needed --noconfirm terminus-font &> /dev/null
-setfont ter-116b
+setfont ter-122b
 _start_screen
 _check_efimode
 _check_connection
