@@ -1257,18 +1257,18 @@ EOF
 _start_screen() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  COLS_LOGO=58
+  COLS_LOGO=48
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}┌────────────────────────────────────────────────────────┐${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│  _____ ______   ________  ___       ________  ___      │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│ |\   _ \  _   \|\   __  \|\  \     |\   __  \|\  \     │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│ \ \  \\\__\ \  \ \  \|\  \ \  \    \ \  \|\  \ \  \    │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│  \ \  \\|__| \  \ \   __  \ \  \    \ \   ____\ \  \   │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│   \ \  \    \ \  \ \  \ \  \ \  \____\ \  \___|\ \  \  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│    \ \__\    \ \__\ \__\ \__\ \_______\ \__\    \ \__\ │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│     \|__|     \|__|\|__|\|__|\|_______|\|__|     \|__| │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}│                                                        │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo -e "${BBLACK}└─────────── ${PURPLE}My Personal Arch Linux Installer${RESET}${BBLACK} ───────────┘${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌──────────────────────────────────────────────┐${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│                                              │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ███╗   ███╗  █████╗  ██╗      ██████╗  ██╗  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ████╗ ████║ ██╔══██╗ ██║      ██╔══██╗ ██║  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ██╔████╔██║ ███████║ ██║      ██████╔╝ ██║  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ██║╚██╔╝██║ ██╔══██║ ██║      ██╔═══╝  ██║  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ██║ ╚═╝ ██║ ██║  ██║ ███████╗ ██║      ██║  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  ╚═╝     ╚═╝ ╚═╝  ╚═╝ ╚══════╝ ╚═╝      ╚═╝  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│                                              │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}└─────── ${PURPLE}My Personal Arch Linux Installer${RESET}${BBLACK} ───────┘${RESET}"
   echo
   tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
@@ -1286,7 +1286,6 @@ _start_screen() {
 }
 clear
 pacman -S --needed --noconfirm terminus-font &> /dev/null
-setfont ter-116b
 _start_screen
 _check_connection
 
