@@ -650,7 +650,7 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
     _print_action "Downloading" "malpi"
-    curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi &> /dev/null & PID=$!; _progress $PID
+    curl -L https://stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi &> /dev/null & PID=$!; _progress $PID
   fi
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
@@ -744,9 +744,19 @@ _enable_multilib(){
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
-  _print_subtitle "Packages"
-  _package_install "dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
-  _pause_function
+  ESSENTIAL_PKGS="dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
+  echo
+  _print_info "This task installs the following packages:"
+  echo
+  _print_item "Essential packages" "${ESSENTILA_PKGS}"
+  echo
+  _read_input_option "Install essential packages? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    _print_title "ESSENTIAL PACKAGES"
+    _print_subtitle "Packages"
+    _package_install "${ESSENTIAL_PKGS}"
+    _pause_function
+  fi
 }
 
 _install_xorg() {
@@ -961,9 +971,10 @@ _install_laptop_pkgs() {
 
 _install_aurhelper() {
   _print_title "YAY"
-  echo 
-  _read_input_option "Install yay? [y/N]: "
   echo
+  _print_warning "The user password will be required, stay watchful!"
+  echo
+  _read_input_option "Install yay? [y/N]: "
   if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
