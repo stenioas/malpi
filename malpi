@@ -1076,7 +1076,7 @@ _print_subtitle_select() {
 
 _print_item() {
   REM_COLS=$(( 20 - ${#1} ))
-  echo -ne "${BLUE}$1: ${RESET}"; echo -ne "`seq -s ' ' $(( REM_COLS + 1 )) | tr -d [:digit:]`"; echo -e "$2"
+  echo -ne "${BBLUE}$1: ${RESET}"; echo -ne "`seq -s ' ' $(( REM_COLS + 1 )) | tr -d [:digit:]`"; echo -e "$2"
 }
 
 _print_info() {
@@ -1209,7 +1209,7 @@ _pacstrap_install() { # install pacstrap package
 _setfont() {
   _print_title "FONT SIZE"
   _print_subtitle_select "Select a console font:"
-  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Very large (ter-120n)" "Very large bold (ter-120b)" "Default")
+  FONTS_LIST=("Very small (ter-112n)" "Small (ter-114n)" "Small bold (ter-114b)" "Normal (ter-116n)" "Normal bold (ter-116b)" "Large (ter-118n)" "Large bold (ter-118b)" "Default")
   select FONT in "${FONTS_LIST[@]}"; do
     if _contains_element "${FONT}" "${FONTS_LIST[@]}"; then
       FONT="${FONT}"
@@ -1232,10 +1232,6 @@ _setfont() {
     setfont ter-118n
   elif [[ "$FONT" = "Large bold (ter-118b)" ]]; then
     setfont ter-118b
-  elif [[ "$FONT" = "Very large (ter-120n)" ]]; then
-    setfont ter-120n
-  elif [[ "$FONT" = "Very large bold (ter-120b)" ]]; then
-    setfont ter-120b
   fi
 }
 
