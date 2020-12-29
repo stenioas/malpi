@@ -82,6 +82,16 @@ _check_connection() {
     fi
 }
 
+_check_efimode() {
+  if ! [[ -d "/sys/firmware/efi/" ]]; then
+    _print_title "UEFI MODE"
+    echo
+    _print_warning "The system is not in UEFI mode."
+    _print_bye
+    exit 1
+  fi
+}
+
 # ----------------------------------------------------------------------#
 
 ### CORE FUNCTIONS
@@ -1284,6 +1294,7 @@ clear
 setfont
 pacman -S --needed --noconfirm terminus-font &> /dev/null
 _start_screen
+_check_efimode
 _check_connection
 
 while [[ "$1" ]]; do

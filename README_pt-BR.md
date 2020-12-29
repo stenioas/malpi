@@ -14,6 +14,7 @@
 * Se preferir você pode particionar seu disco antes de executar este script.
 * Você pode testar em uma **Máquina Virtual** primeiro se preferir.
 * O script, temporariamente, altera a fonte do console.
+* Tenho intensões de migrar o script para a ferramenta [**whiptail**](https://linux.die.net/man/1/whiptail).
 
 ## Pré-requisitos
 
@@ -33,21 +34,7 @@
 
 ## Como usar
 
-### Primeira etapa (*Instalação da base*) ###
-
-> A primeira etapa oferece a instalação do sistema básico.
-
-Inicialize a última [imagem do Arch Linux](https://www.archlinux.org/download/) com um [dispositivo bootável](https://wiki.archlinux.org/index.php/USB_flash_installation_media_(Português)).
-
-Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português))) do guia do Arch Linux para obter instruções mais detalhadas.
-
-Finalmente, inicie a primeira etapa do script com o comando abaixo:
-
-    sh malpi -i
-
-Em seguida, siga as instruções na tela para concluir.
-
-### Informações importantes: ###
+### Informações importantes:
 
 1. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
 2. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
@@ -63,16 +50,21 @@ Em seguida, siga as instruções na tela para concluir.
 9. O script pode ser cancelado a qualquer momento com **CTRL+C**.
 10. **ESTE SCRIPT AINDA NÃO ESTÁ COMPLETO!**
 
-### Segunda etapa (*Pós-Instalação*) ###
+### Primeira etapa (*Instalação da base*)
 
-> A segunda etapa oferece a pós-instalação.
+> A primeira etapa oferece a instalação do sistema básico.
 
-Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o comando abaixo:
+Inicialize a última [imagem do Arch Linux](https://www.archlinux.org/download/) com um [dispositivo bootável](https://wiki.archlinux.org/index.php/USB_flash_installation_media_(Português)).
 
-	sh malpi -p
+Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português))) do guia do Arch Linux para obter instruções mais detalhadas.
 
-## Funcionalidades
-### Primeira etapa
+Finalmente, inicie a primeira etapa do script com o comando abaixo:
+
+    sh malpi -i
+
+Em seguida, siga as instruções na tela para concluir.
+
+##### Funcionalidades
 - Configura a fonte do console
 - Configura o ntp como true `timedatectl set-ntp true`
 - Atualiza o archlinux-keyring
@@ -91,7 +83,15 @@ Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o c
 - Configura a senha de root
 - Instala o bootloader
 
-### Segunda etapa
+### Segunda etapa (*Pós-Instalação*) ###
+
+> A segunda etapa oferece a pós-instalação.
+
+Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o comando abaixo:
+
+	sh malpi -p
+
+##### Funcionalidades
 - Cria e configura um novo usuário
 - Habilita o repositório Multilib
 - Instala pacotes essenciais
@@ -125,7 +125,7 @@ Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o c
 
 ---
 
-## Referências ##
+## Referências
 
 - [**Archwiki**](https://wiki.archlinux.org/index.php/Main_page_(Português))
 - [**archfi**](https://github.com/MatMoul/archfi) script by [***MatMoul***](https://github.com/MatMoul)
