@@ -125,7 +125,7 @@ _setup_install(){
     _print_warning "Only for 'root'.\n"
     exit 1
   }
-  _setfont
+  _set_font
   _initial_readme
   _initial
   _rank_mirrors
@@ -148,7 +148,7 @@ _setup_post(){
     _print_warning "Only for 'root'.\n"
     exit 1
   }
-  _setfont
+  _set_font
   _create_new_user
   _enable_multilib
   _install_essential_pkgs
@@ -168,7 +168,7 @@ _setup_user(){
     _print_warning "Only for 'normal user'.\n"
     exit 1
   }
-  _setfont
+  _set_font
   _initial_user
   _install_apps
   exit 0
@@ -780,7 +780,7 @@ _install_essential_pkgs() {
   echo
   _print_info "This task installs the following packages:"
   echo
-  _print_item "Essential packages" "${ESSENTILA_PKGS}"
+  _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
   _read_input_option "Install essential packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -1124,7 +1124,10 @@ _print_subtitle_select() {
 
 _print_item() {
   REM_COLS=$(( 20 - ${#1} ))
-  echo -e "${BLUE}$1 ${RESET}${BBLACK}`seq -s '.' $REM_COLS | tr -d [:digit:]`${RESET}${BBLACK}:${RESET} $2 " | fold -sw $(( T_COLS - 18 )) | sed 's/^/\t/'
+  echo -ne "${BLUE}$1${RESET}"
+  echo -ne "${BBLACK}`seq -s ' ' $REM_COLS | tr -d [:digit:]`${RESET}"
+  echo -ne "${BBLACK}:${RESET}"
+  echo -e "$2" | fold -sw $(( T_COLS - 18 )) | sed 's/^/\t\t\t/'
 }
 
 _print_info() {
@@ -1166,7 +1169,7 @@ _progress() {
       tput rc
       tput cub 5
       _spinny
-      sleep 0.5
+      sleep 0.4
     else
       wait "$PID"
       RETCODE=$?
@@ -1254,7 +1257,7 @@ _pacstrap_install() { # install pacstrap package
   done
 }
 
-_setfont() {
+_set_font() {
   FONTS_LIST=("ter-112n" "ter-114n" "ter-114b" "[ter-116n" "ter-116b" "ter-118n" "ter-118b")
   FONT_CHOICE=""
   FONT=""
@@ -1352,7 +1355,7 @@ _start_screen() {
 }
 clear
 pacman -S --needed --noconfirm terminus-font &> /dev/null
-setfont ter-116b
+setfont
 _start_screen
 _check_efimode
 _check_connection
