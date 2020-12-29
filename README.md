@@ -12,7 +12,7 @@
 
 ## Note
 * You can partition the disk before launching the script if you prefer.
-* You can first try it in a **VirtualMachine**
+* You can first try it in a **Virtual Machine**
 * This script change the console font
 
 ## Prerequisites
