@@ -1270,8 +1270,9 @@ _set_font() {
     echo -e "4) Medium      16"
     echo -e "5) Medium bold 16 - (Recommended)"
     echo -e "6) Large       18"
-    echo -e "7) Large bold  18"
-    echo -e "8) Default archiso font"
+    echo -e "7) Very large  20"
+    echo -e "8) Very large  22"
+    echo -e "9) Default archiso font"
     _read_input_option "${BYELLOW}> ${RESET}"
     case $OPTION in
       1)
@@ -1290,12 +1291,15 @@ _set_font() {
         setfont ter-116b
         ;;
       6)
-        setfont ter-118n
-        ;;
-      7)
         setfont ter-118b
         ;;
+      7)
+        setfont ter-120b
+        ;;
       8)
+        setfont ter-122b
+        ;;
+      9)
         setfont
         ;;
       *)
