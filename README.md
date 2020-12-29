@@ -57,8 +57,10 @@ Important informations:
 	- **@** for /
 	- **@home** for /home
 	- **@.snapshots** for /.snapshots
-7. This script can be cancelled at any time with **CTRL+C**.
-8. **THIS SCRIPT IS NOT YET COMPLETE!**
+7. This script, for now, supports [**XORG**](https://wiki.archlinux.org/index.php/Xorg) only(Wayland will be available soon).
+8. This script, for now, installs the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader by default(*Systemd-boot will be available soon*).
+9. This script can be cancelled at any time with **CTRL+C**.
+10. **THIS SCRIPT IS NOT YET COMPLETE!**
 
 ### Second Step (*Post installation*) ###
 
@@ -89,9 +91,9 @@ Launch the script second step after being successful in the first step.
 - Install/Configure bootloader
 
 ### Second Step
-- Create and configure new user
-- Enable multilib repository
-- Install essential packages
+- Create and Configure New User
+- Enable Multilib Repository
+- Install Essential Packages
 	- dosfstools
 	- mtools
 	- udisks2
@@ -103,15 +105,22 @@ Launch the script second step after being successful in the first step.
 	- bash-completion
 	- xdg-utils
 	- xdg-user-dirs
-- Install xorg packages
+- Install Xorg Packages
 	- xorg
 	- xorg-apps
 	- xorg-xinit
 	- xterm
-- Install video driver (*Currently only intel and virtualbox available*)
+- Install Video Driver (*Currently only intel and virtualbox available*)
 - Install Desktop Environment or Window Manager
 - Install Display Manager or Xinit
-
+- Install Extra Packages
+	- Utilities: `usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate`
+	- Compression tools: `zip unzip unrar p7zip lzop`
+	- Filesystem tools: `ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs`
+	- Sound tools: `alsa-utils pulseaudio`
+- Install Laptop Packages
+	- `wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics`
+- Install YAY
 ---
 
 ## References ##
