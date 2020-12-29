@@ -137,4 +137,4 @@ Launch the second script step, after succeeding in the first step, with the comm
 - [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) script by [***Terminal Root***](https://terminalroot.com.br/)
 
 ---
-<h1 align="center">Btw, thanks for your time!</h1>
+<h1 align="center">Btw, thank's for your time!</h1>
