@@ -1,19 +1,11 @@
 #!/bin/sh
 #
-# Personal Arch Linux Installer (pali)
+# My Arch Linux Personal Installer (malpi)
 # ----------------------------------------------------------------------#
 #
 # author    : stenioas
 #             https://github.com/stenioas
-# project   : https://github.com/stenioas/stenio
-#
-# ----------------------------------------------------------------------#
-#
-# References:
-#   Arch Wiki - wiki.archlinux.org
-#   Archfi script by Matmaoul - github.com/Matmoul
-#   Aui script by Helmuthdu - github.com/helmuthdu
-#   pos-alpine script by terminalroot - github.com/terroo
+# project   : https://github.com/stenioas/malpi
 #
 # ----------------------------------------------------------------------#
 #
@@ -79,12 +71,12 @@
     BG_WHITE=$(tput setab 7)
 
   # --- ESSENTIALS
-    APP_TITLE="pali"
-    APP_VERSION="0.01"
+    APP_TITLE="malpi"
+    APP_VERSION="0.02"
     LANGUAGE="pt_BR"
     GRUB_NAME="Archlinux"
-    T_COLS=$(tput cols)
-    T_LINES=$(tput lines)
+    T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
+    T_LINES=$(tput lines) #NUMBER OF SCREEN LINES
     TRIM=0
     SPIN="/-\|" #SPINNER POSITION
 
@@ -140,7 +132,7 @@ _setup_install(){
   exit 0
 }
 
-_setup_config(){
+_setup_post(){
   [[ $(id -u) != 0 ]] && {
     _print_warning "Only for 'root'.\n"
     exit 1
@@ -152,6 +144,9 @@ _setup_config(){
   _install_vga
   _install_desktop
   _install_display_manager
+  _install_extra_pkgs
+  _install_laptop_pkgs
+  _install_aurhelper
   _finish_config
   exit 0
 }
@@ -162,10 +157,7 @@ _setup_user(){
     exit 1
   }
   _initial_user
-  _install_extra_pkgs
-  _install_laptop_pkgs
   _install_apps
-  _install_aurhelper
   exit 0
 }
 
@@ -183,11 +175,11 @@ _initial_readme() {
 
   - This script, for now, will install ${BYELLOW}GRUB${RESET} as default bootloader.
 
-  - This script will only consider two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
+  - This script will only consider ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET} partitions.
 
-  - This script will format the root partition in ${BYELLOW}BTRFS${RESET} format.
+  - This script will format the root partition in ${BYELLOW}BTRFS${RESET} filesystem.
 
-  - The ESP partition can be formatted if the user wants to.
+  - The ESP partition can be formatted in FAT32 if the user wants to.
 
   - This script does not support ${BYELLOW}SWAP${RESET}.
 
@@ -439,9 +431,8 @@ _install_base() {
   esac
   _print_title "BASE"
   echo
-  echo -e "${BBLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "${BBLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
-  echo
+  _print_item "Kernel version" "${KERNEL_VERSION}"
+  _print_item "Microcode" "${MICROCODE_VERSION}"
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "${KERNEL_VERSION}"
@@ -507,8 +498,8 @@ _set_timezone_and_clock() {
   done
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   echo
-  echo -e "${BBLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${BBLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
+  _print_item "Timezone" "${ZONE}/${SUBZONE}"
+  _print_item "Hardware Clock" "${CLOCK_CHOICE}"
   echo
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
@@ -562,8 +553,8 @@ _set_localization() {
   fi
   _print_title "LOCALIZATION"
   echo
-  echo -e "${BBLUE}Language: ${RESET}${LOCALE}"
-  echo -e "${BBLUE}Keymap:   ${RESET}${KEYMAP_CHOICE}"
+  _print_item "Language" "${LOCALE}"
+  _print_item "Keymap" "${KEYMAP_CHOICE}"
   echo
   sed -i 's/#\('${LOCALE}'\)/\1/' ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Running" "locale-gen"
@@ -655,23 +646,23 @@ _finish_install() {
   echo
   _print_info "Your new system has been installed! CHECK YOUR CONFIGURATION!"
   echo
-  echo -e "${BBLUE}Disk:           ${RESET}${INSTALL_DISK}"
-  echo -e "${BBLUE}Root partition: ${RESET}${ROOT_PARTITION}"
-  echo -e "${BBLUE}EFI partition:  ${RESET}${EFI_PARTITION}"
-  echo -e "${BBLUE}Kernel version: ${RESET}${KERNEL_VERSION}"
-  echo -e "${BBLUE}Microcode:      ${RESET}${MICROCODE_VERSION}"
-  echo -e "${BBLUE}Timezone:       ${RESET}${ZONE}/${SUBZONE}"
-  echo -e "${BBLUE}Hardware Clock: ${RESET}${CLOCK_CHOICE}"
-  echo -e "${BBLUE}Language:       ${RESET}${LOCALE}"
-  echo -e "${BBLUE}Keymap:         ${RESET}${KEYMAP_CHOICE}"
-  echo -e "${BBLUE}Hostname:       ${RESET}${HOSTNAME}"
-  echo -e "${BBLUE}Grubname:       ${RESET}${GRUB_NAME}"
+  _print_item "Disk" "${INSTALL_DISK}"
+  _print_item "Root partition" "${ROOT_PARTITION}"
+  _print_item "EFI partition" "${EFI_PARTITION}"
+  _print_item "Kernel version" "${KERNEL_VERSION}"
+  _print_item "Microcode" "${MICROCODE_VERSION}"
+  _print_item "Timezone" "${ZONE}/${SUBZONE}"
+  _print_item "Hardware Clock" "${CLOCK_CHOICE}"
+  _print_item "Language" "${LOCALE}"
+  _print_item "Keymap" "${KEYMAP_CHOICE}"
+  _print_item "Hostname" "${HOSTNAME}"
+  _print_item "Grubname" "${GRUB_NAME}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
     _package_install "wget"
-    _print_action "Downloading" "pali.sh"
+    _print_action "Downloading" "malpi"
     wget -P ${ROOT_MOUNTPOINT}/root/ "stenioas.github.io/pali/pali.sh" &> /dev/null & PID=$!; _progress $PID
   fi
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup
@@ -710,6 +701,19 @@ _create_new_user() {
     _print_action "Create user" "${USERNAME}"
     useradd -m -g users -G wheel ${USERNAME} & PID=$!; _progress $PID
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+    #This config is especially helpful for those using terminal multiplexers like screen, tmux, or ratpoison, and those using sudo from scripts/cronjobs:
+    {
+      echo ""
+      echo 'Defaults !requiretty, !tty_tickets, !umask'
+      echo 'Defaults visiblepw, path_info, insults, lecture=always'
+      echo 'Defaults loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, syslog=auth'
+      echo 'Defaults passwd_tries=3, passwd_timeout=1'
+      echo 'Defaults env_reset, always_set_home, set_home, set_logname'
+      echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"'
+      echo 'Defaults timestamp_timeout=15'
+      echo 'Defaults passprompt="[sudo] senha para %u: "'
+      echo 'Defaults lecture=never'
+    } >> /etc/sudoers
     echo
     _print_info "Privileges added."
   else
@@ -918,6 +922,79 @@ _install_display_manager() {
   _pause_function
 }
 
+_install_extra_pkgs() {
+  _print_title "EXTRA PACKAGES"
+  UTILITIES_PKGS="usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
+  COMPRESSION_PKGS="zip unzip unrar p7zip lzop"
+  FILESYSTEM_PKGS="ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
+  SOUND_PKGS="alsa-utils pulseaudio"
+  echo
+  _print_info "This task installs the following packages:"
+  echo
+  _print_item "Utilities" "${UTILITIES_PKGS}"
+  _print_item "Compression tools" "${COMPRESSION_PKGS}"
+  _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
+  _print_item "Sound tools" "${SOUND_PKGS}"
+  echo
+  _read_input_option "Install extra packages? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    _print_title "EXTRA PACKAGES"
+    _print_subtitle "Utilities"
+    _package_install "${UTILITIES_PKGS}"
+    _print_subtitle "Compression tools"
+    _package_install "${COMPRESSION_PKGS}"
+    _print_subtitle "Filesystem tools"
+    _package_install "${FILESYSTEM_PKGS}"
+    _print_subtitle "Sound tools"
+    _package_install "${SOUND_PKGS}"
+    _pause_function
+  fi
+}
+
+_install_laptop_pkgs() {
+  _print_title "LAPTOP PACKAGES"
+  LAPTOP_PKGS="wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
+  echo
+  _print_info "This task installs the following packages:"
+  echo
+  _print_item "Laptop packages" "${LAPTOP_PKGS}"
+  echo
+  _read_input_option "Install laptop packages? [y/N]: "
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+  _print_title "LAPTOP PACKAGES"
+    _print_subtitle "Packages"
+    _package_install "${LAPTOP_PKGS}"
+    _print_subtitle "Services"
+    _print_action "Enabling" "Bluetooth"
+    systemctl enable bluetooth &> /dev/null & PID=$!; _progress $PID
+    _pause_function
+  fi
+}
+
+_install_aurhelper() {
+  _print_title "YAY"
+  echo 
+  _read_input_option "Install yay? [y/N]: "
+  echo
+  if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
+    if ! _is_package_installed "yay" ; then
+      _print_subtitle "Packages"
+      _package_install "git go"
+      pacman -D --asdeps go
+      su - "${USERNAME}" -c "
+        [[ -d yay ]] && rm -rf yay
+        git clone https://aur.archlinux.org/yay.git yay
+        cd yay
+        makepkg -csi --noconfirm
+      " 
+      _pause_function
+    else
+      _print_info "Yay is already installed!"
+      _pause_function
+    fi
+  fi
+}
+
 _finish_config() {
   _print_title "SECOND STEP FINISHED"
   echo
@@ -934,33 +1011,6 @@ _initial_user() {
   _print_title "UPDATE MIRRORS"
   sudo pacman -Syy
   _pause_function
-}
-
-_install_extra_pkgs() {
-  _print_title "EXTRA PACKAGES"
-  _print_subtitle "Utilities"
-  _package_install "usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
-  _print_subtitle "Compression tools"
-  _package_install "zip unzip unrar p7zip lzop"
-  _print_subtitle "Filesystem tools"
-  _package_install "ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
-  _print_subtitle "Sound tools"
-  _package_install "alsa-utils pulseaudio"
-  _pause_function
-}
-
-_install_laptop_pkgs() {
-  _print_title "LAPTOP PACKAGES"
-  echo
-  _read_input_option "Install laptop packages? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    _print_subtitle "Packages"
-    _package_install "wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
-    _print_subtitle "Services"
-    _print_action "Enabling" "Bluetooth"
-    systemctl enable bluetooth &> /dev/null & PID=$!; _progress $PID
-    _pause_function
-  fi
 }
 
 _install_apps() {
@@ -991,28 +1041,6 @@ _install_apps() {
     _package_install "capitaine-cursors"
     _package_install "ttf-dejavu"
     _pause_function
-  fi
-}
-
-_install_aurhelper() {
-  _print_title "YAY"
-  echo
-  _read_input_option "Install yay? [y/N]: "
-  echo
-  if [[ "${OPTION}" == "y" || "${OPTION}" == "Y" ]]; then
-    if ! _is_package_installed "yay" ; then
-      _print_subtitle "Packages"
-      _package_install "base-devel git go"
-      sudo pacman -D --asdeps go
-      [[ -d yay ]] && rm -rf yay
-      git clone https://aur.archlinux.org/yay.git yay
-      cd yay
-      makepkg -csi --noconfirm
-      _pause_function
-    else
-      _print_info "Yay is already installed!"
-      _pause_function
-    fi
   fi
 }
 
@@ -1064,6 +1092,11 @@ _print_subtitle() {
 
 _print_subtitle_select() {
   echo -e "\n${BWHITE}$1${RESET}\n"
+}
+
+_print_item() {
+  REM_COLS=$(( 30 - ${#1} ))
+  echo -ne "${BLUE}$1: ${RESET}"; echo -ne "`seq -s '' $(( REM_COLS + 1 )) | tr -d [:digit:]`"; echo -e "$2"
 }
 
 _print_info() {
@@ -1287,7 +1320,7 @@ _check_connection
 while [[ "$1" ]]; do
   case "$1" in
     --install|-i) _setup_install;;
-    --config|-c) _setup_config;;
+    --post|-p) _setup_post;;
     --user|-u) _setup_user;;
   esac
   shift
