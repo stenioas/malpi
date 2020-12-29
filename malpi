@@ -642,7 +642,7 @@ _finish_install() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
     _print_action "Downloading" "malpi"
-    curl -L stenioas.github.io/malpi/malpi > malpi &> /dev/null & PID=$!; _progress $PID
+    curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi &> /dev/null & PID=$!; _progress $PID
   fi
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
@@ -1076,7 +1076,7 @@ _print_subtitle_select() {
 
 _print_item() {
   REM_COLS=$(( 20 - ${#1} ))
-  echo -ne "${BLUE}$1 ${RESET}"; echo -ne "${BLACK}`seq -s '.' $REM_COLS | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}:${RESET} $2"
+  echo -ne "${BLUE}$1 ${RESET}"; echo -ne "${BBLACK}`seq -s '.' $REM_COLS | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK}:${RESET} $2"
 }
 
 _print_info() {
@@ -1125,7 +1125,7 @@ _progress() {
       if [[ $RETCODE == 0 ]] || [[ $RETCODE == 255 ]]; then
         tput rc
         tput cub 6
-        echo -e "${GREEN}OK${RESET}"
+        echo -e "${BGREEN}OK${RESET}"
       else
         tput rc
         tput cub 8

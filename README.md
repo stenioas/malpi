@@ -1,7 +1,7 @@
 <h1 align="center">
-  My <a href=https://www.archlinux.org/>Arch Linux</a> Personal Installer
+  malpi
 </h1>
-<p align="center"><strong>My Arch Linux Personal Installer</strong>, a simple and amateur shell script for installing Arch Linux on my personal computers. You can use and modify it as you prefer. The <strong>malpi</strong> script offers two steps when installing Arch Linux.</p>
+<p align="center"><strong>My <a href=https://www.archlinux.org/>Arch Linux</a> Personal Installer</strong>, a simple and amateur shell script for installing Arch Linux on my personal computers. You can use and modify it as you prefer. The <strong>malpi</strong> script offers two steps when installing Arch Linux.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
@@ -13,12 +13,12 @@
 ## Note
 * If you prefer you can partition your disk before launching this script.
 * You can first try it in a **Virtual Machine**
-* This script change the console font
+* This script temporarily changes the console's font.
 
 ## Prerequisites
 
 - A working internet connection
-- Logged in as 'root'
+- Logged in as 'root' user
 
 ## Obtaining the script
 
@@ -41,7 +41,7 @@ boot with the last [Arch Linux image](https://www.archlinux.org/download/) with 
 
 Then make sure you have Internet connection on the Arch iso. If you have a wireless connection the [`iwctl`](https://wiki.archlinux.org/index.php/Iwd#iwctl) command might be useful to you. You can also read the [Network configuration](https://wiki.archlinux.org/index.php/Network_configuration) from the Arch Linux guide for more detailed instructions.
 
-Finnaly, launch the script first step:
+Finnaly, launch the script first step with the command below:
 
     sh malpi -i
 
@@ -49,17 +49,17 @@ Then follow the on-screen instructions to completion.
 
 ### Important informations: ###
 
-1. This script supports [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) only.
-2. This script will only consider [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT** partitions.
-3. This script will format the root partition in [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) filesystem.
-4. The ESP partition can be formatted in FAT32 if the user wants to.
-5. This script does not support [**SWAP**](https://wiki.archlinux.org/index.php/swap).
+1. Only [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) mode is supported.
+2. This script uses only two partitions, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT**.
+3. The root partition will be formatted with the [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) file system.
+4. The EFI partition can be formatted in FAT32 if the user wants to.
+5. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
 6. This script will create three [**subvolumes**](https://wiki.archlinux.org/index.php/btrfs#Subvolumes "subvolumes"):
 	- **@** for /
 	- **@home** for /home
 	- **@.snapshots** for /.snapshots
-7. This script, for now, supports [**XORG**](https://wiki.archlinux.org/index.php/Xorg) only(*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
-8. This script, for now, installs the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader by default(*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
+7. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported(*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
+8. The [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is installed by default(*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
 9. This script can be cancelled at any time with **CTRL+C**.
 10. **THIS SCRIPT IS NOT YET COMPLETE!**
 
@@ -67,7 +67,7 @@ Then follow the on-screen instructions to completion.
 
 > Second step offers the post installation.
 
-Launch the script second step after being successful in the first step.
+Launch the second script step, after succeeding in the first step, with the command below:
 
 	sh malpi -p
 
@@ -89,7 +89,7 @@ Launch the script second step after being successful in the first step.
 - Configure network(***hostname** file and **hosts** file*)
 - Configure mkinitcpio
 - Configure root password
-- Install/Configure bootloader
+- Install bootloader
 
 ### Second Step
 - Create and Configure New User
@@ -112,16 +112,17 @@ Launch the script second step after being successful in the first step.
 	- xorg-xinit
 	- xterm
 - Install Video Driver (*Currently only intel and virtualbox available*)
-- Install Desktop Environment or Window Manager
-- Install Display Manager or Xinit
-- Install Extra Packages
+- Install Desktop Environment or Window Manager ***(Optional)***
+- Install Display Manager or Xinit ***(Optional)***
+- Install Extra Packages ***(Optional)***
 	- Utilities: `usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate`
 	- Compression tools: `zip unzip unrar p7zip lzop`
 	- Filesystem tools: `ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs`
 	- Sound tools: `alsa-utils pulseaudio`
-- Install Laptop Packages
+- Install Laptop Packages ***(Optional)***
 	- `wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics`
-- Install YAY
+- Install YAY ***(Optional)***
+
 ---
 
 ## References ##
