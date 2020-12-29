@@ -1,7 +1,7 @@
 <h1 align="center">
   malpi
 </h1>
-<p align="center"><strong>Meu Instalador Pessoal do <a href=https://www.archlinux.org/>Arch Linux</a></strong>, um simples e amador script em shell para instalar o Arch Linux nos meus computadores pessoais. Você pode usá-lo e modificá-lo se preferir. O script <strong>malpi</strong> oferece duas etapas ao instalar o Arch Linux.</p>
+<p align="center"><strong>Meu Instalador Pessoal do <a href=https://www.archlinux.org/>Arch Linux</a></strong>, um script em shell simples e amador para instalar o Arch Linux nos meus computadores pessoais.</p><p align="center">Você pode usá-lo e modificá-lo como quiser.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
@@ -11,14 +11,14 @@
 </p>
 
 ## Notas
-* Se preferir você pode particionar seu disco antes de executar esse script
-* Você pode primeiro testar em uma **Máquina Virtual**
-* Este script, temporariamente, altera a fonte do console.
+* Se preferir você pode particionar seu disco antes de executar este script.
+* Você pode testar em uma **Máquina Virtual** primeiro se preferir.
+* O script, temporariamente, altera a fonte do console.
 
 ## Pré-requisitos
 
-- Uma conexão de internet funcionando
-- Estar logado como usuário 'root'
+- Uma conexão de internet funcionando.
+- Estar logado como usuário 'root'.
 
 ## Obtendo o script
 
@@ -39,7 +39,7 @@
 
 Inicialize a última [imagem do Arch Linux](https://www.archlinux.org/download/) com um [dispositivo bootável](https://wiki.archlinux.org/index.php/USB_flash_installation_media_(Português)).
 
-Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl)) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português))) do guia do Arch Linux para obter instruções mais detalhadas.
+Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português))) do guia do Arch Linux para obter instruções mais detalhadas.
 
 Finalmente, inicie a primeira etapa do script com o comando abaixo:
 

@@ -1,7 +1,7 @@
 <h1 align="center">
   malpi
 </h1>
-<p align="center"><strong>My <a href=https://www.archlinux.org/>Arch Linux</a> Personal Installer</strong>, a simple and amateur shell script for installing Arch Linux on my personal computers. You can use and modify it as you prefer. The <strong>malpi</strong> script offers two steps when installing Arch Linux.</p>
+<p align="center"><strong>My <a href=https://www.archlinux.org/>Arch Linux</a> Personal Installer</strong>, a shell script, simple and amateur, to install Arch Linux on my personal computers.</p><p align="center">You can use and modify it as you like.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
@@ -12,13 +12,13 @@
 
 ## Note
 * If you prefer you can partition your disk before launching this script.
-* You can first try it in a **Virtual Machine**
-* This script temporarily changes the console's font.
+* You can first try it in a **Virtual Machine** if you prefer.
+* The script, temporarily, changes the console's font.
 
 ## Prerequisites
 
-- A working internet connection
-- Logged in as 'root' user
+- A working internet connection.
+- Logged in as 'root' user.
 
 ## Obtaining the script
 
