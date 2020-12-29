@@ -1,7 +1,7 @@
 <h1 align="center">
   malpi
 </h1>
-<p align="center"><strong>My <a href=https://www.archlinux.org>Arch Linux</a> Personal Installer</strong>, a shell script, simple and amateur, to install Arch Linux on my personal computers.</p><p align="center">You can use and modify it as you like.</p>
+<p align="center"><strong>My <a href="https://www.archlinux.org/">Arch Linux</a> Personal Installer</strong>, a shell script, simple and amateur, to install Arch Linux on my personal computers.</p><p align="center">You can use and modify it as you like.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
