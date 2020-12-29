@@ -887,9 +887,10 @@ _install_desktop() {
       ;;
     None)
       echo
-      _read_input_option "${BRED}Are you sure about that? Would you like to choose again?? [y/N]: ${RESET}"
-      if [[ $OPTION == y || $OPTION == Y ]]; then
+      _read_input_option "${BRED}Are you sure about that? [y/N]: ${RESET}"
+      if ! [[ $OPTION == y || $OPTION == Y ]]; then
         _select_desktop
+      fi
       ;;
   esac
   }
