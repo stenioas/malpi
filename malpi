@@ -780,7 +780,7 @@ _install_essential_pkgs() {
   echo
   _print_info "This task installs the following packages:"
   echo
-  _print_item "Essential packages" "${ESSENTIAL_PKGS}"
+  _print_item_group "Essential packages" "${ESSENTIAL_PKGS}"
   echo
   _read_input_option "Install essential packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -844,8 +844,8 @@ _install_desktop() {
   if [[ "${DESKTOP}" = "Gnome" ]]; then
     _print_title "GNOME"
     _print_subtitle "Packages"
-    _group_package_install "gnome"
-    _group_package_install "gnome-extra"
+    _package_install "gnome"
+    _package_install "gnome-extra"
     _package_install "gnome-tweaks"
 
   elif [[ "${DESKTOP}" = "Plasma" ]]; then
@@ -959,10 +959,10 @@ _install_extra_pkgs() {
   echo
   _print_info "This task installs the following packages:"
   echo
-  _print_item "Utilities" "${UTILITIES_PKGS}"
-  _print_item "Compression tools" "${COMPRESSION_PKGS}"
-  _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
-  _print_item "Sound tools" "${SOUND_PKGS}"
+  _print_item_group "Utilities" "${UTILITIES_PKGS}"
+  _print_item_group "Compression tools" "${COMPRESSION_PKGS}"
+  _print_item_group "Filesystem tools" "${FILESYSTEM_PKGS}"
+  _print_item_group "Sound tools" "${SOUND_PKGS}"
   echo
   _read_input_option "Install extra packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -985,7 +985,7 @@ _install_laptop_pkgs() {
   echo
   _print_info "This task installs the following packages:"
   echo
-  _print_item "Laptop packages" "${LAPTOP_PKGS}"
+  _print_item_group "Laptop packages" "${LAPTOP_PKGS}"
   echo
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -1127,7 +1127,13 @@ _print_item() {
   echo -ne "${BLUE}$1${RESET}"
   echo -ne "${BBLACK}`seq -s ' ' $REM_COLS | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK}:${RESET}"
-  echo -e "$2" | fold -sw $(( T_COLS - 18 )) | sed 's/^/\t\t\t/'
+  echo -e "$2"
+}
+
+_print_item_group() {
+  REM_COLS=$(( 20 - ${#1} ))
+  echo -e "${BLUE}$1${RESET}"
+  echo -e "$2" | fold -sw $(( T_COLS - 12 )) | sed 's/^/  /'
 }
 
 _print_info() {
@@ -1244,10 +1250,6 @@ _package_install() { # install pacman package
       echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
-}
-
-_group_package_install() { # install a package group
-  _package_install "$(pacman -Sqg ${1})"
 }
 
 _pacstrap_install() { # install pacstrap package
