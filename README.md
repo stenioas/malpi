@@ -11,7 +11,7 @@
 </p>
 
 ## Note
-* You can partition the disk before launching the script if you prefer.
+* If you prefer you can partition your disk before launching this script.
 * You can first try it in a **Virtual Machine**
 * This script change the console font
 
