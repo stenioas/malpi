@@ -11,7 +11,8 @@
 </p>
 
 ## Note
-* You can first try it in a `VirtualMachine`
+* You can partition the disk before launching the script if you prefer.
+* You can first try it in a **VirtualMachine**
 * This script change the console font
 
 ## Prerequisites
@@ -57,8 +58,8 @@ Then follow the on-screen instructions to completion.
 	- **@** for /
 	- **@home** for /home
 	- **@.snapshots** for /.snapshots
-7. This script, for now, supports [**XORG**](https://wiki.archlinux.org/index.php/Xorg) only(*Wayland will be available soon*).
-8. This script, for now, installs the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader by default(*Systemd-boot will be available soon*).
+7. This script, for now, supports [**XORG**](https://wiki.archlinux.org/index.php/Xorg) only(*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
+8. This script, for now, installs the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader by default(*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
 9. This script can be cancelled at any time with **CTRL+C**.
 10. **THIS SCRIPT IS NOT YET COMPLETE!**
 
