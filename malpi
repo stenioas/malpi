@@ -231,7 +231,7 @@ _rank_mirrors() {
   IFS=$'\n'
   COUNTRIES_LIST=($((reflector --list-countries) | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
   IFS=$SAVEIFS
-  _print_subtitle_select "Select your country:"
+  _print_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
     if _contains_element "${COUNTRY_CHOICE}" "${COUNTRIES_LIST[@]}"; then
       COUNTRY_CHOICE="${COUNTRY_CHOICE}"
@@ -260,7 +260,7 @@ _rank_mirrors() {
 _select_disk() {
   _print_title "PARTITION THE DISKS"
   DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
-  _print_subtitle_select "Select disk:"
+  _print_select "Select disk:"
   select DEVICE in "${DEVICES_LIST[@]}"; do
     if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
       break
@@ -292,7 +292,7 @@ _format_partitions() {
   fi
 
   _format_root_partition() {
-    _print_subtitle_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
+    _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
@@ -331,7 +331,7 @@ _format_partitions() {
 
   _format_efi_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
-    _print_subtitle_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
+    _print_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         EFI_PARTITION="${PARTITION}"
@@ -387,7 +387,7 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  _print_subtitle_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
+  _print_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
   KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "None")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
     if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
@@ -415,7 +415,7 @@ _install_base() {
       ;;
   esac
   _print_title "BASE"
-  _print_subtitle_select "Select your microcode:${RESET}"
+  _print_select "Select your microcode:${RESET}"
   MICROCODE_LIST=("amd-ucode" "intel-ucode" "None")
   select MICROCODE_CHOICE in "${MICROCODE_LIST[@]}"; do
     if _contains_element "${MICROCODE_CHOICE}" "${MICROCODE_LIST[@]}"; then
@@ -480,12 +480,12 @@ _set_timezone_and_clock() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   # ZONE SECTION
   ZONE_LIST=($(timedatectl list-timezones | sed 's/\/.*$//' | uniq))
-  _print_subtitle_select "Select your zone:"
+  _print_select "Select your zone:"
   select ZONE in "${ZONE_LIST[@]}"; do
     if _contains_element "$ZONE" "${ZONE_LIST[@]}"; then
       SUBZONE_LIST=($(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///'))
       _print_title "TIME ZONE AND SYSTEM CLOCK"
-      _print_subtitle_select "Select your subzone:"
+      _print_select "Select your subzone:"
       select SUBZONE in "${SUBZONE_LIST[@]}"; do
         if _contains_element "$SUBZONE" "${SUBZONE_LIST[@]}"; then
           break
@@ -501,7 +501,7 @@ _set_timezone_and_clock() {
   # CLOCK SECTION
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   CLOCK_LIST=("UTC" "Localtime")
-  _print_subtitle_select "Select timescale:"
+  _print_select "Select timescale:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
     if _contains_element "${CLOCK_CHOICE}" "${CLOCK_LIST[@]}"; then
       CLOCK_CHOICE="${CLOCK_CHOICE}"
@@ -536,7 +536,7 @@ _set_timezone_and_clock() {
 _set_localization() {
   _print_title "LOCALIZATION"
   LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'))
-  _print_subtitle_select "Select your language:"
+  _print_select "Select your language:"
   select LOCALE in "${LOCALE_LIST[@]}"; do
     if _contains_element "$LOCALE" "${LOCALE_LIST[@]}"; then
       LOCALE_UTF8="${LOCALE}.UTF-8"
@@ -681,19 +681,20 @@ _finish_install() {
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
-    curl -L https://stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi
+    _print_action "Saving" "malpi"
+    curl -L https://stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
   fi
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
   _print_line
-  _read_input_option "${BRED}Reboot system now? [Y/n]: ${RESET}"
-  if [[ $OPTION == n || $OPTION == N ]]; then
-    _print_bye
-    exit 0
-  else
+  _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
+  if [[ $OPTION == y || $OPTION == Y ]]; then
     clear
     reboot
+  else
+    _print_bye
+    exit 0
   fi
 }
 
@@ -739,13 +740,13 @@ _create_new_user() {
     echo
     _print_info "User ${USERNAME} already exists!"
   fi
-  _print_subtitle_select "Type a new user password:"
+  _print_select "Type a new user password:"
   PASSWD_CHECK=0
   passwd ${USERNAME} && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
     echo
     _print_warning "The password does not match!"
-    _print_subtitle_select "Type a new user password:"
+    _print_select "Type a new user password:"
     passwd ${USERNAME} && PASSWD_CHECK=1;
   done
   _pause_function
@@ -777,9 +778,7 @@ _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
   ESSENTIAL_PKGS="dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
   echo
-  _print_info "This task installs the following packages:"
-  echo
-  _print_item_group "Essential packages" "${ESSENTIAL_PKGS}"
+  _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
   _read_input_option "Install essential packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -802,7 +801,7 @@ _install_xorg() {
 _install_vga() {
   _print_title "VIDEO DRIVER"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
-  _print_subtitle_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
+  _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
       break
@@ -832,7 +831,7 @@ _install_desktop() {
   _select_desktop() {
   _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
-  _print_subtitle_select "Select your desktop environment or window manager:"
+  _print_select "Select your desktop environment or window manager:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
     if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
       break
@@ -904,7 +903,7 @@ _install_desktop() {
 _install_display_manager() {
   _print_title "DISPLAY MANAGER"
   DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "None");
-  _print_subtitle_select "Select display manager:"
+  _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
       break
@@ -962,12 +961,10 @@ _install_extra_pkgs() {
   FILESYSTEM_PKGS="ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
-  _print_info "This task installs the following packages:"
-  echo
-  _print_item_group "Utilities" "${UTILITIES_PKGS}"
-  _print_item_group "Compression tools" "${COMPRESSION_PKGS}"
-  _print_item_group "Filesystem tools" "${FILESYSTEM_PKGS}"
-  _print_item_group "Sound tools" "${SOUND_PKGS}"
+  _print_item "Utilities" "${UTILITIES_PKGS}"
+  _print_item "Compression tools" "${COMPRESSION_PKGS}"
+  _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
+  _print_item "Sound tools" "${SOUND_PKGS}"
   echo
   _read_input_option "Install extra packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -988,9 +985,7 @@ _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
   LAPTOP_PKGS="wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
   echo
-  _print_info "This task installs the following packages:"
-  echo
-  _print_item_group "Laptop packages" "${LAPTOP_PKGS}"
+  _print_item "Laptop packages" "${LAPTOP_PKGS}"
   echo
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -1114,16 +1109,11 @@ _print_title() {
   echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
 
-#_print_subtitle() {
-#  BORDER_COLOR=${BCYAN}
-#  echo -e "\n${BORDER_COLOR}::${RESET}${BCYAN} $1 ${RESET}${BORDER_COLOR}::${RESET}\n"
-#}
-
 _print_subtitle() {
-  echo -e "\n${BWHITE}:: $1${RESET}\n"
+  echo -e "\n${BBLACK}:: $1${RESET}\n"
 }
 
-_print_subtitle_select() {
+_print_select() {
   echo -e "\n${BWHITE}$1${RESET}\n"
 }
 
@@ -1133,12 +1123,6 @@ _print_item() {
   echo -ne "${BBLACK}`seq -s ' ' $REM_COLS | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK}:${RESET}"
   echo -e " $2"
-}
-
-_print_item_group() {
-  REM_COLS=$(( 20 - ${#1} ))
-  echo -ne "${BLUE}$1: ${RESET}"
-  echo -e "${BBLUE}[${RESET} $2 ${BBLUE}]${RESET}"
 }
 
 _print_info() {
@@ -1267,7 +1251,7 @@ _pacstrap_install() { # install pacstrap package
 _set_font() {
   _select_consolefont() {
     _print_title "FONT SIZE - Just for malpi execution"
-    _print_subtitle_select "Select a console font:"
+    _print_select "Select a console font:"
     echo -e "1) Very small  12"
     echo -e "2) Small       14"
     echo -e "3) Small bold  14"
