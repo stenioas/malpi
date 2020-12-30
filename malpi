@@ -452,9 +452,9 @@ _install_base() {
     _pacstrap_install "${MICROCODE_VERSION}"
   fi
   echo
-  _read_input_option "Install NetworkManager? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-  echo
+  _read_input_option "Install NetworkManager? [Y/n]: "
+  if ! [[ $OPTION == n || $OPTION == N ]]; then
+    echo
     _pacstrap_install "networkmanager"
     _print_subtitle "Services"
     _print_action "Enabling" "NetworkManager"
