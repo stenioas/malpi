@@ -67,6 +67,9 @@ Then make sure you have Internet connection on the Arch iso. If you have a wirel
 Finnaly, launch the script first step with the command below:
 
     sh malpi -i
+or
+
+	sh malpi --install
 
 Then follow the on-screen instructions to completion.
 ##### Features
@@ -94,6 +97,10 @@ Then follow the on-screen instructions to completion.
 Launch the second script step, after succeeding in the first step, with the command below:
 
 	sh malpi -p
+
+or
+
+	sh malpi --post
 
 ##### Features
 - Create and configure a new user
@@ -132,9 +139,9 @@ Launch the second script step, after succeeding in the first step, with the comm
 ## References
 
 - [**Archwiki**](https://wiki.archlinux.org/)
-- [**archfi**](https://github.com/MatMoul/archfi) script by [***MatMoul***](https://github.com/MatMoul)
-- [**aui**](https://github.com/helmuthdu/aui) script by [***Helmuthdu***](https://github.com/helmuthdu)
-- [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) script by [***Terminal Root***](https://terminalroot.com.br/)
+- [**archfi**](https://github.com/MatMoul/archfi) script (by [***MatMoul***](https://github.com/MatMoul))
+- [**aui**](https://github.com/helmuthdu/aui) script (by [***Helmuthdu***](https://github.com/helmuthdu))
+- [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) script (by [***Terminal Root***](https://terminalroot.com.br/))
 
 ---
-<h1 align="center">Btw, thank you for taking the time to get to know my project.!</h1>
+<h2 align="center">Btw, thank you for taking the time to get to know my project.!</h2>

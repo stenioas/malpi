@@ -68,6 +68,10 @@ Finalmente, inicie a primeira etapa do script com o comando abaixo:
 
     sh malpi -i
 
+ou
+
+	sh malpi --install
+
 Em seguida, siga as instruções na tela para concluir.
 
 ##### Funcionalidades
@@ -95,6 +99,10 @@ Em seguida, siga as instruções na tela para concluir.
 Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o comando abaixo:
 
 	sh malpi -p
+
+ou
+
+	sh malpi --post
 
 ##### Funcionalidades
 - Cria e configura um novo usuário
@@ -133,9 +141,9 @@ Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o c
 ## Referências
 
 - [**Archwiki**](https://wiki.archlinux.org/index.php/Main_page_(Português))
-- [**archfi**](https://github.com/MatMoul/archfi) script by [***MatMoul***](https://github.com/MatMoul)
-- [**aui**](https://github.com/helmuthdu/aui) script by [***Helmuthdu***](https://github.com/helmuthdu)
-- [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) script by [***Terminal Root***](https://terminalroot.com.br/)
+- Script [**archfi**](https://github.com/MatMoul/archfi) (por [***MatMoul***](https://github.com/MatMoul))
+- Script [**aui**](https://github.com/helmuthdu/aui) (por [***Helmuthdu***](https://github.com/helmuthdu))
+- Script [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) (por [***Terminal Root***](https://terminalroot.com.br/))
 
 ---
-<h1 align="center">Btw, obrigado por dedicar seu tempo a conhecer o meu projeto!</h1>
+<h2 align="center">Btw, obrigado por dedicar seu tempo a conhecer o meu projeto!</h2>
