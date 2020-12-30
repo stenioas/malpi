@@ -37,6 +37,7 @@
 
 ### Important informations:
 
+1. This script assumes that you know your keymap and it will already be loaded.
 1. Only [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) mode is supported.
 2. This script uses only two partitions, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT**.
 3. The root partition will be formatted with the [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) file system.
@@ -106,32 +107,12 @@ or
 - Create and configure a new user
 - Enable multilib mepository
 - Install essential packages
-	- dosfstools
-	- mtools
-	- udisks2
-	- dialog
-	- wget
-	- git
-	- nano
-	- reflector
-	- bash-completion
-	- xdg-utils
-	- xdg-user-dirs
 - Install Xorg
-	- xorg
-	- xorg-apps
-	- xorg-xinit
-	- xterm
 - Install video driver (*Currently only intel and virtualbox available*)
 - Install Desktop Environment or Window Manager ***(Optional)***
 - Install Display Manager or Xinit ***(Optional)***
 - Install extra packages ***(Optional)***
-	- Utilities: `usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate`
-	- Compression tools: `zip unzip unrar p7zip lzop`
-	- Filesystem tools: `ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs`
-	- Sound tools: `alsa-utils pulseaudio`
 - Install Laptop Packages ***(Optional)***
-	- `wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics`
 - Install YAY ***(Optional)***
 
 ---

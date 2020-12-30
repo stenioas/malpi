@@ -184,6 +184,8 @@ _initial_readme() {
   _print_title "README"
   cat <<EOF
 
+  - This script assumes that you know your keymap and it will already be loaded.
+
   - Only ${BYELLOW}UEFI${RESET} mode is supported.
 
   - This script uses only two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.

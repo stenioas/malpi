@@ -37,6 +37,7 @@
 
 ### Informações importantes:
 
+1. Este script presume que você sabe o seu mapa de teclado e ele já estará carregado.
 1. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
 2. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
 3. A partição raiz será formatada com o sistema de arquivos [**BTRFS**](https://wiki.archlinux.org/index.php/Btrfs_(Português)).
@@ -108,32 +109,12 @@ ou
 - Cria e configura um novo usuário
 - Habilita o repositório Multilib
 - Instala pacotes essenciais
-	- dosfstools
-	- mtools
-	- udisks2
-	- dialog
-	- wget
-	- git
-	- nano
-	- reflector
-	- bash-completion
-	- xdg-utils
-	- xdg-user-dirs
 - Instala o Xorg
-	- xorg
-	- xorg-apps
-	- xorg-xinit
-	- xterm
 - Instala um driver de vídeo (*Atualmente apenas intel e virtualbox disponíveis*)
 - Instala um Desktop Environment ou Window Manager ***(Opcional)***
 - Instala um Display Manager ou Xinit ***(Opcional)***
 - Instala pacotes extras ***(Opcional)***
-	- Utilitários: `usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate`
-	- Ferramentas de compressão: `zip unzip unrar p7zip lzop`
-	- Ferramentas de sistema de arquivos: `ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs`
-	- Ferramentas de som: `alsa-utils pulseaudio`
 - Instala pacotes para laptops ***(Opcional)***
-	- `wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics`
 - Instala o YAY ***(Opcional)***
 
 ---
