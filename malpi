@@ -100,32 +100,32 @@ _check_connection() {
 
 _check_uefimode() {
   _print_action "Checking" "UEFI mode"
-    [[ ! -d "/sys/firmware/efi/" ]] & PID=$!; _progress $PID
+    [[ -d "/sys/firmware/efi/" ]] & PID=$!; _progress $PID
 }
 
 _check_root() {
   _print_action "Checking" "root user"
-  [[ "$(id -u)" != "0" ]] & PID=$!; _progress $PID
+  [[ "$(id -u)" == "0" ]] & PID=$!; _progress $PID
 }
 
 _check_user() {
   _print_action "Checking" "normal user"
-  [[ "$(id -u)" == "0" ]] & PID=$!; _progress $PID
+  [[ "$(id -u)" == "1000" ]] & PID=$!; _progress $PID
 }
 
 _check_archlinux() {
   _print_action "Checking" "Archlinux release"
-  [[ ! -e /etc/arch-release ]] & PID=$!; _progress $PID
+  [[ -e /etc/arch-release ]] & PID=$!; _progress $PID
 }
 
 _check_hostname() {
   _print_action "Checking" "hostname"
-  [[ $(echo "${HOSTNAME}" | sed 's/ //g') == "" ]] & PID=$!; _progress $PID
+  [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]] & PID=$!; _progress $PID
 }
 
 _check_pacman_blocked() {
   _print_action "Checking" "pacman"
-  [[ -f /var/lib/pacman/db.lck ]] & PID=$!; _progress $PID
+  [[ ! -f /var/lib/pacman/db.lck ]] & PID=$!; _progress $PID
 }
 
 # ----------------------------------------------------------------------#
