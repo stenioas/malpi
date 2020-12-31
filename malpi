@@ -983,7 +983,7 @@ _finish_config() {
 
 # --- END POST INSTALL SECTION --- >
 
-### OTHER FUNCTIONS
+# ----------- COMMOM FUNCTIONS
 
 _print_line() {
   T_COLS=$(tput cols)
@@ -1037,6 +1037,18 @@ _print_danger() {
   echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+_print_ok() {
+  tput rc
+  tput cub 6
+  echo -e "${BGREEN}OK${RESET}"
+}
+
+_print_failed() {
+  tput rc
+  tput cub 8
+  echo -e "${BRED}FAILED${RESET}"
+}
+
 _print_action() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
@@ -1063,13 +1075,9 @@ _progress() {
       wait "$PID"
       RETCODE=$?
       if [[ $RETCODE == 0 ]] || [[ $RETCODE == 255 ]]; then
-        tput rc
-        tput cub 6
-        echo -e "${BGREEN}OK${RESET}"
+        _print_ok
       else
-        tput rc
-        tput cub 8
-        echo -e "${BRED}FAILED${RESET}"
+        _print_failed
       fi
       break
     fi
@@ -1106,7 +1114,6 @@ _pause_function() {
 
 _umount_partitions() {
   echo
-  _print_info "UMOUNTING PARTITIONS"
   umount -R ${ROOT_MOUNTPOINT}
 }
 
@@ -1210,12 +1217,24 @@ ${APP_TITLE} ${APP_VERSION}
 EOF
 }
 
-_start_screen() {
+_start() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   COLS_LOGO=47
-  pacman -Sy --needed --noconfirm terminus-font &> /dev/null
+  clear
+  echo
+  _print_action "Running" "timedatectl set-ntp true"
+  timedatectl set-ntp true & PID=$!; _progress $PID
+  _check_archlinux
+  _check_uefimode
+  _check_connection
+  _check_root
+  _check_hostname
+  _check_pacman_blocked
+  _print_action "Installing" "terminus-font"
+  pacman -Sy --needed --noconfirm terminus-font &> /dev/null & PID=$!; _progress $PID
   setfont ter-124b
+  clear
   echo -e "\n\n\n\n\n"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│   __   __  _______  ___      _______  ___   │${RESET}"
@@ -1233,25 +1252,29 @@ _start_screen() {
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 }
 
-### TEST FUNCTIONS
+# ----------- TEST FUNCTIONS
 
 _check_archlinux() {
-  echo -ne "${BWHITE}Arch Linux release ${RESET}"
+  _print_action "Checking" "Arch Linux Release"
   if [[ -e /etc/arch-release ]]; then
-    echo -e "${BGREEN}OK${RESET}"
+    _print_ok
   else
-    echo -e "${BRED}FAILED${RESET} You must execute the script on ${BYELLOW}Arch Linux${RESET}."
+    _print_failed
+    echo
+    _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
     _print_bye
     exit 1
   fi
 }
 
 _check_uefimode() {
-  echo -ne "${BWHITE}UEFI mode ${RESET}"
+  _print_action "Checking" "UEFI mode"
   if [[ -d "/sys/firmware/efi/" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
+    _print_ok
   else
-    echo -e "${BRED}FAILED${RESET} You must execute the script in ${BYELLOW}UEFI${RESET} mode."
+    _print_failed
+    echo
+    _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
     _print_bye
     exit 1
   fi
@@ -1261,44 +1284,52 @@ _check_connection() {
   _connection_test() {
     ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
   }
-  echo -ne "${BWHITE}Internet connection ${RESET}"
+  _print_action "Checking" "Connection"
   if ! _connection_test; then
-    echo -e "${BGREEN}OK${RESET}"
+    _print_ok
   else
-    echo -e "${BRED}FAILED${RESET} You must be connected to the internet to execute the script."
+    _print_failed
+    echo
+    _print_warning "You must be connected to the internet to execute the script."
     _print_bye
     exit 1
   fi
 }
 
 _check_root() {
-  echo -ne "${BWHITE}Root user ${RESET}"
+  _print_action "Checking" "User"
   if [[ "$(id -u)" == "0" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
+    _print_ok
   else
-    echo -e "${BRED}FAILED${RESET} You must execute the script as 'root' user."
+    _print_failed
+    echo
+    _print_warning "You must execute the script as 'root' user."
     _print_bye
     exit 1
   fi
 }
 
 _check_hostname() {
-  echo -ne "${BWHITE}Hostname ${RESET}"
+  _print_action "Checking" "Hostname"
   if [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
+    _print_ok
   else
-    echo -e "${BRED}FAILED${RESET} Hostname must be configured!"
+    _print_failed
+    echo
+    _print_warning "Hostname must be configured!"
     _print_bye
     exit 1
   fi
 }
 
 _check_pacman_blocked() {
-  echo -ne "${BWHITE}Pacman ${RESET}"
+  _print_action "Checking" "Pacman"
   if [[ ! -f /var/lib/pacman/db.lck ]]; then
-    echo -e "${BGREEN}OK${RESET}"
+    _print_ok
   else
-    echo -e "${BRED}FAILED${RESET} Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
+    _print_failed
+    echo
+    _print_warning "Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
     _print_bye
     exit 1
   fi
@@ -1313,14 +1344,7 @@ _check_pacman_blocked() {
     exit 1
 }
 
-_check_archlinux
-_check_uefimode
-_check_connection
-_check_root
-_check_hostname
-_check_pacman_blocked
-timedatectl set-ntp true
-_start_screen
+_start
 
 while [[ "$1" ]]; do
   case "$1" in
