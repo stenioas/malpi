@@ -1,7 +1,9 @@
+<p align="center">É aconselhável, a quem for utilizar este script, que tenha conhecimento de como instalar o Arch da forma tradicional, seguindo o <a href="https://wiki.archlinux.org/index.php/Installation_guide_(Português)"> <strong>guia de instalação</strong></a> disponível na ArchWiki, o objetivo deste script é acelerar as minhas instalações, não pular etapas no aprendizado.</p>
+
 <h1 align="center">
-  My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
+  Meu instalador pessoal do <a href="https://www.archlinux.org">Arch Linux</a>
 </h1>
-<p align="center">Um script shell, simples e amador, para instalar o Arch Linux nos meus computadores pessoais.</p><p align="center">Você pode usá-lo e modificá-lo como quiser.</p>
+<p align="center">Um script shell, simples e amador, para instalar o Arch Linux nos meus computadores pessoais. Você pode usá-lo e modificá-lo como quiser.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
@@ -121,7 +123,7 @@ ou
 
 ## Referências
 
-- [**Archwiki**](https://wiki.archlinux.org/index.php/Main_page_(Português))
+- [**ArchWiki**](https://wiki.archlinux.org/index.php/Main_page_(Português))
 - Script [**archfi**](https://github.com/MatMoul/archfi) (por [***MatMoul***](https://github.com/MatMoul))
 - Script [**aui**](https://github.com/helmuthdu/aui) (por [***Helmuthdu***](https://github.com/helmuthdu))
 - Script [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) (por [***Terminal Root***](https://terminalroot.com.br/))

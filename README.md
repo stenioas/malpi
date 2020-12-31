@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
 
-## Note
+## Notes
 * If you prefer you can partition your disk before launching this script.
 * You can first try it in a **Virtual Machine** if you prefer.
 * The console font will be changed while the script is running.
