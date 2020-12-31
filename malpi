@@ -91,102 +91,17 @@
 
 # ----------------------------------------------------------------------#
 
-### TEST FUNCTIONS
-
-_check_archlinux() {
-  echo -ne "${BWHITE}Arch Linux release ${RESET}"
-  if [[ -e /etc/arch-release ]]; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} You must execute the script on ${BYELLOW}Arch Linux${RESET}."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_uefimode() {
-  echo -ne "${BWHITE}UEFI mode ${RESET}"
-  if [[ -d "/sys/firmware/efi/" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} You must execute the script in ${BYELLOW}UEFI${RESET} mode."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_connection() {
-  _connection_test() {
-    ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
-  }
-  echo -ne "${BWHITE}Internet connection ${RESET}"
-  if ! _connection_test; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} You must be connected to the internet to execute the script."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_root() {
-  echo -ne "${BWHITE}Root user ${RESET}"
-  if [[ "$(id -u)" == "0" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} You must execute the script as 'root' user."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_user() {
-  echo -ne "${BWHITE}Normal user ${RESET}"
-  if [[ "$(id -u)" == "1000" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} You must execute the script as 'normal' user."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_hostname() {
-  echo -ne "${BWHITE}Hostname ${RESET}"
-  if [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]]; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} Hostname must be configured!"
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_pacman_blocked() {
-  echo -ne "${BWHITE}Pacman ${RESET}"
-  if [[ ! -f /var/lib/pacman/db.lck ]]; then
-    echo -e "${BGREEN}OK${RESET}"
-  else
-    echo -e "${BRED}FAILED${RESET} Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
-    _print_bye
-    exit 1
-  fi
-}
-
-# ----------------------------------------------------------------------#
-
-### CORE FUNCTIONS
+# ----------- CORE FUNCTIONS
 
 _setup_install(){
   _set_font
-  _initial_readme
-  _requirements
+  _readme
   _rank_mirrors
   _select_disk
   _format_partitions
   _install_base
   _fstab_generate
-  _set_timezone_and_clock
+  _set_timezone
   _set_localization
   _set_network
   _mkinitcpio_generate
@@ -197,10 +112,6 @@ _setup_install(){
 }
 
 _setup_post(){
-  [[ $(id -u) != 0 ]] && {
-    _print_warning "Only for 'root'.\n"
-    exit 1
-  }
   _set_font
   _create_new_user
   _enable_multilib
@@ -216,24 +127,13 @@ _setup_post(){
   exit 0
 }
 
-_setup_user(){
-  [[ $(id -u) == 0 ]] && {
-    _print_warning "Only for 'normal user'.\n"
-    exit 1
-  }
-  _set_font
-  _initial_user
-  _install_apps
-  exit 0
-}
-
 # ----------------------------------------------------------------------#
 
-### BASE FUNCTIONS
+# ----------- BASE FUNCTIONS
 
 # --- INSTALL SECTION --- >
 
-_initial_readme() {
+_readme() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   _print_title "README"
@@ -269,22 +169,6 @@ ${BRED}  - THIS SCRIPT IS NOT YET COMPLETE!${RESET}
 ${BWHITE}  - Btw, thank's for your time!${RESET}
 EOF
   _pause_function
-}
-
-_requirements() {
-  _print_title "REQUIREMENTS"
-  echo
-  _check_archlinux
-  _check_uefimode
-  _check_connection
-  _check_root
-  _check_hostname
-  _check_pacman_blocked
-  echo
-  _print_action "Running" "timedatectl set-ntp true"
-  timedatectl set-ntp true & PID=$!; _progress $PID
-  _print_action "Updating" "archlinux-keyring"
-  pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
 }
 
 _rank_mirrors() {
@@ -449,6 +333,9 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
+  echo
+  pacman -Sy --noconfirm archlinux-keyring
+  _print_title "BASE"
   _print_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
   KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "None")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
@@ -538,7 +425,7 @@ _fstab_generate() {
   fi
 }
 
-_set_timezone_and_clock() {
+_set_timezone() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   # ZONE SECTION
   ZONE_LIST=($(timedatectl list-timezones | sed 's/\/.*$//' | uniq))
@@ -726,7 +613,7 @@ _grub_generate() {
 _finish_install() {
   _print_title "FIRST STEP FINISHED"
   echo
-  _print_info "Your new system has been installed! CHECK YOUR CONFIGURATION!"
+  _print_info "Your new system has been installed!"
   echo
   _print_item "Disk" "${INSTALL_DISK}"
   _print_item "Root partition" "${ROOT_PARTITION}"
@@ -1094,48 +981,7 @@ _finish_config() {
   exit 0
 }
 
-# --- END CONFIG SECTION --- >
-
-# --- USER SECTION --- >
-
-_initial_user() {
-  _print_title "UPDATE MIRRORS"
-  sudo pacman -Syy
-  _pause_function
-}
-
-_install_apps() {
-  _print_title "CUSTOM APPS"
-  echo
-  _read_input_option "Install custom apps? [y/N]: "
-  echo
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    _package_install "libreoffice-fresh libreoffice-fresh-pt-br"
-    _package_install "firefox firefox-i18n-pt-br"
-    _package_install "steam"
-    _package_install "gimp"
-    _package_install "inkscape"
-    _package_install "vlc"
-    _package_install "telegram-desktop"
-    if [[ ${DESKTOP} = "Plasma" ]]; then
-      _package_install "transmission-qt"
-    else
-      _package_install "transmission-gtk"
-    fi
-    _package_install "simplescreenrecorder"
-    _package_install "redshift"
-    _package_install "ranger"
-    _package_install "cmatrix"
-    _package_install "adapta-gtk-theme"
-    _package_install "arc-gtk-theme"
-    _package_install "papirus-icon-theme"
-    _package_install "capitaine-cursors"
-    _package_install "ttf-dejavu"
-    _pause_function
-  fi
-}
-
-# --- END USER SECTION --- >
+# --- END POST INSTALL SECTION --- >
 
 ### OTHER FUNCTIONS
 
@@ -1144,20 +990,6 @@ _print_line() {
   T_LINES=$(tput lines)
   echo -e "${CYAN}`seq -s '-' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
-
-#_print_title() {
-#  clear
-#  T_COLS=$(tput cols)
-#  T_LINES=$(tput lines)
-#  BORDER_COLOR=${BBLACK}
-#  T_APP_TITLE=${#APP_TITLE}
-#  T_TITLE=${#1}
-#  T_LEFT="${BORDER_COLOR}█▓▒░${RESET}${BWHITE}   $1   ${RESET}${BORDER_COLOR}░▒▓${RESET}"
-#  T_RIGHT="${BORDER_COLOR}▓▒░${RESET}${BBLACK}   ${APP_TITLE}${RESET}"
-#  echo -ne "${T_LEFT}"
-#  echo -ne "${BORDER_COLOR}`seq -s '█' $(( T_COLS - T_TITLE - T_APP_TITLE - 19 )) | tr -d [:digit:]`${RESET}"
-#  echo -e "${T_RIGHT}"
-#}
 
 _print_title() {
   clear
@@ -1382,6 +1214,8 @@ _start_screen() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   COLS_LOGO=47
+  pacman -Sy --needed --noconfirm terminus-font &> /dev/null
+  setfont ter-124b
   echo -e "\n\n\n\n\n"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│   __   __  _______  ___      _______  ___   │${RESET}"
@@ -1399,6 +1233,77 @@ _start_screen() {
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
 }
 
+### TEST FUNCTIONS
+
+_check_archlinux() {
+  echo -ne "${BWHITE}Arch Linux release ${RESET}"
+  if [[ -e /etc/arch-release ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script on ${BYELLOW}Arch Linux${RESET}."
+    _print_bye
+    exit 1
+  fi
+}
+
+_check_uefimode() {
+  echo -ne "${BWHITE}UEFI mode ${RESET}"
+  if [[ -d "/sys/firmware/efi/" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script in ${BYELLOW}UEFI${RESET} mode."
+    _print_bye
+    exit 1
+  fi
+}
+
+_check_connection() {
+  _connection_test() {
+    ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
+  }
+  echo -ne "${BWHITE}Internet connection ${RESET}"
+  if ! _connection_test; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must be connected to the internet to execute the script."
+    _print_bye
+    exit 1
+  fi
+}
+
+_check_root() {
+  echo -ne "${BWHITE}Root user ${RESET}"
+  if [[ "$(id -u)" == "0" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script as 'root' user."
+    _print_bye
+    exit 1
+  fi
+}
+
+_check_hostname() {
+  echo -ne "${BWHITE}Hostname ${RESET}"
+  if [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} Hostname must be configured!"
+    _print_bye
+    exit 1
+  fi
+}
+
+_check_pacman_blocked() {
+  echo -ne "${BWHITE}Pacman ${RESET}"
+  if [[ ! -f /var/lib/pacman/db.lck ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
+    _print_bye
+    exit 1
+  fi
+}
+
 # ----------------------------------------------------------------------#
 
 ### EXECUTION
@@ -1407,16 +1312,20 @@ _start_screen() {
     usage
     exit 1
 }
-clear
-pacman -S --needed --noconfirm terminus-font &> /dev/null
-setfont ter-124b
+
+_check_archlinux
+_check_uefimode
+_check_connection
+_check_root
+_check_hostname
+_check_pacman_blocked
+timedatectl set-ntp true
 _start_screen
 
 while [[ "$1" ]]; do
   case "$1" in
     --install|-i) _setup_install;;
     --post|-p) _setup_post;;
-    --user|-u) _setup_user;;
   esac
   shift
   setfont
