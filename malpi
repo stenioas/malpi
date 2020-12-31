@@ -1221,19 +1221,19 @@ _start() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   COLS_LOGO=47
+  pacman -Sy --needed --noconfirm terminus-font &> /dev/null
+  setfont ter-124b
   clear
   echo
-  _print_action "Running" "timedatectl set-ntp true"
-  timedatectl set-ntp true & PID=$!; _progress $PID
   _check_archlinux
   _check_uefimode
   _check_connection
   _check_root
   _check_hostname
   _check_pacman_blocked
-  _print_action "Installing" "terminus-font"
-  pacman -Sy --needed --noconfirm terminus-font &> /dev/null & PID=$!; _progress $PID
-  setfont ter-124b
+  _print_action "Running" "timedatectl set-ntp true"
+  timedatectl set-ntp true & PID=$!; _progress $PID
+  _pause_function
   clear
   echo -e "\n\n\n\n\n"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
