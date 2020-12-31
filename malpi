@@ -94,26 +94,38 @@
 ### TEST FUNCTIONS
 
 _check_connection() {
-    _connection_test() {
-      ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 0 || return 1
-    }
-    if ! _connection_test; then
-      _print_title "CONNECTION"
-      echo
-      _print_warning "You are not connected. Solve this problem and run this script again."
-      _print_bye
-      exit 1
-    fi
+  _print_action "Checking" "internet connection"
+  ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null & PID=$!; _progress $PID
 }
 
-_check_efimode() {
-  if ! [[ -d "/sys/firmware/efi/" ]]; then
-    _print_title "UEFI MODE"
-    echo
-    _print_warning "The system is not in UEFI mode."
-    _print_bye
-    exit 1
-  fi
+_check_uefimode() {
+  _print_action "Checking" "UEFI mode"
+    [[ ! -d "/sys/firmware/efi/" ]] & PID=$!; _progress $PID
+}
+
+_check_root() {
+  _print_action "Checking" "root user"
+  [[ "$(id -u)" != "0" ]] & PID=$!; _progress $PID
+}
+
+_check_user() {
+  _print_action "Checking" "normal user"
+  [[ "$(id -u)" == "0" ]] & PID=$!; _progress $PID
+}
+
+_check_archlinux() {
+  _print_action "Checking" "Archlinux release"
+  [[ ! -e /etc/arch-release ]] & PID=$!; _progress $PID
+}
+
+_check_hostname() {
+  _print_action "Checking" "hostname"
+  [[ $(echo "${HOSTNAME}" | sed 's/ //g') == "" ]] & PID=$!; _progress $PID
+}
+
+_check_pacman_blocked() {
+  _print_action "Checking" "pacman"
+  [[ -f /var/lib/pacman/db.lck ]] & PID=$!; _progress $PID
 }
 
 # ----------------------------------------------------------------------#
@@ -121,10 +133,6 @@ _check_efimode() {
 ### CORE FUNCTIONS
 
 _setup_install(){
-  [[ $(id -u) != 0 ]] && {
-    _print_warning "Only for 'root'.\n"
-    exit 1
-  }
   _set_font
   _initial_readme
   _initial
@@ -164,7 +172,7 @@ _setup_post(){
 }
 
 _setup_user(){
-  [[ $(id -u) != 1000 ]] && {
+  [[ $(id -u) == 0 ]] && {
     _print_warning "Only for 'normal user'.\n"
     exit 1
   }
@@ -217,10 +225,16 @@ EOF
 }
 
 _initial() {
-  _print_title "LOADING REQUIRED DATA..."
+  _print_title "REQUIREMENTS"
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   echo
+  _check_connection
+  _check_root
+  _check_uefimode
+  _check_hostname
+  _check_pacman_blocked
+  _check_archlinux
   _print_action "Running" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
   _print_action "Updating" "archlinux-keyring"
@@ -702,7 +716,7 @@ _finish_install() {
 
 # --- END INSTALL SECTION --- >
 
-# --- CONFIG SECTION --- >
+# --- POST INSTALL SECTION --- >
 
 _create_new_user() {
   _print_title "NEW USER"
