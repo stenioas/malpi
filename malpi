@@ -156,11 +156,11 @@ _readme() {
 
   - ${BYELLOW}SWAP${RESET} is not supported..
 
-  - ${BYELLOW}NetworkManager${RESET} is installed by default ${PURPLE}(Systemd-networkd will be available soon)${RESET}
+  - ${BYELLOW}NetworkManager${RESET} is installed by default (${PURPLE}Systemd-networkd${RESET} will be available soon)
 
-  - Only ${BYELLOW}XORG${RESET} is supported ${PURPLE}(Wayland will be available soon)${RESET}.
+  - Only ${BYELLOW}XORG${RESET} is supported (${PURPLE}Wayland${RESET} will be available soon).
 
-  - The ${BYELLOW}GRUB${RESET} bootloader is installed by default ${PURPLE}(Systemd-boot will be available soon)${RESET}.
+  - The ${BYELLOW}GRUB${RESET} bootloader is installed by default (${PURPLE}Systemd-boot${RESET} will be available soon).
 
   - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
