@@ -1220,10 +1220,9 @@ EOF
 _start() {
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
-  COLS_LOGO=47
   pacman -Sy --needed --noconfirm terminus-font &> /dev/null
-  setfont ter-124b
-  clear
+  setfont ter-120b
+  _print_title "CHECKING REQUIREMENTS"
   echo
   _check_archlinux
   _check_uefimode
@@ -1235,6 +1234,10 @@ _start() {
   timedatectl set-ntp true & PID=$!; _progress $PID
   _pause_function
   clear
+  T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
+  COLS_LOGO=47
+  setfont ter-124b
   echo -e "\n\n\n\n\n"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│   __   __  _______  ___      _______  ___   │${RESET}"
