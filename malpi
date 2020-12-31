@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 #
 # My Arch Linux Personal Installer (malpi)
 # ----------------------------------------------------------------------#
@@ -123,7 +123,7 @@ _setup_post(){
   _install_extra_pkgs
   _install_laptop_pkgs
   _install_aurhelper
-  _finish_config
+  _finish_post
   exit 0
 }
 
@@ -386,9 +386,10 @@ _install_base() {
   echo
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
-  _print_subtitle "Packages"
+  echo
   _print_action "Updating" "archlinux-keyring"
-  pacman -Sy --noconfirm archlinux-keyring & PID=$!; _progress $PID
+  pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
+  _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   _pacstrap_install "btrfs-progs"
   if [[ "${KERNEL_VERSION}" != "None" ]]; then
@@ -582,7 +583,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "BOOTLOADER"
+  _print_title "BOOTLOADER - ${BYELLOW}SYSTEMD-BOOT WILL BE AVAILABLE SOON${RESET}"
   echo
   _read_input_text "Type a grub name entry:"
   read -r GRUB_NAME
@@ -683,7 +684,7 @@ _create_new_user() {
       echo 'Defaults lecture=never'
     } >> /etc/sudoers
     echo
-    _print_info "Privileges added."
+    _print_info "Sudo privileges added."
   else
     echo
     _print_info "User ${USERNAME} already exists!"
@@ -729,10 +730,12 @@ _install_essential_pkgs() {
   _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
   _read_input_option "Install essential packages? [y/N]: "
+  ESSENTIAL_PKGS_STATUS="${BRED}Not installed!${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "ESSENTIAL PACKAGES"
     _print_subtitle "Packages"
     _package_install "${ESSENTIAL_PKGS}"
+    ESSENTIAL_PKGS_STATUS="${BGREEN}Installed!${RESET}"
     _pause_function
   fi
 }
@@ -747,7 +750,7 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER"
+  _print_title "VIDEO DRIVER - ${BYELLOW}AMD AND NVIDIA WILL BE AVAILABLE SOON${RESET}"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -777,7 +780,7 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER"
+  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}BSPWM AND AWESOME WILL BE AVAILABLE SOON${RESET}"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
   _print_select "Select your desktop environment or window manager:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -849,7 +852,7 @@ _install_desktop() {
 }
 
 _install_display_manager() {
-  _print_title "DISPLAY MANAGER"
+  _print_title "DISPLAY MANAGER - ${BYELLOW}LXDM, SLIM AND XINIT WILL BE AVAILABLE SOON${RESET}"
   DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "None");
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
@@ -914,6 +917,7 @@ _install_extra_pkgs() {
   _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
   _print_item "Sound tools" "${SOUND_PKGS}"
   echo
+  EXTRA_PKGS_STATUS="${BRED}Not installed!${RESET}"
   _read_input_option "Install extra packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     _print_title "EXTRA PACKAGES"
@@ -925,6 +929,7 @@ _install_extra_pkgs() {
     _package_install "${FILESYSTEM_PKGS}"
     _print_subtitle "Sound tools"
     _package_install "${SOUND_PKGS}"
+    EXTRA_PKGS_STATUS="${BGREEN}Installed!${RESET}"
     _pause_function
   fi
 }
@@ -935,6 +940,7 @@ _install_laptop_pkgs() {
   echo
   _print_item "Laptop packages" "${LAPTOP_PKGS}"
   echo
+  LAPTOP_PKGS_STATUS="${BRED}Not installed!${RESET}"
   _read_input_option "Install laptop packages? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
   _print_title "LAPTOP PACKAGES"
@@ -943,6 +949,7 @@ _install_laptop_pkgs() {
     _print_subtitle "Services"
     _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null & PID=$!; _progress $PID
+    LAPTOP_PKGS_STATUS="${BGREEN}Installed!${RESET}"
     _pause_function
   fi
 }
@@ -952,31 +959,52 @@ _install_aurhelper() {
   echo
   _print_warning "The user password will be required, stay watchful!"
   echo
+  AUR_HELPER_STATUS="${BRED}Not installed!${RESET}"
   _read_input_option "Install yay? [y/N]: "
   if [[ "${OPTION}" = "y" || "${OPTION}" = "Y" ]]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
       _package_install "git go"
+      echo
       pacman -D --asdeps go
       su - "${USERNAME}" -c "
         [[ -d yay ]] && rm -rf yay
         git clone https://aur.archlinux.org/yay.git yay
         cd yay
         makepkg -csi --noconfirm
-      " 
+      "
+      AUR_HELPER_STATUS="${BGREEN}Installed!${RESET}"
       _pause_function
     else
       _print_info "Yay is already installed!"
+      AUR_HELPER_STATUS="${BGREEN}Installed!${RESET}"
       _pause_function
     fi
   fi
 }
 
-_finish_config() {
+_finish_post() {
   _print_title "SECOND STEP FINISHED"
   echo
-  _print_info "Proceed to the last step for install apps. Use ${BYELLOW}-u${RESET} ${BWHITE}option.${RESET}"
-  _pause_function
+  _print_info "Thank you for using the malpi script so far! The system installation is complete, enjoy!"
+  echo
+  _print_item "Essential packages" "${ESSENTIAL_PKGS_STATUS}"
+  _print_item "Video driver" "${VIDEO_CARD}"
+  _print_item "Desktop" "${DESKTOP}"
+  _print_item "Display Manager" "${DMANAGER}"
+  _print_item "Extra packages" "${EXTRA_PKGS_STATUS}"
+  _print_item "Laptop packages" "${LAPTOP_PKGS_STATUS}"
+  _print_item "AUR Helper" "${AUR_HELPER_STATUS}"
+  echo
+  _print_line
+  _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
+  if [[ $OPTION == y || $OPTION == Y ]]; then
+    clear
+    reboot
+  else
+    _print_bye
+    exit 0
+  fi
   exit 0
 }
 
