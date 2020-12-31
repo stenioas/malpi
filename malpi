@@ -1218,26 +1218,12 @@ EOF
 }
 
 _start() {
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
   pacman -Sy --needed --noconfirm terminus-font &> /dev/null
-  setfont ter-120b
-  _print_title "CHECKING REQUIREMENTS"
-  echo
-  _check_archlinux
-  _check_uefimode
-  _check_connection
-  _check_root
-  _check_hostname
-  _check_pacman_blocked
-  _print_action "Running" "timedatectl set-ntp true"
-  timedatectl set-ntp true & PID=$!; _progress $PID
-  _pause_function
   clear
+  setfont ter-124b
   T_COLS=$(tput cols)
   T_LINES=$(tput lines)
   COLS_LOGO=47
-  setfont ter-124b
   echo -e "\n\n\n\n\n"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
   tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│   __   __  _______  ___      _______  ___   │${RESET}"
@@ -1253,6 +1239,17 @@ _start() {
   tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+  _print_title "CHECKING REQUIREMENTS"
+  echo
+  _check_archlinux
+  _check_uefimode
+  _check_connection
+  _check_root
+  _check_hostname
+  _check_pacman_blocked
+  _print_action "Running" "timedatectl set-ntp true"
+  timedatectl set-ntp true & PID=$!; _progress $PID
+  _pause_function
 }
 
 # ----------- TEST FUNCTIONS
