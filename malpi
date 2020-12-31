@@ -333,9 +333,6 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
-  echo
-  pacman -Sy --noconfirm archlinux-keyring
-  _print_title "BASE"
   _print_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
   KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "None")
   select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
@@ -390,6 +387,8 @@ _install_base() {
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
   _print_subtitle "Packages"
+  _print_action "Updating" "archlinux-keyring"
+  pacman -Sy --noconfirm archlinux-keyring & PID=$!; _progress $PID
   _pacstrap_install "base base-devel"
   _pacstrap_install "btrfs-progs"
   if [[ "${KERNEL_VERSION}" != "None" ]]; then
@@ -498,7 +497,7 @@ _set_localization() {
 	KEYMAP_LIST=($(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g'))
   KEYMAP_CHOICE="br-abnt2"
   echo
-  _print_info "The default keymap will be set to 'br-abnt2' !"
+  _print_info "The default keymap will be set to 'br-abnt2'"
   echo
   _read_input_option "Change default keymap? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
