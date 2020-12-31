@@ -1151,7 +1151,7 @@ _pacstrap_install() { # install pacstrap package
 
 _set_font() {
   _select_consolefont() {
-    _print_title "FONT SIZE - Just for malpi execution"
+    _print_title "FONT SIZE - ${BYELLOW}JUST FOR THIS SCRIPT EXECUTION${RESET}"
     _print_select "Select a console font:"
     echo -e "1) Very small  12"
     echo -e "2) Small       14"
