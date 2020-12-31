@@ -33,7 +33,7 @@
 #
 # ----------------------------------------------------------------------#
 #
-### VARS
+# ----------- GLOBAL VARIABLES
 
   # --- COLORS
     BOLD=$(tput bold)
@@ -93,39 +93,84 @@
 
 ### TEST FUNCTIONS
 
-_check_connection() {
-  _print_action "Checking" "internet connection"
-  ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null & PID=$!; _progress $PID
+_check_archlinux() {
+  echo -ne "${BWHITE}Arch Linux release ${RESET}"
+  if [[ -e /etc/arch-release ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script on ${BYELLOW}Arch Linux${RESET}."
+    _print_bye
+    exit 1
+  fi
 }
 
 _check_uefimode() {
-  _print_action "Checking" "UEFI mode"
-    [[ -d "/sys/firmware/efi/" ]] & PID=$!; _progress $PID
+  echo -ne "${BWHITE}UEFI mode ${RESET}"
+  if [[ -d "/sys/firmware/efi/" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script in ${BYELLOW}UEFI${RESET} mode."
+    _print_bye
+    exit 1
+  fi
+}
+
+_check_connection() {
+  _connection_test() {
+    ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
+  }
+  echo -ne "${BWHITE}Internet connection ${RESET}"
+  if ! _connection_test; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must be connected to the internet to execute the script."
+    _print_bye
+    exit 1
+  fi
 }
 
 _check_root() {
-  _print_action "Checking" "root user"
-  [[ "$(id -u)" == "0" ]] & PID=$!; _progress $PID
+  echo -ne "${BWHITE}Root user ${RESET}"
+  if [[ "$(id -u)" == "0" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script as 'root' user."
+    _print_bye
+    exit 1
+  fi
 }
 
 _check_user() {
-  _print_action "Checking" "normal user"
-  [[ "$(id -u)" == "1000" ]] & PID=$!; _progress $PID
-}
-
-_check_archlinux() {
-  _print_action "Checking" "Archlinux release"
-  [[ -e /etc/arch-release ]] & PID=$!; _progress $PID
+  echo -ne "${BWHITE}Normal user ${RESET}"
+  if [[ "$(id -u)" == "1000" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} You must execute the script as 'normal' user."
+    _print_bye
+    exit 1
+  fi
 }
 
 _check_hostname() {
-  _print_action "Checking" "hostname"
-  [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]] & PID=$!; _progress $PID
+  echo -ne "${BWHITE}Hostname ${RESET}"
+  if [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} Hostname must be configured!"
+    _print_bye
+    exit 1
+  fi
 }
 
 _check_pacman_blocked() {
-  _print_action "Checking" "pacman"
-  [[ ! -f /var/lib/pacman/db.lck ]] & PID=$!; _progress $PID
+  echo -ne "${BWHITE}Pacman ${RESET}"
+  if [[ ! -f /var/lib/pacman/db.lck ]]; then
+    echo -e "${BGREEN}OK${RESET}"
+  else
+    echo -e "${BRED}FAILED${RESET} Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
+    _print_bye
+    exit 1
+  fi
 }
 
 # ----------------------------------------------------------------------#
@@ -135,7 +180,7 @@ _check_pacman_blocked() {
 _setup_install(){
   _set_font
   _initial_readme
-  _initial
+  _requirements
   _rank_mirrors
   _select_disk
   _format_partitions
@@ -189,6 +234,8 @@ _setup_user(){
 # --- INSTALL SECTION --- >
 
 _initial_readme() {
+  T_COLS=$(tput cols)
+  T_LINES=$(tput lines)
   _print_title "README"
   cat <<EOF
 
@@ -224,17 +271,16 @@ EOF
   _pause_function
 }
 
-_initial() {
+_requirements() {
   _print_title "REQUIREMENTS"
-  T_COLS=$(tput cols)
-  T_LINES=$(tput lines)
   echo
+  _check_archlinux
+  _check_uefimode
   _check_connection
   _check_root
-  _check_uefimode
   _check_hostname
   _check_pacman_blocked
-  _check_archlinux
+  echo
   _print_action "Running" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
   _print_action "Updating" "archlinux-keyring"
@@ -605,7 +651,7 @@ _set_network() {
   while [[ "${HOSTNAME}" = "" ]]; do
     _print_title "NETWORK CONFIGURATION"
     echo
-    _print_warning "You must be type a hostname!"
+    _print_warning "You must type a hostname!"
     echo
     _read_input_text "Type a hostname:"
     read -r HOSTNAME
@@ -657,7 +703,7 @@ _grub_generate() {
   while [[ "${GRUB_NAME}" = "" ]]; do
     _print_title "BOOTLOADER"
     echo
-    _print_warning "You must be type a grub name entry!"
+    _print_warning "You must type a grub name entry!"
     echo
     _read_input_text "Type a grub name entry:"
     read -r GRUB_NAME
@@ -726,7 +772,7 @@ _create_new_user() {
   while [[ "${USERNAME}" = "" ]]; do
     _print_title "NEW USER"
     echo
-    _print_warning "You must be type a username!"
+    _print_warning "You must type a username!"
     echo
     _read_input_text "Type your username:"
     read -r USERNAME
@@ -1365,8 +1411,6 @@ clear
 pacman -S --needed --noconfirm terminus-font &> /dev/null
 setfont ter-124b
 _start_screen
-_check_efimode
-_check_connection
 
 while [[ "$1" ]]; do
   case "$1" in
