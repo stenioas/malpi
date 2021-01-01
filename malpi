@@ -236,17 +236,15 @@ _format_partitions() {
     _print_warning "No partition found."
     exit 0
   fi
-  
+
   _device_encryption() {
-    LUKS_PARTITIONS_LIST=$PARTITIONS_LIST
-    LUKS_PARTITIONS_LIST+=("Cancel")
     _print_title "LUKS ENCRYPTION"
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo
-      select OPT in "${LUKS_PARTITIONS_LIST[@]}"; do
-        if _contains_element "$OPT" "${LUKS_PARTITIONS_LIST[@]}"; then
+      select OPT in "${PARTITIONS_LIST[@]}"; do
+        if _contains_element "$OPT" "${PARTITIONS_LIST[@]}"; then
           _print_title "LUKS ENCRYPTION"
           _print_subtitle "Formatting"
           cryptsetup luksFormat "$OPT" && _print_subtitle "Formatting" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///') && LUKS_PARTITION="$OPT"
