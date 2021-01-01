@@ -237,28 +237,6 @@ _format_partitions() {
     exit 0
   fi
 
-  _device_encryption() {
-    _print_title "LUKS ENCRYPTION"
-    echo
-    _read_input_option "Do you want to encrypt the root partition? [y/N]: "
-    if [[ $OPTION == y || $OPTION == Y ]]; then
-      echo
-      select OPT in "${PARTITIONS_LIST[@]}"; do
-        if _contains_element "$OPT" "${PARTITIONS_LIST[@]}"; then
-          _print_title "LUKS ENCRYPTION"
-          _print_subtitle "Format luks"
-          cryptsetup luksFormat "$OPT" && _print_subtitle "Open luks" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_PARTITION="$OPT"
-          break
-        elif [[ $OPT == "Cancel" ]]; then
-          break
-        else
-          _invalid_option
-        fi
-      done
-    fi
-    _pause_function
-  }
-
   _format_root_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
@@ -267,16 +245,21 @@ _format_partitions() {
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
-        if [[ $LUKS -eq 1 ]]; then
-          ROOT_PARTITION="/dev/mapper/crypt"
-        else
-          ROOT_PARTITION="$PARTITION"
-        fi
+        ROOT_PARTITION="$PARTITION"
         break;
       else
         _invalid_option
       fi
     done
+    echo
+    _read_input_option "Do you want to encrypt the root partition? [y/N]: "
+    if [[ $OPTION == y || $OPTION == Y ]]; then
+      _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
+      if [[ $OPTION == y || $OPTION == Y ]]; then
+        echo
+        cryptsetup luksFormat "$OPT" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/  crypt"
+      fi
+    fi
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
     fi
@@ -354,7 +337,6 @@ _format_partitions() {
       _print_warning "Partition(s) not successfully mounted!"
     fi
   }
-  _device_encryption
   _format_root_partition
   _format_efi_partition
   _pause_function
@@ -653,7 +635,11 @@ _finish_install() {
   _print_info "Your new system has been installed!"
   echo
   _print_item "Disk" "${INSTALL_DISK}"
-  _print_item "Root partition" "${ROOT_PARTITION}"
+  if [[ $LUKS -eq 1 ]]; then
+    _print_item "Root partition" "${LUKS_PARTITION}"
+  else
+    _print_item "Root partition" "${ROOT_PARTITION}"
+  fi
   _print_item "EFI partition" "${EFI_PARTITION}"
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
