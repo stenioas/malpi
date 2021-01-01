@@ -205,16 +205,16 @@ _rank_mirrors() {
 
 _select_disk() {
   _print_title "PARTITION THE DISKS"
-  DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
+  DISKS_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_select "Select disk:"
-  select DEVICE in "${DEVICES_LIST[@]}"; do
-    if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
+  select DISK in "${DISKS_LIST[@]}"; do
+    if _contains_element "${DISK}" "${DISKS_LIST[@]}"; then
       break
     else
       _invalid_option
     fi
   done
-  INSTALL_DISK=${DEVICE}
+  INSTALL_DISK=${DISK}
   echo
   _print_line
   _read_input_option "Edit disk partitions? [y/N]: "
@@ -224,20 +224,57 @@ _select_disk() {
 }
 
 _format_partitions() {
-  _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
-  BLOCK_LIST=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
+  _device_encryption() {
+    BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
 
-  PARTITIONS_LIST=()
-  for OPT in "${BLOCK_LIST[@]}"; do
-    PARTITIONS_LIST+=("/dev/${OPT}")
-  done
+    PARTITIONS_LIST=()
+    for OPT in "${BLOCK_LIST[@]}"; do
+      PARTITIONS_LIST+=("/dev/${OPT}")
+    done
 
-  if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
-    _print_warning "No partition found."
-    exit 0
-  fi
+    if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
+      echo
+      _print_warning "No partition found."
+      exit 0
+    fi
+    _print_title "LUKS ENCRYPTION"
+    BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
+    BLOCK_LIST+=("Cancel")
+    echo
+    _read_input_option "Do you want to encrypt the root partition? [y/N]: "
+    if [[ $OPTION == y || $OPTION == Y ]]; then
+      select OPT in "${BLOCK_LIST[@]}"; do
+        if _contains_element "$OPT" "${BLOCK_LIST[@]}"; then
+          _disable_partition $OPT
+          cryptsetup luksFormat "$OPT" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///')
+          break
+        elif [[ $OPT == "Cancel" ]]; then
+          break
+        else
+          _invalid_option
+        fi
+      done
+    fi
+  }
 
   _format_root_partition() {
+    BLOCK_LIST=($(lsblk | grep 'part\|crypt' | awk '{print substr($1,3)}'))
+
+    PARTITIONS_LIST=()
+    for OPT in "${BLOCK_LIST[@]}"; do
+      CHECK_CRYPT=$(echo "$OPT" | grep crypt)
+      if [[ -z $CHECK_CRYPT ]]; then
+        PARTITIONS_LIST+=("/dev/${OPT}")
+      else
+        PARTITIONS_LIST+=("/dev/mapper/$OPT")
+    done
+
+    if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
+      echo
+      _print_warning "No partition found."
+      exit 0
+    fi
+    _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
@@ -326,6 +363,7 @@ _format_partitions() {
       _print_warning "Partition(s) not successfully mounted!"
     fi
   }
+  _device_encryption
   _format_root_partition
   _format_efi_partition
   _pause_function
@@ -400,6 +438,8 @@ _install_base() {
   if [[ "${MICROCODE_VERSION}" != "None" ]]; then
     _pacstrap_install "${MICROCODE_VERSION}"
   fi
+  if [[ $LUKS == 1 ]]; then
+    _pacstrap_install "cryptsetup"
   echo
   _read_input_option "Install NetworkManager? [Y/n]: "
   if ! [[ $OPTION == n || $OPTION == N ]]; then
@@ -556,6 +596,7 @@ _set_network() {
 
 _mkinitcpio_generate() {
   _print_title "INITRAMFS"
+  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/block/block keymap encrypt/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
   echo
   _read_input_option "Edit your mkinitcpio.conf file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -602,6 +643,9 @@ _grub_generate() {
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
     _pacstrap_install "os-prober"
+  fi
+  if [[ $LUKS -eq 1 ]]; then
+    sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' -e 's/GRUB_CMDLINE_LINUX=GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' "${ROOT_MOUNTPOINT}"/etc/default/grub
   fi
   _print_subtitle "Grub install"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=${GRUB_NAME} --recheck
