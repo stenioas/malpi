@@ -237,11 +237,6 @@ _format_partitions() {
     exit 0
   fi
 
-  _encrypt_setup() {
-    _print_subtitle "luksFormat"
-    cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
-  }
-
   _format_root_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
@@ -272,7 +267,8 @@ _format_partitions() {
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
-        _encrypt_setup
+        _print_subtitle "luksFormat"
+        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
       fi
     fi
     echo
@@ -610,7 +606,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "BOOTLOADER - ${BBLACK}(${RESET}${PURPLE}Systemd-boot${RESET}${BBLACK} will be available soon)${RESET}"
+  _print_title "BOOTLOADER - ${BBLACK}(${RESET}${BYELLOW}Systemd-boot${RESET}${BBLACK} will be available soon)${RESET}"
   echo
   _read_input_text "Type a grub name entry:"
   read -r GRUB_NAME
@@ -765,12 +761,12 @@ _install_essential_pkgs() {
   _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
   _read_input_option "Install essential packages? [Y/n]: "
-  ESSENTIAL_PKGS_STATUS="${BRED}Not installed!${RESET}"
+  ESSENTIAL_PKGS_STATUS="${BRED}No${RESET}"
   if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     _print_title "ESSENTIAL PACKAGES"
     _print_subtitle "Packages"
     _package_install "${ESSENTIAL_PKGS}"
-    ESSENTIAL_PKGS_STATUS="${BGREEN}Installed!${RESET}"
+    ESSENTIAL_PKGS_STATUS="${BGREEN}Yes${RESET}"
     _pause_function
   fi
 }
@@ -785,7 +781,7 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BBLACK}(${RESET}${PURPLE}AMD and NVIDIA${RESET}${BBLACK} will be available soon)${RESET}"
+  _print_title "VIDEO DRIVER - ${BBLACK}(${RESET}${BYELLOW}AMD${RESET}${BBLACK} and${RESET}${BYELLOW} NVIDIA${RESET}${BBLACK} will be available soon)${RESET}"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -815,7 +811,7 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BBLACK}(${RESET}${PURPLE}BSPWM and AWESOME${RESET}${BBLACK} will be available soon${RESET}"
+  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BBLACK}(${RESET}${BYELLOW}BSPWM${RESET}${BBLACK} and${RESET}${BYELLOW} AWESOME${RESET}${BBLACK} will be available soon${RESET}"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
   _print_select "Select your desktop environment or window manager:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -952,7 +948,7 @@ _install_extra_pkgs() {
   _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
   _print_item "Sound tools" "${SOUND_PKGS}"
   echo
-  EXTRA_PKGS_STATUS="${BRED}Not installed!${RESET}"
+  EXTRA_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install extra packages? [Y/n]: "
   if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     _print_title "EXTRA PACKAGES"
@@ -964,7 +960,7 @@ _install_extra_pkgs() {
     _package_install "${FILESYSTEM_PKGS}"
     _print_subtitle "Sound tools"
     _package_install "${SOUND_PKGS}"
-    EXTRA_PKGS_STATUS="${BGREEN}Installed!${RESET}"
+    EXTRA_PKGS_STATUS="${BGREEN}Yes${RESET}"
     _pause_function
   fi
 }
@@ -975,7 +971,7 @@ _install_laptop_pkgs() {
   echo
   _print_item "Laptop packages" "${LAPTOP_PKGS}"
   echo
-  LAPTOP_PKGS_STATUS="${BRED}Not installed!${RESET}"
+  LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install laptop packages? [Y/n]: "
   if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
   _print_title "LAPTOP PACKAGES"
@@ -984,7 +980,7 @@ _install_laptop_pkgs() {
     _print_subtitle "Services"
     _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null & PID=$!; _progress $PID
-    LAPTOP_PKGS_STATUS="${BGREEN}Installed!${RESET}"
+    LAPTOP_PKGS_STATUS="${BGREEN}Yes${RESET}"
     _pause_function
   fi
 }
@@ -994,7 +990,7 @@ _install_aurhelper() {
   echo
   _print_warning "The user password will be required, stay watchful!"
   echo
-  AUR_HELPER_STATUS="${BRED}Not installed!${RESET}"
+  AUR_HELPER_STATUS="${BRED}No${RESET}"
   _read_input_option "Install yay? [Y/n]: "
   if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     if ! _is_package_installed "yay" ; then
@@ -1008,11 +1004,11 @@ _install_aurhelper() {
         cd yay
         makepkg -csi --noconfirm
       "
-      AUR_HELPER_STATUS="${BGREEN}Installed!${RESET}"
+      AUR_HELPER_STATUS="${BGREEN}Yes${RESET}"
       _pause_function
     else
       _print_info "Yay is already installed!"
-      AUR_HELPER_STATUS="${BGREEN}Installed!${RESET}"
+      AUR_HELPER_STATUS="${BGREEN}Yes${RESET}"
       _pause_function
     fi
   fi
@@ -1213,7 +1209,7 @@ _pacstrap_install() { # install pacstrap package
 
 _set_font() {
   _select_consolefont() {
-    _print_title "FONT SIZE - ${BYELLOW}JUST FOR THIS SCRIPT EXECUTION${RESET}"
+    _print_title "SCRIPT FONT SIZE"
     _print_select "Select a console font:"
     echo -e "1) Very small  12"
     echo -e "2) Small       14"
@@ -1287,18 +1283,18 @@ _start() {
   T_LINES=$(tput lines)
   COLS_LOGO=47
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│   __   __  _______  ___      _______  ___   │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |  |_|  ||   _   ||   |    |       ||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |       ||  |_|  ||   |    |    _  ||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |       ||       ||   |    |   |_| ||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |       ||       ||   |___ |    ___||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  | ||_|| ||   _   ||       ||   |    |   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |_|   |_||__| |__||_______||___|    |___|  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│                                             │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}└───── ${PURPLE}My Personal Arch Linux Installer${RESET}${BBLACK} ──────┘${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}┌─────────────────────────────────────────────┐${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│   __   __  _______  ___      _______  ___   │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│  |  |_|  ||   _   ||   |    |       ||   |  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│  |       ||  |_|  ||   |    |    _  ||   |  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│  |       ||       ||   |    |   |_| ||   |  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│  |       ||       ||   |___ |    ___||   |  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│  | ||_|| ||   _   ||       ||   |    |   |  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│  |_|   |_||__| |__||_______||___|    |___|  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│                                             │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}└───── ${BBLACK}My Personal Arch Linux Installer${RESET}${BGREEN} ──────┘${RESET}"
   echo
-  tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
+  tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BPURPLE}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
   _print_title "CHECKING REQUIREMENTS"
