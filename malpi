@@ -246,8 +246,8 @@ _format_partitions() {
       select OPT in "${PARTITIONS_LIST[@]}"; do
         if _contains_element "$OPT" "${PARTITIONS_LIST[@]}"; then
           _print_title "LUKS ENCRYPTION"
-          _print_subtitle "Formatting"
-          cryptsetup luksFormat "$OPT" && _print_subtitle "Formatting" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///') && LUKS_PARTITION="$OPT"
+          _print_subtitle "Format luks"
+          cryptsetup luksFormat "$OPT" && _print_subtitle "Open luks" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_PARTITION="$OPT"
           break
         elif [[ $OPT == "Cancel" ]]; then
           break
@@ -616,7 +616,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "BOOTLOADER - ${BYELLOW}SYSTEMD-BOOT WILL BE AVAILABLE SOON${RESET}"
+  _print_title "BOOTLOADER - ${BBLACK}(${RESET}${PURPLE}Systemd-boot${RESET}${BBLACK} will be available soon)${RESET}"
   echo
   _read_input_text "Type a grub name entry:"
   read -r GRUB_NAME
@@ -637,7 +637,8 @@ _grub_generate() {
     _pacstrap_install "os-prober"
   fi
   if [[ $LUKS -eq 1 ]]; then
-    sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' -e 's/GRUB_CMDLINE_LINUX=GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' "${ROOT_MOUNTPOINT}"/etc/default/grub
+    UUID=$(blkid ${LUKS_PARTITION} | awk -F '"' '{print $2}')
+    sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=UUID='${UUID}':crypt"/g' ${ROOT_MOUNTPOINT}/etc/default/grub
   fi
   _print_subtitle "Grub install"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=${GRUB_NAME} --recheck
@@ -786,7 +787,7 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BYELLOW}AMD AND NVIDIA WILL BE AVAILABLE SOON${RESET}"
+  _print_title "VIDEO DRIVER - ${BBLACK}(${RESET}${PURPLE}AMD and NVIDIA${RESET}${BBLACK} will be available soon)${RESET}"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -816,7 +817,7 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}BSPWM AND AWESOME WILL BE AVAILABLE SOON${RESET}"
+  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BBLACK}(${RESET}${PURPLE}BSPWM and AWESOME${RESET}${BBLACK} will be available soon${RESET}"
   DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
   _print_select "Select your desktop environment or window manager:"
   select DESKTOP in "${DESKTOP_LIST[@]}"; do
