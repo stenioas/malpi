@@ -238,14 +238,6 @@ _format_partitions() {
   fi
 
   _encrypt_setup() {
-    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt')
-
-    if [[ ! "$LUKS_VOLUMES" = "" ]]; then
-      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
-      for ITEM in ${LUKS_OPEN[@]}; do
-        cryptsetup close /dev/mapper/${ITEM}
-      done
-    fi
     _print_subtitle "luksFormat"
     cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
   }
@@ -266,6 +258,14 @@ _format_partitions() {
     done
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
+    fi
+    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt')
+
+    if [[ ! "$LUKS_VOLUMES" = "" ]]; then
+      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
+      for ITEM in ${LUKS_OPEN[@]}; do
+        cryptsetup close /dev/mapper/"$ITEM"
+      done
     fi
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
