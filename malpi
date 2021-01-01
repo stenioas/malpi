@@ -259,8 +259,8 @@ _format_partitions() {
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
-        echo
-        cryptsetup luksFormat "$ROOT_PARTITION" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
+        _print_subtitle "luksFormat"
+        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
       fi
     fi
     echo
