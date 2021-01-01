@@ -224,27 +224,28 @@ _select_disk() {
 }
 
 _format_partitions() {
-  _device_encryption() {
-    BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
-
-    PARTITIONS_LIST=()
-    for OPT in "${BLOCK_LIST[@]}"; do
+  BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
+  PARTITIONS_LIST=()
+  for OPT in "${BLOCK_LIST[@]}"; do
+    CHECK_CRYPT=$(echo "$OPT" | grep crypt)
       PARTITIONS_LIST+=("/dev/${OPT}")
-    done
-    PARTITIONS_LIST+=("Cancel")
-
-    if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
-      echo
-      _print_warning "No partition found."
-      exit 0
     fi
+  done
+  if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
+    echo
+    _print_warning "No partition found."
+    exit 0
+  fi
+  _device_encryption() {
+    LUKS_PARTITIONS_LIST=$PARTITIONS_LIST
+    LUKS_PARTITIONS_LIST+=("Cancel")
     _print_title "LUKS ENCRYPTION"
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       echo
-      select OPT in "${PARTITIONS_LIST[@]}"; do
-        if _contains_element "$OPT" "${PARTITIONS_LIST[@]}"; then
+      select OPT in "${LUKS_PARTITIONS_LIST[@]}"; do
+        if _contains_element "$OPT" "${LUKS_PARTITIONS_LIST[@]}"; then
           _print_title "LUKS ENCRYPTION"
           _print_subtitle "Formatting"
           cryptsetup luksFormat "$OPT" && _print_subtitle "Formatting" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///') && LUKS_PARTITION="$OPT"
@@ -256,37 +257,22 @@ _format_partitions() {
         fi
       done
     fi
+    _pause_function
   }
 
   _format_root_partition() {
-    BLOCK_LIST=($(lsblk | grep 'part\|crypt' | awk '{print substr($1,3)}'))
-
-    PARTITIONS_LIST=()
-    for OPT in "${BLOCK_LIST[@]}"; do
-      CHECK_CRYPT=$(echo "$OPT" | grep crypt)
-      if [[ -z $CHECK_CRYPT ]]; then
-        PARTITIONS_LIST+=("/dev/${OPT}")
-      else
-        PARTITIONS_LIST+=("/dev/mapper/$OPT")
-      fi
-    done
-
-    if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
-      echo
-      _print_warning "No partition found."
-      exit 0
-    fi
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
-    if [[ $LUKS -eq 1 ]]; then
-      _disable_partition "$LUKS_PARTITION"
-    fi
     echo
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
-        ROOT_PARTITION="$PARTITION"
+        if [[ $LUKS -eq 1 ]]; then
+          ROOT_PARTITION="/dev/mapper/crypt"
+        else
+          ROOT_PARTITION="$PARTITION"
+        fi
         break;
       else
         _invalid_option
