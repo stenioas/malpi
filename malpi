@@ -226,6 +226,7 @@ _select_disk() {
 _format_partitions() {
   _device_encryption() {
     BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
+    BLOCK_LIST+=("Cancel")
 
     PARTITIONS_LIST=()
     for OPT in "${BLOCK_LIST[@]}"; do
@@ -238,15 +239,15 @@ _format_partitions() {
       exit 0
     fi
     _print_title "LUKS ENCRYPTION"
-    BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
-    BLOCK_LIST+=("Cancel")
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
-      select OPT in "${BLOCK_LIST[@]}"; do
-        if _contains_element "$OPT" "${BLOCK_LIST[@]}"; then
-          _disable_partition $OPT
+      echo
+      select OPT in "${PARTITIONS_LIST[@]}"; do
+        if _contains_element "$OPT" "${PARTITIONS_LIST[@]}"; then
           cryptsetup luksFormat "$OPT" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///')
+          PARTITION_NUMBER=$((REPLY -1))
+          _disable_partition $OPT
           break
         elif [[ $OPT == "Cancel" ]]; then
           break
@@ -267,6 +268,7 @@ _format_partitions() {
         PARTITIONS_LIST+=("/dev/${OPT}")
       else
         PARTITIONS_LIST+=("/dev/mapper/$OPT")
+      fi
     done
 
     if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
@@ -440,6 +442,7 @@ _install_base() {
   fi
   if [[ $LUKS == 1 ]]; then
     _pacstrap_install "cryptsetup"
+  fi
   echo
   _read_input_option "Install NetworkManager? [Y/n]: "
   if ! [[ $OPTION == n || $OPTION == N ]]; then
