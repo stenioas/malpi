@@ -251,6 +251,9 @@ _format_partitions() {
         _invalid_option
       fi
     done
+    if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
+      umount -R ${ROOT_MOUNTPOINT}
+    fi
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -259,9 +262,6 @@ _format_partitions() {
         echo
         cryptsetup luksFormat "$ROOT_PARTITION" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
       fi
-    fi
-    if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
-      umount -R ${ROOT_MOUNTPOINT}
     fi
     echo
     _print_action "Format" "${ROOT_PARTITION}"
@@ -653,8 +653,8 @@ _finish_install() {
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
-    _print_action "Saving" "malpi"
-    curl -L https://stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
+    _print_action "Coping" "malpi"
+    cp malpi ${ROOT_MOUNTPOINT}/root/malpi &> /dev/null & PID=$!; _progress $PID
   fi
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
@@ -752,9 +752,9 @@ _install_essential_pkgs() {
   echo
   _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
-  _read_input_option "Install essential packages? [y/N]: "
+  _read_input_option "Install essential packages? [Y/n]: "
   ESSENTIAL_PKGS_STATUS="${BRED}Not installed!${RESET}"
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     _print_title "ESSENTIAL PACKAGES"
     _print_subtitle "Packages"
     _package_install "${ESSENTIAL_PKGS}"
@@ -941,8 +941,8 @@ _install_extra_pkgs() {
   _print_item "Sound tools" "${SOUND_PKGS}"
   echo
   EXTRA_PKGS_STATUS="${BRED}Not installed!${RESET}"
-  _read_input_option "Install extra packages? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  _read_input_option "Install extra packages? [Y/n]: "
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     _print_title "EXTRA PACKAGES"
     _print_subtitle "Utilities"
     _package_install "${UTILITIES_PKGS}"
@@ -964,8 +964,8 @@ _install_laptop_pkgs() {
   _print_item "Laptop packages" "${LAPTOP_PKGS}"
   echo
   LAPTOP_PKGS_STATUS="${BRED}Not installed!${RESET}"
-  _read_input_option "Install laptop packages? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  _read_input_option "Install laptop packages? [Y/n]: "
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
   _print_title "LAPTOP PACKAGES"
     _print_subtitle "Packages"
     _package_install "${LAPTOP_PKGS}"
@@ -983,8 +983,8 @@ _install_aurhelper() {
   _print_warning "The user password will be required, stay watchful!"
   echo
   AUR_HELPER_STATUS="${BRED}Not installed!${RESET}"
-  _read_input_option "Install yay? [y/N]: "
-  if [[ "${OPTION}" = "y" || "${OPTION}" = "Y" ]]; then
+  _read_input_option "Install yay? [Y/n]: "
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
       _package_install "git go"
@@ -1063,7 +1063,7 @@ _print_select() {
 
 _print_item() {
   REM_COLS=$(( 22 - ${#1} ))
-  echo -ne "${BLUE}$1${RESET}"
+  echo -ne "${BBLUE}$1${RESET}"
   echo -ne "${BBLACK}`seq -s ' ' $REM_COLS | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK}:${RESET}"
   echo -e " $2"
