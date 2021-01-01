@@ -257,7 +257,7 @@ _format_partitions() {
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [[ $OPTION == y || $OPTION == Y ]]; then
         echo
-        cryptsetup luksFormat "$OPT" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/  crypt"
+        cryptsetup luksFormat "$ROOT_PARTITION" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
       fi
     fi
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
