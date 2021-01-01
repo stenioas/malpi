@@ -237,6 +237,23 @@ _format_partitions() {
     exit 0
   fi
 
+  _encrypt_setup() {
+    LUKS_OPEN=$(dmsetup ls --target crypt | awk '{print $1}')
+    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt')
+
+    _is_luks_volumes_open() {
+      [[ ! "$LUKS_VOLUMES" = "" ]] && return 0 || return 1;
+    }
+
+    if _is_luks_volumes_open; then
+      for ITEM in ${LUKS_OPEN[@]}; do
+        cryptsetup close /dev/mapper/${ITEM}
+      done
+    fi
+    _print_subtitle "luksFormat"
+    cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
+  }
+
   _format_root_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
@@ -258,9 +275,8 @@ _format_partitions() {
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [[ $OPTION == y || $OPTION == Y ]]; then
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
-      if [[ $OPTION == y || $OPTION == Y ]]; then
-        _print_subtitle "luksFormat"
-        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
+      if [[ $OPTION == y || $OPTION == Y ]]; txtarchdimenu
+        _encrypt_setup
       fi
     fi
     echo
