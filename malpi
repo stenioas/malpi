@@ -226,12 +226,12 @@ _select_disk() {
 _format_partitions() {
   _device_encryption() {
     BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
-    BLOCK_LIST+=("Cancel")
 
     PARTITIONS_LIST=()
     for OPT in "${BLOCK_LIST[@]}"; do
       PARTITIONS_LIST+=("/dev/${OPT}")
     done
+    PARTITIONS_LIST+=("Cancel")
 
     if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
       echo
@@ -245,9 +245,9 @@ _format_partitions() {
       echo
       select OPT in "${PARTITIONS_LIST[@]}"; do
         if _contains_element "$OPT" "${PARTITIONS_LIST[@]}"; then
-          cryptsetup luksFormat "$OPT" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///')
-          PARTITION_NUMBER=$((REPLY -1))
-          _disable_partition $OPT
+          _print_title "LUKS ENCRYPTION"
+          _print_subtitle "Formatting"
+          cryptsetup luksFormat "$OPT" && _print_subtitle "Formatting" && cryptsetup open "$OPT" crypt && LUKS=1 && LUKS_DISK=$(echo "${OPT}" | sed 's/\/dev\///') && LUKS_PARTITION="$OPT"
           break
         elif [[ $OPT == "Cancel" ]]; then
           break
@@ -279,6 +279,9 @@ _format_partitions() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
+    if [[ $LUKS -eq 1 ]]; then
+      _disable_partition "$LUKS_PARTITION"
+    fi
     echo
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -319,6 +322,7 @@ _format_partitions() {
     _print_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
+        PARTITION_NUMBER=$((REPLY -1))
         EFI_PARTITION="${PARTITION}"
         break;
       else
