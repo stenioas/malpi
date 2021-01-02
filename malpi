@@ -860,7 +860,7 @@ _install_desktop() {
             *)
               _invalid_option
               _pause_function
-              _select_consolefont
+              _select_i3_mode
               ;;
           esac
         }
@@ -1020,7 +1020,7 @@ _install_aurhelper() {
       _package_install "git go"
       echo
       pacman -D --asdeps go
-      su - "${USERNAME}" -c "
+      su - ${USERNAME} -c "
         [[ -d yay ]] && rm -rf yay
         git clone https://aur.archlinux.org/yay.git yay
         cd yay
@@ -1345,81 +1345,89 @@ _config_i3_gaps_franklisouza() {
   _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}CREATING FOLDERS${RESET}"
   #mkdir -p /home/${USERNAME}/{.repo-fffranks,Backup-i3,.compile,.config/{rofi/themes,picom,dunst},.fonts,.themes,.icons,.Lock,.local/bin,Wallpapers,Scripts}
   echo
-  su - "${USERNAME}" -c "
-    _print_action 'Create folder' '.repo-fffranks'
-    mkdir -p /home/'${USERNAME}'/.repo-fffranks & PID=$!; _progress $PID
-    _print_action 'Create folder' 'Backup-i3'
-    mkdir -p /home/'${USERNAME}'/Backup-i3 & PID=$!; _progress $PID
-    _print_action 'Create folder' '.compile'
-    mkdir -p /home/'${USERNAME}'/.compile & PID=$!; _progress $PID
-    _print_action 'Create folder' '.config/rofi/themes'
-    mkdir -p /home/'${USERNAME}'/.config/rofi/themes & PID=$!; _progress $PID
-    _print_action 'Create folder' '.config/picom'
-    mkdir -p /home/'${USERNAME}'/.config/picom & PID=$!; _progress $PID
-    _print_action 'Create folder' '.config/dunst'
-    mkdir -p /home/'${USERNAME}'/.config/dunst & PID=$!; _progress $PID
-    _print_action 'Create folder' '.fonts'
-    mkdir -p /home/'${USERNAME}'/.fonts & PID=$!; _progress $PID
-    _print_action 'Create folder' '.themes'
-    mkdir -p /home/'${USERNAME}'/.themes & PID=$!; _progress $PID
-    _print_action 'Create folder' '.icons'
-    mkdir -p /home/'${USERNAME}'/.icons & PID=$!; _progress $PID
-    _print_action 'Create folder' '.Lock'
-    mkdir -p /home/'${USERNAME}'/.Lock & PID=$!; _progress $PID
-    _print_action 'Create folder' '.local/bin'
-    mkdir -p /home/'${USERNAME}'/.local/bin & PID=$!; _progress $PID
-    _print_action 'Create folder' 'Wallpapers'
-    mkdir -p /home/'${USERNAME}'/Wallpapers & PID=$!; _progress $PID
-    _print_action 'Create folder' 'Scripts'
-    mkdir -p /home/'${USERNAME}'/Scripts & PID=$!; _progress $PID
+  _print_action "Create folder" ".repo-fffranks"
+  mkdir -p /home/${USERNAME}/.repo-fffranks & PID=$!; _progress $PID
+  _print_action "Create folder" "Backup-i3"
+  mkdir -p /home/${USERNAME}/Backup-i3 & PID=$!; _progress $PID
+  _print_action "Create folder" ".compile"
+  mkdir -p /home/${USERNAME}/.compile & PID=$!; _progress $PID
+  _print_action "Create folder" ".config/rofi/themes"
+  mkdir -p /home/${USERNAME}/.config/rofi/themes & PID=$!; _progress $PID
+  _print_action "Create folder" ".config/picom"
+  mkdir -p /home/${USERNAME}/.config/picom & PID=$!; _progress $PID
+  _print_action "Create folder" ".config/dunst"
+  mkdir -p /home/${USERNAME}/.config/dunst & PID=$!; _progress $PID
+  _print_action "Create folder" ".fonts"
+  mkdir -p /home/${USERNAME}/.fonts & PID=$!; _progress $PID
+  _print_action "Create folder" ".themes"
+  mkdir -p /home/${USERNAME}/.themes & PID=$!; _progress $PID
+  _print_action "Create folder" ".icons"
+  mkdir -p /home/${USERNAME}/.icons & PID=$!; _progress $PID
+  _print_action "Create folder" ".Lock"
+  mkdir -p /home/${USERNAME}/.Lock & PID=$!; _progress $PID
+  _print_action "Create folder" ".local/bin"
+  mkdir -p /home/${USERNAME}/.local/bin & PID=$!; _progress $PID
+  _print_action "Create folder" "Wallpapers"
+  mkdir -p /home/${USERNAME}/Wallpapers & PID=$!; _progress $PID
+  _print_action "Create folder" "Scripts"
+  mkdir -p /home/${USERNAME}/Scripts & PID=$!; _progress $PID
+  chown ${USERNAME} -R /home/${USERNAME}
+  su - ${USERNAME} -c "
     xdg-user-dirs-update
   "
   _pause_function
 
   _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}PACKAGES INSTALLATION${RESET}"
   _print_subtitle "Packages"
-  _package_install "i3 git lsd picom dunst libnotify python-pip viewnior \
+  _package_install "i3-gaps i3blocks i3lock i3status git lsd picom dunst libnotify python-pip viewnior \
   pacman-contrib lxappearance rofi nitrogen fortune-mod maim firefox-i18n-pt-br gvfs-mtp xdg-user-dirs jq \
   pulseaudio-alsa pavucontrol w3m imagemagick flameshot numlockx \
   ttf-jetbrains-mono ttf-fantasque-sans-mono"
   _pause_function
 
   _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}COMPILATIONS${RESET}"
-  _print_subtitle "Compilations"
-  su - "${USERNAME}" -c "
-    _print_subtitle 'Polybar'
-    cd /home/"${USERNAME}"/.compile
+  _print_subtitle "Polybar"
+  su - ${USERNAME} -c "
+    cd /home/${USERNAME}/.compile
     git clone https://aur.archlinux.org/polybar.git
-    cd /home/"${USERNAME}"/.compile/polybar
+    cd /home/${USERNAME}/.compile/polybar
     makepkg -sic --noconfirm
+  "
 
-    _print_subtitle 'Autotiling'
-    # Autotiling
-    cd /home/"${USERNAME}"/.compile
+  _print_subtitle "Polybar"
+  su - ${USERNAME} -c "
+    cd /home/${USERNAME}/.compile
     git clone https://aur.archlinux.org/autotiling.git
-    cd /home/"${USERNAME}"/.compile/autotiling
+    cd /home/${USERNAME}/.compile/autotiling
     makepkg -sic --noconfirm
+  "
 
-    _print_subtitle 'Pulseaudio-ctl'
+  _print_subtitle "Pulseaudio-ctl"
+  su - ${USERNAME} -c "
     # Pulseaudio-ctl
-    cd /home/"${USERNAME}"/.compile
+    cd /home/${USERNAME}/.compile
     git clone https://aur.archlinux.org/pulseaudio-ctl.git
-    cd /home/"${USERNAME}"/.compile/pulseaudio-ctl
+    cd /home/${USERNAME}/.compile/pulseaudio-ctl
     makepkg -sic --noconfirm
+  "
 
-    _print_subtitle 'Numlock tty'
+  _print_subtitle "Numlock tty"
+  su - ${USERNAME} -c "
     # NumLock tty
-    cd /home/"${USERNAME}"/.compile
+    cd /home/${USERNAME}/.compile
     git clone https://aur.archlinux.org/systemd-numlockontty.git
-    cd /home/"${USERNAME}"/.compile/systemd-numlockontty
+    cd /home/${USERNAME}/.compile/systemd-numlockontty
     makepkg -sic --noconfirm
-    sudo systemctl enable numLockOnTty.service
+  "
+  _print_action "Enabling" "numLockOnTty"
+  systemctl enable numLockOnTty.service & PID=$!; _progress $PID
 
-    _print_subtitle 'jre8'
+  _print_subtitle "Jre8"
+  su - ${USERNAME} -c "
     # jre8
-    cd /home/"${USERNAME}"/.compile
+    cd /home/${USERNAME}/.compile
     git clone https://aur.archlinux.org/jre8.git
-    cd /home/"${USERNAME}"/.compile/jre8
+    cd /home/${USERNAME}/.compile/jre8
     makepkg -sic --noconfirm
   "
   _pause_function
@@ -1427,29 +1435,29 @@ _config_i3_gaps_franklisouza() {
   _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}EXTRA CONFIGURATION${RESET}"
   # Cloning repository
   echo
-  cd /home/"${USERNAME}"/.repo-fffranks
+  cd /home/${USERNAME}/.repo-fffranks
   _print_action "Cloning" "https://github.com/fffranks/dotfiles.git"
   git clone https://github.com/fffranks/dotfiles.git & PID=$!; _progress $PID
   
   # Extra configuration
   _print_action "Coping" "scripts"
-  cp -r /home/"${USERNAME}"/.repo-fffranks/dotfiles/scripts/* /home/"${USERNAME}"/Scripts/ & PID=$!; _progress $PID
-  cd /home/"${USERNAME}"/Scripts && chmod +x *
+  cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/scripts/* /home/${USERNAME}/Scripts/ & PID=$!; _progress $PID
+  cd /home/${USERNAME}/Scripts && chmod +x *
   _print_action "Coping" "local/bin"
-  cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/usr/bin/* /home/"${USERNAME}"/.local/bin & PID=$!; _progress $PID
-  cd /home/"${USERNAME}"/.local/bin && chmod +x *
+  cp /home/${USERNAME}/.repo-fffranks/dotfiles/usr/bin/* /home/${USERNAME}/.local/bin & PID=$!; _progress $PID
+  cd /home/${USERNAME}/.local/bin && chmod +x *
   
   # Copying the fonts
   _print_action "Coping" "fonts"
-  cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.fonts/* /home/"${USERNAME}"/.fonts & PID=$!; _progress $PID
+  cp /home/${USERNAME}/.repo-fffranks/dotfiles/.fonts/* /home/${USERNAME}/.fonts & PID=$!; _progress $PID
   
   # Composer
   _print_action "Coping" "picom.conf"
-  cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/picom/picom.conf /home/"${USERNAME}"/.config/picom & PID=$!; _progress $PID
+  cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/picom/picom.conf /home/${USERNAME}/.config/picom & PID=$!; _progress $PID
   
-  # Baixando fortune-mod, maim e i3lock
+  # Images
   _print_action "Coping" "images"
-  cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/lock/ArchLinux01.png /home/"${USERNAME}"/.Lock && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/lock/TuxLinux.png /home/"${USERNAME}"/.Lock & PID=$!; _progress $PID
+  cp /home/${USERNAME}/.repo-fffranks/dotfiles/lock/ArchLinux01.png /home/${USERNAME}/.Lock/ArchLinux01.png && cp /home/${USERNAME}/.repo-fffranks/dotfiles/lock/TuxLinux.png /home/${USERNAME}/.Lock/TuxLinux.png & PID=$!; _progress $PID
   _pause_function
 
   _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}THEME SELECTOR${RESET}"
@@ -1466,79 +1474,79 @@ _config_i3_gaps_franklisouza() {
         _print_subtitle "GruvBox"
         # i3
         _print_action "Configure" "i3"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/i3/config-gruvbox /home/"${USERNAME}"/.config/i3/config & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/i3/config-gruvbox /home/${USERNAME}/.config/i3/config & PID=$!; _progress $PID
 
         # POLYBAR
         _print_action "Configure" "Polybar"
-        cp -r /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/gmail /home/"${USERNAME}"/.config/polybar/ && cp -r /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/scripts /home/"${USERNAME}"/.config/polybar/ && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/config-gruvbox /home/"${USERNAME}"/.config/polybar/config & PID=$!; _progress $PID
+        cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/gmail /home/${USERNAME}/.config/polybar/ && cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/scripts /home/${USERNAME}/.config/polybar/ && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/config-gruvbox /home/${USERNAME}/.config/polybar/config & PID=$!; _progress $PID
 
         # ROFI
         _print_action "Configure" "Rofi"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/"${USERNAME}"/.config/rofi/drun.rasi && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-gruvbox /home/"${USERNAME}"/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/${USERNAME}/.config/rofi/drun.rasi && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-gruvbox /home/${USERNAME}/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
 
         # KITTY
         _print_action "Configure" "Kitty"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-gruvbox /home/"${USERNAME}"/.config/kitty/kitty.conf && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/gruvbox.conf /home/"${USERNAME}"/.config/kitty/gruvbox.conf & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-gruvbox /home/${USERNAME}/.config/kitty/kitty.conf && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/gruvbox.conf /home/${USERNAME}/.config/kitty/gruvbox.conf & PID=$!; _progress $PID
 
         # DUNST
         _print_action "Configure" "Dunst"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/dunst/dunstrc-gruvbox /home/"${USERNAME}"/.config/dunst/dunstrc & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/dunst/dunstrc-gruvbox /home/${USERNAME}/.config/dunst/dunstrc & PID=$!; _progress $PID
 
         # NITROGEN
         _print_action "Configure" "Nitrogen"
-        cd /home/"${USERNAME}"/Wallpapers && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/081.png && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/ArchGruvBox.png && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/LinuxGruvBox.png && nitrogen --set-auto /home/"${USERNAME}"/Wallpapers/LinuxGruvBox.png && i3-msg restart & PID=$!; _progress $PID
+        cd /home/${USERNAME}/Wallpapers && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/081.png && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/ArchGruvBox.png && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/LinuxGruvBox.png && nitrogen --set-auto /home/${USERNAME}/Wallpapers/LinuxGruvBox.png && i3-msg restart & PID=$!; _progress $PID
         ;;
       2)
         _print_subtitle "DRACULA"
         # i3
         _print_action "Configure" "i3"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/i3/config-dracula /home/"${USERNAME}"/.config/i3/config & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/i3/config-dracula /home/${USERNAME}/.config/i3/config & PID=$!; _progress $PID
 
         # POLYBAR
         _print_action "Configure" "Polybar"
-        cp -r /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/gmail /home/"${USERNAME}"/.config/polybar/ && cp -r /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/scripts /home/"${USERNAME}"/.config/polybar/ && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/config-dracula /home/"${USERNAME}"/.config/polybar/config & PID=$!; _progress $PID
+        cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/gmail /home/${USERNAME}/.config/polybar/ && cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/scripts /home/${USERNAME}/.config/polybar/ && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/config-dracula /home/${USERNAME}/.config/polybar/config & PID=$!; _progress $PID
 
         # ROFI
         _print_action "Configure" "Rofi"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/"${USERNAME}"/.config/rofi/drun.rasi && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-dracula /home/"${USERNAME}"/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/${USERNAME}/.config/rofi/drun.rasi && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-dracula /home/${USERNAME}/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
 
         # KITTY
         _print_action "Configure" "Kitty"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-dracula /home/"${USERNAME}"/.config/kitty/kitty.conf && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/dracula.conf /home/"${USERNAME}"/.config/kitty/dracula.conf & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-dracula /home/${USERNAME}/.config/kitty/kitty.conf && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/dracula.conf /home/${USERNAME}/.config/kitty/dracula.conf & PID=$!; _progress $PID
 
         # DUNST
         _print_action "Configure" "Dunst"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/dunst/dunstrc-dracula /home/"${USERNAME}"/.config/dunst/dunstrc & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/dunst/dunstrc-dracula /home/${USERNAME}/.config/dunst/dunstrc & PID=$!; _progress $PID
 
         # NITROGEN
         _print_action "Configure" "Nitrogen"
-        cd /home/"${USERNAME}"/Wallpapers && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/074.png && nitrogen --set-auto /home/"${USERNAME}"/Wallpapers/074.png && i3-msg restart & PID=$!; _progress $PID
+        cd /home/${USERNAME}/Wallpapers && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/074.png && nitrogen --set-auto /home/${USERNAME}/Wallpapers/074.png && i3-msg restart & PID=$!; _progress $PID
         ;;
       3)
         _print_subtitle "NORD"
         # i3
         _print_action "Configure" "i3"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/i3/config-nord /home/"${USERNAME}"/.config/i3/config & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/i3/config-nord /home/${USERNAME}/.config/i3/config & PID=$!; _progress $PID
 
         # POLYBAR
         _print_action "Configure" "Polybar"
-        cp -r /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/polybar/gmail /home/"${USERNAME}"/.config/polybar/ && cp -r /home/"${USERNAME}"/.   repo-fffranks/dotfiles/.config/polybar/scripts /home/"${USERNAME}"/.config/polybar/ && cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/  polybar/config-nord /home/"${USERNAME}"/.config/polybar/config & PID=$!; _progress $PID
+        cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/gmail /home/${USERNAME}/.config/polybar/ && cp -r /home/${USERNAME}/.   repo-fffranks/dotfiles/.config/polybar/scripts /home/${USERNAME}/.config/polybar/ && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/  polybar/config-nord /home/${USERNAME}/.config/polybar/config & PID=$!; _progress $PID
 
         # ROFI
         _print_action "Configure" "Rofi"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/"${USERNAME}"/.config/rofi/drun.rasi && cp /home/"${USERNAME}"/.    repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-nord /home/"${USERNAME}"/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/${USERNAME}/.config/rofi/drun.rasi && cp /home/${USERNAME}/.    repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-nord /home/${USERNAME}/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
 
         # KITTY
         _print_action "Configure" "Kitty"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-nord /home/"${USERNAME}"/.config/kitty/kitty.conf && cp /home/"$    {USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/nord.conf /home/"${USERNAME}"/.config/kitty/nord.conf & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-nord /home/${USERNAME}/.config/kitty/kitty.conf && cp /home/"$    {USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/nord.conf /home/${USERNAME}/.config/kitty/nord.conf & PID=$!; _progress $PID
 
         # DUNST
         _print_action "Configure" "Dunst"
-        cp /home/"${USERNAME}"/.repo-fffranks/dotfiles/.config/dunst/dunstrc-nord /home/"${USERNAME}"/.config/dunst/dunstrc & PID=$!; _progress $PID
+        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/dunst/dunstrc-nord /home/${USERNAME}/.config/dunst/dunstrc & PID=$!; _progress $PID
 
         # NITROGEN
         _print_action "Configure" "Nitrogen"
-        cd /home/"${USERNAME}"/Wallpapers &&  wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/076.png && nitrogen --set-auto /home/"$    {USERNAME}"/Wallpapers/076.png && i3-msg restart & PID=$!; _progress $PID
+        cd /home/${USERNAME}/Wallpapers &&  wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/076.png && nitrogen --set-auto /home/"$    {USERNAME}"/Wallpapers/076.png && i3-msg restart & PID=$!; _progress $PID
         ;;
       4)
         echo
@@ -1552,6 +1560,7 @@ _config_i3_gaps_franklisouza() {
     esac
   }
   _select_theme_i3_gaps
+  chown ${USERNAME} -R /home/${USERNAME}
   _pause_function
 }
 
