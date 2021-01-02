@@ -578,7 +578,7 @@ _set_network() {
 
 _mkinitcpio_generate() {
   _print_title "INITRAMFS"
-  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/block/block keymap encrypt/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
+  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/block filesystems keyboard/keyboard keymap block encrypt/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
   echo
   _read_input_option "Edit your mkinitcpio.conf file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -775,14 +775,14 @@ _install_essential_pkgs() {
 _install_xorg() {
   _print_title "XORG"
   _print_subtitle "Packages"
-  _package_install "xorg"
+  _package_install "xorg-server"
   _package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
   _pause_function
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BYELLOW}AMD${RESET}${BBLACK} and${RESET}${BYELLOW} NVIDIA${RESET}${BBLACK} will be available soon${RESET}"
+  _print_title "VIDEO DRIVER - ${BYELLOW}AMD${RESET} and${BYELLOW} NVIDIA${RESET} will be available soon"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -812,7 +812,7 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}SWAY${RESET}${BBLACK},${RESET}${BYELLOW} BSPWM${RESET}${BBLACK}  and${RESET}${BYELLOW} AWESOME${RESET}${BBLACK} will be available soon${RESET}"
+    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}SWAY${RESET},${BYELLOW} BSPWM${RESET}  and${BYELLOW} AWESOME${RESET} will be available soon"
     DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
     _print_select "Select your desktop environment or window manager:"
     select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -885,7 +885,7 @@ _install_desktop() {
 }
 
 _install_display_manager() {
-  _print_title "DISPLAY MANAGER - ${BYELLOW}LXDM${RESET}${BBLACK},${RESET}${BYELLOW} SLIM${RESET}${BBLACK} and${RESET}${BYELLOW} XINIT${RESET}${BBLACK} will be available soon${RESET}"
+  _print_title "DISPLAY MANAGER - ${BYELLOW}LXDM${RESET},${BYELLOW} SLIM${RESET} and${BYELLOW} XINIT${RESET} will be available soon"
   DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "None");
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
@@ -1217,7 +1217,7 @@ _pacstrap_install() { # install pacstrap package
 _set_font() {
   _select_consolefont() {
     _print_title "SCRIPT FONT SIZE"
-    _print_select "Select a console font:"
+    _print_select "Select script font size:"
     echo -e "1) Very small  12"
     echo -e "2) Small       14"
     echo -e "3) Small bold  14"
@@ -1272,10 +1272,10 @@ usage() {
 
 usage: ${0##*/} [flags]
 
-  Flag options:
+ Flag options:
 
-    --install | -i         First step, only root user.
-    --post    | -p         Second step, only root user.
+  --install | -i         First step, only root user.
+  --post    | -p         Second step, only root user.
 
 ${APP_TITLE} ${APP_VERSION}
 
