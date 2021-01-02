@@ -72,7 +72,7 @@
 
   # --- ESSENTIALS
     APP_TITLE="malpi"
-    APP_VERSION="0.02"
+    APP_VERSION="0.03"
     LANGUAGE="pt_BR"
     GRUB_NAME="Archlinux"
     T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
@@ -606,7 +606,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "BOOTLOADER - ${BBLACK}(${RESET}${BYELLOW}Systemd-boot${RESET}${BBLACK} will be available soon)${RESET}"
+  _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET}${BBLACK} will be available soon${RESET}"
   echo
   _read_input_text "Type a grub name entry:"
   read -r GRUB_NAME
@@ -782,7 +782,7 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BBLACK}(${RESET}${BYELLOW}AMD${RESET}${BBLACK} and${RESET}${BYELLOW} NVIDIA${RESET}${BBLACK} will be available soon)${RESET}"
+  _print_title "VIDEO DRIVER - ${BYELLOW}AMD${RESET}${BBLACK} and${RESET}${BYELLOW} NVIDIA${RESET}${BBLACK} will be available soon${RESET}"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -812,7 +812,7 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BBLACK}(${RESET}${BYELLOW}SWAY${RESET}${BBLACK},${RESET}${BYELLOW} BSPWM${RESET}${BBLACK}  and${RESET}${BYELLOW} AWESOME${RESET}${BBLACK} will be available soon${RESET}"
+    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}SWAY${RESET}${BBLACK},${RESET}${BYELLOW} BSPWM${RESET}${BBLACK}  and${RESET}${BYELLOW} AWESOME${RESET}${BBLACK} will be available soon${RESET}"
     DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
     _print_select "Select your desktop environment or window manager:"
     select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -842,29 +842,9 @@ _install_desktop() {
         ;;
       i3-gaps)
         _print_title "I3-GAPS"
-        _select_i3_mode() {
-          _print_select "Select a installation mode:"
-          echo -e "1) Standard i3-gaps"
-          echo -e "2) Fucking Franklin's i3-gaps Workstation"
-          printf "%s" "${BYELLOW}> ${RESET}"
-          read -r I3_GAPS_CHOICE
-          case $I3_GAPS_CHOICE in
-            1)
-              _print_subtitle "Packages"
-              _package_install "i3 dmenu rofi arandr feh nitrogen picom \
-              lxappearance xfce4-terminal xarchiver network-manager-applet"
-              ;;
-            2)
-              _config_i3_gaps_franklisouza
-              ;;
-            *)
-              _invalid_option
-              _pause_function
-              _select_i3_mode
-              ;;
-          esac
-        }
-        _select_i3_mode
+        _print_subtitle "Packages"
+        _package_install "i3-gaps i3blocks i3lock i3status dmenu rofi arandr feh nitrogen picom \
+        lxappearance xfce4-terminal xarchiver network-manager-applet"
         ;;
       Bspwm)
          # NOT ADDED IN SELECT
@@ -905,7 +885,7 @@ _install_desktop() {
 }
 
 _install_display_manager() {
-  _print_title "DISPLAY MANAGER - ${BBLACK}(${RESET}${BYELLOW}LXDM${RESET}${BBLACK},${RESET}${BYELLOW} SLIM${RESET}${BBLACK} and${RESET}${BYELLOW} XINIT${RESET}${BBLACK} will be available soon)${RESET}"
+  _print_title "DISPLAY MANAGER - ${BYELLOW}LXDM${RESET}${BBLACK},${RESET}${BYELLOW} SLIM${RESET}${BBLACK} and${RESET}${BYELLOW} XINIT${RESET}${BBLACK} will be available soon${RESET}"
   DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "None");
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
@@ -1334,233 +1314,6 @@ _start() {
   _check_pacman_blocked
   _print_action "Running" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
-  _pause_function
-}
-
-# ----------- THIRD PARTY FUNCTIONS
-
-# FRANKLI SOUZA - https://github.com/fffranks/dotfiles/blob/master/home/i3gaps-install
-
-_config_i3_gaps_franklisouza() {
-  _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}CREATING FOLDERS${RESET}"
-  #mkdir -p /home/${USERNAME}/{.repo-fffranks,Backup-i3,.compile,.config/{rofi/themes,picom,dunst},.fonts,.themes,.icons,.Lock,.local/bin,Wallpapers,Scripts}
-  echo
-  _print_action "Create folder" ".repo-fffranks"
-  mkdir -p /home/${USERNAME}/.repo-fffranks & PID=$!; _progress $PID
-  _print_action "Create folder" "Backup-i3"
-  mkdir -p /home/${USERNAME}/Backup-i3 & PID=$!; _progress $PID
-  _print_action "Create folder" ".compile"
-  mkdir -p /home/${USERNAME}/.compile & PID=$!; _progress $PID
-  _print_action "Create folder" ".config/rofi/themes"
-  mkdir -p /home/${USERNAME}/.config/rofi/themes & PID=$!; _progress $PID
-  _print_action "Create folder" ".config/picom"
-  mkdir -p /home/${USERNAME}/.config/picom & PID=$!; _progress $PID
-  _print_action "Create folder" ".config/dunst"
-  mkdir -p /home/${USERNAME}/.config/dunst & PID=$!; _progress $PID
-  _print_action "Create folder" ".fonts"
-  mkdir -p /home/${USERNAME}/.fonts & PID=$!; _progress $PID
-  _print_action "Create folder" ".themes"
-  mkdir -p /home/${USERNAME}/.themes & PID=$!; _progress $PID
-  _print_action "Create folder" ".icons"
-  mkdir -p /home/${USERNAME}/.icons & PID=$!; _progress $PID
-  _print_action "Create folder" ".Lock"
-  mkdir -p /home/${USERNAME}/.Lock & PID=$!; _progress $PID
-  _print_action "Create folder" ".local/bin"
-  mkdir -p /home/${USERNAME}/.local/bin & PID=$!; _progress $PID
-  _print_action "Create folder" "Wallpapers"
-  mkdir -p /home/${USERNAME}/Wallpapers & PID=$!; _progress $PID
-  _print_action "Create folder" "Scripts"
-  mkdir -p /home/${USERNAME}/Scripts & PID=$!; _progress $PID
-  chown ${USERNAME} -R /home/${USERNAME}
-  su - ${USERNAME} -c "
-    xdg-user-dirs-update
-  "
-  _pause_function
-
-  _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}PACKAGES INSTALLATION${RESET}"
-  _print_subtitle "Packages"
-  _package_install "i3-gaps i3blocks i3lock i3status git lsd picom dunst libnotify python-pip viewnior \
-  pacman-contrib lxappearance rofi nitrogen fortune-mod maim firefox-i18n-pt-br gvfs-mtp xdg-user-dirs jq \
-  pulseaudio-alsa pavucontrol w3m imagemagick flameshot numlockx \
-  ttf-jetbrains-mono ttf-fantasque-sans-mono"
-  _pause_function
-
-  _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}COMPILATIONS${RESET}"
-  _print_subtitle "Polybar"
-  su - ${USERNAME} -c "
-    cd /home/${USERNAME}/.compile
-    git clone https://aur.archlinux.org/polybar.git
-    cd /home/${USERNAME}/.compile/polybar
-    makepkg -sic --noconfirm
-  "
-
-  _print_subtitle "Polybar"
-  su - ${USERNAME} -c "
-    cd /home/${USERNAME}/.compile
-    git clone https://aur.archlinux.org/autotiling.git
-    cd /home/${USERNAME}/.compile/autotiling
-    makepkg -sic --noconfirm
-  "
-
-  _print_subtitle "Pulseaudio-ctl"
-  su - ${USERNAME} -c "
-    # Pulseaudio-ctl
-    cd /home/${USERNAME}/.compile
-    git clone https://aur.archlinux.org/pulseaudio-ctl.git
-    cd /home/${USERNAME}/.compile/pulseaudio-ctl
-    makepkg -sic --noconfirm
-  "
-
-  _print_subtitle "Numlock tty"
-  su - ${USERNAME} -c "
-    # NumLock tty
-    cd /home/${USERNAME}/.compile
-    git clone https://aur.archlinux.org/systemd-numlockontty.git
-    cd /home/${USERNAME}/.compile/systemd-numlockontty
-    makepkg -sic --noconfirm
-  "
-  _print_action "Enabling" "numLockOnTty"
-  systemctl enable numLockOnTty.service & PID=$!; _progress $PID
-
-  _print_subtitle "Jre8"
-  su - ${USERNAME} -c "
-    # jre8
-    cd /home/${USERNAME}/.compile
-    git clone https://aur.archlinux.org/jre8.git
-    cd /home/${USERNAME}/.compile/jre8
-    makepkg -sic --noconfirm
-  "
-  _pause_function
-
-  _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}EXTRA CONFIGURATION${RESET}"
-  # Cloning repository
-  echo
-  cd /home/${USERNAME}/.repo-fffranks
-  _print_action "Cloning" "https://github.com/fffranks/dotfiles.git"
-  git clone https://github.com/fffranks/dotfiles.git & PID=$!; _progress $PID
-  
-  # Extra configuration
-  _print_action "Coping" "scripts"
-  cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/scripts/* /home/${USERNAME}/Scripts/ & PID=$!; _progress $PID
-  cd /home/${USERNAME}/Scripts && chmod +x *
-  _print_action "Coping" "local/bin"
-  cp /home/${USERNAME}/.repo-fffranks/dotfiles/usr/bin/* /home/${USERNAME}/.local/bin & PID=$!; _progress $PID
-  cd /home/${USERNAME}/.local/bin && chmod +x *
-  
-  # Copying the fonts
-  _print_action "Coping" "fonts"
-  cp /home/${USERNAME}/.repo-fffranks/dotfiles/.fonts/* /home/${USERNAME}/.fonts & PID=$!; _progress $PID
-  
-  # Composer
-  _print_action "Coping" "picom.conf"
-  cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/picom/picom.conf /home/${USERNAME}/.config/picom & PID=$!; _progress $PID
-  
-  # Images
-  _print_action "Coping" "images"
-  cp /home/${USERNAME}/.repo-fffranks/dotfiles/lock/ArchLinux01.png /home/${USERNAME}/.Lock/ArchLinux01.png && cp /home/${USERNAME}/.repo-fffranks/dotfiles/lock/TuxLinux.png /home/${USERNAME}/.Lock/TuxLinux.png & PID=$!; _progress $PID
-  _pause_function
-
-  _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}THEME SELECTOR${RESET}"
-  _select_theme_i3_gaps() {
-    _print_select "Select a theme:"
-    echo -e "1) GruvBox"
-    echo -e "2) Dracula"
-    echo -e "3) Nord"
-    echo -e "4) None"
-    printf "%s" "${BYELLOW}> ${RESET}"
-    read -r THEME_I3_CHOICE
-    case $THEME_I3_CHOICE in
-      1)
-        _print_subtitle "GruvBox"
-        # i3
-        _print_action "Configure" "i3"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/i3/config-gruvbox /home/${USERNAME}/.config/i3/config & PID=$!; _progress $PID
-
-        # POLYBAR
-        _print_action "Configure" "Polybar"
-        cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/gmail /home/${USERNAME}/.config/polybar/ && cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/scripts /home/${USERNAME}/.config/polybar/ && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/config-gruvbox /home/${USERNAME}/.config/polybar/config & PID=$!; _progress $PID
-
-        # ROFI
-        _print_action "Configure" "Rofi"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/${USERNAME}/.config/rofi/drun.rasi && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-gruvbox /home/${USERNAME}/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
-
-        # KITTY
-        _print_action "Configure" "Kitty"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-gruvbox /home/${USERNAME}/.config/kitty/kitty.conf && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/gruvbox.conf /home/${USERNAME}/.config/kitty/gruvbox.conf & PID=$!; _progress $PID
-
-        # DUNST
-        _print_action "Configure" "Dunst"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/dunst/dunstrc-gruvbox /home/${USERNAME}/.config/dunst/dunstrc & PID=$!; _progress $PID
-
-        # NITROGEN
-        _print_action "Configure" "Nitrogen"
-        cd /home/${USERNAME}/Wallpapers && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/081.png && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/ArchGruvBox.png && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/LinuxGruvBox.png && nitrogen --set-auto /home/${USERNAME}/Wallpapers/LinuxGruvBox.png && i3-msg restart & PID=$!; _progress $PID
-        ;;
-      2)
-        _print_subtitle "DRACULA"
-        # i3
-        _print_action "Configure" "i3"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/i3/config-dracula /home/${USERNAME}/.config/i3/config & PID=$!; _progress $PID
-
-        # POLYBAR
-        _print_action "Configure" "Polybar"
-        cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/gmail /home/${USERNAME}/.config/polybar/ && cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/scripts /home/${USERNAME}/.config/polybar/ && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/config-dracula /home/${USERNAME}/.config/polybar/config & PID=$!; _progress $PID
-
-        # ROFI
-        _print_action "Configure" "Rofi"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/${USERNAME}/.config/rofi/drun.rasi && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-dracula /home/${USERNAME}/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
-
-        # KITTY
-        _print_action "Configure" "Kitty"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-dracula /home/${USERNAME}/.config/kitty/kitty.conf && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/dracula.conf /home/${USERNAME}/.config/kitty/dracula.conf & PID=$!; _progress $PID
-
-        # DUNST
-        _print_action "Configure" "Dunst"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/dunst/dunstrc-dracula /home/${USERNAME}/.config/dunst/dunstrc & PID=$!; _progress $PID
-
-        # NITROGEN
-        _print_action "Configure" "Nitrogen"
-        cd /home/${USERNAME}/Wallpapers && wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/074.png && nitrogen --set-auto /home/${USERNAME}/Wallpapers/074.png && i3-msg restart & PID=$!; _progress $PID
-        ;;
-      3)
-        _print_subtitle "NORD"
-        # i3
-        _print_action "Configure" "i3"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/i3/config-nord /home/${USERNAME}/.config/i3/config & PID=$!; _progress $PID
-
-        # POLYBAR
-        _print_action "Configure" "Polybar"
-        cp -r /home/${USERNAME}/.repo-fffranks/dotfiles/.config/polybar/gmail /home/${USERNAME}/.config/polybar/ && cp -r /home/${USERNAME}/.   repo-fffranks/dotfiles/.config/polybar/scripts /home/${USERNAME}/.config/polybar/ && cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/  polybar/config-nord /home/${USERNAME}/.config/polybar/config & PID=$!; _progress $PID
-
-        # ROFI
-        _print_action "Configure" "Rofi"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/rofi/drun.rasi /home/${USERNAME}/.config/rofi/drun.rasi && cp /home/${USERNAME}/.    repo-fffranks/dotfiles/.config/rofi/themes/dark.rasi-nord /home/${USERNAME}/.config/rofi/themes/dark.rasi & PID=$!; _progress $PID
-
-        # KITTY
-        _print_action "Configure" "Kitty"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/kitty/kitty.conf-nord /home/${USERNAME}/.config/kitty/kitty.conf && cp /home/"$    {USERNAME}"/.repo-fffranks/dotfiles/.config/kitty/nord.conf /home/${USERNAME}/.config/kitty/nord.conf & PID=$!; _progress $PID
-
-        # DUNST
-        _print_action "Configure" "Dunst"
-        cp /home/${USERNAME}/.repo-fffranks/dotfiles/.config/dunst/dunstrc-nord /home/${USERNAME}/.config/dunst/dunstrc & PID=$!; _progress $PID
-
-        # NITROGEN
-        _print_action "Configure" "Nitrogen"
-        cd /home/${USERNAME}/Wallpapers &&  wget -c https://github.com/fffranks/dotfiles/raw/master/wallpapers/076.png && nitrogen --set-auto /home/"$    {USERNAME}"/Wallpapers/076.png && i3-msg restart & PID=$!; _progress $PID
-        ;;
-      4)
-        echo
-        _print_info "No theme has been installed!"
-        ;;
-      *)
-        _invalid_option
-        _pause_function
-        _select_theme_i3_gaps
-        ;;
-    esac
-  }
-  _select_theme_i3_gaps
-  chown ${USERNAME} -R /home/${USERNAME}
   _pause_function
 }
 
