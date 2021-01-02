@@ -1345,33 +1345,33 @@ _config_i3_gaps_franklisouza() {
   _print_title "I3-GAPS FRANKLI SOUZA - ${BGREEN}CREATING FOLDERS${RESET}"
   #mkdir -p /home/${USERNAME}/{.repo-fffranks,Backup-i3,.compile,.config/{rofi/themes,picom,dunst},.fonts,.themes,.icons,.Lock,.local/bin,Wallpapers,Scripts}
   echo
-  _print_action "Create folder" ".repo-fffranks"
-  mkdir -p /home/"${USERNAME}"/.repo-fffranks & PID=$!; _progress $PID
-  _print_action "Create folder" "Backup-i3"
-  mkdir -p /home/"${USERNAME}"/Backup-i3 & PID=$!; _progress $PID
-  _print_action "Create folder" ".compile"
-  mkdir -p /home/"${USERNAME}"/.compile & PID=$!; _progress $PID
-  _print_action "Create folder" ".config/rofi/themes"
-  mkdir -p /home/"${USERNAME}"/.config/rofi/themes & PID=$!; _progress $PID
-  _print_action "Create folder" ".config/picom"
-  mkdir -p /home/"${USERNAME}"/.config/picom & PID=$!; _progress $PID
-  _print_action "Create folder" ".config/dunst"
-  mkdir -p /home/"${USERNAME}"/.config/dunst & PID=$!; _progress $PID
-  _print_action "Create folder" ".fonts"
-  mkdir -p /home/"${USERNAME}"/.fonts & PID=$!; _progress $PID
-  _print_action "Create folder" ".themes"
-  mkdir -p /home/"${USERNAME}"/.themes & PID=$!; _progress $PID
-  _print_action "Create folder" ".icons"
-  mkdir -p /home/"${USERNAME}"/.icons & PID=$!; _progress $PID
-  _print_action "Create folder" ".Lock"
-  mkdir -p /home/"${USERNAME}"/.Lock & PID=$!; _progress $PID
-  _print_action "Create folder" ".local/bin"
-  mkdir -p /home/"${USERNAME}"/.local/bin & PID=$!; _progress $PID
-  _print_action "Create folder" "Wallpapers"
-  mkdir -p /home/"${USERNAME}"/Wallpapers & PID=$!; _progress $PID
-  _print_action "Create folder" "Scripts"
-  mkdir -p /home/"${USERNAME}"/Scripts & PID=$!; _progress $PID
   su - "${USERNAME}" -c "
+    _print_action "Create folder" ".repo-fffranks"
+    mkdir -p /home/"${USERNAME}"/.repo-fffranks & PID=$!; _progress $PID
+    _print_action "Create folder" "Backup-i3"
+    mkdir -p /home/"${USERNAME}"/Backup-i3 & PID=$!; _progress $PID
+    _print_action "Create folder" ".compile"
+    mkdir -p /home/"${USERNAME}"/.compile & PID=$!; _progress $PID
+    _print_action "Create folder" ".config/rofi/themes"
+    mkdir -p /home/"${USERNAME}"/.config/rofi/themes & PID=$!; _progress $PID
+    _print_action "Create folder" ".config/picom"
+    mkdir -p /home/"${USERNAME}"/.config/picom & PID=$!; _progress $PID
+    _print_action "Create folder" ".config/dunst"
+    mkdir -p /home/"${USERNAME}"/.config/dunst & PID=$!; _progress $PID
+    _print_action "Create folder" ".fonts"
+    mkdir -p /home/"${USERNAME}"/.fonts & PID=$!; _progress $PID
+    _print_action "Create folder" ".themes"
+    mkdir -p /home/"${USERNAME}"/.themes & PID=$!; _progress $PID
+    _print_action "Create folder" ".icons"
+    mkdir -p /home/"${USERNAME}"/.icons & PID=$!; _progress $PID
+    _print_action "Create folder" ".Lock"
+    mkdir -p /home/"${USERNAME}"/.Lock & PID=$!; _progress $PID
+    _print_action "Create folder" ".local/bin"
+    mkdir -p /home/"${USERNAME}"/.local/bin & PID=$!; _progress $PID
+    _print_action "Create folder" "Wallpapers"
+    mkdir -p /home/"${USERNAME}"/Wallpapers & PID=$!; _progress $PID
+    _print_action "Create folder" "Scripts"
+    mkdir -p /home/"${USERNAME}"/Scripts & PID=$!; _progress $PID
     xdg-user-dirs-update
   "
   _pause_function
