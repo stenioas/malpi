@@ -845,7 +845,7 @@ _install_desktop() {
         _select_i3_mode() {
           _print_select "Select a installation mode:"
           echo -e "1) Standard i3-gaps"
-          echo -e "2) Frankli Souza i3-gaps"
+          echo -e "2) Fucking Franklin's i3-gaps Workstation"
           printf "%s" "${BYELLOW}> ${RESET}"
           read -r I3_GAPS_CHOICE
           case $I3_GAPS_CHOICE in
@@ -855,7 +855,7 @@ _install_desktop() {
               lxappearance xfce4-terminal xarchiver network-manager-applet"
               ;;
             2)
-              
+              _config_i3_gaps_franklisouza
               ;;
             *)
               _invalid_option
