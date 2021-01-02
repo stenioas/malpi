@@ -72,7 +72,7 @@
 
   # --- ESSENTIALS
     APP_TITLE="malpi"
-    APP_VERSION="0.02"
+    APP_VERSION="0.03"
     LANGUAGE="pt_BR"
     GRUB_NAME="Archlinux"
     T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
@@ -205,39 +205,40 @@ _rank_mirrors() {
 
 _select_disk() {
   _print_title "PARTITION THE DISKS"
-  DEVICES_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
+  DISKS_LIST=($(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'))
   _print_select "Select disk:"
-  select DEVICE in "${DEVICES_LIST[@]}"; do
-    if _contains_element "${DEVICE}" "${DEVICES_LIST[@]}"; then
+  select DISK in "${DISKS_LIST[@]}"; do
+    if _contains_element "${DISK}" "${DISKS_LIST[@]}"; then
       break
     else
       _invalid_option
     fi
   done
-  INSTALL_DISK=${DEVICE}
+  INSTALL_DISK=${DISK}
   echo
   _print_line
   _read_input_option "Edit disk partitions? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  if [[ "$OPTION" = "y" || "$OPTION" = "Y" ]]; then
     cfdisk ${INSTALL_DISK}
   fi
 }
 
 _format_partitions() {
-  _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
-  BLOCK_LIST=($(lsblk | grep 'part\|lvm' | awk '{print substr($1,3)}'))
-
+  BLOCK_LIST=($(lsblk | grep 'part' | awk '{print substr($1,3)}'))
   PARTITIONS_LIST=()
+
   for OPT in "${BLOCK_LIST[@]}"; do
-    PARTITIONS_LIST+=("/dev/${OPT}")
+    PARTITIONS_LIST+=("/dev/$OPT")
   done
 
   if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
+    echo
     _print_warning "No partition found."
     exit 0
   fi
 
   _format_root_partition() {
+    _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
@@ -252,6 +253,23 @@ _format_partitions() {
     done
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       umount -R ${ROOT_MOUNTPOINT}
+    fi
+    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt')
+
+    if [[ ! "$LUKS_VOLUMES" = "" ]]; then
+      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
+      for ITEM in ${LUKS_OPEN[@]}; do
+        cryptsetup close /dev/mapper/"$ITEM"
+      done
+    fi
+    echo
+    _read_input_option "Do you want to encrypt the root partition? [y/N]: "
+    if [[ $OPTION == y || $OPTION == Y ]]; then
+      _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
+      if [[ $OPTION == y || $OPTION == Y ]]; then
+        _print_subtitle "luksFormat"
+        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
+      fi
     fi
     echo
     _print_action "Format" "${ROOT_PARTITION}"
@@ -280,6 +298,7 @@ _format_partitions() {
     _print_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
+        PARTITION_NUMBER=$((REPLY -1))
         EFI_PARTITION="${PARTITION}"
         break;
       else
@@ -399,6 +418,9 @@ _install_base() {
   fi
   if [[ "${MICROCODE_VERSION}" != "None" ]]; then
     _pacstrap_install "${MICROCODE_VERSION}"
+  fi
+  if [[ $LUKS == 1 ]]; then
+    _pacstrap_install "cryptsetup"
   fi
   echo
   _read_input_option "Install NetworkManager? [Y/n]: "
@@ -556,6 +578,7 @@ _set_network() {
 
 _mkinitcpio_generate() {
   _print_title "INITRAMFS"
+  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/block filesystems keyboard/keyboard keymap block encrypt/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
   echo
   _read_input_option "Edit your mkinitcpio.conf file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -583,7 +606,7 @@ _root_passwd() {
 }
 
 _grub_generate() {
-  _print_title "BOOTLOADER - ${BYELLOW}SYSTEMD-BOOT WILL BE AVAILABLE SOON${RESET}"
+  _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET}${BBLACK} will be available soon${RESET}"
   echo
   _read_input_text "Type a grub name entry:"
   read -r GRUB_NAME
@@ -603,6 +626,10 @@ _grub_generate() {
     echo
     _pacstrap_install "os-prober"
   fi
+  if [[ $LUKS -eq 1 ]]; then
+    UUID=$(blkid ${LUKS_PARTITION} | awk -F '"' '{print $2}')
+    sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=UUID='${UUID}':crypt"/g' ${ROOT_MOUNTPOINT}/etc/default/grub
+  fi
   _print_subtitle "Grub install"
   arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=${GRUB_NAME} --recheck
   _print_subtitle "Grub configuration file"
@@ -616,7 +643,11 @@ _finish_install() {
   _print_info "Your new system has been installed!"
   echo
   _print_item "Disk" "${INSTALL_DISK}"
-  _print_item "Root partition" "${ROOT_PARTITION}"
+  if [[ $LUKS -eq 1 ]]; then
+    _print_item "Root partition" "${LUKS_PARTITION}"
+  else
+    _print_item "Root partition" "${ROOT_PARTITION}"
+  fi
   _print_item "EFI partition" "${EFI_PARTITION}"
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
@@ -630,8 +661,8 @@ _finish_install() {
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
     echo
-    _print_action "Saving" "malpi"
-    curl -L https://stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
+    _print_action "Coping" "malpi"
+    cp malpi ${ROOT_MOUNTPOINT}/root/malpi &> /dev/null & PID=$!; _progress $PID
   fi
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
@@ -640,6 +671,7 @@ _finish_install() {
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     clear
+    setfont
     reboot
   else
     _print_bye
@@ -705,21 +737,21 @@ _enable_multilib(){
   _print_title "MULTILIB"
   ARCHI=$(uname -m)
   if [[ $ARCHI == x86_64 ]]; then
-    local _has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
-    if [[ -z $_has_multilib ]]; then
+    local HAS_MULTILIB=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
+    if [[ -z $HAS_MULTILIB ]]; then
       echo
       _print_action "Enabling" "Multilib"
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf & PID=$!; _progress $PID
     else
       echo
       _print_action "Enabling" "Multilib"
-      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf
-      local _has_multilib=$(( _has_multilib + 1 ))
-      sed -i "${_has_multilib}s/^#//" /etc/pacman.conf & PID=$!; _progress $PID
+      sed -i "${HAS_MULTILIB}s/^#//" /etc/pacman.conf
+      local HAS_MULTILIB=$(( HAS_MULTILIB + 1 ))
+      sed -i "${HAS_MULTILIB}s/^#//" /etc/pacman.conf & PID=$!; _progress $PID
     fi
   fi
-  _print_action "Running" "pacman -Syy"
-  pacman -Syy &> /dev/null & PID=$!; _progress $PID
+  _print_subtitle "Updating"
+  pacman -Syy
   _pause_function
 }
 
@@ -729,13 +761,13 @@ _install_essential_pkgs() {
   echo
   _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
-  _read_input_option "Install essential packages? [y/N]: "
-  ESSENTIAL_PKGS_STATUS="${BRED}Not installed!${RESET}"
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  _read_input_option "Install essential packages? [Y/n]: "
+  ESSENTIAL_PKGS_STATUS="${BRED}No${RESET}"
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     _print_title "ESSENTIAL PACKAGES"
     _print_subtitle "Packages"
     _package_install "${ESSENTIAL_PKGS}"
-    ESSENTIAL_PKGS_STATUS="${BGREEN}Installed!${RESET}"
+    ESSENTIAL_PKGS_STATUS="${BGREEN}Yes${RESET}"
     _pause_function
   fi
 }
@@ -743,14 +775,14 @@ _install_essential_pkgs() {
 _install_xorg() {
   _print_title "XORG"
   _print_subtitle "Packages"
-  _package_install "xorg"
+  _package_install "xorg-server"
   _package_install "xorg-apps"
   _package_install "xorg-xinit xterm"
   _pause_function
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BYELLOW}AMD AND NVIDIA WILL BE AVAILABLE SOON${RESET}"
+  _print_title "VIDEO DRIVER - ${BYELLOW}AMD${RESET} and${BYELLOW} NVIDIA${RESET} will be available soon"
   VIDEO_CARD_LIST=("Intel" "Virtualbox");
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
@@ -780,69 +812,70 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-  _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}BSPWM AND AWESOME WILL BE AVAILABLE SOON${RESET}"
-  DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
-  _print_select "Select your desktop environment or window manager:"
-  select DESKTOP in "${DESKTOP_LIST[@]}"; do
-    if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
-      break
-    else
-      _invalid_option
-    fi
-  done
-  case ${DESKTOP} in
-    Gnome)
-      _print_title "GNOME"
-      _print_subtitle "Packages"
-      _package_install "gnome"
-      _package_install "gnome-extra"
-      _package_install "gnome-tweaks"
-      ;;
-    Plasma)
-      _print_title "KDE PLASMA"
-      _print_subtitle "Packages"
-      _package_install "plasma kde-applications packagekit-qt5"
-      ;;
-    Xfce)
-      _print_title "XFCE4"
-      _print_subtitle "Packages"
-      _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
-      ;;
-    i3-gaps)
-      _print_title "I3-GAPS"
-      _print_subtitle "Packages"
-      _package_install "i3-gaps i3status i3blocks i3lock dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver   network-manager-applet"
-      ;;
-    Bspwm)
-       # NOT ADDED IN SELECT
-      _print_title "BSPWM" 
-      _print_subtitle "Packages"
-      _print_warning "It's not working yet..."
-      ;;
-    Awesome)
-      # NOT ADDED IN SELECT
-      _print_title "AWESOME WM"
-      _print_subtitle "Packages"
-      _print_warning "It's not working yet..."
-      ;;
-    Openbox)
-      _print_title "OPENBOX"
-      _print_subtitle "Packages"
-      _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
-      ;;
-    Qtile)
-      _print_title "QTILE"
-      _print_subtitle "Packages"
-      _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
-      ;;
-    None)
-      echo
-      _read_input_option "${BRED}Are you sure about that? [y/N]: ${RESET}"
-      if ! [[ $OPTION == y || $OPTION == Y ]]; then
-        _select_desktop
+    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}SWAY${RESET},${BYELLOW} BSPWM${RESET}  and${BYELLOW} AWESOME${RESET} will be available soon"
+    DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Openbox" "Qtile" "None");
+    _print_select "Select your desktop environment or window manager:"
+    select DESKTOP in "${DESKTOP_LIST[@]}"; do
+      if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
+        break
+      else
+        _invalid_option
       fi
-      ;;
-  esac
+    done
+    case ${DESKTOP} in
+      Gnome)
+        _print_title "GNOME"
+        _print_subtitle "Packages"
+        _package_install "gnome"
+        _package_install "gnome-extra"
+        _package_install "gnome-tweaks"
+        ;;
+      Plasma)
+        _print_title "KDE PLASMA"
+        _print_subtitle "Packages"
+        _package_install "plasma kde-applications packagekit-qt5"
+        ;;
+      Xfce)
+        _print_title "XFCE4"
+        _print_subtitle "Packages"
+        _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
+        ;;
+      i3-gaps)
+        _print_title "I3-GAPS"
+        _print_subtitle "Packages"
+        _package_install "i3-gaps i3blocks i3lock i3status dmenu rofi arandr feh nitrogen picom \
+        lxappearance xfce4-terminal xarchiver network-manager-applet"
+        ;;
+      Bspwm)
+         # NOT ADDED IN SELECT
+        _print_title "BSPWM" 
+        _print_subtitle "Packages"
+        _print_warning "It's not working yet..."
+        ;;
+      Awesome)
+        # NOT ADDED IN SELECT
+        _print_title "AWESOME WM"
+        _print_subtitle "Packages"
+        _print_warning "It's not working yet..."
+        ;;
+      Openbox)
+        _print_title "OPENBOX"
+        _print_subtitle "Packages"
+        _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+        ;;
+      Qtile)
+        _print_title "QTILE"
+        _print_subtitle "Packages"
+        _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+        ;;
+      None)
+        echo
+        _read_input_option "${BRED}Are you sure about that? [y/N]: ${RESET}"
+        if ! [[ $OPTION == y || $OPTION == Y ]]; then
+          _select_desktop
+        fi
+        ;;
+    esac
   }
   _select_desktop
   if ! [[ "${DESKTOP}" = "None" ]]; then
@@ -852,7 +885,7 @@ _install_desktop() {
 }
 
 _install_display_manager() {
-  _print_title "DISPLAY MANAGER - ${BYELLOW}LXDM, SLIM AND XINIT WILL BE AVAILABLE SOON${RESET}"
+  _print_title "DISPLAY MANAGER - ${BYELLOW}LXDM${RESET},${BYELLOW} SLIM${RESET} and${BYELLOW} XINIT${RESET} will be available soon"
   DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "None");
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
@@ -917,9 +950,9 @@ _install_extra_pkgs() {
   _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
   _print_item "Sound tools" "${SOUND_PKGS}"
   echo
-  EXTRA_PKGS_STATUS="${BRED}Not installed!${RESET}"
-  _read_input_option "Install extra packages? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  EXTRA_PKGS_STATUS="${BRED}No${RESET}"
+  _read_input_option "Install extra packages? [Y/n]: "
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     _print_title "EXTRA PACKAGES"
     _print_subtitle "Utilities"
     _package_install "${UTILITIES_PKGS}"
@@ -929,7 +962,7 @@ _install_extra_pkgs() {
     _package_install "${FILESYSTEM_PKGS}"
     _print_subtitle "Sound tools"
     _package_install "${SOUND_PKGS}"
-    EXTRA_PKGS_STATUS="${BGREEN}Installed!${RESET}"
+    EXTRA_PKGS_STATUS="${BGREEN}Yes${RESET}"
     _pause_function
   fi
 }
@@ -940,16 +973,16 @@ _install_laptop_pkgs() {
   echo
   _print_item "Laptop packages" "${LAPTOP_PKGS}"
   echo
-  LAPTOP_PKGS_STATUS="${BRED}Not installed!${RESET}"
-  _read_input_option "Install laptop packages? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
+  LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
+  _read_input_option "Install laptop packages? [Y/n]: "
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
   _print_title "LAPTOP PACKAGES"
     _print_subtitle "Packages"
     _package_install "${LAPTOP_PKGS}"
     _print_subtitle "Services"
     _print_action "Enabling" "Bluetooth"
     systemctl enable bluetooth &> /dev/null & PID=$!; _progress $PID
-    LAPTOP_PKGS_STATUS="${BGREEN}Installed!${RESET}"
+    LAPTOP_PKGS_STATUS="${BGREEN}Yes${RESET}"
     _pause_function
   fi
 }
@@ -959,25 +992,29 @@ _install_aurhelper() {
   echo
   _print_warning "The user password will be required, stay watchful!"
   echo
-  AUR_HELPER_STATUS="${BRED}Not installed!${RESET}"
-  _read_input_option "Install yay? [y/N]: "
-  if [[ "${OPTION}" = "y" || "${OPTION}" = "Y" ]]; then
+  AUR_HELPER_STATUS="${BRED}No${RESET}"
+  _read_input_option "Install yay? [Y/n]: "
+  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
       _package_install "git go"
       echo
       pacman -D --asdeps go
-      su - "${USERNAME}" -c "
+      su - ${USERNAME} -c "
         [[ -d yay ]] && rm -rf yay
         git clone https://aur.archlinux.org/yay.git yay
         cd yay
         makepkg -csi --noconfirm
       "
-      AUR_HELPER_STATUS="${BGREEN}Installed!${RESET}"
+      if _is_package_installed "yay"; then
+        AUR_HELPER_STATUS="${BGREEN}Yes${RESET}"
+      else
+        AUR_HELPER_STATUS="${BRED}No${RESET}"
+      fi
       _pause_function
     else
       _print_info "Yay is already installed!"
-      AUR_HELPER_STATUS="${BGREEN}Installed!${RESET}"
+      AUR_HELPER_STATUS="${BGREEN}Yes${RESET}"
       _pause_function
     fi
   fi
@@ -1000,6 +1037,7 @@ _finish_post() {
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [[ $OPTION == y || $OPTION == Y ]]; then
     clear
+    setfont
     reboot
   else
     _print_bye
@@ -1040,7 +1078,7 @@ _print_select() {
 
 _print_item() {
   REM_COLS=$(( 22 - ${#1} ))
-  echo -ne "${BLUE}$1${RESET}"
+  echo -ne "${BBLUE}$1${RESET}"
   echo -ne "${BBLACK}`seq -s ' ' $REM_COLS | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK}:${RESET}"
   echo -e " $2"
@@ -1178,8 +1216,8 @@ _pacstrap_install() { # install pacstrap package
 
 _set_font() {
   _select_consolefont() {
-    _print_title "FONT SIZE - ${BYELLOW}JUST FOR THIS SCRIPT EXECUTION${RESET}"
-    _print_select "Select a console font:"
+    _print_title "SCRIPT FONT SIZE"
+    _print_select "Select script font size:"
     echo -e "1) Very small  12"
     echo -e "2) Small       14"
     echo -e "3) Small bold  14"
@@ -1234,10 +1272,10 @@ usage() {
 
 usage: ${0##*/} [flags]
 
-  Flag options:
+ Flag options:
 
-    --install | -i         First step, only root user.
-    --post    | -p         Second step, only root user.
+  --install | -i         First step, only root user.
+  --post    | -p         Second step, only root user.
 
 ${APP_TITLE} ${APP_VERSION}
 
@@ -1252,18 +1290,18 @@ _start() {
   T_LINES=$(tput lines)
   COLS_LOGO=47
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}┌─────────────────────────────────────────────┐${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│   __   __  _______  ___      _______  ___   │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |  |_|  ||   _   ||   |    |       ||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |       ||  |_|  ||   |    |    _  ||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |       ||       ||   |    |   |_| ||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |       ||       ||   |___ |    ___||   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  | ||_|| ||   _   ||       ||   |    |   |  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│  |_|   |_||__| |__||_______||___|    |___|  │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}│                                             │${RESET}"
-  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BBLACK}└───── ${PURPLE}My Personal Arch Linux Installer${RESET}${BBLACK} ──────┘${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}┌─────────────────────────────────────────────┐${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}   __   __  _______  ___      _______  ___ ${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |  |_|  ||   _   ||   |    |       ||   |${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||  |_|  ||   |    |    _  ||   |${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||       ||   |    |   |_| ||   |${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||       ||   |___ |    ___||   |${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}  | ||_|| ||   _   ||       ||   |    |   |${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |_|   |_||__| |__||_______||___|    |___|${RESET}${BGREEN}  │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}│                                             │${RESET}"
+  tput cuf $(( (T_COLS - ${COLS_LOGO})/2 )); echo "${BGREEN}└───── ${BGREEN}My Personal Arch Linux Installer${RESET}${BGREEN} ──────┘${RESET}"
   echo
-  tput cuf $(( (T_COLS - 17)/2 )); echo -e "${BGREEN}By Stenio Silveira${RESET}"
+  tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BPURPLE}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
   _print_title "CHECKING REQUIREMENTS"
