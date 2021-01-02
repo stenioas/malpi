@@ -108,7 +108,6 @@ _setup_install(){
   _root_passwd
   _grub_generate
   _finish_install
-  exit 0
 }
 
 _setup_post(){
@@ -123,8 +122,8 @@ _setup_post(){
   _install_extra_pkgs
   _install_laptop_pkgs
   _install_aurhelper
+  _clean_orphan_packages
   _finish_post
-  exit 0
 }
 
 # ----------------------------------------------------------------------#
@@ -1018,6 +1017,14 @@ _install_aurhelper() {
       _pause_function
     fi
   fi
+}
+
+_clean_orphan_packages(){
+  _print_title "CLEAN ORPHAN PACKAGES"
+  echo
+  _print_action "Cleaning" "orphan packages"
+  pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
+  _pause_function
 }
 
 _finish_post() {
