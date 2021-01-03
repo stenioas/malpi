@@ -54,7 +54,7 @@
 6. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
 7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default.
 8. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported (*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
-9. The [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is installed by default (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
+9. Only the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is currently available (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
 10. This script can be cancelled at any time with **CTRL+C**.
 11. **THIS SCRIPT IS NOT YET COMPLETE!**
 
