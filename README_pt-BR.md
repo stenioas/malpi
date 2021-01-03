@@ -54,7 +54,7 @@
 6. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
 7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
 8. Somente o [**XORG**](https://wiki.archlinux.org/index.php/Xorg_(Português)) é suportado (*[**Wayland**](https://wiki.archlinux.org/index.php/Wayland_(Português)) estará disponível em breve*).
-9. O carregador de inicialização [**GRUB**](https://wiki.archlinux.org/index.php/GRUB_(Português)) é instalado por padrão (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estará disponível em breve*).
+9. Apenas o carregador de inicialização [**GRUB**](https://wiki.archlinux.org/index.php/GRUB_(Português))  está disponível no momento (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estará disponível em breve*).
 10. O script pode ser cancelado a qualquer momento com **CTRL+C**.
 11. **ESTE SCRIPT AINDA NÃO ESTÁ COMPLETO!**
 
