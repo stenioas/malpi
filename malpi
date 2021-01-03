@@ -33,11 +33,10 @@
 #
 # ----------------------------------------------------------------------#
 #
-# ----------- GLOBAL VARIABLES
+# -------------------- GLOBAL VARIABLES
 
   # --- COLORS
     BOLD=$(tput bold)
-    UNDERLINE=$(tput sgr 0 1)
     RESET=$(tput sgr0)
 
     # Regular Colors
@@ -77,7 +76,6 @@
     GRUB_NAME="Archlinux"
     T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
     T_LINES=$(tput lines) #NUMBER OF SCREEN LINES
-    TRIM=0
     SPIN="/-\|" #SPINNER POSITION
 
   # --- MOUNTPOINTS
@@ -91,7 +89,7 @@
 
 # ----------------------------------------------------------------------#
 
-# ----------- CORE FUNCTIONS
+# -------------------- CORE FUNCTIONS
 
 _setup_install(){
   _set_font
@@ -106,9 +104,8 @@ _setup_install(){
   _set_network
   _mkinitcpio_generate
   _root_passwd
-  _grub_generate
+  _set_bootloader
   _finish_install
-  exit 0
 }
 
 _setup_post(){
@@ -123,15 +120,15 @@ _setup_post(){
   _install_extra_pkgs
   _install_laptop_pkgs
   _install_aurhelper
+  _clean_orphan_packages
   _finish_post
-  exit 0
 }
 
 # ----------------------------------------------------------------------#
 
-# ----------- BASE FUNCTIONS
+# -------------------- BASE FUNCTIONS
 
-# --- INSTALL SECTION --- >
+# -------------------- INSTALL SECTION
 
 _readme() {
   T_COLS=$(tput cols)
@@ -156,7 +153,7 @@ _readme() {
 
   - ${BYELLOW}SWAP${RESET} is not supported..
 
-  - ${BYELLOW}NetworkManager${RESET} is installed by default (${PURPLE}Systemd-networkd${RESET} will be available soon)
+  - ${BYELLOW}NetworkManager${RESET} is installed by default.
 
   - Only ${BYELLOW}XORG${RESET} is supported (${PURPLE}Wayland${RESET} will be available soon).
 
@@ -198,7 +195,7 @@ _rank_mirrors() {
     nano /etc/pacman.d/mirrorlist
     _print_title "MIRRORS"
   fi
-  _print_subtitle "Updating"
+  _print_subtitle "Update"
   pacman -Syy
   _pause_function
 }
@@ -252,11 +249,11 @@ _format_partitions() {
       fi
     done
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
-      umount -R ${ROOT_MOUNTPOINT}
+      _umount_partitions
     fi
-    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt')
+    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt') # Open luks volumes?
 
-    if [[ ! "$LUKS_VOLUMES" = "" ]]; then
+    if [[ ! "$LUKS_VOLUMES" = "" ]]; then # Close luks volumes!
       LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
       for ITEM in ${LUKS_OPEN[@]}; do
         cryptsetup close /dev/mapper/"$ITEM"
@@ -281,7 +278,7 @@ _format_partitions() {
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
     _print_action "Create subvolume" "@.snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null & PID=$!; _progress $PID
-    umount -R ${ROOT_MOUNTPOINT} &> /dev/null
+    _umount_partitions
     _print_action "Mount" "@"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
@@ -410,7 +407,6 @@ _install_base() {
   pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
-  _pacstrap_install "btrfs-progs"
   if [[ "${KERNEL_VERSION}" != "None" ]]; then
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
@@ -419,17 +415,10 @@ _install_base() {
   if [[ "${MICROCODE_VERSION}" != "None" ]]; then
     _pacstrap_install "${MICROCODE_VERSION}"
   fi
-  if [[ $LUKS == 1 ]]; then
-    _pacstrap_install "cryptsetup"
-  fi
-  echo
-  _read_input_option "Install NetworkManager? [Y/n]: "
-  if ! [[ $OPTION == n || $OPTION == N ]]; then
-    echo
-    _pacstrap_install "networkmanager"
-    _print_subtitle "Services"
-    _print_action "Enabling" "NetworkManager"
-  fi
+  _pacstrap_install "btrfs-progs nano"
+  _pacstrap_install "networkmanager"
+  _print_subtitle "Services"
+  _print_action "Enabling" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null & PID=$!; _progress $PID
   _pause_function
 }
@@ -469,10 +458,9 @@ _set_timezone() {
       _invalid_option
     fi
   done
-  # CLOCK SECTION
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   CLOCK_LIST=("UTC" "Localtime")
-  _print_select "Select timescale:"
+  _print_select "Select time standard:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
     if _contains_element "${CLOCK_CHOICE}" "${CLOCK_LIST[@]}"; then
       CLOCK_CHOICE="${CLOCK_CHOICE}"
@@ -578,7 +566,7 @@ _set_network() {
 
 _mkinitcpio_generate() {
   _print_title "INITRAMFS"
-  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/block filesystems keyboard/keyboard keymap block encrypt/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
+  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/modconf block filesystems keyboard/keyboard keymap modconf block encrypt filesystems/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
   echo
   _read_input_option "Edit your mkinitcpio.conf file? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -605,35 +593,60 @@ _root_passwd() {
   _pause_function
 }
 
-_grub_generate() {
-  _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET}${BBLACK} will be available soon${RESET}"
-  echo
-  _read_input_text "Type a grub name entry:"
-  read -r GRUB_NAME
-  while [[ "${GRUB_NAME}" = "" ]]; do
-    _print_title "BOOTLOADER"
-    echo
-    _print_warning "You must type a grub name entry!"
-    echo
-    _read_input_text "Type a grub name entry:"
-    read -r GRUB_NAME
+_set_bootloader() {
+  _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET} will be available soon"
+  BOOTLOADER_LIST=("Grub" "None")
+  _print_select "Select your bootloader:"
+  select BOOTLOADER_CHOICE in "${BOOTLOADER_LIST[@]}"; do
+    if _contains_element "${BOOTLOADER_CHOICE}" "${BOOTLOADER_LIST[@]}"; then
+      BOOTLOADER_CHOICE="${BOOTLOADER_CHOICE}"
+      break;
+    else
+      _invalid_option
+    fi
   done
-  _print_subtitle "Packages"
-  _pacstrap_install "grub grub-btrfs efibootmgr"
-  echo
-  _read_input_option "Install os-prober? [y/N]: "
-  if [[ $OPTION == y || $OPTION == Y ]]; then
-    echo
-    _pacstrap_install "os-prober"
-  fi
-  if [[ $LUKS -eq 1 ]]; then
-    UUID=$(blkid ${LUKS_PARTITION} | awk -F '"' '{print $2}')
-    sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=UUID='${UUID}':crypt"/g' ${ROOT_MOUNTPOINT}/etc/default/grub
-  fi
-  _print_subtitle "Grub install"
-  arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=${GRUB_NAME} --recheck
-  _print_subtitle "Grub configuration file"
-  arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
+  case ${BOOTLOADER_CHOICE} in
+    Grub)
+      _print_title "BOOTLOADER"
+      echo
+      _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
+      echo
+      _read_input_text "Type a grub name entry:"
+      read -r GRUB_NAME
+      while [[ "${GRUB_NAME}" = "" ]]; do
+        _print_title "BOOTLOADER"
+        echo
+        _print_warning "You must type a grub name entry!"
+        echo
+        _print_item "Selected" "${BOOTLOADER_CHOICE}"
+        echo
+        _read_input_text "Type a grub name entry:"
+        read -r GRUB_NAME
+      done
+      _print_subtitle "Packages"
+      _pacstrap_install "grub grub-btrfs efibootmgr"
+      echo
+      _read_input_option "Install os-prober? [y/N]: "
+      if [[ $OPTION == y || $OPTION == Y ]]; then
+        echo
+        _pacstrap_install "os-prober"
+      fi
+      if [[ $LUKS -eq 1 ]]; then
+        UUID=$(blkid ${LUKS_PARTITION} | awk -F '"' '{print $2}')
+        sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=UUID='${UUID}':crypt"/g' ${ROOT_MOUNTPOINT}/etc/default/grub
+      fi
+      _print_subtitle "Grub install"
+      arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${GRUB_NAME}" --recheck
+      _print_subtitle "Grub configuration file"
+      arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
+      ;;
+    Systemd-boot) # NOT INCLUDED IN SELECT
+      BOOTLOADER_CHOICE="Systemd-boot"
+      ;;
+    None)
+      BOOTLOADER_CHOICE="None"
+      ;;
+  esac
   _pause_function  
 }
 
@@ -656,7 +669,7 @@ _finish_install() {
   _print_item "Language" "${LOCALE}"
   _print_item "Keymap" "${KEYMAP_CHOICE}"
   _print_item "Hostname" "${HOSTNAME}"
-  _print_item "Grubname" "${GRUB_NAME}"
+  _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
   echo
   _read_input_option "Save a copy of this script in root directory? [y/N]: "
   if [[ $OPTION == y || $OPTION == Y ]]; then
@@ -679,9 +692,9 @@ _finish_install() {
   fi
 }
 
-# --- END INSTALL SECTION --- >
+# -------------------- END INSTALL SECTION
 
-# --- POST INSTALL SECTION --- >
+# -------------------- POST INSTALL SECTION
 
 _create_new_user() {
   _print_title "NEW USER"
@@ -716,18 +729,21 @@ _create_new_user() {
       echo 'Defaults lecture=never'
     } >> /etc/sudoers
     echo
-    _print_info "Sudo privileges added."
+    _print_info "Sudo privileges included."
   else
     echo
     _print_info "User ${USERNAME} already exists!"
   fi
-  _print_select "Type a new user password:"
+  _pause_function
   PASSWD_CHECK=0
+  _print_title "USER PASSWORD"
+  echo
   passwd ${USERNAME} && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
+    _print_title "USER PASSWORD"
     echo
     _print_warning "The password does not match!"
-    _print_select "Type a new user password:"
+    echo
     passwd ${USERNAME} && PASSWD_CHECK=1;
   done
   _pause_function
@@ -737,27 +753,27 @@ _enable_multilib(){
   _print_title "MULTILIB"
   ARCHI=$(uname -m)
   if [[ $ARCHI == x86_64 ]]; then
-    local HAS_MULTILIB=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
-    if [[ -z $HAS_MULTILIB ]]; then
+    local has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
+    if [[ -z $has_multilib ]]; then
       echo
       _print_action "Enabling" "Multilib"
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf & PID=$!; _progress $PID
     else
       echo
       _print_action "Enabling" "Multilib"
-      sed -i "${HAS_MULTILIB}s/^#//" /etc/pacman.conf
-      local HAS_MULTILIB=$(( HAS_MULTILIB + 1 ))
-      sed -i "${HAS_MULTILIB}s/^#//" /etc/pacman.conf & PID=$!; _progress $PID
+      sed -i "${has_multilib}s/^#//" /etc/pacman.conf
+      local has_multilib=$(( has_multilib + 1 ))
+      sed -i "${has_multilib}s/^#//" /etc/pacman.conf & PID=$!; _progress $PID
     fi
   fi
-  _print_subtitle "Updating"
+  _print_subtitle "Update"
   pacman -Syy
   _pause_function
 }
 
 _install_essential_pkgs() {
   _print_title "ESSENTIAL PACKAGES"
-  ESSENTIAL_PKGS="dosfstools mtools udisks2 dialog wget git nano reflector bash-completion xdg-utils xdg-user-dirs"
+  ESSENTIAL_PKGS="dosfstools mtools udisks2 dialog wget git reflector bash-completion xdg-utils xdg-user-dirs"
   echo
   _print_item "Essential packages" "${ESSENTIAL_PKGS}"
   echo
@@ -847,13 +863,13 @@ _install_desktop() {
         lxappearance xfce4-terminal xarchiver network-manager-applet"
         ;;
       Bspwm)
-         # NOT ADDED IN SELECT
+         # NOT INCLUDED IN SELECT
         _print_title "BSPWM" 
         _print_subtitle "Packages"
         _print_warning "It's not working yet..."
         ;;
       Awesome)
-        # NOT ADDED IN SELECT
+        # NOT INCLUDED IN SELECT
         _print_title "AWESOME WM"
         _print_subtitle "Packages"
         _print_warning "It's not working yet..."
@@ -861,12 +877,12 @@ _install_desktop() {
       Openbox)
         _print_title "OPENBOX"
         _print_subtitle "Packages"
-        _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+        _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance thunar xfce4-terminal xarchiver network-manager-applet"
         ;;
       Qtile)
         _print_title "QTILE"
         _print_subtitle "Packages"
-        _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+        _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance thunar xfce4-terminal xarchiver network-manager-applet"
         ;;
       None)
         echo
@@ -904,10 +920,10 @@ _install_display_manager() {
     _print_action "Enabling" "LightDM"
     sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
 
-  elif [[ "${DMANAGER}" = "Lxdm" ]]; then # NOT ADDED IN SELECT
+  elif [[ "${DMANAGER}" = "Lxdm" ]]; then # NOT INCLUDED IN SELECT
     _print_warning "It's not working yet..."
 
-  elif [[ "${DMANAGER}" = "Slim" ]]; then # NOT ADDED IN SELECT
+  elif [[ "${DMANAGER}" = "Slim" ]]; then # NOT INCLUDED IN SELECT
     _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" = "GDM" ]]; then
@@ -924,7 +940,7 @@ _install_display_manager() {
     _print_action "Enabling" "SDDM"
     sudo systemctl enable sddm &> /dev/null & PID=$!; _progress $PID
 
-  elif [[ "${DMANAGER}" = "Xinit" ]]; then # NOT ADDED IN SELECT
+  elif [[ "${DMANAGER}" = "Xinit" ]]; then # NOT INCLUDED IN SELECT
     _print_warning "It's not working yet..."
 
   elif [[ "${DMANAGER}" = "None" ]]; then
@@ -1005,6 +1021,8 @@ _install_aurhelper() {
         git clone https://aur.archlinux.org/yay.git yay
         cd yay
         makepkg -csi --noconfirm
+        cd
+        rm -rf yay
       "
       if _is_package_installed "yay"; then
         AUR_HELPER_STATUS="${BGREEN}Yes${RESET}"
@@ -1020,10 +1038,18 @@ _install_aurhelper() {
   fi
 }
 
+_clean_orphan_packages(){
+  _print_title "CLEAN ORPHAN PACKAGES"
+  echo
+  _print_action "Cleaning" "orphan packages"
+  pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
+  _pause_function
+}
+
 _finish_post() {
   _print_title "SECOND STEP FINISHED"
   echo
-  _print_info "Thank you for using the malpi script so far! The system installation is complete, enjoy!"
+  _print_info "Thank's for using the malpi script so far! The system installation is complete, enjoy!"
   echo
   _print_item "Essential packages" "${ESSENTIAL_PKGS_STATUS}"
   _print_item "Video driver" "${VIDEO_CARD}"
@@ -1063,7 +1089,8 @@ _print_title() {
   BORDER_COLOR=${CYAN}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"; echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -ne "${BORDER_COLOR}`seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d [:digit:]`${RESET}"
+  echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
   echo -e "${BWHITE} $1${RESET}"
   echo -e "${BORDER_COLOR}`seq -s '=' $(( T_COLS + 1 )) | tr -d [:digit:]`${RESET}"
 }
@@ -1078,7 +1105,7 @@ _print_select() {
 
 _print_item() {
   REM_COLS=$(( 22 - ${#1} ))
-  echo -ne "${BBLUE}$1${RESET}"
+  echo -ne "${PURPLE}$1${RESET}"
   echo -ne "${BBLACK}`seq -s ' ' $REM_COLS | tr -d [:digit:]`${RESET}"
   echo -ne "${BBLACK}:${RESET}"
   echo -e " $2"
@@ -1127,7 +1154,7 @@ _print_action() {
 
 _progress() {
   _spinny() {
-    echo -ne "\b${BBLUE}${SPIN:i++%${#SPIN}:1}${RESET}"
+    echo -ne "\b${BPURPLE}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
     kill -0 "$PID" &> /dev/null;
@@ -1154,11 +1181,11 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLUE}$1 ${RESET}"
+  printf "%s" "${BPURPLE}$1 ${RESET}"
 }
 
 _read_input_option() {
-  printf "%s" "${YELLOW}$1${RESET}"
+  printf "%s" "${BPURPLE}$1${RESET}"
   read -r OPTION
 }
 
@@ -1178,8 +1205,7 @@ _pause_function() {
 }
 
 _umount_partitions() {
-  echo
-  umount -R ${ROOT_MOUNTPOINT}
+  umount -R ${ROOT_MOUNTPOINT} &> /dev/null
 }
 
 _is_package_installed() {
@@ -1189,7 +1215,7 @@ _is_package_installed() {
   return 1
 }
 
-_package_install() { # install pacman package
+_package_install() { # Install pacman packages
   for PKG in $1; do
     if ! _is_package_installed "${PKG}"; then
       _print_action "Installing" "${PKG}"
@@ -1207,7 +1233,7 @@ _package_install() { # install pacman package
   done
 }
 
-_pacstrap_install() { # install pacstrap package
+_pacstrap_install() { # Install pacstrap packages
   for PKG in $1; do
     _print_action "Installing" "${PKG}"
     pacstrap "${ROOT_MOUNTPOINT}" "${PKG}" &> /dev/null & PID=$!; _progress $PID
@@ -1222,8 +1248,8 @@ _set_font() {
     echo -e "2) Small       14"
     echo -e "3) Small bold  14"
     echo -e "4) Medium      16"
-    echo -e "5) Medium bold 16 - (Recommended)"
-    echo -e "6) Large       18"
+    echo -e "5) Medium bold 16"
+    echo -e "6) Large       18 - (Recommended)"
     echo -e "7) Very large  20"
     echo -e "8) Very large  22"
     echo -e "9) Default archiso font"
