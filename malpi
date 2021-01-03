@@ -596,6 +596,7 @@ _root_passwd() {
 _set_bootloader() {
   _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET} will be available soon"
   BOOTLOADER_LIST=("Grub" "None")
+  _print_select "Select your bootloader:"
   select BOOTLOADER_CHOICE in "${BOOTLOADER_LIST[@]}"; do
     if _contains_element "${BOOTLOADER_CHOICE}" "${BOOTLOADER_LIST[@]}"; then
       BOOTLOADER_CHOICE="${BOOTLOADER_CHOICE}"
@@ -608,7 +609,7 @@ _set_bootloader() {
     Grub)
       _print_title "BOOTLOADER"
       echo
-      _print_item "Selected" "${BOOTLOADER_CHOICE}"
+      _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
       echo
       _read_input_text "Type a grub name entry:"
       read -r GRUB_NAME
@@ -635,7 +636,7 @@ _set_bootloader() {
         sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=UUID='${UUID}':crypt"/g' ${ROOT_MOUNTPOINT}/etc/default/grub
       fi
       _print_subtitle "Grub install"
-      arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=${GRUB_NAME} --recheck
+      arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${GRUB_NAME}" --recheck
       _print_subtitle "Grub configuration file"
       arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
       ;;
@@ -1151,7 +1152,7 @@ _print_action() {
 
 _progress() {
   _spinny() {
-    echo -ne "\b${BBLUE}${SPIN:i++%${#SPIN}:1}${RESET}"
+    echo -ne "\b${BPURPLE}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
     kill -0 "$PID" &> /dev/null;
@@ -1182,7 +1183,7 @@ _read_input_text() {
 }
 
 _read_input_option() {
-  printf "%s" "${YELLOW}$1${RESET}"
+  printf "%s" "${BPURPLE}$1${RESET}"
   read -r OPTION
 }
 
