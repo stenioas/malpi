@@ -1,7 +1,9 @@
 <h1 align="center">
   malpi
 </h1>
--------
+
+***
+
 <h3 align="center">
   My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
 </h3>
