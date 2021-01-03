@@ -1,7 +1,7 @@
 <h1 align="center">
   malpi
 </h1>
----
+
 <h3 align="center">
   My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
 </h3>
@@ -64,8 +64,6 @@
 
 ### First Step (*Base installation*)
 
-> The first step offers the installation of the base system.
-
 Boot with the last [Arch Linux image](https://www.archlinux.org/download/) on a [bootable device](https://wiki.archlinux.org/index.php/USB_flash_installation_media).
 
 Then make sure you have Internet connection on the Arch iso. If you have a wireless connection the [`iwctl`](https://wiki.archlinux.org/index.php/Iwd#iwctl) command might be useful to you. You can also read the [Network configuration](https://wiki.archlinux.org/index.php/Network_configuration) from the Arch Linux guide for more detailed instructions.
@@ -81,12 +79,12 @@ Then follow the on-screen instructions to completion.
 ##### Features
 - Set console font
 - Timedatectl set ntp as true `timedatectl set-ntp true`
-- Update archlinux-keyring
 - Rank mirrors (*by country*)
 - Select disk and partitioning
 - Format and mount **EFI** and **ROOT** partitions
 - Select kernel version
 - Select microcode version
+- Update archlinux-keyring
 - Install system base
 - Configure fstab
 - Configure timezone
@@ -119,6 +117,7 @@ or
 - Install extra packages ***(Optional)***
 - Install Laptop Packages ***(Optional)***
 - Install YAY ***(Optional)***
+- Cleanup orphan packages
 
 ---
 
