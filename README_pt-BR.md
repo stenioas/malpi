@@ -1,7 +1,7 @@
 <h1 align="center">
   malpi
 </h1>
----
+
 <h3 align="center">
   Meu instalador pessoal do <a href="https://www.archlinux.org">Arch Linux</a>
 </h3>
@@ -64,8 +64,6 @@
 
 ### Primeira etapa (*Instalação da base*)
 
-> A primeira etapa oferece a instalação do sistema básico.
-
 Inicialize com a última [imagem do Arch Linux](https://www.archlinux.org/download/) em um [dispositivo bootável](https://wiki.archlinux.org/index.php/USB_flash_installation_media_(Português)).
 
 Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português)) do guia do Arch Linux para obter instruções mais detalhadas.
@@ -83,12 +81,12 @@ Em seguida, siga as instruções na tela para concluir.
 ##### Funcionalidades
 - Configura a fonte do console
 - Configura o ntp como true `timedatectl set-ntp true`
-- Atualiza o archlinux-keyring
 - Classifica os espelhos (*por país*)
 - Seleciona e particiona o disco
 - Formata e monta as partições **EFI** e **ROOT**
 - Seleciona a versão do kernel
 - Seleciona a versão do microcode
+- Atualiza o archlinux-keyring
 - Instala a base
 - Configura o fstab
 - Configura o fuso horário
@@ -121,6 +119,7 @@ ou
 - Instala pacotes extras ***(Opcional)***
 - Instala pacotes para laptops ***(Opcional)***
 - Instala o YAY ***(Opcional)***
+- Remove pacotes órfãos
 
 ---
 
