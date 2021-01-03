@@ -157,7 +157,7 @@ _readme() {
 
   - Only ${BYELLOW}XORG${RESET} is supported (${PURPLE}Wayland${RESET} will be available soon).
 
-  - The ${BYELLOW}GRUB${RESET} bootloader is installed by default (${PURPLE}Systemd-boot${RESET} will be available soon).
+  - Only the ${BYELLOW}GRUB${RESET} bootloader is currently available (${PURPLE}Systemd-boot${RESET} will be available soon).
 
   - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
