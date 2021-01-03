@@ -153,7 +153,7 @@ _readme() {
 
   - ${BYELLOW}SWAP${RESET} is not supported..
 
-  - ${BYELLOW}NetworkManager${RESET} is installed by default (${PURPLE}Systemd-networkd${RESET} will be available soon)
+  - ${BYELLOW}NetworkManager${RESET} is installed by default.
 
   - Only ${BYELLOW}XORG${RESET} is supported (${PURPLE}Wayland${RESET} will be available soon).
 
@@ -407,7 +407,6 @@ _install_base() {
   pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
-  _pacstrap_install "btrfs-progs nano"
   if [[ "${KERNEL_VERSION}" != "None" ]]; then
     _pacstrap_install "${KERNEL_VERSION}"
     _pacstrap_install "${KERNEL_VERSION}-headers"
@@ -416,6 +415,7 @@ _install_base() {
   if [[ "${MICROCODE_VERSION}" != "None" ]]; then
     _pacstrap_install "${MICROCODE_VERSION}"
   fi
+  _pacstrap_install "btrfs-progs nano"
   _pacstrap_install "networkmanager"
   _print_subtitle "Services"
   _print_action "Enabling" "NetworkManager"
@@ -877,12 +877,12 @@ _install_desktop() {
       Openbox)
         _print_title "OPENBOX"
         _print_subtitle "Packages"
-        _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+        _package_install "openbox obconf dmenu rofi arandr feh nitrogen picom lxappearance thunar xfce4-terminal xarchiver network-manager-applet"
         ;;
       Qtile)
         _print_title "QTILE"
         _print_subtitle "Packages"
-        _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance xfce4-terminal xarchiver network-manager-applet"
+        _package_install "qtile dmenu rofi arandr feh nitrogen picom lxappearance thunar xfce4-terminal xarchiver network-manager-applet"
         ;;
       None)
         echo
@@ -1021,6 +1021,8 @@ _install_aurhelper() {
         git clone https://aur.archlinux.org/yay.git yay
         cd yay
         makepkg -csi --noconfirm
+        cd
+        rm -rf yay
       "
       if _is_package_installed "yay"; then
         AUR_HELPER_STATUS="${BGREEN}Yes${RESET}"
@@ -1246,8 +1248,8 @@ _set_font() {
     echo -e "2) Small       14"
     echo -e "3) Small bold  14"
     echo -e "4) Medium      16"
-    echo -e "5) Medium bold 16 - (Recommended)"
-    echo -e "6) Large       18"
+    echo -e "5) Medium bold 16"
+    echo -e "6) Large       18 - (Recommended)"
     echo -e "7) Very large  20"
     echo -e "8) Very large  22"
     echo -e "9) Default archiso font"

@@ -1,7 +1,11 @@
 <h1 align="center">
-  My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
+  malpi
 </h1>
-<p align="center">A shell script, simple and amateur, to install Arch Linux on my personal computers.</p><p align="center">You can use and modify it as you like.</p>
+---
+<h3 align="center">
+  My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
+</h3>
+<p align="center">A shell script, simple and amateur, to install Arch Linux on my personal computers. You can use and modify it as you like.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
@@ -11,6 +15,7 @@
 </p>
 
 ## Notes
+* It is advisable that you already know how to install Arch in the traditional way, following the [**installation guide**](https://wiki.archlinux.org/index.php/Installation_guide) available on ArchWiki, the purpose of this script is to speed up my installations and not skip steps in learning.
 * If you prefer you can partition your disk before launching this script.
 * You can first try it in a **Virtual Machine** if you prefer.
 * The console font will be changed while the script is running.
@@ -47,7 +52,7 @@
 	- **@.snapshots** for /.snapshots
 5. The EFI partition can be formatted in FAT32 if the user wants to.
 6. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
-7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default (*[**Systemd-networkd**](https://wiki.archlinux.org/index.php/Systemd-networkd) will be available soon*)
+7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default.
 8. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported (*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
 9. The [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is installed by default (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
 10. This script can be cancelled at any time with **CTRL+C**.

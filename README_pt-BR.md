@@ -1,8 +1,10 @@
-<p align="center">É aconselhável, a quem for utilizar este script, que tenha conhecimento de como instalar o Arch da forma tradicional, seguindo o <a href="https://wiki.archlinux.org/index.php/Installation_guide_(Português)"> <strong>guia de instalação</strong></a> disponível na ArchWiki, o objetivo deste script é acelerar as minhas instalações, não pular etapas no aprendizado.</p>
-
 <h1 align="center">
-  Meu instalador pessoal do <a href="https://www.archlinux.org">Arch Linux</a>
+  malpi
 </h1>
+---
+<h3 align="center">
+  Meu instalador pessoal do <a href="https://www.archlinux.org">Arch Linux</a>
+</h3>
 <p align="center">Um script shell, simples e amador, para instalar o Arch Linux nos meus computadores pessoais. Você pode usá-lo e modificá-lo como quiser.</p>
 
 <p align="center">
@@ -13,6 +15,7 @@
 </p>
 
 ## Notas
+* É aconselhável que você já saiba como instalar o Arch da forma tradicional, seguindo o [**guia de instalação**](https://wiki.archlinux.org/index.php/Installation_guide_(Português)) disponível na ArchWiki, o objetivo deste script é acelerar as minhas instalações e não pular etapas no aprendizado.
 * Se preferir você pode particionar seu disco antes de executar o script.
 * Você pode testar em uma **Máquina Virtual** primeiro se preferir.
 * A fonte do console será alterada durante a execução do script.
@@ -49,7 +52,7 @@
 	- **@.snapshots** para /.snapshots
 5. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
 6. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
-7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão (*[**Systemd-networkd**](https://wiki.archlinux.org/index.php/Systemd-networkd) estará disponível em breve*)
+7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
 8. Somente o [**XORG**](https://wiki.archlinux.org/index.php/Xorg_(Português)) é suportado (*[**Wayland**](https://wiki.archlinux.org/index.php/Wayland_(Português)) estará disponível em breve*).
 9. O carregador de inicialização [**GRUB**](https://wiki.archlinux.org/index.php/GRUB_(Português)) é instalado por padrão (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estará disponível em breve*).
 10. O script pode ser cancelado a qualquer momento com **CTRL+C**.
