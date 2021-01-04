@@ -207,9 +207,12 @@ _select_disk() {
   _print_title "PARTITION THE DISKS"
   items=$(lsblk -d -p -n -l -o NAME,SIZE -e 7,11)
   DISKS_LIST=()
+  SAVEIFS=$IFS
+  IFS=$'\n'
   for item in ${items}; do
-    DISKS_LIST+=("${item%%\ *}")
+    DISKS_LIST+=("${item}")
   done
+  IFS=$SAVEIFS
   _print_select "Select disk:"
   select DISK in "${DISKS_LIST[@]}"; do
     if _contains_element "${DISK}" "${DISKS_LIST[@]}"; then
@@ -218,7 +221,7 @@ _select_disk() {
       _invalid_option
     fi
   done
-  INSTALL_DISK=${DISK}
+  INSTALL_DISK=${DISK%%\ *}
   echo
   _print_line
   _read_input_option "Edit disk partitions? [y/N]: "
