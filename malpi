@@ -1417,7 +1417,7 @@ _check_root() {
 
 _check_hostname() {
   _print_action "Checking" "Hostname"
-  if [[ $("$HOSTNAME"// /) != "" ]]; then
+  if [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]]; then
     _print_ok
   else
     _print_failed
