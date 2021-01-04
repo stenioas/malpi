@@ -238,6 +238,14 @@ _format_partitions() {
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
+    _umount_partitions
+    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt') # Luks volumes open?
+    if [[ "$LUKS_VOLUMES" != "" ]]; then # Close luks volumes!
+      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
+      for ITEM in "${LUKS_OPEN[@]}"; do
+        cryptsetup close /dev/mapper/"$ITEM"
+      done
+    fi
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
@@ -247,16 +255,6 @@ _format_partitions() {
         _invalid_option
       fi
     done
-    if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
-      _umount_partitions
-    fi
-    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt') # Luks volumes open?
-    if [[ ! "$LUKS_VOLUMES" = "" ]]; then # Close luks volumes!
-      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
-      for ITEM in ${LUKS_OPEN[@]}; do
-        cryptsetup close /dev/mapper/"$ITEM"
-      done
-    fi
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -1223,7 +1221,7 @@ _pause_function() {
 }
 
 _umount_partitions() {
-  umount -R ${ROOT_MOUNTPOINT} &> /dev/null
+  umount -a &> /dev/null
 }
 
 _is_package_installed() {
