@@ -132,7 +132,7 @@ _setup_post(){
 _readme() {
   T_COLS=$(tput cols)
   _print_title "README"
-  cat <<EOF
+cat <<EOF
 
   - This script assumes that you know your keymap and it will already be loaded.
 
@@ -186,7 +186,7 @@ _rank_mirrors() {
   fi
   echo
   _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
-  reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist & PID=$!; _progress $PID
+  reflector -c "${COUNTRY_CHOICE}" --sort score --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
   echo
   _read_input_option "Edit your mirrorlist file? [y/N]: "
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -214,7 +214,7 @@ _select_disk() {
   _print_line
   _read_input_option "Edit disk partitions? [y/N]: "
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    cfdisk ${INSTALL_DISK}
+    cfdisk "${INSTALL_DISK}"
   fi
 }
 
@@ -475,7 +475,7 @@ _set_timezone() {
   _print_action "Running" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
   _print_action "Running" "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime &> /dev/null & PID=$!; _progress $PID
+  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/"${ZONE}"/"${SUBZONE}" /etc/localtime &> /dev/null & PID=$!; _progress $PID
   arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
   arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
@@ -877,6 +877,7 @@ _install_desktop() {
         _print_subtitle "Configure"
         _print_action "Coping" "rc.lua"
         mkdir -p /home/"${USERNAME}"/.config/awesome && cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
+
         ;;
       Openbox)
         _print_title "OPENBOX"
@@ -900,6 +901,7 @@ _install_desktop() {
     esac
   }
   _select_desktop
+  chown "${USERNAME}" -R /home/"${USERNAME}"
   if ! [[ "${DESKTOP}" = "None" ]]; then
     localectl set-x11-keymap br
   fi
@@ -1109,7 +1111,7 @@ _print_title() {
   BORDER_COLOR=${CYAN}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}$(seq -s '-' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d "[:digit:]")${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
   echo -e "${BWHITE} $1${RESET}"
   echo -e "${BORDER_COLOR}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
@@ -1417,7 +1419,7 @@ _check_root() {
 
 _check_hostname() {
   _print_action "Checking" "Hostname"
-  if [[ $(echo "${HOSTNAME}" | sed 's/ //g') != "" ]]; then
+  if [[ ${HOSTNAME// /} != "" ]]; then
     _print_ok
   else
     _print_failed
