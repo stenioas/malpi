@@ -220,19 +220,20 @@ _select_disk() {
 }
 
 _format_partitions() {
-  BLOCK_LIST=($(lsblk | grep "part" | awk '{print substr($1,3)}'))
+  #BLOCK_LIST=($(lsblk | grep "part" | awk '{print substr($1,3)}'))
+  BLOCK_LIST=()
+  while IFS='' read -r LINE; do
+    BLOCK_LIST+=("$LINE")
+  done < <(lsblk | grep "part" | awk '{print substr($1,3)}')
   PARTITIONS_LIST=()
-
   for OPT in "${BLOCK_LIST[@]}"; do
-    PARTITIONS_LIST+=("/dev/$OPT")
+    PARTITIONS_LIST+=("/dev/${OPT}")
   done
-
-  if [[ ${#BLOCK_LIST[@]} -eq 0 ]]; then
+  if [ ${#BLOCK_LIST[@]} == 0 ]; then
     echo
     _print_warning "No partition found."
     exit 0
   fi
-
   _format_root_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
