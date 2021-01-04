@@ -814,14 +814,15 @@ _print_line() {
 _print_title() {
   echo
   echo -e "${BGREEN}==> $1${RESET}"
-  echo -e "${BORDER_COLOR}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
 _print_subtitle() {
+  echo
   echo -e "\n${BBLACK}:: $1${RESET}\n"
 }
 
 _print_select() {
+  echo
   echo -e "\n${BWHITE}$1${RESET}\n"
 }
 
@@ -841,11 +842,6 @@ _print_info() {
 _print_warning() {
   T_COLS=$(tput cols)
   echo -e "${BYELLOW}WARNING:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_danger() {
-  T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_ok() {
@@ -1040,6 +1036,7 @@ _start() {
   tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BPURPLE}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
   tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+  clear
   _print_title "CHECKING REQUIREMENTS"
   echo
   _check_archlinux
