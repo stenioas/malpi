@@ -148,23 +148,18 @@ _rank_mirrors() {
   if [ "$OPTION" = "s" ] || [ "$OPTION" = "S" ]; then
     nano /etc/pacman.d/mirrorlist
   fi
-  echo
   _print_subtitle "Update"
+  echo
   pacman -Syy
 }
 
 _format_partitions() {
   _format_root_partition() {
     _print_title "PARTICIONAMENTO"
-    _print_subtitle "Partição ROOT"
-    _read_input_option "Criptografar partição root? [s/N]: "
-    if [ "$OPTION" = "s" ] || [ "$OPTION" = "S" ]; then
-      _read_input_option "${BRED}Você tem certeza? [s/N]: ${RESET}"
-      if [ "$OPTION" = "s" ] || [ "$OPTION" = "S" ]; then
-        _print_subtitle "luksFormat"
-        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
-      fi
-    fi
+    echo
+    _print_item "Partição root" "${ROOT_PARTITION}"
+    echo
+    cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
     echo
     _print_action "Formatando" "${ROOT_PARTITION}"
     mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null & PID=$!; _progress $PID
@@ -187,7 +182,9 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_subtitle "Partição EFI"
+    echo
+    _print_item "Partição EFI" "${EFI_PARTITION}"
+    echo
     _read_input_option "Formatar partição EFI? [s/N]: "
     if [ "$OPTION" = "s" ] || [ "$OPTION" = "S" ]; then
       _read_input_option "${BRED}Todos os dados serão perdidos! Formatar EFI mesmo assim? [s/N]: ${RESET}"
@@ -228,9 +225,11 @@ _format_partitions() {
 
 _install_base() {
   _print_title "BASE"
+  echo
   _print_action "Atualizando" "archlinux-keyring"
   pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
   _print_subtitle "Pacotes"
+  echo
   _pacstrap_install "base base-devel"
   _pacstrap_install "${KERNEL_VERSION}"
   _pacstrap_install "${KERNEL_VERSION}-headers"
@@ -239,6 +238,7 @@ _install_base() {
   _pacstrap_install "btrfs-progs nano"
   _pacstrap_install "networkmanager"
   _print_subtitle "Serviços"
+  echo
   _print_action "Habilitando" "NetworkManager"
   arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null & PID=$!; _progress $PID
 }
@@ -249,7 +249,6 @@ _fstab_generate() {
   _print_action "Executando" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
   genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab & PID=$!; _progress $PID
   echo
-  _print_line
   _read_input_option "Editar arquivo fstab? [s/N]: "
   if [ "$OPTION" = "s" ] || [ "$OPTION" = "S" ]; then
     nano ${ROOT_MOUNTPOINT}/etc/fstab
@@ -257,7 +256,7 @@ _fstab_generate() {
 }
 
 _set_timezone() {
-  _print_title "ZONA E RELÓGIO DE HARDWARE"
+  _print_title "FUSO HORÁRIO E RELÓGIO DE HARDWARE"
   echo
   _print_action "Executando" "timedatectl set-ntp true"
   arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
@@ -395,7 +394,6 @@ _finish_install() {
   _print_action "Copiando" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
-  _print_line
   _read_input_option "${BRED}Reiniciar o sistema agora? [s/N]: ${RESET}"
   if [ "$OPTION" = "s" ] || [ "$OPTION" = "S" ]; then
     clear
@@ -810,18 +808,16 @@ _print_line() {
 }
 
 _print_title() {
-  echo
-  echo -e "${BGREEN}==> $1${RESET}"
+  echo -e "\n${BGREEN}:: $1${RESET}"
 }
 
 _print_subtitle() {
-  echo
-  echo -e "\n${BBLACK}:: $1${RESET}\n"
+  echo -e "\n${BBLACK}:: $1${RESET}"
 }
 
 _print_select() {
   echo
-  echo -e "\n${BWHITE}$1${RESET}\n"
+  echo -e "\n${BWHITE}$1${RESET}"
 }
 
 _print_item() {
@@ -910,6 +906,11 @@ _invalid_option() {
   _print_warning "Invalid option. Try again..."
 }
 
+_pause_function() {
+  echo
+  read -e -sn 1 -p "Precione qualquer tecla para continuar..."
+}
+
 _umount_partitions() {
   umount -a &> /dev/null
 }
@@ -971,11 +972,11 @@ _start() {
   tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│       MyArch       │${RESET}"
   tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}└────────────────────┘${RESET}"
   echo
-  tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BPURPLE}By Stenio Silveira${RESET}"
+  tput cuf $(( (T_COLS - 15)/2 )); echo -e "${BPURPLE}Stenio Silveira${RESET}"
   echo -e "\n\n\n"
-  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Precione qualquer tecla para iniciar!${RESET}"
+  tput cuf $(( (T_COLS - 37)/2 )); read -e -sn 1 -p "${BWHITE}Precione qualquer tecla para iniciar!${RESET}"
   clear
-  _print_title "CHECKING REQUIREMENTS"
+  _print_title "PRÉ-REQUISITOS"
   echo
   _check_archlinux
   _check_uefimode
@@ -985,32 +986,32 @@ _start() {
   _check_pacman_blocked
   _print_action "Executando" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
-  read -e -sn 1 -p "${BWHITE}Precione qualquer tecla para continuar...${RESET}"
+  _pause_function
 }
 
 # ----------- TEST FUNCTIONS
 
 _check_archlinux() {
-  _print_action "Checking" "Arch Linux Release"
+  _print_action "Verificando" "release do Arch Linux"
   if [ -e /etc/arch-release ]; then
     _print_ok
   else
     _print_failed
     echo
-    _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
+    _print_warning "Você precisa executar o script no ${BYELLOW}Arch Linux${RESET}."
     _print_bye
     exit 1
   fi
 }
 
 _check_uefimode() {
-  _print_action "Checking" "UEFI mode"
+  _print_action "Verificando" "modo UEFI"
   if [ -d "/sys/firmware/efi/" ]; then
     _print_ok
   else
     _print_failed
     echo
-    _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
+    _print_warning "Você precisa executar o script em modo ${BYELLOW}UEFI${RESET}."
     _print_bye
     exit 1
   fi
@@ -1020,52 +1021,52 @@ _check_connection() {
   _connection_test() {
     ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
   }
-  _print_action "Checking" "Connection"
+  _print_action "Verificando" "conexão"
   if ! _connection_test; then
     _print_ok
   else
     _print_failed
     echo
-    _print_warning "You must be connected to the internet to execute the script."
+    _print_warning "Você precisa estar conectado a internet para executar o script."
     _print_bye
     exit 1
   fi
 }
 
 _check_root() {
-  _print_action "Checking" "User"
+  _print_action "Verificando" "usuário root"
   if [ "$(id -u)" == "0" ]; then
     _print_ok
   else
     _print_failed
     echo
-    _print_warning "You must execute the script as 'root' user."
+    _print_warning "O script deve ser executado como usuário root."
     _print_bye
     exit 1
   fi
 }
 
 _check_hostname() {
-  _print_action "Checking" "Hostname"
+  _print_action "Verificando" "nome da máquina"
   if [ ${HOSTNAME// /} != "" ]; then
     _print_ok
   else
     _print_failed
     echo
-    _print_warning "Hostname must be configured!"
+    _print_warning "O nome da máquina precisa estar configurado!"
     _print_bye
     exit 1
   fi
 }
 
 _check_pacman_blocked() {
-  _print_action "Checking" "Pacman"
+  _print_action "Verificando" "Pacman"
   if [ ! -f /var/lib/pacman/db.lck ]; then
     _print_ok
   else
     _print_failed
     echo
-    _print_warning "Pacman is blocked. If not Executando remove /var/lib/pacman/db.lck."
+    _print_warning "Pacman está bloqueado. Se não estiver executando pode remover /var/lib/pacman/db.lck."
     _print_bye
     exit 1
   fi
