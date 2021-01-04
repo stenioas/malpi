@@ -168,11 +168,11 @@ EOF
 
 _rank_mirrors() {
   _print_title "MIRRORS"
-  SAVEIFS=$IFS
-  IFS=$'\n'
   #COUNTRIES_LIST=("Australia" "Austria" "Bangladesh" "Belarus" "Belgium" "Bosnia and Herzegovina" "Brazil" "Bulgaria" "Canada" "Chile" "China" "Colombia" "Croatia" "Czechia" "Denmark" "Ecuador" "Finland" "France" "Georgia" "Germany" "Greece" "Hong Kong" "Hungary" "Iceland" "India" "Indonesia" "Iran" "Ireland" "Israel" "Italy" "Japan" "Kazakhstan" "Kenya" "Latvia" "Lithuania" "Luxembourg" "Moldova" "Netherlands" "New Caledonia" "New Zealand" "North Macedonia" "Norway" "Pakistan" "Paraguay" "Philippines" "Poland" "Portugal" "Romania" "Russia" "Serbia" "Singapore" "Slovakia" "Slovenia" "South Africa" "South Korea" "Spain" "Sweden" "Switzerland" "Taiwan" "Thailand" "Turkey" "Ukraine" "United Kingdom" "United States" "Vietnam")
   items=$(reflector --list-countries | sed '1,2d' | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g')
   COUNTRIES_LIST=()
+  SAVEIFS=$IFS
+  IFS=$'\n'
   for item in ${items}; do
     COUNTRIES_LIST+=("${item}")
   done
@@ -205,10 +205,10 @@ _rank_mirrors() {
 
 _select_disk() {
   _print_title "PARTITION THE DISKS"
-  items=$(lsblk -d -p -n -l -o NAME -e 7,11)
+  items=$(lsblk -d -p -n -l -o NAME,SIZE -e 7,11)
   DISKS_LIST=()
   for item in ${items}; do
-    DISKS_LIST+=("${item}")
+    DISKS_LIST+=("${item%%\ *}")
   done
   _print_select "Select disk:"
   select DISK in "${DISKS_LIST[@]}"; do
@@ -224,15 +224,11 @@ _select_disk() {
   _read_input_option "Edit disk partitions? [y/N]: "
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
     cfdisk "${INSTALL_DISK}"
+    _pause_function
   fi
 }
 
 _format_partitions() {
-  items=$(lsblk -p -l | grep 'part' | awk '{print $1}')
-  PARTITIONS_LIST=()
-  for item in ${items}; do
-    PARTITIONS_LIST+=("${item}")
-  done
   _format_root_partition() {
     _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
@@ -255,7 +251,7 @@ _format_partitions() {
         cryptsetup close /dev/mapper/"${item}"
       done
     fi
-    select PARTITION in "${PARTITIONS_LIST[@]}"; do
+    select PARTITION in ${PARTITIONS_LIST[@]}; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
         ROOT_PARTITION="$PARTITION"
@@ -347,6 +343,11 @@ _format_partitions() {
       _print_warning "Partition(s) not successfully mounted!"
     fi
   }
+  items=$(lsblk -p -l | grep 'part' | awk '{print $1}')
+  PARTITIONS_LIST=()
+  for item in ${items}; do
+    PARTITIONS_LIST+=("${item}")
+  done
   _format_root_partition
   _format_efi_partition
   _pause_function
@@ -1371,7 +1372,7 @@ _start() {
 
 _check_archlinux() {
   _print_action "Checking" "Arch Linux Release"
-  if [[ -e /etc/arch-release ]]; then
+  if [ -e /etc/arch-release ]; then
     _print_ok
   else
     _print_failed
@@ -1384,7 +1385,7 @@ _check_archlinux() {
 
 _check_uefimode() {
   _print_action "Checking" "UEFI mode"
-  if [[ -d "/sys/firmware/efi/" ]]; then
+  if [ -d "/sys/firmware/efi/" ]; then
     _print_ok
   else
     _print_failed
@@ -1413,7 +1414,7 @@ _check_connection() {
 
 _check_root() {
   _print_action "Checking" "User"
-  if [[ "$(id -u)" == "0" ]]; then
+  if [ "$(id -u)" == "0" ]; then
     _print_ok
   else
     _print_failed
@@ -1426,7 +1427,7 @@ _check_root() {
 
 _check_hostname() {
   _print_action "Checking" "Hostname"
-  if [[ ${HOSTNAME// /} != "" ]]; then
+  if [ ${HOSTNAME// /} != "" ]; then
     _print_ok
   else
     _print_failed
@@ -1439,7 +1440,7 @@ _check_hostname() {
 
 _check_pacman_blocked() {
   _print_action "Checking" "Pacman"
-  if [[ ! -f /var/lib/pacman/db.lck ]]; then
+  if [ ! -f /var/lib/pacman/db.lck ]; then
     _print_ok
   else
     _print_failed
