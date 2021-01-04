@@ -170,7 +170,8 @@ _rank_mirrors() {
   _print_title "MIRRORS"
   SAVEIFS=$IFS
   IFS=$'\n'
-  COUNTRIES_LIST=("Australia" "Austria" "Bangladesh" "Belarus" "Belgium" "Bosnia and Herzegovina" "Brazil" "Bulgaria" "Canada" "Chile" "China" "Colombia" "Croatia" "Czechia" "Denmark" "Ecuador" "Finland" "France" "Georgia" "Germany" "Greece" "Hong Kong" "Hungary" "Iceland" "India" "Indonesia" "Iran" "Ireland" "Israel" "Italy" "Japan" "Kazakhstan" "Kenya" "Latvia" "Lithuania" "Luxembourg" "Moldova" "Netherlands" "New Caledonia" "New Zealand" "North Macedonia" "Norway" "Pakistan" "Paraguay" "Philippines" "Poland" "Portugal" "Romania" "Russia" "Serbia" "Singapore" "Slovakia" "Slovenia" "South Africa" "South Korea" "Spain" "Sweden" "Switzerland" "Taiwan" "Thailand" "Turkey" "Ukraine" "United Kingdom" "United States" "Vietnam")
+  #COUNTRIES_LIST=("Australia" "Austria" "Bangladesh" "Belarus" "Belgium" "Bosnia and Herzegovina" "Brazil" "Bulgaria" "Canada" "Chile" "China" "Colombia" "Croatia" "Czechia" "Denmark" "Ecuador" "Finland" "France" "Georgia" "Germany" "Greece" "Hong Kong" "Hungary" "Iceland" "India" "Indonesia" "Iran" "Ireland" "Israel" "Italy" "Japan" "Kazakhstan" "Kenya" "Latvia" "Lithuania" "Luxembourg" "Moldova" "Netherlands" "New Caledonia" "New Zealand" "North Macedonia" "Norway" "Pakistan" "Paraguay" "Philippines" "Poland" "Portugal" "Romania" "Russia" "Serbia" "Singapore" "Slovakia" "Slovenia" "South Africa" "South Korea" "Spain" "Sweden" "Switzerland" "Taiwan" "Thailand" "Turkey" "Ukraine" "United Kingdom" "United States" "Vietnam")
+  COUNTRIES_LIST=($((reflector --list-countries) | sed '1,2d' | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g'))
   IFS=$SAVEIFS
   _print_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
@@ -249,8 +250,7 @@ _format_partitions() {
     if mount | grep "${ROOT_PARTITION}" &> /dev/null; then
       _umount_partitions
     fi
-    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt') # Open luks volumes?
-
+    LUKS_VOLUMES=$(lsblk | awk '{print $6}' | grep 'crypt') # Luks volumes open?
     if [[ ! "$LUKS_VOLUMES" = "" ]]; then # Close luks volumes!
       LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
       for ITEM in ${LUKS_OPEN[@]}; do
@@ -1102,18 +1102,18 @@ _finish_post() {
 
 _print_line() {
   T_COLS=$(tput cols)
-  echo -e "${CYAN}$(seq -s '-' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
+  echo -e "${BBLACK}$(seq -s '-' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
 _print_title() {
   clear
   T_COLS=$(tput cols)
-  BORDER_COLOR=${CYAN}
+  BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
   echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
-  echo -e "${BWHITE} $1${RESET}"
+  echo -e "${BGREEN} $1${RESET}"
   echo -e "${BORDER_COLOR}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
