@@ -77,7 +77,7 @@
   # --- AUTOMATIC
     MY_COUNTRY="Brazil"
     INSTALL_DISK="/dev/sda"
-    ROOT_PARTITION="/dev/sda3"
+    ROOT_PARTITION="/dev/sda2"
     EFI_PARTITION="/dev/sda1"
     KERNEL_VERSION="linux-lts"
     MICROCODE_VERSION="intel-ucode"
@@ -101,7 +101,6 @@
 # -------------------- CORE FUNCTIONS
 
 _setup_install(){
-  _set_font
   _rank_mirrors
   _format_partitions
   _install_base
@@ -116,7 +115,6 @@ _setup_install(){
 }
 
 _setup_post(){
-  _set_font
   _create_new_user
   _enable_multilib
   _install_essential_pkgs
@@ -948,58 +946,6 @@ _pacstrap_install() { # Install pacstrap packages
   done
 }
 
-_set_font() {
-  _select_consolefont() {
-    _print_title "SCRIPT FONT SIZE"
-    _print_select "Select script font size:"
-    echo -e "1) Very small  12"
-    echo -e "2) Small       14"
-    echo -e "3) Small bold  14"
-    echo -e "4) Medium      16"
-    echo -e "5) Medium bold 16"
-    echo -e "6) Large       18 - (Recommended)"
-    echo -e "7) Very large  20"
-    echo -e "8) Very large  22"
-    echo -e "9) Default archiso font"
-    printf "%s" "${BYELLOW}> ${RESET}"
-    read -r FONT_CHOICE
-    case $FONT_CHOICE in
-      1)
-        setfont ter-112n
-        ;;
-      2)
-        setfont ter-114n
-        ;;
-      3)
-        setfont ter-114b
-        ;;
-      4)
-        setfont ter-116n
-        ;;
-      5)
-        setfont ter-116b
-        ;;
-      6)
-        setfont ter-118b
-        ;;
-      7)
-        setfont ter-120b
-        ;;
-      8)
-        setfont ter-122b
-        ;;
-      9)
-        setfont
-        ;;
-      *)
-        _invalid_option
-        _select_consolefont
-        ;;
-    esac
-  }
-  _select_consolefont
-}
-
 usage() {
   cat <<EOF
 
@@ -1018,24 +964,16 @@ EOF
 _start() {
   pacman -Sy --needed --noconfirm terminus-font &> /dev/null
   clear
-  setfont ter-124b
   T_COLS=$(tput cols)
-  COLS_LOGO=47
+  COLS_LOGO=22
   echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}┌─────────────────────────────────────────────┐${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}   __   __  _______  ___      _______  ___ ${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |  |_|  ||   _   ||   |    |       ||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||  |_|  ||   |    |    _  ||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||       ||   |    |   |_| ||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||       ||   |___ |    ___||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  | ||_|| ||   _   ||       ||   |    |   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |_|   |_||__| |__||_______||___|    |___|${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│                                             │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}└───── ${BGREEN}My Personal Arch Linux Installer${RESET}${BGREEN} ──────┘${RESET}"
+  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}┌────────────────────┐${RESET}"
+  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│       MyArch       │${RESET}"
+  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}└────────────────────┘${RESET}"
   echo
   tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BPURPLE}By Stenio Silveira${RESET}"
   echo -e "\n\n\n"
-  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
+  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Precione qualquer tecla para iniciar!${RESET}"
   clear
   _print_title "CHECKING REQUIREMENTS"
   echo
@@ -1047,6 +985,7 @@ _start() {
   _check_pacman_blocked
   _print_action "Executando" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
+  read -e -sn 1 -p "${BWHITE}Precione qualquer tecla para continuar...${RESET}"
 }
 
 # ----------- TEST FUNCTIONS
