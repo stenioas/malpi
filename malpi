@@ -1028,7 +1028,7 @@ _install_extra_pkgs() {
 
 _install_laptop_pkgs() {
   _print_title "LAPTOP PACKAGES"
-  LAPTOP_PKGS="wpa_supplicant wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
+  LAPTOP_PKGS="wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
   echo
   _print_item "Laptop packages" "${LAPTOP_PKGS}"
   echo
@@ -1192,7 +1192,7 @@ _print_action() {
 
 _progress() {
   _spinny() {
-    echo -ne "\b${BGREEN}${SPIN:i++%${#SPIN}:1}${RESET}"
+    echo -ne "\b${BBLACK}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
     kill -0 "$PID" &> /dev/null;
