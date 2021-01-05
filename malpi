@@ -1128,12 +1128,12 @@ _print_title() {
   COLS_APP_TITLE=${#APP_TITLE}
   echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
-  echo -e "${BGREEN} $1${RESET}"
+  echo -e "${BBLACK}<${RESET}${BGREEN}  $1  ${RESET}${BBLACK}>${RESET}"
   echo -e "${BORDER_COLOR}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
 _print_subtitle() {
-  echo -e "\n${BBLACK}:: $1${RESET}\n"
+  echo -e "\n${BWHITE}:: $1${RESET}\n"
 }
 
 _print_select() {
@@ -1141,11 +1141,11 @@ _print_select() {
 }
 
 _print_item() {
-  REM_COLS=$(( 22 - ${#1} ))
+  REM_COLS=$(( 23 - ${#1} ))
   echo -ne "${CYAN}$1${RESET}"
   echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK}:${RESET}"
-  echo -e "${YELLOW} $2${RESET}"
+  echo -e "${WHITE} $2${RESET}"
 }
 
 _print_info() {
@@ -1179,7 +1179,7 @@ _print_action() {
   T_COLS=$(tput cols)
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${CYAN}$1${RESET}${BWHITE} $2 ${RESET}"
+  echo -ne "${CYAN}$1${RESET}${WHITE} $2 ${RESET}"
   echo -ne "${BBLACK}$(seq -s '.' $(( REM_DOTS )) | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
@@ -1214,11 +1214,11 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${YELLOW}$1 ${RESET}"
+  printf "%s" "${BGREEN}$1 ${RESET}"
 }
 
 _read_input_option() {
-  printf "%s" "${BYELLOW}$1${RESET}"
+  printf "%s" "${BGREEN}$1${RESET}"
   read -r OPTION
 }
 
@@ -1234,7 +1234,7 @@ _invalid_option() {
 _pause_function() {
   echo
   _print_line
-  read -e -sn 1 -p "${WHITE}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
 }
 
 _umount_partitions() {
@@ -1370,8 +1370,8 @@ _start() {
   _check_root
   _check_hostname
   _check_pacman_blocked
-  _print_action "Updating" "archlinux-keyring"
-  pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
+  _print_action "Synchronizing" "Pacman database"
+  pacman -Syy &> /dev/null & PID=$!; _progress $PID
   _print_action "Running" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
   _pause_function
