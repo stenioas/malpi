@@ -1147,10 +1147,10 @@ _print_select() {
 
 _print_item() {
   REM_COLS=$(( 23 - ${#1} ))
-  echo -ne "${BBLACK}$1${RESET}"
+  echo -ne "${BGREEN}$1${RESET}"
   echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK}:${RESET}"
-  echo -e "${BGREEN} $2${RESET}"
+  echo -e "${WHITE} $2${RESET}"
 }
 
 _print_info() {
@@ -1184,7 +1184,7 @@ _print_action() {
   T_COLS=$(tput cols)
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2 ${RESET}"
+  echo -ne "${BGREEN}$1${RESET}${WHITE} $2 ${RESET}"
   echo -ne "${BBLACK}$(seq -s '.' $(( REM_DOTS )) | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
