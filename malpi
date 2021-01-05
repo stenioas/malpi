@@ -418,8 +418,6 @@ _install_base() {
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
   echo
-  _print_action "Updating" "archlinux-keyring"
-  pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   if [[ "${KERNEL_VERSION}" != "None" ]]; then
@@ -1346,7 +1344,7 @@ EOF
 _start() {
   pacman -Sy --needed --noconfirm terminus-font &> /dev/null
   clear
-  setfont ter-124b
+  setfont ter-118b
   T_COLS=$(tput cols)
   COLS_LOGO=47
   echo -e "\n\n\n\n\n"
@@ -1372,6 +1370,8 @@ _start() {
   _check_root
   _check_hostname
   _check_pacman_blocked
+  _print_action "Updating" "archlinux-keyring"
+  pacman -Sy --noconfirm archlinux-keyring &> /dev/null & PID=$!; _progress $PID
   _print_action "Running" "timedatectl set-ntp true"
   timedatectl set-ntp true & PID=$!; _progress $PID
   _pause_function
