@@ -240,7 +240,6 @@ _format_partitions() {
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
-    wait $PID
     _umount_partitions
     # Luks volumes open?
     items=$(lsblk | awk '{print $6}' | grep 'crypt')
@@ -276,6 +275,7 @@ _format_partitions() {
     echo
     _read_input_option "Do you want to encrypt the root partition? [y/N]: "
     if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+      echo
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
         _print_subtitle "luksFormat"
@@ -318,6 +318,7 @@ _format_partitions() {
     done
     _read_input_option "Format EFI partition? [y/N]: "
     if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+      echo
       _read_input_option "${BRED}All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
         echo
@@ -421,7 +422,6 @@ _install_base() {
   echo
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
-  echo
   _print_subtitle "Packages"
   _pacstrap_install "base base-devel"
   if [[ "${KERNEL_VERSION}" != "None" ]]; then
@@ -1146,10 +1146,10 @@ _print_select() {
 
 _print_item() {
   REM_COLS=$(( 23 - ${#1} ))
-  echo -ne "${CYAN}$1${RESET}"
+  echo -ne "${BBLACK}$1${RESET}"
   echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK}:${RESET}"
-  echo -e "${WHITE} $2${RESET}"
+  echo -e "${BGREEN} $2${RESET}"
 }
 
 _print_info() {
@@ -1183,7 +1183,7 @@ _print_action() {
   T_COLS=$(tput cols)
   REM_COLS=$(( ${#1} + ${#2} ))
   REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${CYAN}$1${RESET}${WHITE} $2 ${RESET}"
+  echo -ne "${BBLACK}$1${RESET}${WHITE} $2 ${RESET}"
   echo -ne "${BBLACK}$(seq -s '.' $(( REM_DOTS )) | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK} [        ]${RESET}"
   tput sc
