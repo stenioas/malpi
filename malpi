@@ -241,20 +241,26 @@ _format_partitions() {
     # Luks volumes open?
     items=$(lsblk | awk '{print $6}' | grep 'crypt')
     LUKS_VOLUMES=()
+    SAVEIFS=$IFS
+    IFS=$'\n'
     for item in ${items}; do
       LUKS_VOLUMES+=("${item}")
     done
-    if [ "${LUKS_VOLUMES}" != "" ]; then # Close luks volumes!
+    IFS=$SAVEIFS
+    if ! [ ${#LUKS_VOLUMES[@]} -eq 0 ]; then # Close luks volumes!
       items=$(dmsetup ls --target crypt | awk '{print $1}')
       LUKS_OPEN=()
+      SAVEIFS=$IFS
+      IFS=$'\n'
       for item in ${items}; do
         LUKS_OPEN+=("${item}")
       done
+      IFS=$SAVEIFS
       for item in "${LUKS_OPEN[@]}"; do
         cryptsetup close /dev/mapper/"${item}"
       done
     fi
-    select PARTITION in ${PARTITIONS_LIST[@]}; do
+    select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
         ROOT_PARTITION="$PARTITION"
@@ -1234,7 +1240,7 @@ _pause_function() {
 }
 
 _umount_partitions() {
-  umount -a &> /dev/null
+  umount -R "${ROOT_MOUNTPOINT}" &> /dev/null
 }
 
 _is_package_installed() {
