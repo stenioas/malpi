@@ -84,7 +84,7 @@
     ROOT_MOUNTPOINT="/mnt"
 
   # --- PROMPT
-    PS3="${BYELLOW}> ${RESET}"
+    PS3="${BGREEN}> ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -316,6 +316,7 @@ _format_partitions() {
         _invalid_option
       fi
     done
+    echo
     _read_input_option "Format EFI partition? [y/N]: "
     if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
       echo
@@ -1191,7 +1192,7 @@ _print_action() {
 
 _progress() {
   _spinny() {
-    echo -ne "\b${BPURPLE}${SPIN:i++%${#SPIN}:1}${RESET}"
+    echo -ne "\b${BGREEN}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
     kill -0 "$PID" &> /dev/null;
