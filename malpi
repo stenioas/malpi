@@ -227,6 +227,9 @@ _select_disk() {
   _read_input_option "Edit disk partitions? [y/N]: "
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
     cfdisk "${INSTALL_DISK}"
+    _print_title "PARTITION THE DISKS"
+    echo
+    _print_item "Selected disk" "${INSTALL_DISK}"
     _pause_function
   fi
 }
@@ -237,6 +240,7 @@ _format_partitions() {
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
+    wait $PID
     _umount_partitions
     # Luks volumes open?
     items=$(lsblk | awk '{print $6}' | grep 'crypt')
@@ -1409,7 +1413,7 @@ _check_connection() {
   _connection_test() {
     ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
   }
-  _print_action "Checking" "Connection"
+  _print_action "Checking" "Internet connection"
   if ! _connection_test; then
     _print_ok
   else
@@ -1422,7 +1426,7 @@ _check_connection() {
 }
 
 _check_root() {
-  _print_action "Checking" "User"
+  _print_action "Checking" "Root user"
   if [ "$(id -u)" == "0" ]; then
     _print_ok
   else
@@ -1448,7 +1452,7 @@ _check_hostname() {
 }
 
 _check_pacman_blocked() {
-  _print_action "Checking" "Pacman"
+  _print_action "Checking" "Pacman is not blocked"
   if [ ! -f /var/lib/pacman/db.lck ]; then
     _print_ok
   else
