@@ -262,6 +262,8 @@ _format_partitions() {
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
         PARTITION_NUMBER=$((REPLY -1))
         ROOT_PARTITION="$PARTITION"
+        ROOT_DEVICE="$PARTITION"
+        ROOT_UUID=$(blkid -s UUID -o value "${ROOT_DEVICE}")
         break;
       else
         _invalid_option
@@ -649,8 +651,7 @@ _set_bootloader() {
         _pacstrap_install "os-prober"
       fi
       if [[ $LUKS -eq 1 ]]; then
-        UUID=$(blkid "${ROOT_PARTITION}" | awk -F '"' '{print $2}')
-        sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME} rootflags=subvol=@ rw\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
+        sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${ROOT_UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME} rootflags=subvol=@ rw\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
       fi
       _print_subtitle "Grub install"
       arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${BOOTLOADER_NAME}" --recheck
@@ -677,7 +678,6 @@ _set_bootloader() {
       done
       _print_subtitle "Systemd-boot install"
       arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
-      UUID=$(blkid "${ROOT_PARTITION}" | awk -F '"' '{print $2}')
       if [[ $LUKS -eq 1 ]]; then
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
@@ -685,7 +685,7 @@ _set_bootloader() {
             echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\tcryptdevice=UUID=${UUID}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME} rootflags=subvol=@ rw"
+          echo -e "options\tcryptdevice=UUID=${ROOT_UUID}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       else
         {
@@ -694,7 +694,7 @@ _set_bootloader() {
             echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\troot=UUID=${UUID} rootflags=subvol=@ rw"
+          echo -e "options\troot=UUID=${ROOT_UUID} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       fi
       echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
@@ -716,7 +716,12 @@ _finish_install() {
   _print_info "Your new system has been installed!"
   echo
   _print_item "Disk" "${INSTALL_DISK}"
-  _print_item "Root partition" "${ROOT_DEVICE}"
+  _print_item "Root partition" "${ROOT_PARTITION}"
+  if [[ $LUKS == 1 ]]; then
+    _print_item "Encryption" "${BRED}No${RESET}"
+  else
+    _print_item "Encryption" "${BGREEN}Yes${RESET}"
+  fi
   _print_item "EFI partition" "${EFI_PARTITION}"
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
@@ -1533,7 +1538,7 @@ _check_root() {
 
 _check_hostname() {
   _print_action "Checking" "Hostname"
-  if [ ${HOSTNAME// /} != "" ]; then
+  if [ "${HOSTNAME// /}" != "" ]; then
     _print_ok
   else
     _print_failed
