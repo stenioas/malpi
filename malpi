@@ -673,8 +673,8 @@ _set_bootloader() {
       done
       _print_subtitle "Systemd-boot install"
       arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
-      UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
       if [ $LUKS -eq 1 ]; then
+        UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
           if ! [ "${MICROCODE_VERSION}" = "" ]; then
@@ -684,6 +684,7 @@ _set_bootloader() {
           echo -e "options\tcryptdevice=UUID=${UUID}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       else
+        UUID=$(blkid "${ROOT_PARTITION}" | awk -F '"' '{print $2}')
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
           if ! [ "${MICROCODE_VERSION}" = "None" ]; then
@@ -694,7 +695,7 @@ _set_bootloader() {
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       fi
       echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
-      pause_function
+      _pause_function
       nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
       ;;
@@ -744,6 +745,7 @@ _finish_install() {
     setfont
     reboot
   else
+    clear
     _print_bye
     setfont
     exit 0
