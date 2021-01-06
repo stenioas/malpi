@@ -274,13 +274,17 @@ _format_partitions() {
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
         _print_subtitle "luksFormat"
-        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "${ROOT_PARTITION}" "${CRYPT_NAME}" && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/${CRYPT_NAME}"
+        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "${ROOT_PARTITION}" "${CRYPT_NAME}" && LUKS=1 && ROOT_DEVICE="/dev/mapper/${CRYPT_NAME}"
+      else
+        ROOT_DEVICE="${ROOT_PARTITION}"
       fi
+    else
+     ROOT_DEVICE="${ROOT_PARTITION}"
     fi
     echo
-    _print_action "Format" "${ROOT_PARTITION}"
-    mkfs.btrfs -f -L Archlinux ${ROOT_PARTITION} &> /dev/null & PID=$!; _progress $PID
-    mount ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null
+    _print_action "Format" "${ROOT_DEVICE}"
+    mkfs.btrfs -f -L Archlinux "${ROOT_DEVICE}" &> /dev/null & PID=$!; _progress $PID
+    mount "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null
     _print_action "Create subvolume" "@"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
     _print_action "Create subvolume" "@home"
@@ -289,13 +293,13 @@ _format_partitions() {
     btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
     _print_action "Mount" "@"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ ${ROOT_PARTITION} ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
     mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
     _print_action "Mount" "@home"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/home &> /dev/null & PID=$!; _progress $PID
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT}/home &> /dev/null & PID=$!; _progress $PID
     _print_action "Mount" "@.snapshots"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots ${ROOT_PARTITION} ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null & PID=$!; _progress $PID
-    _check_mountpoint "${ROOT_PARTITION}" "${ROOT_MOUNTPOINT}"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null & PID=$!; _progress $PID
+    _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
     _pause_function
   }
 
@@ -645,7 +649,7 @@ _set_bootloader() {
         _pacstrap_install "os-prober"
       fi
       if [[ $LUKS -eq 1 ]]; then
-        UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
+        UUID=$(blkid "${ROOT_PARTITION}" | awk -F '"' '{print $2}')
         sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME} rootflags=subvol=@ rw\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
       fi
       _print_subtitle "Grub install"
@@ -673,8 +677,8 @@ _set_bootloader() {
       done
       _print_subtitle "Systemd-boot install"
       arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
-      if [ $LUKS -eq 1 ]; then
-        UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
+      UUID=$(blkid "${ROOT_PARTITION}" | awk -F '"' '{print $2}')
+      if [[ $LUKS -eq 1 ]]; then
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
           if ! [ "${MICROCODE_VERSION}" = "" ]; then
@@ -684,7 +688,6 @@ _set_bootloader() {
           echo -e "options\tcryptdevice=UUID=${UUID}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       else
-        UUID=$(blkid "${ROOT_PARTITION}" | awk -F '"' '{print $2}')
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
           if ! [ "${MICROCODE_VERSION}" = "None" ]; then
@@ -713,11 +716,7 @@ _finish_install() {
   _print_info "Your new system has been installed!"
   echo
   _print_item "Disk" "${INSTALL_DISK}"
-  if [[ $LUKS -eq 1 ]]; then
-    _print_item "Root partition" "${LUKS_PARTITION}"
-  else
-    _print_item "Root partition" "${ROOT_PARTITION}"
-  fi
+  _print_item "Root partition" "${ROOT_DEVICE}"
   _print_item "EFI partition" "${EFI_PARTITION}"
   _print_item "Kernel version" "${KERNEL_VERSION}"
   _print_item "Microcode" "${MICROCODE_VERSION}"
