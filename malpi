@@ -141,10 +141,11 @@ cat <<EOF
 
   - The root partition will be formatted with the ${BYELLOW}BTRFS${RESET} filesystem.
 
-  - This script will create three subvolumes:
+  - This script will create 4 subvolumes:
         ${BYELLOW}@${RESET} for /
         ${BYELLOW}@home${RESET} for /home
-        ${BYELLOW}@.snapshots${RESET} for /.snapshots
+        ${BYELLOW}@pkgs${RESET} for /var/cache/pacman/pkgs
+        ${BYELLOW}@snapshots${RESET} for /.snapshots
 
   - The EFI partition can be formatted in FAT32 if the user wants to.
 
@@ -177,7 +178,17 @@ _rank_mirrors() {
   _print_select "Select your country:"
   select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
     if _contains_element "${COUNTRY_CHOICE}" "${COUNTRIES_LIST[@]}"; then
-      COUNTRY_CHOICE="${COUNTRY_CHOICE}"
+      echo
+      _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
+      reflector -c "${COUNTRY_CHOICE}" --sort score --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
+      echo
+      _read_input_option "Edit your mirrorlist file? [y/N]: "
+      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+        nano /etc/pacman.d/mirrorlist
+        _print_title "MIRRORS"
+      fi
+      _print_subtitle "Update"
+      pacman -Syy
       break
     else
       _invalid_option
@@ -186,17 +197,6 @@ _rank_mirrors() {
   if ! [ -f /etc/pacman.d/mirrorlist.backup ]; then
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   fi
-  echo
-  _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
-  reflector -c "${COUNTRY_CHOICE}" --sort score --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
-  echo
-  _read_input_option "Edit your mirrorlist file? [y/N]: "
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    nano /etc/pacman.d/mirrorlist
-    _print_title "MIRRORS"
-  fi
-  _print_subtitle "Update"
-  pacman -Syy
   _pause_function
 }
 
@@ -289,16 +289,20 @@ _format_partitions() {
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
     _print_action "Create subvolume" "@home"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@.snapshots"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@.snapshots &> /dev/null & PID=$!; _progress $PID
+    _print_action "Create subvolume" "@pkgs"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
+    _print_action "Create subvolume" "@snapshots"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
     _print_action "Mount" "@"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
-    mkdir -p ${ROOT_MOUNTPOINT}/{home,.snapshots} &> /dev/null
+    mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
     _print_action "Mount" "@home"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT}/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@.snapshots"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null & PID=$!; _progress $PID
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
+    _print_action "Mount" "@pkgs"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@pkgs "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
+    _print_action "Mount" "@snapshots"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
     ROOT_UUID=$(blkid -s UUID -o value "${ROOT_DEVICE}")
     _pause_function
@@ -457,11 +461,26 @@ _fstab_generate() {
 _set_timezone() {
   _print_title "TIME ZONE AND SYSTEM CLOCK"
   # ZONE SECTION
-  ZONE_LIST=($(timedatectl list-timezones | sed 's/\/.*$//' | uniq))
+  local items=""
+  items=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
+  ZONE_LIST=()
+  SAVEIFS=$IFS
+  IFS=$'\n'
+  for item in ${items}; do
+    ZONE_LIST+=("${item}")
+  done
+  IFS=$SAVEIFS
   _print_select "Select your zone:"
   select ZONE in "${ZONE_LIST[@]}"; do
     if _contains_element "$ZONE" "${ZONE_LIST[@]}"; then
-      SUBZONE_LIST=($(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///'))
+      items=$(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///')
+      SUBZONE_LIST=()
+      SAVEIFS=$IFS
+      IFS=$'\n'
+      for item in ${items}; do
+        SUBZONE_LIST+=("${item}")
+      done
+      IFS=$SAVEIFS
       _print_title "TIME ZONE AND SYSTEM CLOCK"
       _print_select "Select your subzone:"
       select SUBZONE in "${SUBZONE_LIST[@]}"; do
@@ -512,7 +531,15 @@ _set_timezone() {
 
 _set_localization() {
   _print_title "LOCALIZATION"
-  LOCALE_LIST=($(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'))
+  local items=""
+  items=$(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
+  LOCALE_LIST=()
+  SAVEIFS=$IFS
+  IFS=$'\n'
+  for item in ${items}; do
+    LOCALE_LIST+=("${item}")
+  done
+  IFS=$SAVEIFS
   _print_select "Select your language:"
   select LOCALE in "${LOCALE_LIST[@]}"; do
     if _contains_element "$LOCALE" "${LOCALE_LIST[@]}"; then
@@ -523,10 +550,18 @@ _set_localization() {
     fi
   done
   _print_title "LOCALIZATION"
-	KEYMAP_LIST=($(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g'))
+  local items=""
+  items=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g')
+	KEYMAP_LIST=()
   KEYMAP_CHOICE="br-abnt2"
+  SAVEIFS=$IFS
+  IFS=$'\n'
+  for item in ${items}; do
+    KEYMAP_LIST+=("${item}")
+  done
+  IFS=$SAVEIFS
   echo
-  _print_info "The default keymap will be set to 'br-abnt2'"
+  _print_info "The default keymap will be set to 'br-abnt2' in vconsole.conf"
   echo
   _read_input_option "Change default keymap? [y/N]: "
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -550,10 +585,10 @@ _set_localization() {
   sed -i "s/#\(${LOCALE}\)/\1/" ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null & PID=$!; _progress $PID
-  _print_action "Running" "localectl set-locale LANG=${LOCALE_UTF8}"
-  arch-chroot "${ROOT_MOUNTPOINT}" localectl set-locale LANG="${LOCALE_UTF8}" & PID=$!; _progress $PID
-  _print_action "Running" "localectl set-keymap ${KEYMAP_CHOICE}"
-  arch-chroot "${ROOT_MOUNTPOINT}" localectl set-keymap ${KEYMAP_CHOICE} & PID=$!; _progress $PID
+  _print_action "Running" "echo \"LANG=${LOCALE_UTF8}\" > /etc/locale.conf"
+  echo -e "LANG=${LOCALE_UTF8}" > "${ROOT_MOUNTPOINT}"/etc/locale.conf & PID=$!; _progress $PID
+  _print_action "Running" "echo \"KEYMAP=${KEYMAP_CHOICE}\" > /etc/vconsole.conf"
+  echo -e "KEYMAP=${KEYMAP_CHOICE}" > "${ROOT_MOUNTPOINT}"/etc/vconsole.conf & PID=$!; _progress $PID
   _pause_function
 }
 
@@ -1007,7 +1042,8 @@ _install_desktop() {
   _select_keymap_x11_wayland() {
     if [ $IS_XORG == 1 ] || [ $IS_WAYLAND == 1 ]; then
       _print_title "KEYMAP LAYOUT"
-      local items=$(localectl list-x11-keymap-layouts)
+      local items=""
+      items=$(localectl list-x11-keymap-layouts)
       KEYMAP_LIST=()
       SAVEIFS="$IFS"
       IFS=$'\n'
@@ -1016,13 +1052,13 @@ _install_desktop() {
       done
       KEYMAP_LIST+=("Cancel")
       _print_select "Select keymap layout:"
-      select KEYMAP_LAYOUT in ${KEYMAP_LIST[@]}; do
+      select KEYMAP_LAYOUT in "${KEYMAP_LIST[@]}"; do
         if _contains_element "${KEYMAP_LAYOUT}" "${KEYMAP_LIST[@]}"; then
           if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
             localectl set-x11-keymap "${KEYMAP_LAYOUT}"
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            echo -e "export XKB_DEFAULT_LAYOUT${KEYMAP_LAYOUT}" >> /etc/profile
+            echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile
           fi
           break
         else

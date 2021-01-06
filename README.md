@@ -46,10 +46,11 @@
 2. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
 3. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
 4. A partição raiz será formatada com o sistema de arquivos [**BTRFS**](https://wiki.archlinux.org/index.php/Btrfs_(Português)).
-5. Este script irá criar três [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
+5. Este script irá criar 4 [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
 	- **@** para /
 	- **@home** para /home
-	- **@.snapshots** para /.snapshots
+	- **@pkgs** para /var/cache/pacman/pkgs
+	- **@snapshots** para /.snapshots
 6. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
 7. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
 8. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
