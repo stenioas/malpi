@@ -1126,6 +1126,7 @@ _install_desktop() {
             localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
+            _print_action "Running" "echo \'export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"\'"
             echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
           fi
           break
