@@ -82,6 +82,7 @@
     EFI_MOUNTPOINT="/boot"
     ROOT_PARTITION="/dev/sda3"
     ROOT_MOUNTPOINT="/mnt"
+    CRYPT_NAME="cryptroot"
 
   # --- PROMPT
     PS3="${BGREEN}> ${RESET}"
@@ -277,7 +278,7 @@ _format_partitions() {
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
         _print_subtitle "luksFormat"
-        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/crypt"
+        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/${CRYPT_NAME}"
       fi
     fi
     echo
@@ -610,7 +611,7 @@ _root_passwd() {
 }
 
 _set_bootloader() {
-  _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET} will be available soon"
+  _print_title "BOOTLOADER"
   BOOTLOADER_LIST=("Grub" "Systemd-boot" "None")
   _print_select "Select your bootloader:"
   select BOOTLOADER_CHOICE in "${BOOTLOADER_LIST[@]}"; do
@@ -661,67 +662,50 @@ _set_bootloader() {
       echo
       _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
       echo
-      SYSTEMD_BOOT_INSTALL_MODE=("Automatic" "Manual")
-      select SYSTEMD_BOOT_INSTALL_CHOICE in "${SYSTEMD_BOOT_INSTALL_MODE[@]}"; do
-        case "$SYSTEMD_BOOT_INSTALL_CHOICE" in
-          1)
-            _print_title "BOOTLOADER"
-            echo
-            _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-            echo
-            _read_input_text "Type a systemd-boot name entry:"
-            read -r BOOTLOADER_NAME
-            while [[ "${BOOTLOADER_NAME}" = "" ]]; do
-              _print_title "BOOTLOADER"
-              echo
-              _print_warning "You must type a systemd-boot name entry!"
-              echo
-              _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-              echo
-              _read_input_text "Type a systemd-boot name entry:"
-              read -r BOOTLOADER_NAME
-            done
-            arch-chroot "${ROOT_MOUNTPOINT}" bootctl install
-            UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
-            if [ $LUKS -eq 1 ]; then
-              echo -e "title\t${BOOTLOADER_NAME}" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              echo -e "linux\t/vmlinuz-${KERNEL_VERSION}" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              if ! [ "${MICROCODE_VERSION}" = "" ]; then
-                echo -e "initrd\t${MICROCODE_VERSION}.img" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              fi
-              echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              echo -e "options\tcryptdevice=${INSTALL_DISK}:luks root=\/dev\/mapper\/crypt rw" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/ entries/arch.conf
-            else
-              echo -e "title\t${BOOTLOADER_NAME}" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              echo -e "linux\t/vmlinuz-${KERNEL_VERSION}" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              if ! [ "${MICROCODE_VERSION}" = "None" ]; then
-                echo -e "initrd\t${MICROCODE_VERSION}.img" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-              fi
-              echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-              echo -e "options\troot=UUID=${UUID} rw" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-            fi
-            echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
-            pause_function
-            nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-            nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
-            break
-            ;;
-          2)
-            arch-chroot "${ROOT_MOUNTPOINT}"
-            break
-            ;;
-          *)
-            _invalid_option
-            ;;
-        esac
+      _read_input_text "Type a systemd-boot name entry:"
+      read -r BOOTLOADER_NAME
+      while [[ "${BOOTLOADER_NAME}" = "" ]]; do
+        _print_title "BOOTLOADER"
+        echo
+        _print_warning "You must type a systemd-boot name entry!"
+        echo
+        _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
+        echo
+        _read_input_text "Type a systemd-boot name entry:"
+        read -r BOOTLOADER_NAME
       done
+      arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
+      UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
+      if [ $LUKS -eq 1 ]; then
+        {
+          echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
+          if ! [ "${MICROCODE_VERSION}" = "" ]; then
+            echo -e "initrd\t${MICROCODE_VERSION}.img"
+          fi
+          echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
+          echo -e "options\tcryptdevice=\/dev\/${INSTALL_DISK:5}:luks root=\/dev\/mapper\/${CRYPT_NAME} rw"
+        } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+      else
+        {
+          echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
+          if ! [ "${MICROCODE_VERSION}" = "None" ]; then
+            echo -e "initrd\t${MICROCODE_VERSION}.img"
+          fi
+          echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
+          echo -e "options\troot=UUID=${UUID} rw"
+        } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+      fi
+      echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
+      pause_function
+      nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+      nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
       ;;
     "None")
       echo
       _print_info "Nothing has been changed!"
+      _pause_function
       ;;
   esac
-  _pause_function  
 }
 
 _finish_install() {

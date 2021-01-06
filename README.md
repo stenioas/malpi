@@ -53,7 +53,7 @@
 6. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
 7. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
 8. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
-9. Apenas o carregador de inicialização [**GRUB**](https://wiki.archlinux.org/index.php/GRUB_(Português))  está disponível no momento (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estará disponível em breve*).
+9. Apenas [**Grub**](https://wiki.archlinux.org/index.php/GRUB_(Português)) e [**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estão disponíveis.
 10. O script pode ser cancelado a qualquer momento com **CTRL+C**.
 11. **ESTE SCRIPT AINDA NÃO ESTÁ COMPLETO!**
 

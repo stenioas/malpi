@@ -53,7 +53,7 @@
 6. The EFI partition can be formatted in FAT32 if the user wants to.
 7. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
 8. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default.
-9. Only the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is currently available (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
+9. Only [**Grub**](https://wiki.archlinux.org/index.php/GRUB) and [**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) are available.
 10. This script can be cancelled at any time with **CTRL+C**.
 11. **THIS SCRIPT IS NOT YET COMPLETE!**
 
