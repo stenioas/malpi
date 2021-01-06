@@ -240,9 +240,24 @@ _format_partitions() {
     _print_danger "All data on the partition will be LOST!"
     echo
     _umount_partitions
-    LUKS_VOLUMES=($(lsblk | awk '{print $6}' | grep 'crypt'))
-    if ! [ ${#LUKS_VOLUMES[@]} -eq 0 ]; then #  Luks volumes open? Close luks volumes!
-      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
+    # Luks volumes open?
+    items=$(lsblk | awk '{print $6}' | grep 'crypt')
+    LUKS_VOLUMES=()
+    SAVEIFS=$IFS
+    IFS=$'\n'
+    for item in ${items}; do
+      LUKS_VOLUMES+=("${item}")
+    done
+    IFS=$SAVEIFS
+    if ! [ ${#LUKS_VOLUMES[@]} -eq 0 ]; then # Close luks volumes!
+      items=$(dmsetup ls --target crypt | awk '{print $1}')
+      LUKS_OPEN=()
+      SAVEIFS=$IFS
+      IFS=$'\n'
+      for item in ${items}; do
+        LUKS_OPEN+=("${item}")
+      done
+      IFS=$SAVEIFS
       for item in "${LUKS_OPEN[@]}"; do
         cryptsetup close /dev/mapper/"${item}"
       done
@@ -263,7 +278,7 @@ _format_partitions() {
       _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
         _print_subtitle "luksFormat"
-        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "$ROOT_PARTITION" crypt && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/${CRYPT_NAME}"
+        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "${ROOT_PARTITION}" "${CRYPT_NAME}" && LUKS=1 && LUKS_PARTITION="$ROOT_PARTITION" && ROOT_PARTITION="/dev/mapper/${CRYPT_NAME}"
       fi
     fi
     echo
@@ -635,7 +650,7 @@ _set_bootloader() {
       fi
       if [[ $LUKS -eq 1 ]]; then
         UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
-        sed -i -e "s/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX=cryptdevice=UUID=${UUID}:crypt/g" ${ROOT_MOUNTPOINT}/etc/default/grub
+        sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME}\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
       fi
       _print_subtitle "Grub install"
       arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${BOOTLOADER_NAME}" --recheck
@@ -659,6 +674,7 @@ _set_bootloader() {
         _read_input_text "Type a systemd-boot name entry:"
         read -r BOOTLOADER_NAME
       done
+      _print_subtitle "Systemd-boot install"
       arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
       UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
       if [ $LUKS -eq 1 ]; then
