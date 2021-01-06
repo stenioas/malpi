@@ -240,24 +240,9 @@ _format_partitions() {
     _print_danger "All data on the partition will be LOST!"
     echo
     _umount_partitions
-    # Luks volumes open?
-    items=$(lsblk | awk '{print $6}' | grep 'crypt')
-    LUKS_VOLUMES=()
-    SAVEIFS=$IFS
-    IFS=$'\n'
-    for item in ${items}; do
-      LUKS_VOLUMES+=("${item}")
-    done
-    IFS=$SAVEIFS
-    if ! [ ${#LUKS_VOLUMES[@]} -eq 0 ]; then # Close luks volumes!
-      items=$(dmsetup ls --target crypt | awk '{print $1}')
-      LUKS_OPEN=()
-      SAVEIFS=$IFS
-      IFS=$'\n'
-      for item in ${items}; do
-        LUKS_OPEN+=("${item}")
-      done
-      IFS=$SAVEIFS
+    LUKS_VOLUMES=($(lsblk | awk '{print $6}' | grep 'crypt'))
+    if ! [ ${#LUKS_VOLUMES[@]} -eq 0 ]; then #  Luks volumes open? Close luks volumes!
+      LUKS_OPEN=($(dmsetup ls --target crypt | awk '{print $1}'))
       for item in "${LUKS_OPEN[@]}"; do
         cryptsetup close /dev/mapper/"${item}"
       done
