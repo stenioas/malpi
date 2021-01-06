@@ -263,7 +263,7 @@ _format_partitions() {
         PARTITION_NUMBER=$((REPLY -1))
         ROOT_PARTITION="$PARTITION"
         ROOT_DEVICE="$PARTITION"
-        ROOT_UUID=$(blkid -s UUID -o value "${ROOT_DEVICE}")
+        LUKS=0
         break;
       else
         _invalid_option
@@ -277,11 +277,7 @@ _format_partitions() {
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
         _print_subtitle "luksFormat"
         cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "${ROOT_PARTITION}" "${CRYPT_NAME}" && LUKS=1 && ROOT_DEVICE="/dev/mapper/${CRYPT_NAME}"
-      else
-        ROOT_DEVICE="${ROOT_PARTITION}"
       fi
-    else
-     ROOT_DEVICE="${ROOT_PARTITION}"
     fi
     echo
     _print_action "Format" "${ROOT_DEVICE}"
@@ -302,6 +298,7 @@ _format_partitions() {
     _print_action "Mount" "@.snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@.snapshots "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT}/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
+    ROOT_UUID=$(blkid -s UUID -o value "${ROOT_DEVICE}")
     _pause_function
   }
 
@@ -694,7 +691,7 @@ _set_bootloader() {
             echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\troot=UUID=${ROOT_UUID} rootflags=subvol=@ rw"
+          echo -e "options\troot=UUID=${ROOT_UUID} rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       fi
       echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
@@ -717,10 +714,10 @@ _finish_install() {
   echo
   _print_item "Disk" "${INSTALL_DISK}"
   _print_item "Root partition" "${ROOT_PARTITION}"
-  if [[ $LUKS == 1 ]]; then
-    _print_item "Encryption" "${BRED}No${RESET}"
-  else
+  if [[ $LUKS -eq 1 ]]; then
     _print_item "Encryption" "${BGREEN}Yes${RESET}"
+  else
+    _print_item "Root encryption" "${BRED}No${RESET}"
   fi
   _print_item "EFI partition" "${EFI_PARTITION}"
   _print_item "Kernel version" "${KERNEL_VERSION}"
