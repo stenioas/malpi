@@ -73,7 +73,7 @@
     APP_TITLE="malpi"
     APP_VERSION="0.03"
     LANGUAGE="pt_BR"
-    GRUB_NAME="Archlinux"
+    BOOTLOADER_NAME="Archlinux"
     T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
     SPIN="/-\|" #SPINNER POSITION
 
@@ -152,8 +152,6 @@ cat <<EOF
   - ${BYELLOW}SWAP${RESET} is not supported..
 
   - ${BYELLOW}NetworkManager${RESET} is installed by default.
-
-  - Only ${BYELLOW}XORG${RESET} is supported (${PURPLE}Wayland${RESET} will be available soon).
 
   - Only the ${BYELLOW}GRUB${RESET} bootloader is currently available (${PURPLE}Systemd-boot${RESET} will be available soon).
 
@@ -381,19 +379,19 @@ _install_base() {
     fi
   done
   case $KERNEL_CHOICE in
-    Linux)
+    "Linux")
       KERNEL_VERSION="linux"
       ;;
-    Linux-lts)
+    "Linux-lts")
       KERNEL_VERSION="linux-lts"
       ;;
-    Linux-zen)
+    "Linux-zen")
       KERNEL_VERSION="linux-zen"
       ;;
-    Linux-hardened)
+    "Linux-hardened")
       KERNEL_VERSION="linux-hardened"
       ;;
-    None)
+    "None")
       KERNEL_VERSION="None"
       ;;
   esac
@@ -409,13 +407,13 @@ _install_base() {
     fi
   done
   case ${MICROCODE_CHOICE} in
-    amd-ucode)
+    "amd-ucode")
       MICROCODE_VERSION="amd-ucode"
       ;;
-    intel-ucode)
+    "intel-ucode")
       MICROCODE_VERSION="intel-ucode"
       ;;
-    None)
+    "None")
       MICROCODE_VERSION="None"
       ;;
   esac
@@ -613,7 +611,7 @@ _root_passwd() {
 
 _set_bootloader() {
   _print_title "BOOTLOADER - ${BYELLOW}Systemd-boot${RESET} will be available soon"
-  BOOTLOADER_LIST=("Grub" "None")
+  BOOTLOADER_LIST=("Grub" "Systemd-boot" "None")
   _print_select "Select your bootloader:"
   select BOOTLOADER_CHOICE in "${BOOTLOADER_LIST[@]}"; do
     if _contains_element "${BOOTLOADER_CHOICE}" "${BOOTLOADER_LIST[@]}"; then
@@ -623,23 +621,23 @@ _set_bootloader() {
       _invalid_option
     fi
   done
-  case ${BOOTLOADER_CHOICE} in
-    Grub)
+  case "${BOOTLOADER_CHOICE}" in
+    "Grub")
       _print_title "BOOTLOADER"
       echo
       _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
       echo
       _read_input_text "Type a grub name entry:"
-      read -r GRUB_NAME
-      while [[ "${GRUB_NAME}" = "" ]]; do
+      read -r BOOTLOADER_NAME
+      while [[ "${BOOTLOADER_NAME}" = "" ]]; do
         _print_title "BOOTLOADER"
         echo
         _print_warning "You must type a grub name entry!"
         echo
-        _print_item "Selected" "${BOOTLOADER_CHOICE}"
+        _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
         echo
         _read_input_text "Type a grub name entry:"
-        read -r GRUB_NAME
+        read -r BOOTLOADER_NAME
       done
       _print_subtitle "Packages"
       _pacstrap_install "grub grub-btrfs efibootmgr"
@@ -654,15 +652,73 @@ _set_bootloader() {
         sed -i -e "s/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX=cryptdevice=UUID=${UUID}:crypt/g" ${ROOT_MOUNTPOINT}/etc/default/grub
       fi
       _print_subtitle "Grub install"
-      arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${GRUB_NAME}" --recheck
+      arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${BOOTLOADER_NAME}" --recheck
       _print_subtitle "Grub configuration file"
       arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
       ;;
-    Systemd-boot) # NOT INCLUDED IN SELECT
-      BOOTLOADER_CHOICE="Systemd-boot"
+    "Systemd-boot")
+      _print_title "BOOTLOADER"
+      echo
+      _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
+      echo
+      SYSTEMD_BOOT_INSTALL_MODE=("Automatic" "Manual")
+      select SYSTEMD_BOOT_INSTALL_CHOICE in "${SYSTEMD_BOOT_INSTALL_MODE[@]}"; do
+        case "$SYSTEMD_BOOT_INSTALL_CHOICE" in
+          1)
+            _print_title "BOOTLOADER"
+            echo
+            _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
+            echo
+            _read_input_text "Type a systemd-boot name entry:"
+            read -r BOOTLOADER_NAME
+            while [[ "${BOOTLOADER_NAME}" = "" ]]; do
+              _print_title "BOOTLOADER"
+              echo
+              _print_warning "You must type a systemd-boot name entry!"
+              echo
+              _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
+              echo
+              _read_input_text "Type a systemd-boot name entry:"
+              read -r BOOTLOADER_NAME
+            done
+            arch-chroot "${ROOT_MOUNTPOINT}" bootctl install
+            UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
+            if [ $LUKS -eq 1 ]; then
+              echo -e "title\t${BOOTLOADER_NAME}" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              echo -e "linux\t/vmlinuz-${KERNEL_VERSION}" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              if ! [ "${MICROCODE_VERSION}" = "" ]; then
+                echo -e "initrd\t${MICROCODE_VERSION}.img" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              fi
+              echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              echo -e "options\tcryptdevice=${INSTALL_DISK}:luks root=\/dev\/mapper\/crypt rw" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/ entries/arch.conf
+            else
+              echo -e "title\t${BOOTLOADER_NAME}" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              echo -e "linux\t/vmlinuz-${KERNEL_VERSION}" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              if ! [ "${MICROCODE_VERSION}" = "None" ]; then
+                echo -e "initrd\t${MICROCODE_VERSION}.img" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+              fi
+              echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
+              echo -e "options\troot=UUID=${UUID} rw" >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+            fi
+            echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
+            pause_function
+            nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
+            nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
+            break
+            ;;
+          2)
+            arch-chroot "${ROOT_MOUNTPOINT}"
+            break
+            ;;
+          *)
+            _invalid_option
+            ;;
+        esac
+      done
       ;;
-    None)
-      BOOTLOADER_CHOICE="None"
+    "None")
+      echo
+      _print_info "Nothing has been changed!"
       ;;
   esac
   _pause_function  
@@ -879,8 +935,8 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER - ${BYELLOW}SWAY${RESET} will be available soon"
-    DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "None");
+    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER"
+    DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "Sway" "None");
     _print_select "Select your desktop environment or window manager:"
     select DESKTOP in "${DESKTOP_LIST[@]}"; do
       if _contains_element "${DESKTOP}" "${DESKTOP_LIST[@]}"; then
@@ -890,28 +946,28 @@ _install_desktop() {
       fi
     done
     case ${DESKTOP} in
-      Gnome)
+      "Gnome")
         _print_title "GNOME"
         _print_subtitle "Packages"
         _package_install "gnome gnome-extra gnome-tweaks"
         ;;
-      Plasma)
+      "Plasma")
         _print_title "KDE PLASMA"
         _print_subtitle "Packages"
         _package_install "plasma kde-applications packagekit-qt5"
         ;;
-      Xfce)
+      "Xfce")
         _print_title "XFCE4"
         _print_subtitle "Packages"
         _package_install "xfce4 xfce4-goodies xarchiver network-manager-applet"
         ;;
-      i3-gaps)
+      "i3-gaps")
         _print_title "I3-GAPS"
         _print_subtitle "Packages"
         _package_install "i3-gaps i3blocks i3lock i3status dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         ;;
-      Bspwm)
+      "Bspwm")
         _print_title "BSPWM" 
         _print_subtitle "Packages"
         _package_install "bspwm sxhkd dmenu arandr nitrogen picom \
@@ -921,7 +977,7 @@ _install_desktop() {
         mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} && cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ && cp /usr/share/doc/bspwm/examples/sxhkdrc /home/"${USERNAME}"/.config/sxhkd/ &> /dev/null & PID=$!; _progress $PID
         sed -i 's/urxvt/termite/' /home/"${USERNAME}"/.config/sxhkd/sxhkdrc
         ;;
-      Awesome)
+      "Awesome")
         _print_title "AWESOME WM"
         _print_subtitle "Packages"
         _package_install "awesome dmenu arandr nitrogen picom \
@@ -929,21 +985,25 @@ _install_desktop() {
         _print_subtitle "Configure"
         _print_action "Coping" "rc.lua"
         mkdir -p /home/"${USERNAME}"/.config/awesome && cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
-
         ;;
-      Openbox)
+      "Openbox")
         _print_title "OPENBOX"
         _print_subtitle "Packages"
         _package_install "openbox obconf dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         ;;
-      Qtile)
+      "Qtile")
         _print_title "QTILE"
         _print_subtitle "Packages"
         _package_install "qtile dmenu arandr nitrogen picom lxappearance \
         thunar termite xarchiver network-manager-applet"
         ;;
-      None)
+      "Sway")
+        _print_title "Sway"
+        _print_subtitle "Packages"
+        _package_install "sway alacritty"
+        ;;
+      "None")
         echo
         _read_input_option "${BRED}Are you sure about that? [y/N]: ${RESET}"
         if ! [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -1332,31 +1392,31 @@ _set_font() {
     printf "%s" "${BYELLOW}> ${RESET}"
     read -r FONT_CHOICE
     case $FONT_CHOICE in
-      1)
+      "1")
         setfont ter-112n
         ;;
-      2)
+      "2")
         setfont ter-114n
         ;;
-      3)
+      "3")
         setfont ter-114b
         ;;
-      4)
+      "4")
         setfont ter-116n
         ;;
-      5)
+      "5")
         setfont ter-116b
         ;;
-      6)
+      "6")
         setfont ter-118b
         ;;
-      7)
+      "7")
         setfont ter-120b
         ;;
-      8)
+      "8")
         setfont ter-122b
         ;;
-      9)
+      "9")
         setfont
         ;;
       *)
@@ -1516,8 +1576,8 @@ _start
 
 while [[ "$1" ]]; do
   case "$1" in
-    --install|-i) _setup_install;;
-    --post|-p) _setup_post;;
+    "--install"|"-i") _setup_install;;
+    "--post"|"-p") _setup_post;;
   esac
   shift
   setfont
