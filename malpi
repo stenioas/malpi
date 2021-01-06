@@ -869,8 +869,7 @@ _enable_multilib(){
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  UTILITIES_PKGS="mtools udisks2 usbutils lsof dmidecode neofetch bashtop htop nss-mdns logrotate sysfsutils mlocate \
-  dialog wget git reflector bash-completion xdg-utils xdg-user-dirs"
+  UTILITIES_PKGS="mtools udisks2 usbutils lsof dmidecode neofetch bashtop htop nss-mdns logrotate sysfsutils mlocate dialog wget git reflector bash-completion xdg-utils xdg-user-dirs"
   COMPRESSION_PKGS="zip unzip unrar p7zip lzop"
   FILESYSTEM_PKGS="dosfstools ntfs-3g autofs mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
@@ -1139,7 +1138,14 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
-  DMANAGER_LIST=("Lightdm" "Ly" "GDM" "SDDM" "Lxdm" "Lxdm GTK3" "None");
+  DMANAGER_LIST=(
+    "Lightdm"
+    "Ly        [AUR]"
+    "GDM"
+    "SDDM"
+    "Lxdm"
+    "Lxdm GTK3"
+    "None");
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -1158,7 +1164,7 @@ _install_display_manager() {
       _print_action "Enabling" "Lightdm"
       sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
-    "Ly")
+    "Ly        [AUR]")
       echo
       if ! _is_package_installed "ly" ; then
         su - "${USERNAME}" -c "
