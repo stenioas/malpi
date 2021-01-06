@@ -43,17 +43,16 @@
 ### Informações importantes:
 
 1. Este script presume que você sabe o seu mapa de teclado e ele já estará carregado.
-1. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
-2. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
-3. A partição raiz será formatada com o sistema de arquivos [**BTRFS**](https://wiki.archlinux.org/index.php/Btrfs_(Português)).
-4. Este script irá criar três [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
+2. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
+3. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
+4. A partição raiz será formatada com o sistema de arquivos [**BTRFS**](https://wiki.archlinux.org/index.php/Btrfs_(Português)).
+5. Este script irá criar três [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
 	- **@** para /
 	- **@home** para /home
 	- **@.snapshots** para /.snapshots
-5. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
-6. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
-7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
-8. Somente o [**XORG**](https://wiki.archlinux.org/index.php/Xorg_(Português)) é suportado (*[**Wayland**](https://wiki.archlinux.org/index.php/Wayland_(Português)) estará disponível em breve*).
+6. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
+7. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
+8. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
 9. Apenas o carregador de inicialização [**GRUB**](https://wiki.archlinux.org/index.php/GRUB_(Português))  está disponível no momento (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estará disponível em breve*).
 10. O script pode ser cancelado a qualquer momento com **CTRL+C**.
 11. **ESTE SCRIPT AINDA NÃO ESTÁ COMPLETO!**

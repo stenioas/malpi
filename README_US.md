@@ -43,17 +43,16 @@
 ### Important informations:
 
 1. This script assumes that you know your keymap and it will already be loaded.
-1. Only [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) mode is supported.
-2. This script uses only two partitions, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT**.
-3. The root partition will be formatted with the [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) file system.
-4. This script will create three [**subvolumes**](https://wiki.archlinux.org/index.php/btrfs#Subvolumes "subvolumes"):
+2. Only [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) mode is supported.
+3. This script uses only two partitions, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT**.
+4. The root partition will be formatted with the [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) file system.
+5. This script will create three [**subvolumes**](https://wiki.archlinux.org/index.php/btrfs#Subvolumes "subvolumes"):
 	- **@** for /
 	- **@home** for /home
 	- **@.snapshots** for /.snapshots
-5. The EFI partition can be formatted in FAT32 if the user wants to.
-6. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
-7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default.
-8. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported (*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
+6. The EFI partition can be formatted in FAT32 if the user wants to.
+7. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
+8. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default.
 9. Only the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is currently available (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
 10. This script can be cancelled at any time with **CTRL+C**.
 11. **THIS SCRIPT IS NOT YET COMPLETE!**
