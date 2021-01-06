@@ -807,10 +807,42 @@ _install_essential_pkgs() {
 }
 
 _install_xorg() {
-  _print_title "XORG"
-  _print_subtitle "Packages"
-  _package_install "xorg"
-  _package_install "xorg-xinit xterm"
+  _print_title "DISPLAY SERVER"
+  DISPLAY_SERVER_LIST=("Xorg" "Wayland" "Both" "None");
+  _print_select "Select display server:${RESET}"
+  select DISPLAY_SERVER in "${DISPLAY_SERVER_LIST[@]}"; do
+    if _contains_element "${DISPLAY_SERVER}" "${DISPLAY_SERVER_LIST[@]}"; then
+      break
+    else
+      _invalid_option
+    fi
+  done
+  case $DISPLAY_SERVER in
+    "Xorg")
+      _print_subtitle "Packages"
+      _package_install "xorg"
+      _package_install "xorg-xinit"
+      _package_install "xterm"
+      _package_install "mesa"
+      ;;
+    "Wayland")
+      _print_subtitle "Packages"
+      _package_install "mesa"
+      _package_install "weston"
+      _package_install "xorg-server-xwayland"
+      ;;
+    "Both")
+      _print_subtitle "Packages"
+      _package_install "xorg"
+      _package_install "xorg-xinit"
+      _package_install "xterm"
+      _package_install "mesa"
+      _package_install "weston"
+      _package_install "xorg-server-xwayland"
+      ;;
+    "None")
+      ;;
+  esac
   _pause_function
 }
 
@@ -930,7 +962,7 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
-  DMANAGER_LIST=("Lightdm" "GDM" "SDDM" "Lxdm" "Lxdm GTK3" "None");
+  DMANAGER_LIST=("Lightdm" "Ly" "GDM" "SDDM" "Lxdm" "Lxdm GTK3" "None");
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -941,67 +973,73 @@ _install_display_manager() {
   done
   _print_title "$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')"
 
-  if [[ "${DMANAGER}" = "Lightdm" ]]; then
-    _print_subtitle "Packages"
-    _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
-    _print_subtitle "Services"
-    _print_action "Enabling" "Lightdm"
-    sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
-
-  elif [[ "${DMANAGER}" = "Lxdm" ]]; then
-    _print_subtitle "Packages"
-    _package_install "lxdm"
-    _print_subtitle "Services"
-    _print_action "Enabling" "Lxdm"
-    sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
-
-  elif [[ "${DMANAGER}" = "Lxdm GTK3" ]]; then
-    _print_subtitle "Packages"
-    _package_install "lxdm-gtk3"
-    _print_subtitle "Services"
-    _print_action "Enabling" "Lxdm GTK3"
-    sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
-
-  elif [[ "${DMANAGER}" = "Slim" ]]; then # NOT INCLUDED IN SELECT - NOT WORKING
-    _print_subtitle "Packages"
-    _package_install "slim"
-    _print_subtitle "Services"
-    _print_action "Enabling" "Slim"
-    sudo systemctl enable slim.service &> /dev/null & PID=$!; _progress $PID
-
-  elif [[ "${DMANAGER}" = "GDM" ]]; then
-    _print_subtitle "Packages"
-    _package_install "gdm"
-    _print_subtitle "Services"
-    _print_action "Enabling" "GDM"
-    sudo systemctl enable gdm &> /dev/null & PID=$!; _progress $PID
-
-  elif [[ "${DMANAGER}" = "SDDM" ]]; then
-    _print_subtitle "Packages"
-    _package_install "sddm"
-    _print_subtitle "Services"
-    _print_action "Enabling" "SDDM"
-    sudo systemctl enable sddm &> /dev/null & PID=$!; _progress $PID
-
-  elif [[ "${DMANAGER}" = "Xinit" ]]; then # NOT INCLUDED IN SELECT
-    _print_warning "It's not working yet..."
-
-  elif [[ "${DMANAGER}" = "None" ]]; then
-    echo
-    _print_info "Nothing to do!"
-
-  else
-    _invalid_option
-    exit 0
-  fi
+  case $DMANAGER in
+    "Lightdm")
+      _print_subtitle "Packages"
+      _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
+      _print_subtitle "Services"
+      _print_action "Enabling" "Lightdm"
+      sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
+      ;;
+    "Ly")
+      _print_subtitle "Packages"
+      su - "${USERNAME}" -c "
+        [[ -d ly ]] && rm -rf ly
+        git clone https://aur.archlinux.org/ly.git ly
+        cd ly
+        makepkg -csi --noconfirm
+        cd
+        rm -rf ly
+      "
+      _print_subtitle "Services"
+      _print_action "Enabling" "Ly"
+      sudo systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
+      ;;
+    "GDM")
+      _print_subtitle "Packages"
+      _package_install "gdm"
+      _print_subtitle "Services"
+      _print_action "Enabling" "GDM"
+      sudo systemctl enable gdm &> /dev/null & PID=$!; _progress $PID
+      ;;
+    "SDDM")
+      _print_subtitle "Packages"
+      _package_install "sddm"
+      _print_subtitle "Services"
+      _print_action "Enabling" "SDDM"
+      sudo systemctl enable sddm &> /dev/null & PID=$!; _progress $PID
+      ;;
+    "Lxdm")
+      _print_subtitle "Packages"
+      _package_install "lxdm"
+      _print_subtitle "Services"
+      _print_action "Enabling" "Lxdm"
+      sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
+      ;;
+    "Lxdm GTK3")
+      _print_subtitle "Packages"
+      _package_install "lxdm-gtk3"
+      _print_subtitle "Services"
+      _print_action "Enabling" "Lxdm GTK3"
+      sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
+      ;;
+    "Xinit") # NOT INCLUDED IN SELECT YET
+      echo
+      _print_warning "Nothing has been changed!"
+      ;;
+    "None")
+      echo
+      _print_info "Nothing has been changed!"
+      ;;
+  esac
   _pause_function
 }
 
 _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
-  UTILITIES_PKGS="usbutils lsof dmidecode neofetch bashtop htop avahi nss-mdns logrotate sysfsutils mlocate"
+  UTILITIES_PKGS="usbutils lsof dmidecode neofetch bashtop htop nss-mdns logrotate sysfsutils mlocate"
   COMPRESSION_PKGS="zip unzip unrar p7zip lzop"
-  FILESYSTEM_PKGS="ntfs-3g autofs fuse fuse2 fuse3 fuseiso mtpfs"
+  FILESYSTEM_PKGS="ntfs-3g autofs fuse2 fuse3 fuseiso mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
   _print_item "Utilities" "${UTILITIES_PKGS}"
