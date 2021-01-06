@@ -154,7 +154,7 @@ cat <<EOF
 
   - ${BYELLOW}NetworkManager${RESET} is installed by default.
 
-  - Only the ${BYELLOW}GRUB${RESET} bootloader is currently available (${PURPLE}Systemd-boot${RESET} will be available soon).
+  - Only ${BYELLOW}Grub${RESET} and ${BYELLOW}Systemd-boot${RESET} are available.
 
   - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
