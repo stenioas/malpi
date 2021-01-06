@@ -646,12 +646,13 @@ _set_bootloader() {
       fi
       if [[ $LUKS -eq 1 ]]; then
         UUID=$(blkid "${LUKS_PARTITION}" | awk -F '"' '{print $2}')
-        sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME}\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
+        sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME} rootflags=subvol=@ rw\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
       fi
       _print_subtitle "Grub install"
       arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${BOOTLOADER_NAME}" --recheck
       _print_subtitle "Grub configuration file"
       arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
+      _pause_function
       ;;
     "Systemd-boot")
       _print_title "BOOTLOADER"
@@ -677,10 +678,10 @@ _set_bootloader() {
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
           if ! [ "${MICROCODE_VERSION}" = "" ]; then
-            echo -e "initrd\t${MICROCODE_VERSION}.img"
+            echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\tcryptdevice=UUID=${UUID}:luks root=/dev/mapper/${CRYPT_NAME} rw"
+          echo -e "options\tcryptdevice=UUID=${UUID}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       else
         {
@@ -689,7 +690,7 @@ _set_bootloader() {
             echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\troot=UUID=${UUID} rw"
+          echo -e "options\troot=UUID=${UUID} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       fi
       echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
@@ -726,15 +727,16 @@ _finish_install() {
   _print_item "Hostname" "${NEW_HOSTNAME}"
   _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
   echo
-  _read_input_option "Save a copy of this script in root directory? [y/N]: "
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    echo
-    _print_action "Coping" "malpi"
-    cp malpi ${ROOT_MOUNTPOINT}/root/malpi &> /dev/null & PID=$!; _progress $PID
-  fi
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
+  _read_input_option "Save a copy of this script in root directory? [y/N]: "
+  echo
+  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+    _print_action "Coping" "malpi"
+    curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
+    echo
+  fi
   _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -743,6 +745,7 @@ _finish_install() {
     reboot
   else
     _print_bye
+    setfont
     exit 0
   fi
 }
@@ -769,7 +772,7 @@ _create_new_user() {
     echo
     _print_action "Create user" "${USERNAME}"
     useradd -m -g users -G wheel "${USERNAME}" & PID=$!; _progress $PID
-    _print_action "Editing" "/etc/sudoers"
+    _print_action "Setting" "/etc/sudoers"
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers &&
     #This config is especially helpful for those using terminal multiplexers like screen, tmux, or ratpoison, and those using sudo from scripts/cronjobs:
     {
@@ -866,7 +869,6 @@ _install_xorg() {
       _print_subtitle "Packages"
       _package_install "mesa"
       _package_install "weston"
-      _package_install "xorg-server-xwayland"
       ;;
     "Both")
       _print_subtitle "Packages"
@@ -875,7 +877,6 @@ _install_xorg() {
       _package_install "xterm"
       _package_install "mesa"
       _package_install "weston"
-      _package_install "xorg-server-xwayland"
       ;;
     "None")
       ;;
@@ -896,14 +897,14 @@ _install_vga() {
   done
   if [[ "$VIDEO_CARD" = "Intel" ]]; then
     _print_subtitle "Packages"
-    _package_install "xf86-video-intel mesa mesa-libgl libvdpau-va-gl"
+    _package_install "xf86-video-intel libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" = "AMD" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" = "Nvidia" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" = "Virtualbox" ]]; then
     _print_subtitle "Packages"
-    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms mesa mesa-libgl libvdpau-va-gl"
+    _package_install "xf86-video-vmware virtualbox-guest-utils virtualbox-guest-dkms libvdpau-va-gl"
   elif [[ "$VIDEO_CARD" = "None" ]]; then
     echo
     _print_info "Nothing has been changed!"
@@ -1023,15 +1024,21 @@ _install_display_manager() {
       sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
     "Ly")
-      _print_subtitle "Packages"
-      su - "${USERNAME}" -c "
-        [[ -d ly ]] && rm -rf ly
-        git clone https://aur.archlinux.org/ly.git ly
-        cd ly
-        makepkg -csi --noconfirm
-        cd
-        rm -rf ly
-      "
+      echo
+      if ! _is_package_installed "ly" ; then
+        echo
+        su - "${USERNAME}" -c "
+          [[ -d ly ]] && rm -rf ly
+          git clone https://aur.archlinux.org/ly.git ly
+          cd ly
+          makepkg -csi --noconfirm
+          cd
+          rm -rf ly
+        "
+      else
+        echo
+        _print_info "Ly is already installed!"
+      fi
       _print_subtitle "Services"
       _print_action "Enabling" "Ly"
       sudo systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
@@ -1080,7 +1087,7 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   UTILITIES_PKGS="usbutils lsof dmidecode neofetch bashtop htop nss-mdns logrotate sysfsutils mlocate"
   COMPRESSION_PKGS="zip unzip unrar p7zip lzop"
-  FILESYSTEM_PKGS="ntfs-3g autofs fuse2 fuse3 fuseiso mtpfs"
+  FILESYSTEM_PKGS="ntfs-3g autofs fuse3 fuseiso mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
   _print_item "Utilities" "${UTILITIES_PKGS}"
@@ -1190,6 +1197,7 @@ _finish_post() {
     reboot
   else
     _print_bye
+    setfont
     exit 0
   fi
   exit 0
@@ -1472,6 +1480,7 @@ _check_archlinux() {
     echo
     _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
     _print_bye
+    setfont
     exit 1
   fi
 }
@@ -1485,6 +1494,7 @@ _check_uefimode() {
     echo
     _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
     _print_bye
+    setfont
     exit 1
   fi
 }
@@ -1501,6 +1511,7 @@ _check_connection() {
     echo
     _print_warning "You must be connected to the internet to execute the script."
     _print_bye
+    setfont
     exit 1
   fi
 }
@@ -1514,6 +1525,7 @@ _check_root() {
     echo
     _print_warning "You must execute the script as 'root' user."
     _print_bye
+    setfont
     exit 1
   fi
 }
@@ -1527,6 +1539,7 @@ _check_hostname() {
     echo
     _print_warning "Hostname must be configured!"
     _print_bye
+    setfont
     exit 1
   fi
 }
@@ -1540,6 +1553,7 @@ _check_pacman_blocked() {
     echo
     _print_warning "Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
     _print_bye
+    setfont
     exit 1
   fi
 }
@@ -1561,6 +1575,7 @@ while [[ "$1" ]]; do
     "--post"|"-p") _setup_post;;
   esac
   shift
+  _print_bye
   setfont
-  _print_bye && exit 0
+  exit 0
 done
