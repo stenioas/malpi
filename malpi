@@ -71,16 +71,12 @@
 
   # --- ESSENTIALS
     APP_TITLE="malpi"
-    APP_VERSION="0.03"
-    LANGUAGE="pt_BR"
-    BOOTLOADER_NAME="Archlinux"
+    APP_VERSION="0.04"
     T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
     SPIN="/-\|" #SPINNER POSITION
 
-  # --- MOUNTPOINTS
-    EFI_PARTITION="/dev/sda1"
+  # --- MOUNTPOINTS - You may change
     EFI_MOUNTPOINT="/boot"
-    ROOT_PARTITION="/dev/sda3"
     ROOT_MOUNTPOINT="/mnt"
     CRYPT_NAME="cryptroot"
 
@@ -684,13 +680,13 @@ _set_bootloader() {
             echo -e "initrd\t${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\tcryptdevice=\/dev\/${INSTALL_DISK:5}:luks root=\/dev\/mapper\/${CRYPT_NAME} rw"
+          echo -e "options\tcryptdevice=UUID=${UUID}:luks root=/dev/mapper/${CRYPT_NAME} rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       else
         {
           echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
           if ! [ "${MICROCODE_VERSION}" = "None" ]; then
-            echo -e "initrd\t${MICROCODE_VERSION}.img"
+            echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
           echo -e "options\troot=UUID=${UUID} rw"
