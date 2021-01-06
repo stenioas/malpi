@@ -750,7 +750,7 @@ _finish_install() {
   _print_item "Disk" "${INSTALL_DISK}"
   _print_item "Root partition" "${ROOT_PARTITION}"
   if [[ $LUKS -eq 1 ]]; then
-    _print_item "Encryption" "${BGREEN}Yes${RESET}"
+    _print_item "Root encryption" "${BGREEN}Yes${RESET}"
   else
     _print_item "Root encryption" "${BRED}No${RESET}"
   fi
@@ -875,10 +875,13 @@ _install_extra_pkgs() {
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
   _print_item "Utilities" "${UTILITIES_PKGS}"
+  _print_line
   _print_item "Compression tools" "${COMPRESSION_PKGS}"
+  _print_line
   _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
+  _print_line
   _print_item "Sound tools" "${SOUND_PKGS}"
-  echo
+  _print_line
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install extra packages? [Y/n]: "
   if [ "${OPTION}" != "n" ] && [ "${OPTION}" != "N" ]; then
@@ -898,7 +901,7 @@ _install_extra_pkgs() {
   LAPTOP_PKGS="wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
   echo
   _print_item "Laptop packages" "${LAPTOP_PKGS}"
-  echo
+  _print_line
   LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install laptop packages? [Y/n]: "
   if [ "${OPTION}" != "n" ] && [ "${OPTION}" != "N" ]; then
@@ -1293,7 +1296,7 @@ _print_item() {
   echo -ne "${BGREEN}$1${RESET}"
   echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
   echo -ne "${BBLACK}:${RESET}"
-  echo -e "${WHITE} $2${RESET}"
+  echo -e "${WHITE} $2${RESET}" | fold -sw $(( T_COLS - 24 ))
 }
 
 _print_info() {
