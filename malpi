@@ -72,6 +72,8 @@
   # --- ESSENTIALS
     APP_TITLE="malpi"
     APP_VERSION="0.04"
+    IS_XORG=0
+    IS_WAYLAND=0
     T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
     SPIN="/-\|" #SPINNER POSITION
 
@@ -548,11 +550,11 @@ _set_localization() {
   sed -i "s/#\(${LOCALE}\)/\1/" ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Running" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null & PID=$!; _progress $PID
-  _print_action "Running" "echo LANG=${LOCALE_UTF8} > ${ROOT_MOUNTPOINT}/etc/locale.conf"
-  echo 'LANG="'"${LOCALE_UTF8}"'"' > ${ROOT_MOUNTPOINT}/etc/locale.conf & PID=$!; _progress $PID
-  _print_action "Running" "echo KEYMAP=${KEYMAP_CHOICE} > ${ROOT_MOUNTPOINT}/etc/vconsole.conf"
-  echo "KEYMAP=${KEYMAP_CHOICE}" > ${ROOT_MOUNTPOINT}/etc/vconsole.conf & PID=$!; _progress $PID
-  _pause_function  
+  _print_action "Running" "localectl set-locale LANG=${LOCALE_UTF8}"
+  arch-chroot "${ROOT_MOUNTPOINT}" localectl set-locale LANG="${LOCALE_UTF8}" & PID=$!; _progress $PID
+  _print_action "Running" "localectl set-keymap ${KEYMAP_CHOICE}"
+  arch-chroot "${ROOT_MOUNTPOINT}" localectl set-keymap ${KEYMAP_CHOICE} & PID=$!; _progress $PID
+  _pause_function
 }
 
 _set_network() {
@@ -691,7 +693,7 @@ _set_bootloader() {
             echo -e "initrd\t/${MICROCODE_VERSION}.img"
           fi
           echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\troot=UUID=${ROOT_UUID} rw"
+          echo -e "options\troot=UUID=${ROOT_UUID} rootflags=subvol=@ rw"
         } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
       fi
       echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
@@ -732,9 +734,9 @@ _finish_install() {
   _print_action "Coping" "mirrorlist.backup"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
-  _read_input_option "Save a copy of this script in root directory? [y/N]: "
+  _read_input_option "Save a copy of this script in root directory? [Y/n]: "
   echo
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+  if [ "$OPTION" != "n" ] && [ "$OPTION" != "N" ]; then
     _print_action "Coping" "malpi"
     curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
     echo
@@ -840,7 +842,7 @@ _install_essential_pkgs() {
   echo
   _read_input_option "Install essential packages? [Y/n]: "
   ESSENTIAL_PKGS_STATUS="${BRED}No${RESET}"
-  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
+  if [ "${OPTION}" != "n" ] && [ "${OPTION}" != "N" ]; then
     _print_title "ESSENTIAL PACKAGES"
     _print_subtitle "Packages"
     _package_install "${ESSENTIAL_PKGS}"
@@ -867,11 +869,13 @@ _install_xorg() {
       _package_install "xorg-xinit"
       _package_install "xterm"
       _package_install "mesa"
+      IS_XORG=1
       ;;
     "Wayland")
       _print_subtitle "Packages"
       _package_install "mesa"
       _package_install "weston"
+      IS_WAYLAND=1
       ;;
     "Both")
       _print_subtitle "Packages"
@@ -880,6 +884,8 @@ _install_xorg() {
       _package_install "xterm"
       _package_install "mesa"
       _package_install "weston"
+      IS_XORG=1
+      IS_WAYLAND=1
       ;;
     "None")
       ;;
@@ -986,22 +992,48 @@ _install_desktop() {
       "Sway")
         _print_title "Sway"
         _print_subtitle "Packages"
-        _package_install "sway alacritty"
+        _package_install "sway swayidle swaylock waybar alacritty dmenu thunar termite"
         ;;
       "None")
         echo
         _read_input_option "${BRED}Are you sure about that? [y/N]: ${RESET}"
-        if ! [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+        if [ "$OPTION" != "y" ] && [ "$OPTION" != "Y" ]; then
           _select_desktop
         fi
         ;;
     esac
+    _pause_function
+  }
+  _select_keymap_x11_wayland() {
+    if [ $IS_XORG == 1 ] || [ $IS_WAYLAND == 1 ]; then
+      _print_title "KEYMAP LAYOUT"
+      local items=$(localectl list-x11-keymap-layouts)
+      KEYMAP_LIST=()
+      SAVEIFS="$IFS"
+      IFS=$'\n'
+      for item in ${items}; do
+        KEYMAP_LIST+=("$item")
+      done
+      KEYMAP_LIST+=("Cancel")
+      _print_select "Select keymap layout:"
+      select KEYMAP_LAYOUT in ${KEYMAP_LIST[@]}; do
+        if _contains_element "${KEYMAP_LAYOUT}" "${KEYMAP_LIST[@]}"; then
+          if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
+            localectl set-x11-keymap "${KEYMAP_LAYOUT}"
+          fi
+          if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
+            echo -e "export XKB_DEFAULT_LAYOUT${KEYMAP_LAYOUT}" >> /etc/profile
+          fi
+          break
+        else
+         _invalid_option
+        fi
+      done
+    fi
   }
   _select_desktop
+  _select_keymap_x11_wayland
   chown "${USERNAME}" -R /home/"${USERNAME}"
-  if ! [[ "${DESKTOP}" = "None" ]]; then
-    localectl set-x11-keymap br
-  fi
   _pause_function
 }
 
@@ -1029,7 +1061,6 @@ _install_display_manager() {
     "Ly")
       echo
       if ! _is_package_installed "ly" ; then
-        echo
         su - "${USERNAME}" -c "
           [[ -d ly ]] && rm -rf ly
           git clone https://aur.archlinux.org/ly.git ly
@@ -1090,7 +1121,7 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   UTILITIES_PKGS="usbutils lsof dmidecode neofetch bashtop htop nss-mdns logrotate sysfsutils mlocate"
   COMPRESSION_PKGS="zip unzip unrar p7zip lzop"
-  FILESYSTEM_PKGS="ntfs-3g autofs fuse3 fuseiso mtpfs"
+  FILESYSTEM_PKGS="ntfs-3g autofs mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
   _print_item "Utilities" "${UTILITIES_PKGS}"
@@ -1100,7 +1131,7 @@ _install_extra_pkgs() {
   echo
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install extra packages? [Y/n]: "
-  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
+  if [ "${OPTION}" != "n" ] && [ "${OPTION}" != "N" ]; then
     _print_title "EXTRA PACKAGES"
     _print_subtitle "Utilities"
     _package_install "${UTILITIES_PKGS}"
@@ -1123,7 +1154,7 @@ _install_laptop_pkgs() {
   echo
   LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install laptop packages? [Y/n]: "
-  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
+  if [ "${OPTION}" != "n" ] && [ "${OPTION}" != "N" ]; then
   _print_title "LAPTOP PACKAGES"
     _print_subtitle "Packages"
     _package_install "${LAPTOP_PKGS}"
@@ -1142,7 +1173,7 @@ _install_aurhelper() {
   echo
   AUR_HELPER_STATUS="${BRED}No${RESET}"
   _read_input_option "Install yay? [Y/n]: "
-  if ! [[ "${OPTION}" = "n" || "${OPTION}" = "N" ]]; then
+  if [ "${OPTION}" != "n" ] && [ "${OPTION}" != "N" ]; then
     if ! _is_package_installed "yay" ; then
       _print_subtitle "Packages"
       _package_install "git go"
@@ -1285,8 +1316,8 @@ _progress() {
     echo -ne "\b${BBLACK}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   while true; do
-    kill -0 "$PID" &> /dev/null;
-    if [[ $? == 0 ]]; then
+    if kill -0 "$PID" &> /dev/null; then
+    #if [[ $? == 0 ]]; then
       tput rc
       tput cub 5
       _spinny
@@ -1294,7 +1325,7 @@ _progress() {
     else
       wait "$PID"
       RETCODE=$?
-      if [[ $RETCODE == 0 ]] || [[ $RETCODE == 255 ]]; then
+      if [ $RETCODE == 0 ] || [ $RETCODE == 255 ]; then
         _print_ok
       else
         _print_failed
