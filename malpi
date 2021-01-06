@@ -1114,14 +1114,16 @@ _install_desktop() {
         KEYMAP_LIST+=("$item")
       done
       KEYMAP_LIST+=("Cancel")
-      _print_select "Select keymap layout:"
+      _print_select "Select keymap layout for display server:"
       select KEYMAP_LAYOUT in "${KEYMAP_LIST[@]}"; do
         if _contains_element "${KEYMAP_LAYOUT}" "${KEYMAP_LIST[@]}"; then
+          echo
           if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            localectl set-x11-keymap "${KEYMAP_LAYOUT}"
+            _print_action "Running" "localectl set-x11-keymap ${KEYMAP_LAYOUT}"
+            localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile
+            echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
           fi
           break
         else
@@ -1140,7 +1142,7 @@ _install_display_manager() {
   _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
   DMANAGER_LIST=(
     "Lightdm"
-    "Ly        [AUR]"
+    "Ly [AUR]"
     "GDM"
     "SDDM"
     "Lxdm"
@@ -1164,7 +1166,7 @@ _install_display_manager() {
       _print_action "Enabling" "Lightdm"
       sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
-    "Ly        [AUR]")
+    "Ly [AUR]")
       echo
       if ! _is_package_installed "ly" ; then
         su - "${USERNAME}" -c "
@@ -1236,13 +1238,12 @@ _finish_post() {
   echo
   _print_info "Thank's for using the malpi script so far! The system installation is complete, enjoy!"
   echo
-  _print_item "Essential packages" "${ESSENTIAL_PKGS_STATUS}"
-  _print_item "Video driver" "${VIDEO_CARD}"
-  _print_item "Desktop" "${DESKTOP}"
-  _print_item "Display Manager" "${DMANAGER}"
   _print_item "Extra packages" "${EXTRA_PKGS_STATUS}"
   _print_item "Laptop packages" "${LAPTOP_PKGS_STATUS}"
   _print_item "AUR Helper" "${AUR_HELPER_STATUS}"
+  _print_item "Video driver" "${VIDEO_CARD}"
+  _print_item "Desktop" "${DESKTOP}"
+  _print_item "Display Manager" "${DMANAGER}"
   echo
   _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
