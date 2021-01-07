@@ -1102,11 +1102,12 @@ _install_desktop() {
       local items=""
       items=$(localectl list-x11-keymap-layouts)
       KEYMAP_LIST=()
-      SAVEIFS="$IFS"
+      SAVEIFS=$IFS
       IFS=$'\n'
       for item in ${items}; do
         KEYMAP_LIST+=("$item")
       done
+      IFS=$SAVEIFS
       KEYMAP_LIST+=("Cancel")
       _print_select "Select keymap layout for display server:"
       select KEYMAP_LAYOUT in "${KEYMAP_LIST[@]}"; do
@@ -1129,7 +1130,6 @@ _install_desktop() {
   }
   _select_desktop
   _select_keymap_x11_wayland
-  chown "${USERNAME}" -R /home/"${USERNAME}"
   _pause_function
 }
 
@@ -1137,12 +1137,12 @@ _install_display_manager() {
   _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
   DMANAGER_LIST=(
     "Lightdm"
-    "Ly [AUR]"
+    "Ly        ${PURPLE}[AUR]${RESET}"
     "GDM"
     "SDDM"
     "Lxdm"
     "Lxdm GTK3"
-    "None");
+    "None")
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -1159,12 +1159,13 @@ _install_display_manager() {
       _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
       _print_subtitle "Services"
       _print_action "Enabling" "Lightdm"
-      sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
+      systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
-    "Ly [AUR]")
+    "Ly        [AUR]")
       echo
       if ! _is_package_installed "ly" ; then
         su - "${USERNAME}" -c "
+          cd
           [[ -d ly ]] && rm -rf ly
           git clone https://aur.archlinux.org/ly.git ly
           cd ly
@@ -1224,11 +1225,17 @@ _clean_orphan_packages(){
   _print_title "CLEAN ORPHAN PACKAGES"
   echo
   _print_action "Cleaning" "orphan packages"
-  pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
+  if pacman -Qqdt; then
+    pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
+  else
+    echo
+    _print_info "There are no orphan packages!"
+  fi
   _pause_function
 }
 
 _finish_post() {
+  chown "${USERNAME}" -R /home/"${USERNAME}" # changing the user home folder owner
   _print_title "SECOND STEP FINISHED"
   echo
   _print_info "Thank's for using the malpi script so far! The system installation is complete, enjoy!"
