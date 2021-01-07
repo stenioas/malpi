@@ -288,12 +288,12 @@ _format_partitions() {
     _print_action "Create subvolume" "@home"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
     _print_action "Create subvolume" "@pkgs"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
+    btrfs su cr ${ROOT_MOUNTPOINT}/@pkgs &> /dev/null & PID=$!; _progress $PID
     _print_action "Create subvolume" "@snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
     _print_action "Mount" "@"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
     mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
     _print_action "Mount" "@home"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
@@ -302,7 +302,7 @@ _format_partitions() {
     _print_action "Mount" "@snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
-    ROOT_UUID=$(blkid -s UUID -o value "${ROOT_DEVICE}")
+    ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
     _pause_function
   }
 
@@ -1094,6 +1094,9 @@ _install_desktop() {
         _print_title "Sway"
         _print_subtitle "Packages"
         _package_install "sway swayidle swaylock waybar alacritty dmenu thunar termite"
+        _print_subtitle "Configure"
+        _print_action "Coping" "rc.lua"
+        mkdir -p /home/"${USERNAME}"/.config/sway && cp /etc/sway/config /home/"${USERNAME}"/.config/sway/ & PID=$!; _progress $PID
         ;;
       "None")
         echo
@@ -1126,7 +1129,7 @@ _install_desktop() {
             localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            _print_action "Running" "echo \'export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"\'"
+            _print_action "Running" "echo 'export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"'"
             echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
           fi
           break
