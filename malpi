@@ -875,11 +875,9 @@ _install_extra_pkgs() {
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
   _print_item "Utilities" "${UTILITIES_PKGS}"
-  _print_line
+  echo
   _print_item "Compression tools" "${COMPRESSION_PKGS}"
-  _print_line
   _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
-  _print_line
   _print_item "Sound tools" "${SOUND_PKGS}"
   _print_line
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
@@ -1135,14 +1133,7 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
-  DMANAGER_LIST=(
-    "Lightdm"
-    "Ly        ${PURPLE}[AUR]${RESET}"
-    "GDM"
-    "SDDM"
-    "Lxdm"
-    "Lxdm GTK3"
-    "None")
+  DMANAGER_LIST=("Lightdm" "Ly        ${PURPLE}[AUR]${RESET}" "None")
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -1179,35 +1170,7 @@ _install_display_manager() {
       fi
       _print_subtitle "Services"
       _print_action "Enabling" "Ly"
-      sudo systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "GDM")
-      _print_subtitle "Packages"
-      _package_install "gdm"
-      _print_subtitle "Services"
-      _print_action "Enabling" "GDM"
-      sudo systemctl enable gdm &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "SDDM")
-      _print_subtitle "Packages"
-      _package_install "sddm"
-      _print_subtitle "Services"
-      _print_action "Enabling" "SDDM"
-      sudo systemctl enable sddm &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "Lxdm")
-      _print_subtitle "Packages"
-      _package_install "lxdm"
-      _print_subtitle "Services"
-      _print_action "Enabling" "Lxdm"
-      sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "Lxdm GTK3")
-      _print_subtitle "Packages"
-      _package_install "lxdm-gtk3"
-      _print_subtitle "Services"
-      _print_action "Enabling" "Lxdm GTK3"
-      sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
+      systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
       ;;
     "Xinit") # NOT INCLUDED IN SELECT YET
       echo
@@ -1223,9 +1186,9 @@ _install_display_manager() {
 
 _clean_orphan_packages(){
   _print_title "CLEAN ORPHAN PACKAGES"
-  echo
-  _print_action "Cleaning" "orphan packages"
   if pacman -Qqdt; then
+    echo
+    _print_action "Cleaning" "orphan packages"
     pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
   else
     echo
@@ -1310,15 +1273,15 @@ _print_danger() {
 }
 
 _print_ok() {
-  echo -e "${BGREEN}OK${RESET}"
+  echo -e "\b${BGREEN}OK${RESET}"
 }
 
 _print_failed() {
-  echo -e "${BRED}FAILED${RESET}"
+  echo -e "\b${BRED}FAILED${RESET}"
 }
 
 _print_action() {
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2 ${RESET}"
+  echo -ne "${BBLACK}$1${RESET}${WHITE} $2          ${RESET}"
 }
 
 _progress() {
@@ -1392,10 +1355,7 @@ _package_install() { # Install pacman packages
         sudo pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!; _progress $PID
       fi
     else
-      _print_action "Installing" "${PKG}"
-      tput rc
-      tput cub 8
-      echo -e "${YELLOW}EXISTS${RESET}"
+      _print_action "Installing" "${PKG}"; echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
 }
