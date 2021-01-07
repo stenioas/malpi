@@ -3,9 +3,9 @@
 </h1>
 
 <h3 align="center">
-  My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
+  Meu instalador pessoal do <a href="https://www.archlinux.org">Arch Linux</a>
 </h3>
-<p align="center">A shell script, simple and amateur, to install Arch Linux on my personal computers. You can use and modify it as you like.</p>
+<p align="center">Um script shell, simples e amador, para instalar o Arch Linux nos meus computadores pessoais. Você pode usá-lo e modificá-lo como quiser.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
@@ -14,20 +14,20 @@
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
 
-## Notes
-* It is advisable that you already know how to install Arch in the traditional way, following the [**installation guide**](https://wiki.archlinux.org/index.php/Installation_guide) available on ArchWiki, the purpose of this script is to speed up my installations and not skip steps in learning.
-* If you prefer you can partition your disk before launching this script.
-* You can first try it in a **Virtual Machine** if you prefer.
-* The console font will be changed while the script is running.
-* I have intentions of migrating this script to the [**whiptail**](https://linux.die.net/man/1/whiptail) tool.
-* The idea of ​​creating this script came from the desire to practice the shell language, nothing more.
+## Notas
+* É aconselhável que você já saiba como instalar o Arch da forma tradicional, seguindo o [**guia de instalação**](https://wiki.archlinux.org/index.php/Installation_guide_(Português)) disponível na ArchWiki, o objetivo deste script é acelerar as minhas instalações e não pular etapas no aprendizado.
+* Se preferir você pode particionar seu disco antes de executar o script.
+* Você pode testar em uma **Máquina Virtual** primeiro se preferir.
+* A fonte do console será alterada durante a execução do script.
+* Tenho intensões de migrar o script para a ferramenta [**whiptail**](https://linux.die.net/man/1/whiptail).
+* A ideia de criar este script surgiu pela vontade de praticar a linguagem shell, nada mais.
 
-## Prerequisites
+## Pré-requisitos
 
-- A working internet connection.
-- Logged in as 'root' user.
+- Uma conexão de internet funcionando.
+- Estar logado como usuário 'root'.
 
-## Obtaining the script
+## Obtendo o script
 
 ### curl
 	curl -L stenioas.github.io/malpi/malpi > malpi
@@ -38,95 +38,97 @@
 ### git
 	git clone https://github.com/stenioas/malpi
 
-## How to use
+## Como usar
 
-### Important informations:
+### Informações importantes:
 
-1. This script assumes that you know your keymap and it will already be loaded.
-1. Only [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) mode is supported.
-2. This script uses only two partitions, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition) and **ROOT**.
-3. The root partition will be formatted with the [**BTRFS**](https://wiki.archlinux.org/index.php/btrfs) file system.
-4. This script will create three [**subvolumes**](https://wiki.archlinux.org/index.php/btrfs#Subvolumes "subvolumes"):
-	- **@** for /
-	- **@home** for /home
-	- **@.snapshots** for /.snapshots
-5. The EFI partition can be formatted in FAT32 if the user wants to.
-6. [**SWAP**](https://wiki.archlinux.org/index.php/swap) is not supported.
-7. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager) is installed by default.
-8. Only [**XORG**](https://wiki.archlinux.org/index.php/Xorg) is supported (*[**Wayland**](https://wiki.archlinux.org/index.php/wayland) will be available soon*).
-9. Only the [**GRUB**](https://wiki.archlinux.org/index.php/GRUB) bootloader is currently available (*[**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) will be available soon*).
-10. This script can be cancelled at any time with **CTRL+C**.
-11. **THIS SCRIPT IS NOT YET COMPLETE!**
+1. Este script presume que você sabe o seu mapa de teclado e ele já estará carregado.
+2. Somente o modo [**UEFI**](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface) é suportado.
+3. Este script utiliza apenas duas partições, [**ESP**](https://wiki.archlinux.org/index.php/EFI_system_partition_(Português)) e **ROOT**.
+4. A partição raiz será formatada com o sistema de arquivos [**BTRFS**](https://wiki.archlinux.org/index.php/Btrfs_(Português)).
+5. Este script irá criar 4 [**subvolumes**](https://wiki.archlinux.org/index.php/Btrfs_(Português)#Subvolumes):
+	- **@** para /
+	- **@home** para /home
+	- **@pkgs** para /var/cache/pacman/pkgs
+	- **@snapshots** para /.snapshots
+6. A partição EFI pode ser formatada em FAT32 se o usuário quiser.
+7. [**SWAP**](https://wiki.archlinux.org/index.php/Swap_(Português)) não é suportada.
+8. [**NetworkManager**](https://wiki.archlinux.org/index.php/NetworkManager_(Português)) é instalado por padrão.
+9. Apenas [**Grub**](https://wiki.archlinux.org/index.php/GRUB_(Português)) e [**Systemd-boot**](https://wiki.archlinux.org/index.php/Systemd-boot) estão disponíveis.
+10. O script pode ser cancelado a qualquer momento com **CTRL+C**.
+11. **ESTE SCRIPT AINDA NÃO ESTÁ COMPLETO!**
 
-##### Tips:
-  - A SWAP partition or SWAP file can be created after installing the system.
-  - The home partition can be migrated to another disk or partition after installing the system.
+##### Dicas:
+  - Uma partição ou arquivo SWAP pode ser criado após a instalação do sistema.
+  - A partição home pode ser migrada para outro disco ou partição após a instalação do sistema.
 
-### First Step (*Base installation*)
+### Primeira etapa (*Instalação da base*)
 
-Boot with the last [Arch Linux image](https://www.archlinux.org/download/) on a [bootable device](https://wiki.archlinux.org/index.php/USB_flash_installation_media).
+Inicialize com a última [imagem do Arch Linux](https://www.archlinux.org/download/) em um [dispositivo bootável](https://wiki.archlinux.org/index.php/USB_flash_installation_media_(Português)).
 
-Then make sure you have Internet connection on the Arch iso. If you have a wireless connection the [`iwctl`](https://wiki.archlinux.org/index.php/Iwd#iwctl) command might be useful to you. You can also read the [Network configuration](https://wiki.archlinux.org/index.php/Network_configuration) from the Arch Linux guide for more detailed instructions.
+Em seguida, certifique-se de ter uma conexão com a Internet na iso live do Arch. Se você tiver uma conexão sem fio, o comando [`iwctl`](https://wiki.archlinux.org/index.php/Iwd_(Português)#iwctl) pode ser útil para você. Você também pode ler a  [Configuração de rede](https://wiki.archlinux.org/index.php/USB_flash_installation_medium_(Português)) do guia do Arch Linux para obter instruções mais detalhadas.
 
-Finnaly, launch the script first step with the command below:
+Finalmente, inicie a primeira etapa do script com o comando abaixo:
 
     sh malpi -i
-or
+
+ou
 
 	sh malpi --install
 
-Then follow the on-screen instructions to completion.
-##### Features
-- Set console font
-- Timedatectl set ntp as true `timedatectl set-ntp true`
-- Rank mirrors (*by country*)
-- Select disk and partitioning
-- Format and mount **EFI** and **ROOT** partitions
-- Select kernel version
-- Select microcode version
-- Update archlinux-keyring
-- Install system base
-- Configure fstab
-- Configure timezone
-- Configure localization
-- Configure network(***hostname** file and **hosts** file*)
-- Configure initramfs
-- Configure root password
-- Install bootloader
+Em seguida, siga as instruções na tela para concluir.
 
-### Second Step (*Post installation*) ###
+##### Funcionalidades
+- Configura a fonte do console
+- Configura o ntp como true `timedatectl set-ntp true`
+- Classifica os espelhos (*por país*)
+- Seleciona e particiona o disco
+- Formata e monta as partições **EFI** e **ROOT**
+- Seleciona a versão do kernel
+- Seleciona a versão do microcode
+- Atualiza o archlinux-keyring
+- Instala a base
+- Configura o fstab
+- Configura o fuso horário
+- Configura a localidade
+- Configura a rede(arquivos ***hostname** e **hosts***)
+- Configura o initramfs
+- Configura a senha de root
+- Instala o bootloader
 
-> Second step offers the post installation.
+### Segunda etapa (*Pós-Instalação*) ###
 
-Launch the second script step, after succeeding in the first step, with the command below:
+> A segunda etapa oferece a pós-instalação.
+
+Inicie a segunda etapa do script, após obter sucesso na primeira etapa, com o comando abaixo:
 
 	sh malpi -p
 
-or
+ou
 
 	sh malpi --post
 
-##### Features
-- Create and configure a new user
-- Enable multilib mepository
-- Install essential packages
-- Install Xorg
-- Install video driver (*Currently only intel and virtualbox available*)
-- Install Desktop Environment or Window Manager ***(Optional)***
-- Install Display Manager or Xinit ***(Optional)***
-- Install extra packages ***(Optional)***
-- Install Laptop Packages ***(Optional)***
-- Install YAY ***(Optional)***
-- Cleanup orphan packages
+##### Funcionalidades
+- Cria e configura um novo usuário
+- Habilita o repositório Multilib
+- Instala pacotes essenciais
+- Instala o Xorg
+- Instala um driver de vídeo (*Atualmente apenas intel e virtualbox disponíveis*)
+- Instala um Desktop Environment ou Window Manager ***(Opcional)***
+- Instala um Display Manager ou Xinit ***(Opcional)***
+- Instala pacotes extras ***(Opcional)***
+- Instala pacotes para laptops ***(Opcional)***
+- Instala o YAY ***(Opcional)***
+- Remove pacotes órfãos
 
 ---
 
-## References
+## Referências
 
-- [**Archwiki**](https://wiki.archlinux.org/)
-- [**archfi**](https://github.com/MatMoul/archfi) script (by [***MatMoul***](https://github.com/MatMoul))
-- [**aui**](https://github.com/helmuthdu/aui) script (by [***Helmuthdu***](https://github.com/helmuthdu))
-- [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) script (by [***Terminal Root***](https://terminalroot.com.br/))
+- [**ArchWiki**](https://wiki.archlinux.org/index.php/Main_page_(Português))
+- Script [**archfi**](https://github.com/MatMoul/archfi) (por [***MatMoul***](https://github.com/MatMoul))
+- Script [**aui**](https://github.com/helmuthdu/aui) (por [***Helmuthdu***](https://github.com/helmuthdu))
+- Script [**pos-alpine**](https://terminalroot.com.br/2019/12/alpine-linux-com-awesomewm-nao-recomendado-para-usuarios-nutella.html) (por [***Terminal Root***](https://terminalroot.com.br/))
 
 ---
-<h2 align="center">Btw, thank you for taking the time to get to know my project.!</h2>
+<h2 align="center">Btw, obrigado por dedicar seu tempo a conhecer o meu projeto!</h2>
