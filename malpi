@@ -774,6 +774,7 @@ _finish_install() {
     curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
     echo
   fi
+  echo
   _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -781,9 +782,9 @@ _finish_install() {
     setfont
     reboot
   else
+    setfont
     clear
     _print_bye
-    setfont
     exit 0
   fi
 }
@@ -881,6 +882,7 @@ _install_extra_pkgs() {
   _print_items "Filesystem tools" "${FILESYSTEM_PKGS}"
   echo
   _print_items "Sound tools" "${SOUND_PKGS}"
+  echo
   _print_line
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install extra packages? [Y/n]: "
@@ -901,6 +903,7 @@ _install_extra_pkgs() {
   LAPTOP_PKGS="wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
   echo
   _print_items "Laptop packages" "${LAPTOP_PKGS}"
+  echo
   _print_line
   LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install laptop packages? [Y/n]: "
@@ -1121,7 +1124,7 @@ _install_desktop() {
             localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            _print_action "Running" "echo 'export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"'"
+            _print_action "Including" "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\" into /etc/profile"
             echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
           fi
           break
@@ -1138,7 +1141,7 @@ _install_desktop() {
 
 _install_display_manager() {
   _print_title "DISPLAY MANAGER"
-  DMANAGER_LIST=("Lightdm" "Ly ${PURPLE}[AUR]${RESET}" "None")
+  DMANAGER_LIST=("Lightdm" "Ly [AUR]" "None")
   echo
   _print_info "XINIT will be available soon"
   _print_select "Select display manager:"
@@ -1171,13 +1174,12 @@ _install_display_manager() {
           cd
           rm -rf ly
         "
+        _print_subtitle "Services"
+        _print_action "Enabling" "Ly"
+        systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
       else
-        echo
         _print_info "Ly is already installed!"
       fi
-      _print_subtitle "Services"
-      _print_action "Enabling" "Ly"
-      systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
       ;;
     "Xinit") # NOT INCLUDED IN SELECT YET
       echo
@@ -1199,7 +1201,7 @@ _clean_orphan_packages(){
     pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
   else
     echo
-    _print_info "There are no orphan packages!"
+    _print_info "No orphan packages!"
   fi
   _pause_function
 }
@@ -1224,8 +1226,9 @@ _finish_post() {
     setfont
     reboot
   else
-    _print_bye
     setfont
+    clear
+    _print_bye
     exit 0
   fi
   exit 0
@@ -1506,7 +1509,6 @@ _check_archlinux() {
     echo
     _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1520,7 +1522,6 @@ _check_uefimode() {
     echo
     _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1537,7 +1538,6 @@ _check_connection() {
     echo
     _print_warning "You must be connected to the internet to execute the script."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1551,7 +1551,6 @@ _check_root() {
     echo
     _print_warning "You must execute the script as 'root' user."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1565,13 +1564,12 @@ _check_hostname() {
     echo
     _print_warning "Hostname must be configured!"
     _print_bye
-    setfont
     exit 1
   fi
 }
 
 _check_pacman_blocked() {
-  _print_action "Checking" "Pacman is not blocked"
+  _print_action "Checking" "Pacman lock"
   if [ ! -f /var/lib/pacman/db.lck ]; then
     _print_ok
   else
@@ -1579,7 +1577,6 @@ _check_pacman_blocked() {
     echo
     _print_warning "Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1601,7 +1598,8 @@ while [[ "$1" ]]; do
     "--post"|"-p") _setup_post;;
   esac
   shift
-  _print_bye
   setfont
+  clear
+  _print_bye
   exit 0
 done
