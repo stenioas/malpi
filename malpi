@@ -857,45 +857,36 @@ _enable_multilib(){
   _pause_function
 }
 
-#_install_xorg() {
-#  _print_title "DISPLAY SERVER"
-#  DISPLAY_SERVER_LIST=("Xorg + Wayland" "Just Wayland" "None");
-#  echo
-#  _print_info "The Xorg package group requires mesa package to work and mesa requires Wayland."
-#  _print_select "Select display server:${RESET}"
-#  select DISPLAY_SERVER in "${DISPLAY_SERVER_LIST[@]}"; do
-#    if _contains_element "${DISPLAY_SERVER}" "${DISPLAY_SERVER_LIST[@]}"; then
-#      break
-#    else
-#      _invalid_option
-#    fi
-#  done
-#  case $DISPLAY_SERVER in
-#    "Xorg + Wayland")
-#      _print_subtitle "Packages"
-#      _package_install "xorg"
-#      _package_install "xorg-xinit"
-#      _package_install "xterm"
-#      IS_XORG=1
-#      IS_WAYLAND=1
-#      ;;
-#    "Just Wayland")
-#      _print_subtitle "Packages"
-#      _package_install "mesa"
-#      IS_WAYLAND=1
-#      ;;
-#    "None")
-#      ;;
-#  esac
-#  _pause_function
-#}
-
 _install_xorg() {
   _print_title "DISPLAY SERVER"
-  _print_subtitle "Packages"
-  _package_install "xorg"
-  _package_install "xorg-xinit"
-  _package_install "xterm"
+  DISPLAY_SERVER_LIST=("Xorg and Wayland" "Just Wayland" "None");
+  echo
+  _print_info "The Xorg package group requires mesa package to work and mesa requires Wayland."
+  _print_select "Select display server:${RESET}"
+  select DISPLAY_SERVER in "${DISPLAY_SERVER_LIST[@]}"; do
+    if _contains_element "${DISPLAY_SERVER}" "${DISPLAY_SERVER_LIST[@]}"; then
+      break
+    else
+      _invalid_option
+    fi
+  done
+  case $DISPLAY_SERVER in
+    "Xorg and Wayland")
+      _print_subtitle "Packages"
+      _package_install "xorg"
+      _package_install "xorg-xinit"
+      _package_install "xterm"
+      IS_XORG=1
+      IS_WAYLAND=1
+      ;;
+    "Just Wayland")
+      _print_subtitle "Packages"
+      _package_install "mesa"
+      IS_WAYLAND=1
+      ;;
+    "None")
+      ;;
+  esac
   _pause_function
 }
 
@@ -1032,7 +1023,7 @@ _install_desktop() {
     esac
     _pause_function
   }
-  _set_keyboard() {
+  _set_keyboard_layout() {
     if [ $IS_XORG == 1 ] || [ $IS_WAYLAND == 1 ]; then
       _print_title "KEYBOARD LAYOUT"
       local items=""
@@ -1090,7 +1081,7 @@ _install_desktop() {
     fi
   }
   _select_desktop
-  _set_keyboard
+  _set_keyboard_layout
   _pause_function
 }
 
