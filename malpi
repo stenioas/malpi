@@ -1023,6 +1023,7 @@ _install_desktop() {
     esac
     _pause_function
   }
+  
   _set_keyboard_layout() {
     if [ $IS_XORG == 1 ] || [ $IS_WAYLAND == 1 ]; then
       _print_title "KEYBOARD LAYOUT"
