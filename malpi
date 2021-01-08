@@ -875,8 +875,11 @@ _install_extra_pkgs() {
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
   _print_items "Utilities" "${UTILITIES_PKGS}"
+  echo
   _print_items "Compression tools" "${COMPRESSION_PKGS}"
+  echo
   _print_items "Filesystem tools" "${FILESYSTEM_PKGS}"
+  echo
   _print_items "Sound tools" "${SOUND_PKGS}"
   _print_line
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
