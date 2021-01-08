@@ -1239,9 +1239,10 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d "[:digit:]")${RESET}"
+  COLS_TITLE=${#1}
+  echo -ne "${BBLACK}[${RESET}${BGREEN}  $1  ${RESET}${BBLACK}]${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 8 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
-  echo -e "${BBLACK}[${RESET}${BGREEN}  $1  ${RESET}${BBLACK}]${RESET}"
 }
 
 _print_subtitle() {
@@ -1280,24 +1281,23 @@ _print_danger() {
 }
 
 _print_action() {
-  echo -ne "${BBLACK}:: $1 ${RESET}${WHITE}$2 ${RESET}"
+  echo -ne "${BBLACK}$1 ${RESET}${WHITE}$2 ${RESET}"
   tput sc
 }
 
 _print_ok() {
   tput rc
-  tput cub 1
-  echo -e "${BGREEN}OK${RESET}"
+  echo -e "${BGREEN}done${RESET}"
 }
 
-_print_failed() {
+_print_error() {
   tput rc
-  tput cub 1
-  echo -e "${BRED}FAILED${RESET}"
+  echo -e "${BRED}error${RESET}"
 }
 
 _progress() {
   _spinny() {
+    tput cuf 2
     echo -ne "\b${BBLACK}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
   tput civis
@@ -1306,14 +1306,14 @@ _progress() {
     #if [[ $? == 0 ]]; then
       tput rc
       _spinny
-      sleep 0.4
+      sleep 0.2
     else
       wait "$PID"
       RETCODE=$?
       if [ $RETCODE == 0 ] || [ $RETCODE == 255 ]; then
         _print_ok
       else
-        _print_failed
+        _print_error
       fi
       break
     fi
@@ -1372,7 +1372,6 @@ _package_install() { # Install pacman packages
     else
       _print_action "Installing" "${PKG}"
       tput rc
-      tput cub 1
       echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
@@ -1496,7 +1495,7 @@ _check_archlinux() {
   if [ -e /etc/arch-release ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
     _print_bye
@@ -1510,7 +1509,7 @@ _check_uefimode() {
   if [ -d "/sys/firmware/efi/" ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
     _print_bye
@@ -1527,7 +1526,7 @@ _check_connection() {
   if ! _connection_test; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must be connected to the internet to execute the script."
     _print_bye
@@ -1541,7 +1540,7 @@ _check_root() {
   if [ "$(id -u)" == "0" ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must execute the script as 'root' user."
     _print_bye
@@ -1555,7 +1554,7 @@ _check_hostname() {
   if [ "${HOSTNAME// /}" != "" ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "Hostname must be configured!"
     _print_bye
@@ -1569,7 +1568,7 @@ _check_pacman_blocked() {
   if [ ! -f /var/lib/pacman/db.lck ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
     _print_bye
