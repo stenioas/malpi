@@ -1282,20 +1282,20 @@ _print_danger() {
 _print_action() {
   T_COLS=$(tput cols)
   BACK_COLS=$(( ${#1} + ${#2} ))
-  echo -ne "${BBLACK}[        ] ${RESET}"
+  echo -ne "${BBLACK}        ${RESET}"
   echo -ne "${BBLACK}$1 ${RESET}${WHITE}$2${RESET}"
   tput sc
 }
 
 _print_ok() {
   tput rc
-  tput cub $(( BACK_COLS + 8 ))
+  tput cub $(( BACK_COLS + 5 ))
   echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_failed() {
   tput rc
-  tput cub $(( BACK_COLS + 10 ))
+  tput cub $(( BACK_COLS + 7 ))
   echo -e "${BRED}FAILED${RESET}"
 }
 
@@ -1307,7 +1307,7 @@ _progress() {
     if kill -0 "$PID" &> /dev/null; then
     #if [[ $? == 0 ]]; then
       tput rc
-      tput cub $(( BACK_COLS + 7 ))
+      tput cub $(( BACK_COLS + 4 ))
       _spinny
       sleep 0.4
     else
@@ -1374,7 +1374,7 @@ _package_install() { # Install pacman packages
     else
       _print_action "Installing" "${PKG}"
       tput rc
-      tput cub $(( BACK_COLS + 10 ))
+      tput cub $(( BACK_COLS + 7 ))
       echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
