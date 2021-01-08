@@ -283,13 +283,13 @@ _format_partitions() {
     _print_action "Format" "${ROOT_DEVICE}"
     mkfs.btrfs -f -L Archlinux "${ROOT_DEVICE}" &> /dev/null & PID=$!; _progress $PID
     mount "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null
-    _print_action "Create subvolume" "@"
+    _print_action "Creating subvolume" "@"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@home"
+    _print_action "Creating subvolume" "@home"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@pkgs"
+    _print_action "Creating subvolume" "@pkgs"
     btrfs su cr ${ROOT_MOUNTPOINT}/@pkgs &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@snapshots"
+    _print_action "Creating subvolume" "@snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
     _print_action "Mount" "@ at /"
@@ -809,7 +809,7 @@ _create_new_user() {
   USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
   if [ "$(grep "${USERNAME}" /etc/passwd)" = "" ]; then
     echo
-    _print_action "Create user" "${USERNAME}"
+    _print_action "Creating user" "${USERNAME}"
     useradd -m -g users -G wheel "${USERNAME}" & PID=$!; _progress $PID
     _print_action "Setting" "/etc/sudoers"
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers &&
@@ -1059,13 +1059,13 @@ _install_desktop() {
         _package_install "bspwm sxhkd dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Create" "directories"
+        _print_action "Creating" "directories"
         mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} &> /dev/null & PID=$!; _progress $PID
-        _print_action "Coping" "bspwmrc into bspwm folder"
+        _print_action "Coping" "bspwmrc to bspwm folder"
         cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ &> /dev/null & PID=$!; _progress $PID
-        _print_action "Coping" "sxhkdrc into sxhkd folder"
+        _print_action "Coping" "sxhkdrc to sxhkd folder"
         cp /usr/share/doc/bspwm/examples/sxhkdrc /home/"${USERNAME}"/.config/sxhkd/ &> /dev/null & PID=$!; _progress $PID
-        _print_action "Running" "sed -i 's/urxvt/termite/' /home/${USERNAME}/.config/sxhkd/sxhkdrc"
+        _print_action "Replacing" "urxvt with termite in sxhkdrc"
         sed -i 's/urxvt/termite/' /home/"${USERNAME}"/.config/sxhkd/sxhkdrc &> /dev/null & PID=$!; _progress $PID
         ;;
       "Awesome")
@@ -1074,12 +1074,12 @@ _install_desktop() {
         _package_install "awesome dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Create" "directories"
+        _print_action "Creating" "directories"
         mkdir -p /home/"${USERNAME}"/.config/awesome &> /dev/null & PID=$!; _progress $PID
-        _print_action "Coping" "rc.lua into awesome folder"
+        _print_action "Coping" "rc.lua to awesome folder"
         cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
-        _print_action "Running" "sed -i 's/terminal = \"xterm\"/terminal = \"termite\"/g' /home/${USERNAME}/.config/awesome/rc.lua"
-        sed -i 's/terminal = \"xterm\"/terminal = \"termite\"/g' /home/"${USERNAME}"/.config/awesome/rc.lua &> /dev/null & PID=$!; _progress $PID
+        _print_action "Replacing" "xterm with termite in rc.lua"
+        sed -i '/^terminal/s/xterm/termite/' /home/"${USERNAME}"/.config/awesome/rc.lua &> /dev/null & PID=$!; _progress $PID
         ;;
       "Openbox")
         _print_title "OPENBOX"
@@ -1092,14 +1092,22 @@ _install_desktop() {
         _print_subtitle "Packages"
         _package_install "qtile dmenu arandr nitrogen picom lxappearance \
         thunar termite xarchiver network-manager-applet"
+        _print_action "Creating" "directories"
+        mkdir -p /home/"${USERNAME}"/.config/qtile &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "config.py to qtile folder"
+        cp /usr/share/doc/qtile/default_config.py /home/"${USERNAME}"/.config/qtile/config.py & PID=$!; _progress $PID
         ;;
       "Sway")
         _print_title "Sway"
         _print_subtitle "Packages"
         _package_install "sway swayidle swaylock waybar alacritty dmenu thunar termite"
         _print_subtitle "Configure"
-        _print_action "Coping" "rc.lua"
-        mkdir -p /home/"${USERNAME}"/.config/sway && cp /etc/sway/config /home/"${USERNAME}"/.config/sway/ & PID=$!; _progress $PID
+        _print_action "Creating" "config file to sway folder"
+        mkdir -p /home/"${USERNAME}"/.config/sway & PID=$!; _progress $PID
+        _print_action "Coping" "config file to sway folder"
+        cp /etc/sway/config /home/"${USERNAME}"/.config/sway/ & PID=$!; _progress $PID
+        _print_action "Replacing" "alacritty with termite in sway config file"
+        sed -i 's/alacritty/termite/g' /home/"${USERNAME}"/.config/sway/config &> /dev/null & PID=$!; _progress $PID
         ;;
       "None")
         echo
@@ -1133,7 +1141,7 @@ _install_desktop() {
             localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile; then
+            if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
               _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
               echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
             fi
