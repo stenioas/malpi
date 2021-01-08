@@ -762,7 +762,6 @@ _finish_install() {
   if [ "$OPTION" != "n" ] && [ "$OPTION" != "N" ]; then
     _print_action "Downloading" "malpi to /root"
     curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
-    echo
   fi
   echo
   _print_line
@@ -947,7 +946,8 @@ _install_aurhelper() {
 
 _install_xorg() {
   _print_title "DISPLAY SERVER"
-  DISPLAY_SERVER_LIST=("Xorg and Wayland" "Just Wayland" "None");
+  DISPLAY_SERVER_LIST=("Xorg + Wayland" "Just Wayland" "None");
+  echo
   _print_info "The Xorg package group requires mesa package to work and mesa requires Wayland."
   _print_select "Select display server:${RESET}"
   select DISPLAY_SERVER in "${DISPLAY_SERVER_LIST[@]}"; do
@@ -958,7 +958,7 @@ _install_xorg() {
     fi
   done
   case $DISPLAY_SERVER in
-    "Xorg and Wayland")
+    "Xorg + Wayland")
       _print_subtitle "Packages"
       _package_install "xorg"
       _package_install "xorg-xinit"
@@ -1150,7 +1150,7 @@ _install_desktop() {
                   _print_title "KEYBOARD LAYOUT"
                   echo
                   if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
-                    _print_action "Running" "localectl set-x11-keymap \"${KEYBOARD_LAYOUT}\""
+                    _print_action "Running" "localectl set-x11-keymap \"${KEYBOARD_LAYOUT}\" \"\" \"${KEYBOARD_VARIANT}\""
                     localectl set-x11-keymap "${KEYBOARD_LAYOUT}" "" "${KEYBOARD_VARIANT}" &> /dev/null & PID=$!; _progress $PID
                   fi
                   if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
@@ -1310,8 +1310,8 @@ _print_title() {
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
   COLS_TITLE=${#1}
-  echo -ne "${BBLACK}||${RESET}${BGREEN} $1${RESET}${BBLACK}${RESET}"
-  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 5 )) | tr -d "[:digit:]")${RESET}"
+  echo -ne "${BBLACK}[${RESET}${BGREEN} $1 ${RESET}${BBLACK}]${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 6 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
 }
 
