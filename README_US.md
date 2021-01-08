@@ -3,7 +3,7 @@
 </h1>
 
 <h3 align="center">
-  My <a href="https://www.archlinux.org">Arch Linux</a> Personal Installer
+  <a href="https://www.archlinux.org">Arch Linux</a> + Btrfs + Luks
 </h3>
 <p align="center">A shell script, simple and amateur, to install Arch Linux on my personal computers. You can use and modify it as you like.</p>
 
@@ -84,7 +84,6 @@ Then follow the on-screen instructions to completion.
 - Format and mount **EFI** and **ROOT** partitions
 - Select kernel version
 - Select microcode version
-- Update archlinux-keyring
 - Install system base
 - Configure fstab
 - Configure timezone
@@ -109,7 +108,6 @@ or
 ##### Features
 - Create and configure a new user
 - Enable multilib mepository
-- Install essential packages
 - Install Xorg
 - Install video driver (*Currently only intel and virtualbox available*)
 - Install Desktop Environment or Window Manager ***(Optional)***
