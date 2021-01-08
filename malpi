@@ -145,9 +145,9 @@ cat <<EOF
 
 - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
-${BRED} - THIS SCRIPT IS NOT YET COMPLETE!${RESET}
+${BRED}- THIS SCRIPT IS NOT YET COMPLETE!${RESET}
   
-${BWHITE} - Btw, thank's for your time!${RESET}
+${BWHITE}- Btw, thank's for your time!${RESET}
 EOF
   _pause_function
 }
@@ -221,7 +221,7 @@ _select_disk() {
 
 _format_partitions() {
   _format_root_partition() {
-    _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
+    _print_title "FORMAT THE PARTITIONS - MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
     _print_danger "All data on the partition will be LOST!"
     echo
@@ -273,23 +273,23 @@ _format_partitions() {
     _print_action "Format" "${ROOT_DEVICE}"
     mkfs.btrfs -f -L Archlinux "${ROOT_DEVICE}" &> /dev/null & PID=$!; _progress $PID
     mount "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null
-    _print_action "Creating subvolume" "@"
+    _print_action "Creating" "subvolume ${PURPLE}@${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating subvolume" "@home"
+    _print_action "Creating" "subvolume ${PURPLE}@home${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating subvolume" "@pkgs"
+    _print_action "Creating" "subvolume ${PURPLE}@pkgs${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@pkgs &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating subvolume" "@snapshots"
+    _print_action "Creating" "subvolume ${PURPLE}@snapshots${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
-    _print_action "Mount" "@ at /"
+    _print_action "Mount" "${PURPLE}@${RESET} at /"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
     mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
-    _print_action "Mount" "@home at /home"
+    _print_action "Mount" "${PURPLE}@home${RESET} at /home"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@pkgs at /var/cache/pacman/pkg"
+    _print_action "Mount" "${PURPLE}@pkgs${RESET} at /var/cache/pacman/pkg"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@pkgs "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@snapshots at /.snapshots"
+    _print_action "Mount" "${PURPLE}@snapshots${RESET} at /.snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
     ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
@@ -297,7 +297,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_title "FORMAT THE PARTITIONS / MOUNT THE FILE SYSTEMS"
+    _print_title "FORMAT THE PARTITIONS - MOUNT THE FILE SYSTEMS"
     _print_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -447,7 +447,7 @@ _fstab_generate() {
 }
 
 _set_timezone() {
-  _print_title "TIME ZONE AND SYSTEM CLOCK"
+  _print_title "TIME ZONE - SYSTEM CLOCK"
   # ZONE SECTION
   local items=""
   items=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
@@ -469,7 +469,7 @@ _set_timezone() {
         SUBZONE_LIST+=("${item}")
       done
       IFS=$SAVEIFS
-      _print_title "TIME ZONE AND SYSTEM CLOCK"
+      _print_title "TIME ZONE - SYSTEM CLOCK"
       _print_select "Select your subzone:"
       select SUBZONE in "${SUBZONE_LIST[@]}"; do
         if _contains_element "$SUBZONE" "${SUBZONE_LIST[@]}"; then
@@ -483,7 +483,7 @@ _set_timezone() {
       _invalid_option
     fi
   done
-  _print_title "TIME ZONE AND SYSTEM CLOCK"
+  _print_title "TIME ZONE - SYSTEM CLOCK"
   CLOCK_LIST=("UTC" "Localtime")
   _print_select "Select time standard:"
   select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
@@ -494,7 +494,7 @@ _set_timezone() {
       _invalid_option
     fi
   done
-  _print_title "TIME ZONE AND SYSTEM CLOCK"
+  _print_title "TIME ZONE - SYSTEM CLOCK"
   echo
   _print_item "Timezone" "${ZONE}/${SUBZONE}"
   _print_item "Hardware Clock" "${CLOCK_CHOICE}"
@@ -799,7 +799,7 @@ _create_new_user() {
   USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
   if [ "$(grep "${USERNAME}" /etc/passwd)" = "" ]; then
     echo
-    _print_action "Creating user" "${USERNAME}"
+    _print_action "Creating" "user ${USERNAME}"
     useradd -m -g users -G wheel "${USERNAME}" & PID=$!; _progress $PID
     _print_action "Setting" "/etc/sudoers"
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers &&
@@ -947,7 +947,8 @@ _install_aurhelper() {
 
 _install_xorg() {
   _print_title "DISPLAY SERVER"
-  DISPLAY_SERVER_LIST=("Xorg & Wayland" "Just Wayland" "None");
+  DISPLAY_SERVER_LIST=("Xorg and Wayland" "Just Wayland" "None");
+  _print_info "The Xorg package group requires mesa package to work and mesa requires Wayland."
   _print_select "Select display server:${RESET}"
   select DISPLAY_SERVER in "${DISPLAY_SERVER_LIST[@]}"; do
     if _contains_element "${DISPLAY_SERVER}" "${DISPLAY_SERVER_LIST[@]}"; then
@@ -957,7 +958,7 @@ _install_xorg() {
     fi
   done
   case $DISPLAY_SERVER in
-    "Xorg & Wayland")
+    "Xorg and Wayland")
       _print_subtitle "Packages"
       _package_install "xorg"
       _package_install "xorg-xinit"
@@ -1011,7 +1012,7 @@ _install_vga() {
 
 _install_desktop() {
   _select_desktop() {
-    _print_title "DESKTOP ENVIRONMENT | WINDOW MANAGER"
+    _print_title "DESKTOP ENVIRONMENT - WINDOW MANAGER"
     DESKTOP_LIST=("Gnome" "Plasma" "Xfce" "i3-gaps" "Bspwm" "Awesome" "Openbox" "Qtile" "Sway" "None");
     _print_select "Select your desktop environment or window manager:"
     select DESKTOP in "${DESKTOP_LIST[@]}"; do
@@ -1088,7 +1089,7 @@ _install_desktop() {
         cp /usr/share/doc/qtile/default_config.py /home/"${USERNAME}"/.config/qtile/config.py & PID=$!; _progress $PID
         ;;
       "Sway")
-        _print_title "Sway"
+        _print_title "SWAY"
         _print_subtitle "Packages"
         _package_install "sway swayidle swaylock waybar alacritty dmenu thunar termite"
         _print_subtitle "Configure"
@@ -1109,42 +1110,91 @@ _install_desktop() {
     esac
     _pause_function
   }
-  _select_keymap_x11_wayland() {
+  _set_keyboard() {
     if [ $IS_XORG == 1 ] || [ $IS_WAYLAND == 1 ]; then
-      _print_title "KEYMAP LAYOUT"
+      _print_title "KEYBOARD LAYOUT"
       local items=""
       items=$(localectl list-x11-keymap-layouts)
-      KEYMAP_LIST=()
+      KEYBOARD_LAYOUTS_LIST=()
       SAVEIFS=$IFS
       IFS=$'\n'
       for item in ${items}; do
-        KEYMAP_LIST+=("$item")
+        KEYBOARD_LAYOUTS_LIST+=("$item")
       done
       IFS=$SAVEIFS
-      KEYMAP_LIST+=("Cancel")
-      _print_select "Select keymap layout for display server:"
-      select KEYMAP_LAYOUT in "${KEYMAP_LIST[@]}"; do
-        if _contains_element "${KEYMAP_LAYOUT}" "${KEYMAP_LIST[@]}"; then
-          echo
-          if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            _print_action "Running" "localectl set-x11-keymap ${KEYMAP_LAYOUT}"
-            localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
-          fi
-          if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
-              _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
-              echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
+      echo
+      _print_info "Keyboard layout will be set to 'br' and variant to 'abnt2' if not modified!"
+      echo
+      _read_input_option "Do you want to change keyboard layout now? [y/N]: "
+      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+        _print_title "KEYBOARD LAYOUT"
+        _print_select "Select keyboard layout for display server(s):"
+        select KEYBOARD_LAYOUT in "${KEYBOARD_LAYOUTS_LIST[@]}"; do
+          if _contains_element "${KEYBOARD_LAYOUT}" "${KEYBOARD_LAYOUTS_LIST[@]}"; then
+            if [[ "$KEYBOARD_LAYOUT" != "Cancel" ]]; then
+              _print_title "KEYBOARD LAYOUT"
+              local items=""
+              items=$(localectl list-x11-keymap-variants "${KEYBOARD_LAYOUT}")
+              KEYBOARD_VARIANTS_LIST=()
+              SAVEIFS=$IFS
+              IFS=$'\n'
+              for item in ${items}; do
+                KEYBOARD_VARIANTS_LIST+=("$item")
+              done
+              IFS=$SAVEIFS
+              _print_title "KEYBOARD LAYOUT"
+              _print_select "Select layout variant:"
+              echo
+              select KEYBOARD_VARIANT in "${KEYBOARD_VARIANTS_LIST[@]}"; do
+                if _contains_element "${KEYBOARD_VARIANT}" "${KEYBOARD_VARIANTS_LIST[@]}"; then
+                  _print_title "KEYBOARD LAYOUT"
+                  echo
+                  if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
+                    _print_action "Running" "localectl set-x11-keymap \"${KEYBOARD_LAYOUT}\""
+                    localectl set-x11-keymap "${KEYBOARD_LAYOUT}" "" "${KEYBOARD_VARIANT}" &> /dev/null & PID=$!; _progress $PID
+                  fi
+                  if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
+                    if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
+                      _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
+                      echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYBOARD_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
+                    fi
+                    if ! grep "XKB_DEFAULT_VARIANT" < /etc/profile &> /dev/null; then
+                      _print_action "Including" "XKB_DEFAULT_VARIANT variable into /etc/profile"
+                      echo -e "export XKB_DEFAULT_VARIANT=\"${KEYBOARD_VARIANT}\"" >> /etc/profile & PID=$!; _progress $PID
+                    fi  
+                  fi
+                  break
+                else
+                  _invalid_option
+                fi
+              done
             fi
+            break
+          else
+           _invalid_option
           fi
-          break
-        else
-         _invalid_option
+        done
+      else
+        echo
+        if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
+          _print_action "Running" "localectl set-x11-keymap \"br\" \"\" \"abnt2\""
+          localectl set-x11-keymap "br" "" "abnt2" &> /dev/null & PID=$!; _progress $PID
         fi
-      done
+        if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
+          if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
+            _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
+            echo -e "export XKB_DEFAULT_LAYOUT=\"br\"" >> /etc/profile & PID=$!; _progress $PID
+          fi
+          if ! grep "XKB_DEFAULT_VARIANT" < /etc/profile &> /dev/null; then
+            _print_action "Including" "XKB_DEFAULT_VARIANT variable into /etc/profile"
+            echo -e "export XKB_DEFAULT_VARIANT=\"abnt2\"" >> /etc/profile & PID=$!; _progress $PID
+          fi          
+        fi
+      fi
     fi
   }
   _select_desktop
-  _select_keymap_x11_wayland
+  _set_keyboard
   _pause_function
 }
 
@@ -1161,10 +1211,10 @@ _install_display_manager() {
       _invalid_option
     fi
   done
-  _print_title "$(echo "${DMANAGER}" | tr '[:lower:]' '[:upper:]')"
 
   case $DMANAGER in
     "Lightdm")
+      _print_title "LIGHTDM"
       _print_subtitle "Packages"
       _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
       _print_subtitle "Services"
@@ -1172,6 +1222,7 @@ _install_display_manager() {
       systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
     "Ly [AUR]")
+      _print_title "LY"
       echo
       if ! _is_package_installed "ly" ; then
         su - "${USERNAME}" -c "
@@ -1204,7 +1255,7 @@ _install_display_manager() {
 
 _clean_orphan_packages(){
   _print_title "CLEAN ORPHAN PACKAGES"
-  if pacman -Qqdt; then
+  if pacman -Qqdt &> /dev/null; then
     echo
     _print_action "Cleaning" "orphan packages"
     pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
@@ -1259,8 +1310,8 @@ _print_title() {
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
   COLS_TITLE=${#1}
-  echo -ne "${BBLACK}[${RESET}${BGREEN} $1 ${RESET}${BBLACK}]${RESET}"
-  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 6 )) | tr -d "[:digit:]")${RESET}"
+  echo -ne "${BBLACK}||${RESET}${BGREEN} $1${RESET}${BBLACK}${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 5 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
 }
 
@@ -1345,7 +1396,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BBLACK}$1 ${RESET}"
+  printf "%s" "${BGREEN}$1 ${RESET}"
 }
 
 _read_input_option() {
