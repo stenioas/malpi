@@ -1289,13 +1289,13 @@ _print_action() {
 
 _print_ok() {
   tput rc
-  tput cub $(( BACK_COLS + 5 ))
+  tput cub $(( BACK_COLS + 6 ))
   echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_failed() {
   tput rc
-  tput cub $(( BACK_COLS + 7 ))
+  tput cub $(( BACK_COLS + 8 ))
   echo -e "${BRED}FAILED${RESET}"
 }
 
@@ -1303,11 +1303,12 @@ _progress() {
   _spinny() {
     echo -ne "\b${BBLACK}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
+  tput civis
   while true; do
     if kill -0 "$PID" &> /dev/null; then
     #if [[ $? == 0 ]]; then
       tput rc
-      tput cub $(( BACK_COLS + 4 ))
+      tput cub $(( BACK_COLS + 5 ))
       _spinny
       sleep 0.4
     else
@@ -1321,6 +1322,7 @@ _progress() {
       break
     fi
   done
+  tput cnorm
 }
 
 _print_bye() {
@@ -1374,7 +1376,7 @@ _package_install() { # Install pacman packages
     else
       _print_action "Installing" "${PKG}"
       tput rc
-      tput cub $(( BACK_COLS + 7 ))
+      tput cub $(( BACK_COLS + 8 ))
       echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
