@@ -1253,8 +1253,14 @@ _print_select() {
 }
 
 _print_item() {
-  echo -ne "${BBLACK}$1: ${RESET}"
+  REM_COLS=$(( 23 - ${#1} ))
+  echo -ne "${BBLACK}$1:${RESET}"
+  echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
   echo -e "${WHITE}$2${RESET}" | fold -sw $(( T_COLS - 24 ))
+}
+
+_print_items() {
+
 }
 
 _print_info() {
@@ -1272,16 +1278,24 @@ _print_danger() {
   echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+_print_action() {
+  T_COLS=$(tput cols)
+  BACK_COLS=$(( ${#1} + ${#2} ))
+  echo -ne "${BBLACK}[        ] ${RESET}"
+  echo -ne "${BGREEN}$1 ${RESET}${WHITE}$2${RESET}"
+  tput sc
+}
+
 _print_ok() {
-  echo -e "\b${BGREEN}OK${RESET}"
+  tput rc
+  tput cub $(( BACK_COLS + 7 ))
+  echo -e "${BGREEN}OK${RESET}"
 }
 
 _print_failed() {
-  echo -e "\b${BRED}FAILED${RESET}"
-}
-
-_print_action() {
-  echo -ne "${BBLACK}$1${RESET}${WHITE} $2          ${RESET}"
+  tput rc
+  tput cub $(( BACK_COLS + 9 ))
+  echo -e "${BRED}FAILED${RESET}"
 }
 
 _progress() {
@@ -1291,6 +1305,8 @@ _progress() {
   while true; do
     if kill -0 "$PID" &> /dev/null; then
     #if [[ $? == 0 ]]; then
+      tput rc
+      tput cub $(( BACK_COLS + 6 ))
       _spinny
       sleep 0.4
     else
@@ -1355,7 +1371,10 @@ _package_install() { # Install pacman packages
         sudo pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!; _progress $PID
       fi
     else
-      _print_action "Installing" "${PKG}"; echo -e "${YELLOW}EXISTS${RESET}"
+      _print_action "Installing" "${PKG}"
+      tput rc
+      tput cub $(( BACK_COLS + 9 ))
+      echo -e "${YELLOW}EXISTS${RESET}"
     fi
   done
 }
