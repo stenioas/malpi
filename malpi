@@ -59,16 +59,6 @@
     BCYAN=${BOLD}${CYAN}
     BWHITE=${BOLD}${WHITE}
 
-    # Background Colors
-    BG_BLACK=$(tput setab 0)
-    BG_RED=$(tput setab 1)
-    BG_GREEN=$(tput setab 2)
-    BG_YELLOW=$(tput setab 3)
-    BG_BLUE=$(tput setab 4)
-    BG_PURPLE=$(tput setab 5)
-    BG_CYAN=$(tput setab 6)
-    BG_WHITE=$(tput setab 7)
-
   # --- ESSENTIALS
     APP_TITLE="malpi"
     APP_VERSION="0.04"
@@ -80,7 +70,7 @@
   # --- MOUNTPOINTS - You may change
     EFI_MOUNTPOINT="/boot"
     ROOT_MOUNTPOINT="/mnt"
-    CRYPT_NAME="cryptroot"
+    CRYPT_NAME="cryptluks"
 
   # --- PROMPT
     PS3="${BGREEN}> ${RESET}"
@@ -131,33 +121,33 @@ _readme() {
   _print_title "README"
 cat <<EOF
 
-  - This script assumes that you know your keymap and it will already be loaded.
+- This script assumes that you know your keymap and it will already be loaded.
 
-  - Only ${BYELLOW}UEFI${RESET} mode is supported.
+- Only ${BYELLOW}UEFI${RESET} mode is supported.
 
-  - This script uses only two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
+- This script uses only two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
 
-  - The root partition will be formatted with the ${BYELLOW}BTRFS${RESET} filesystem.
+- The root partition will be formatted with the ${BYELLOW}BTRFS${RESET} filesystem.
 
-  - This script will create 4 subvolumes:
-        ${BYELLOW}@${RESET} for /
-        ${BYELLOW}@home${RESET} for /home
-        ${BYELLOW}@pkgs${RESET} for /var/cache/pacman/pkgs
-        ${BYELLOW}@snapshots${RESET} for /.snapshots
+- This script will create 4 subvolumes:
+      ${BYELLOW}@${RESET} for /
+      ${BYELLOW}@home${RESET} for /home
+      ${BYELLOW}@pkgs${RESET} for /var/cache/pacman/pkgs
+      ${BYELLOW}@snapshots${RESET} for /.snapshots
 
-  - The EFI partition can be formatted in FAT32 if the user wants to.
+- The EFI partition can be formatted in FAT32 if the user wants to.
 
-  - ${BYELLOW}SWAP${RESET} is not supported..
+- ${BYELLOW}SWAP${RESET} is not supported..
 
-  - ${BYELLOW}NetworkManager${RESET} is installed by default.
+- ${BYELLOW}NetworkManager${RESET} is installed by default.
 
-  - Only ${BYELLOW}Grub${RESET} and ${BYELLOW}Systemd-boot${RESET} are available.
+- Only ${BYELLOW}Grub${RESET} and ${BYELLOW}Systemd-boot${RESET} are available.
 
-  - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
+- This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
-${BRED}  - THIS SCRIPT IS NOT YET COMPLETE!${RESET}
+${BRED} - THIS SCRIPT IS NOT YET COMPLETE!${RESET}
   
-${BWHITE}  - Btw, thank's for your time!${RESET}
+${BWHITE} - Btw, thank's for your time!${RESET}
 EOF
   _pause_function
 }
@@ -283,26 +273,26 @@ _format_partitions() {
     _print_action "Format" "${ROOT_DEVICE}"
     mkfs.btrfs -f -L Archlinux "${ROOT_DEVICE}" &> /dev/null & PID=$!; _progress $PID
     mount "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null
-    _print_action "Create subvolume" "@"
+    _print_action "Creating subvolume" "@"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@home"
+    _print_action "Creating subvolume" "@home"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@pkgs"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Create subvolume" "@snapshots"
+    _print_action "Creating subvolume" "@pkgs"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@pkgs &> /dev/null & PID=$!; _progress $PID
+    _print_action "Creating subvolume" "@snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
-    _print_action "Mount" "@"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" ${ROOT_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
+    _print_action "Mount" "@ at /"
+    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
     mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
-    _print_action "Mount" "@home"
+    _print_action "Mount" "@home at /home"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@pkgs"
+    _print_action "Mount" "@pkgs at /var/cache/pacman/pkg"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@pkgs "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@snapshots"
+    _print_action "Mount" "@snapshots at /.snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
-    ROOT_UUID=$(blkid -s UUID -o value "${ROOT_DEVICE}")
+    ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
     _pause_function
   }
 
@@ -328,18 +318,18 @@ _format_partitions() {
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 "${EFI_PARTITION}" &> /dev/null & PID=$!; _progress $PID
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-        _print_action "Mount" "${EFI_PARTITION}"
+        _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
         mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
       else
         echo
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-        _print_action "Mount" "${EFI_PARTITION}"
+        _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
         mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
       fi
     else
       echo
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-      _print_action "Mount" "${EFI_PARTITION}"
+      _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
       mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
     fi
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
@@ -764,16 +754,17 @@ _finish_install() {
   _print_item "Hostname" "${NEW_HOSTNAME}"
   _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
   echo
-  _print_action "Coping" "mirrorlist.backup"
+  _print_action "Coping" "mirrorlist.backup to /etc/pacman.d/"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
   _read_input_option "Save a copy of this script in root directory? [Y/n]: "
   echo
   if [ "$OPTION" != "n" ] && [ "$OPTION" != "N" ]; then
-    _print_action "Coping" "malpi"
+    _print_action "Downloading" "malpi to /root"
     curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
     echo
   fi
+  echo
   _print_line
   _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
   if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -781,9 +772,9 @@ _finish_install() {
     setfont
     reboot
   else
+    setfont
     clear
     _print_bye
-    setfont
     exit 0
   fi
 }
@@ -808,7 +799,7 @@ _create_new_user() {
   USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
   if [ "$(grep "${USERNAME}" /etc/passwd)" = "" ]; then
     echo
-    _print_action "Create user" "${USERNAME}"
+    _print_action "Creating user" "${USERNAME}"
     useradd -m -g users -G wheel "${USERNAME}" & PID=$!; _progress $PID
     _print_action "Setting" "/etc/sudoers"
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers &&
@@ -871,16 +862,17 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   UTILITIES_PKGS="mtools udisks2 usbutils lsof dmidecode neofetch bashtop htop nss-mdns logrotate sysfsutils mlocate dialog wget git reflector bash-completion xdg-utils xdg-user-dirs"
   COMPRESSION_PKGS="zip unzip unrar p7zip lzop"
-  FILESYSTEM_PKGS="dosfstools ntfs-3g autofs mtpfs"
+  FILESYSTEM_PKGS="ntfs-3g autofs mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
-  _print_item "Utilities" "${UTILITIES_PKGS}"
-  _print_line
-  _print_item "Compression tools" "${COMPRESSION_PKGS}"
-  _print_line
-  _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
-  _print_line
-  _print_item "Sound tools" "${SOUND_PKGS}"
+  _print_items "Utilities" "${UTILITIES_PKGS}"
+  echo
+  _print_items "Compression tools" "${COMPRESSION_PKGS}"
+  echo
+  _print_items "Filesystem tools" "${FILESYSTEM_PKGS}"
+  echo
+  _print_items "Sound tools" "${SOUND_PKGS}"
+  echo
   _print_line
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install extra packages? [Y/n]: "
@@ -900,7 +892,8 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   LAPTOP_PKGS="wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
   echo
-  _print_item "Laptop packages" "${LAPTOP_PKGS}"
+  _print_items "Laptop packages" "${LAPTOP_PKGS}"
+  echo
   _print_line
   LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install laptop packages? [Y/n]: "
@@ -954,7 +947,7 @@ _install_aurhelper() {
 
 _install_xorg() {
   _print_title "DISPLAY SERVER"
-  DISPLAY_SERVER_LIST=("Xorg" "Wayland" "Both" "None");
+  DISPLAY_SERVER_LIST=("Xorg & Wayland" "Just Wayland" "None");
   _print_select "Select display server:${RESET}"
   select DISPLAY_SERVER in "${DISPLAY_SERVER_LIST[@]}"; do
     if _contains_element "${DISPLAY_SERVER}" "${DISPLAY_SERVER_LIST[@]}"; then
@@ -964,28 +957,17 @@ _install_xorg() {
     fi
   done
   case $DISPLAY_SERVER in
-    "Xorg")
+    "Xorg & Wayland")
       _print_subtitle "Packages"
       _package_install "xorg"
       _package_install "xorg-xinit"
       _package_install "xterm"
-      _package_install "mesa"
       IS_XORG=1
-      ;;
-    "Wayland")
-      _print_subtitle "Packages"
-      _package_install "mesa"
-      _package_install "weston"
       IS_WAYLAND=1
       ;;
-    "Both")
+    "Just Wayland")
       _print_subtitle "Packages"
-      _package_install "xorg"
-      _package_install "xorg-xinit"
-      _package_install "xterm"
       _package_install "mesa"
-      _package_install "weston"
-      IS_XORG=1
       IS_WAYLAND=1
       ;;
     "None")
@@ -995,8 +977,10 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BYELLOW}AMD${RESET} and${BYELLOW} NVIDIA${RESET} will be available soon"
-  VIDEO_CARD_LIST=("Intel" "Virtualbox" "None");
+  _print_title "VIDEO DRIVER"
+  VIDEO_CARD_LIST=("Intel" "Virtualbox" "None")
+  echo
+  _print_info "AMD and NVIDIA will be available soon!"
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
@@ -1065,9 +1049,14 @@ _install_desktop() {
         _package_install "bspwm sxhkd dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Coping" "bspwmrc | sxhkdrc"
-        mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} && cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ && cp /usr/share/doc/bspwm/examples/sxhkdrc /home/"${USERNAME}"/.config/sxhkd/ &> /dev/null & PID=$!; _progress $PID
-        sed -i 's/urxvt/termite/' /home/"${USERNAME}"/.config/sxhkd/sxhkdrc
+        _print_action "Creating" "directories"
+        mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "bspwmrc to bspwm folder"
+        cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "sxhkdrc to sxhkd folder"
+        cp /usr/share/doc/bspwm/examples/sxhkdrc /home/"${USERNAME}"/.config/sxhkd/ &> /dev/null & PID=$!; _progress $PID
+        _print_action "Replacing" "urxvt with termite in sxhkdrc"
+        sed -i 's/urxvt/termite/' /home/"${USERNAME}"/.config/sxhkd/sxhkdrc &> /dev/null & PID=$!; _progress $PID
         ;;
       "Awesome")
         _print_title "AWESOME WM"
@@ -1075,8 +1064,12 @@ _install_desktop() {
         _package_install "awesome dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Coping" "rc.lua"
-        mkdir -p /home/"${USERNAME}"/.config/awesome && cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
+        _print_action "Creating" "directories"
+        mkdir -p /home/"${USERNAME}"/.config/awesome &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "rc.lua to awesome folder"
+        cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
+        _print_action "Replacing" "xterm with termite in rc.lua"
+        sed -i '/^terminal/s/xterm/termite/' /home/"${USERNAME}"/.config/awesome/rc.lua &> /dev/null & PID=$!; _progress $PID
         ;;
       "Openbox")
         _print_title "OPENBOX"
@@ -1089,11 +1082,22 @@ _install_desktop() {
         _print_subtitle "Packages"
         _package_install "qtile dmenu arandr nitrogen picom lxappearance \
         thunar termite xarchiver network-manager-applet"
+        _print_action "Creating" "directories"
+        mkdir -p /home/"${USERNAME}"/.config/qtile &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "config.py to qtile folder"
+        cp /usr/share/doc/qtile/default_config.py /home/"${USERNAME}"/.config/qtile/config.py & PID=$!; _progress $PID
         ;;
       "Sway")
         _print_title "Sway"
         _print_subtitle "Packages"
         _package_install "sway swayidle swaylock waybar alacritty dmenu thunar termite"
+        _print_subtitle "Configure"
+        _print_action "Creating" "config file to sway folder"
+        mkdir -p /home/"${USERNAME}"/.config/sway & PID=$!; _progress $PID
+        _print_action "Coping" "config file to sway folder"
+        cp /etc/sway/config /home/"${USERNAME}"/.config/sway/ & PID=$!; _progress $PID
+        _print_action "Replacing" "alacritty with termite in sway config file"
+        sed -i 's/alacritty/termite/g' /home/"${USERNAME}"/.config/sway/config &> /dev/null & PID=$!; _progress $PID
         ;;
       "None")
         echo
@@ -1111,11 +1115,12 @@ _install_desktop() {
       local items=""
       items=$(localectl list-x11-keymap-layouts)
       KEYMAP_LIST=()
-      SAVEIFS="$IFS"
+      SAVEIFS=$IFS
       IFS=$'\n'
       for item in ${items}; do
         KEYMAP_LIST+=("$item")
       done
+      IFS=$SAVEIFS
       KEYMAP_LIST+=("Cancel")
       _print_select "Select keymap layout for display server:"
       select KEYMAP_LAYOUT in "${KEYMAP_LIST[@]}"; do
@@ -1126,8 +1131,10 @@ _install_desktop() {
             localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            _print_action "Running" "echo \'export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"\'"
-            echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
+            if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
+              _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
+              echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
+            fi
           fi
           break
         else
@@ -1138,20 +1145,14 @@ _install_desktop() {
   }
   _select_desktop
   _select_keymap_x11_wayland
-  chown "${USERNAME}" -R /home/"${USERNAME}"
   _pause_function
 }
 
 _install_display_manager() {
-  _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
-  DMANAGER_LIST=(
-    "Lightdm"
-    "Ly [AUR]"
-    "GDM"
-    "SDDM"
-    "Lxdm"
-    "Lxdm GTK3"
-    "None");
+  _print_title "DISPLAY MANAGER"
+  DMANAGER_LIST=("Lightdm" "Ly [AUR]" "None")
+  echo
+  _print_info "XINIT will be available soon"
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -1168,12 +1169,13 @@ _install_display_manager() {
       _package_install "lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings"
       _print_subtitle "Services"
       _print_action "Enabling" "Lightdm"
-      sudo systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
+      systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
     "Ly [AUR]")
       echo
       if ! _is_package_installed "ly" ; then
         su - "${USERNAME}" -c "
+          cd
           [[ -d ly ]] && rm -rf ly
           git clone https://aur.archlinux.org/ly.git ly
           cd ly
@@ -1181,41 +1183,12 @@ _install_display_manager() {
           cd
           rm -rf ly
         "
+        _print_subtitle "Services"
+        _print_action "Enabling" "Ly"
+        systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
       else
-        echo
         _print_info "Ly is already installed!"
       fi
-      _print_subtitle "Services"
-      _print_action "Enabling" "Ly"
-      sudo systemctl enable ly.service &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "GDM")
-      _print_subtitle "Packages"
-      _package_install "gdm"
-      _print_subtitle "Services"
-      _print_action "Enabling" "GDM"
-      sudo systemctl enable gdm &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "SDDM")
-      _print_subtitle "Packages"
-      _package_install "sddm"
-      _print_subtitle "Services"
-      _print_action "Enabling" "SDDM"
-      sudo systemctl enable sddm &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "Lxdm")
-      _print_subtitle "Packages"
-      _package_install "lxdm"
-      _print_subtitle "Services"
-      _print_action "Enabling" "Lxdm"
-      sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
-      ;;
-    "Lxdm GTK3")
-      _print_subtitle "Packages"
-      _package_install "lxdm-gtk3"
-      _print_subtitle "Services"
-      _print_action "Enabling" "Lxdm GTK3"
-      sudo systemctl enable lxdm.service &> /dev/null & PID=$!; _progress $PID
       ;;
     "Xinit") # NOT INCLUDED IN SELECT YET
       echo
@@ -1231,13 +1204,19 @@ _install_display_manager() {
 
 _clean_orphan_packages(){
   _print_title "CLEAN ORPHAN PACKAGES"
-  echo
-  _print_action "Cleaning" "orphan packages"
-  pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
+  if pacman -Qqdt; then
+    echo
+    _print_action "Cleaning" "orphan packages"
+    pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
+  else
+    echo
+    _print_info "No orphan packages!"
+  fi
   _pause_function
 }
 
 _finish_post() {
+  chown "${USERNAME}" -R /home/"${USERNAME}" # changing the user home folder owner
   _print_title "SECOND STEP FINISHED"
   echo
   _print_info "Thank's for using the malpi script so far! The system installation is complete, enjoy!"
@@ -1256,8 +1235,9 @@ _finish_post() {
     setfont
     reboot
   else
-    _print_bye
     setfont
+    clear
+    _print_bye
     exit 0
   fi
   exit 0
@@ -1278,10 +1258,10 @@ _print_title() {
   BORDER_COLOR=${BBLACK}
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
-  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - 2 )) | tr -d "[:digit:]")${RESET}"
+  COLS_TITLE=${#1}
+  echo -ne "${BBLACK}[${RESET}${BGREEN} $1 ${RESET}${BBLACK}]${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 6 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
-  echo -e "${BBLACK}<${RESET}${BGREEN}  $1  ${RESET}${BBLACK}>${RESET}"
-  echo -e "${BORDER_COLOR}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
 _print_subtitle() {
@@ -1294,10 +1274,14 @@ _print_select() {
 
 _print_item() {
   REM_COLS=$(( 23 - ${#1} ))
-  echo -ne "${BGREEN}$1${RESET}"
+  echo -ne "${BBLACK}$1:${RESET}"
   echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
-  echo -ne "${BBLACK}:${RESET}"
-  echo -e "${WHITE} $2${RESET}" | fold -sw $(( T_COLS - 24 ))
+  echo -e "${WHITE}$2${RESET}"
+}
+
+_print_items() {
+  echo -e "${BBLACK}$1:${RESET}"
+  echo -e "${WHITE}$2${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_info() {
@@ -1315,50 +1299,45 @@ _print_danger() {
   echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
+_print_action() {
+  echo -ne "${BBLACK}$1 ${RESET}${WHITE}$2 ${RESET}"
+  tput sc
+}
+
 _print_ok() {
   tput rc
-  tput cub 6
-  echo -e "${BGREEN}OK${RESET}"
+  echo -e "${BGREEN}done${RESET}"
 }
 
-_print_failed() {
+_print_error() {
   tput rc
-  tput cub 8
-  echo -e "${BRED}FAILED${RESET}"
-}
-
-_print_action() {
-  T_COLS=$(tput cols)
-  REM_COLS=$(( ${#1} + ${#2} ))
-  REM_DOTS=$(( T_COLS - 13 - REM_COLS ))
-  echo -ne "${BGREEN}$1${RESET}${WHITE} $2 ${RESET}"
-  echo -ne "${BBLACK}$(seq -s '.' $(( REM_DOTS )) | tr -d "[:digit:]")${RESET}"
-  echo -ne "${BBLACK} [        ]${RESET}"
-  tput sc
+  echo -e "${BRED}error${RESET}"
 }
 
 _progress() {
   _spinny() {
+    tput cuf 2
     echo -ne "\b${BBLACK}${SPIN:i++%${#SPIN}:1}${RESET}"
   }
+  tput civis
   while true; do
     if kill -0 "$PID" &> /dev/null; then
     #if [[ $? == 0 ]]; then
       tput rc
-      tput cub 5
       _spinny
-      sleep 0.4
+      sleep 0.2
     else
       wait "$PID"
       RETCODE=$?
       if [ $RETCODE == 0 ] || [ $RETCODE == 255 ]; then
         _print_ok
       else
-        _print_failed
+        _print_error
       fi
       break
     fi
   done
+  tput cnorm
 }
 
 _print_bye() {
@@ -1366,7 +1345,7 @@ _print_bye() {
 }
 
 _read_input_text() {
-  printf "%s" "${BGREEN}$1 ${RESET}"
+  printf "%s" "${BBLACK}$1 ${RESET}"
 }
 
 _read_input_option() {
@@ -1412,8 +1391,7 @@ _package_install() { # Install pacman packages
     else
       _print_action "Installing" "${PKG}"
       tput rc
-      tput cub 8
-      echo -e "${YELLOW}EXISTS${RESET}"
+      echo -e "${YELLOW}exists${RESET}"
     fi
   done
 }
@@ -1536,11 +1514,10 @@ _check_archlinux() {
   if [ -e /etc/arch-release ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1550,11 +1527,10 @@ _check_uefimode() {
   if [ -d "/sys/firmware/efi/" ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1567,11 +1543,10 @@ _check_connection() {
   if ! _connection_test; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must be connected to the internet to execute the script."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1581,11 +1556,10 @@ _check_root() {
   if [ "$(id -u)" == "0" ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "You must execute the script as 'root' user."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1595,25 +1569,23 @@ _check_hostname() {
   if [ "${HOSTNAME// /}" != "" ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "Hostname must be configured!"
     _print_bye
-    setfont
     exit 1
   fi
 }
 
 _check_pacman_blocked() {
-  _print_action "Checking" "Pacman is not blocked"
+  _print_action "Checking" "Pacman lock"
   if [ ! -f /var/lib/pacman/db.lck ]; then
     _print_ok
   else
-    _print_failed
+    _print_error
     echo
     _print_warning "Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
     _print_bye
-    setfont
     exit 1
   fi
 }
@@ -1635,7 +1607,8 @@ while [[ "$1" ]]; do
     "--post"|"-p") _setup_post;;
   esac
   shift
-  _print_bye
   setfont
+  clear
+  _print_bye
   exit 0
 done
