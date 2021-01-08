@@ -900,7 +900,7 @@ _install_extra_pkgs() {
   _print_title "EXTRA PACKAGES"
   LAPTOP_PKGS="wireless_tools bluez bluez-utils pulseaudio-bluetooth xf86-input-synaptics"
   echo
-  _print_item "Laptop packages" "${LAPTOP_PKGS}"
+  _print_items "Laptop packages" "${LAPTOP_PKGS}"
   _print_line
   LAPTOP_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install laptop packages? [Y/n]: "
@@ -970,6 +970,7 @@ _install_xorg() {
       _package_install "xorg-xinit"
       _package_install "xterm"
       IS_XORG=1
+      IS_WAYLAND=1
       ;;
     "Just Wayland")
       _print_subtitle "Packages"
@@ -983,8 +984,10 @@ _install_xorg() {
 }
 
 _install_vga() {
-  _print_title "VIDEO DRIVER - ${BYELLOW}AMD${RESET} and${BYELLOW} NVIDIA${RESET} will be available soon"
-  VIDEO_CARD_LIST=("Intel" "Virtualbox" "None");
+  _print_title "VIDEO DRIVER"
+  VIDEO_CARD_LIST=("Intel" "Virtualbox" "None")
+  echo
+  _print_info "AMD and NVIDIA will be available soon!"
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
@@ -1134,8 +1137,10 @@ _install_desktop() {
 }
 
 _install_display_manager() {
-  _print_title "DISPLAY MANAGER - ${BYELLOW}XINIT${RESET} will be available soon"
-  DMANAGER_LIST=("Lightdm" "Ly        ${PURPLE}[AUR]${RESET}" "None")
+  _print_title "DISPLAY MANAGER"
+  DMANAGER_LIST=("Lightdm" "Ly ${PURPLE}[AUR]${RESET}" "None")
+  echo
+  _print_info "XINIT will be available soon"
   _print_select "Select display manager:"
   select DMANAGER in "${DMANAGER_LIST[@]}"; do
     if _contains_element "${DMANAGER}" "${DMANAGER_LIST[@]}"; then
@@ -1154,7 +1159,7 @@ _install_display_manager() {
       _print_action "Enabling" "Lightdm"
       systemctl enable lightdm &> /dev/null & PID=$!; _progress $PID
       ;;
-    "Ly        [AUR]")
+    "Ly [AUR]")
       echo
       if ! _is_package_installed "ly" ; then
         su - "${USERNAME}" -c "
@@ -1374,7 +1379,7 @@ _package_install() { # Install pacman packages
     else
       _print_action "Installing" "${PKG}"
       tput rc
-      echo -e "${YELLOW}EXISTS${RESET}"
+      echo -e "${YELLOW}exists${RESET}"
     fi
   done
 }
