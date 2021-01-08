@@ -1256,11 +1256,12 @@ _print_item() {
   REM_COLS=$(( 23 - ${#1} ))
   echo -ne "${BBLACK}$1:${RESET}"
   echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
-  echo -e "${WHITE}$2${RESET}" | fold -sw $(( T_COLS - 24 ))
+  echo -e "${WHITE}$2${RESET}"
 }
 
 _print_items() {
-
+  echo -e "${BBLACK}$1:${RESET}"
+  echo -e "${WHITE}$2${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_info() {
