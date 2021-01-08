@@ -59,16 +59,6 @@
     BCYAN=${BOLD}${CYAN}
     BWHITE=${BOLD}${WHITE}
 
-    # Background Colors
-    BG_BLACK=$(tput setab 0)
-    BG_RED=$(tput setab 1)
-    BG_GREEN=$(tput setab 2)
-    BG_YELLOW=$(tput setab 3)
-    BG_BLUE=$(tput setab 4)
-    BG_PURPLE=$(tput setab 5)
-    BG_CYAN=$(tput setab 6)
-    BG_WHITE=$(tput setab 7)
-
   # --- ESSENTIALS
     APP_TITLE="malpi"
     APP_VERSION="0.04"
@@ -80,7 +70,7 @@
   # --- MOUNTPOINTS - You may change
     EFI_MOUNTPOINT="/boot"
     ROOT_MOUNTPOINT="/mnt"
-    CRYPT_NAME="cryptroot"
+    CRYPT_NAME="cryptluks"
 
   # --- PROMPT
     PS3="${BGREEN}> ${RESET}"
@@ -131,33 +121,33 @@ _readme() {
   _print_title "README"
 cat <<EOF
 
-  - This script assumes that you know your keymap and it will already be loaded.
+- This script assumes that you know your keymap and it will already be loaded.
 
-  - Only ${BYELLOW}UEFI${RESET} mode is supported.
+- Only ${BYELLOW}UEFI${RESET} mode is supported.
 
-  - This script uses only two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
+- This script uses only two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
 
-  - The root partition will be formatted with the ${BYELLOW}BTRFS${RESET} filesystem.
+- The root partition will be formatted with the ${BYELLOW}BTRFS${RESET} filesystem.
 
-  - This script will create 4 subvolumes:
-        ${BYELLOW}@${RESET} for /
-        ${BYELLOW}@home${RESET} for /home
-        ${BYELLOW}@pkgs${RESET} for /var/cache/pacman/pkgs
-        ${BYELLOW}@snapshots${RESET} for /.snapshots
+- This script will create 4 subvolumes:
+      ${BYELLOW}@${RESET} for /
+      ${BYELLOW}@home${RESET} for /home
+      ${BYELLOW}@pkgs${RESET} for /var/cache/pacman/pkgs
+      ${BYELLOW}@snapshots${RESET} for /.snapshots
 
-  - The EFI partition can be formatted in FAT32 if the user wants to.
+- The EFI partition can be formatted in FAT32 if the user wants to.
 
-  - ${BYELLOW}SWAP${RESET} is not supported..
+- ${BYELLOW}SWAP${RESET} is not supported..
 
-  - ${BYELLOW}NetworkManager${RESET} is installed by default.
+- ${BYELLOW}NetworkManager${RESET} is installed by default.
 
-  - Only ${BYELLOW}Grub${RESET} and ${BYELLOW}Systemd-boot${RESET} are available.
+- Only ${BYELLOW}Grub${RESET} and ${BYELLOW}Systemd-boot${RESET} are available.
 
-  - This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
+- This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
 
-${BRED}  - THIS SCRIPT IS NOT YET COMPLETE!${RESET}
+${BRED} - THIS SCRIPT IS NOT YET COMPLETE!${RESET}
   
-${BWHITE}  - Btw, thank's for your time!${RESET}
+${BWHITE} - Btw, thank's for your time!${RESET}
 EOF
   _pause_function
 }
