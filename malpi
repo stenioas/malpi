@@ -1050,7 +1050,7 @@ _install_desktop() {
         _package_install "bspwm sxhkd dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Creating" "directories"
+        _print_action "Creating" "bspwm and sxhkd directories"
         mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} &> /dev/null & PID=$!; _progress $PID
         _print_action "Coping" "bspwmrc to bspwm folder"
         cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ &> /dev/null & PID=$!; _progress $PID
@@ -1065,7 +1065,7 @@ _install_desktop() {
         _package_install "awesome dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Creating" "directories"
+        _print_action "Creating" "awesome directory"
         mkdir -p /home/"${USERNAME}"/.config/awesome &> /dev/null & PID=$!; _progress $PID
         _print_action "Coping" "rc.lua to awesome folder"
         cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
@@ -1083,7 +1083,7 @@ _install_desktop() {
         _print_subtitle "Packages"
         _package_install "qtile dmenu arandr nitrogen picom lxappearance \
         thunar termite xarchiver network-manager-applet"
-        _print_action "Creating" "directories"
+        _print_action "Creating" "qtile directory"
         mkdir -p /home/"${USERNAME}"/.config/qtile &> /dev/null & PID=$!; _progress $PID
         _print_action "Coping" "config.py to qtile folder"
         cp /usr/share/doc/qtile/default_config.py /home/"${USERNAME}"/.config/qtile/config.py & PID=$!; _progress $PID
@@ -1093,7 +1093,7 @@ _install_desktop() {
         _print_subtitle "Packages"
         _package_install "sway swayidle swaylock waybar alacritty dmenu thunar termite"
         _print_subtitle "Configure"
-        _print_action "Creating" "config file to sway folder"
+        _print_action "Creating" "sway directory"
         mkdir -p /home/"${USERNAME}"/.config/sway & PID=$!; _progress $PID
         _print_action "Coping" "config file to sway folder"
         cp /etc/sway/config /home/"${USERNAME}"/.config/sway/ & PID=$!; _progress $PID
@@ -1254,16 +1254,13 @@ _install_display_manager() {
 }
 
 _clean_orphan_packages(){
-  _print_title "CLEAN ORPHAN PACKAGES"
   if pacman -Qqdt &> /dev/null; then
+    _print_title "CLEAN ORPHAN PACKAGES"
     echo
     _print_action "Cleaning" "orphan packages"
     pacman -Rsc --noconfirm "$(pacman -Qqdt)" &> /dev/null & PID=$!; _progress $PID
-  else
-    echo
-    _print_info "No orphan packages!"
+    _pause_function
   fi
-  _pause_function
 }
 
 _finish_post() {
