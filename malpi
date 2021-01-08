@@ -567,7 +567,7 @@ _set_localization() {
   fi
   _print_title "LOCALIZATION"
   echo
-  _print_item "Language" "${LOCALE}"
+  _print_item "Locale" "${LOCALE}"
   _print_item "Keymap" "${KEYMAP_CHOICE}"
   echo
   sed -i "s/#\(${LOCALE}\)/\1/" ${ROOT_MOUNTPOINT}/etc/locale.gen
@@ -749,7 +749,7 @@ _finish_install() {
   _print_item "Microcode" "${MICROCODE_VERSION}"
   _print_item "Timezone" "${ZONE}/${SUBZONE}"
   _print_item "Hardware Clock" "${CLOCK_CHOICE}"
-  _print_item "Language" "${LOCALE}"
+  _print_item "Locale" "${LOCALE}"
   _print_item "Keymap" "${KEYMAP_CHOICE}"
   _print_item "Hostname" "${NEW_HOSTNAME}"
   _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
