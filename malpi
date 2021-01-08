@@ -1059,9 +1059,14 @@ _install_desktop() {
         _package_install "bspwm sxhkd dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Coping" "bspwmrc | sxhkdrc"
-        mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} && cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ && cp /usr/share/doc/bspwm/examples/sxhkdrc /home/"${USERNAME}"/.config/sxhkd/ &> /dev/null & PID=$!; _progress $PID
-        sed -i 's/urxvt/termite/' /home/"${USERNAME}"/.config/sxhkd/sxhkdrc
+        _print_action "Create" "directories"
+        mkdir -p /home/"${USERNAME}"/.config/{bspwm,sxhkd} &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "bspwmrc into bspwm folder"
+        cp /usr/share/doc/bspwm/examples/bspwmrc /home/"${USERNAME}"/.config/bspwm/ &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "sxhkdrc into sxhkd folder"
+        cp /usr/share/doc/bspwm/examples/sxhkdrc /home/"${USERNAME}"/.config/sxhkd/ &> /dev/null & PID=$!; _progress $PID
+        _print_action "Running" "sed -i 's/urxvt/termite/' /home/${USERNAME}/.config/sxhkd/sxhkdrc"
+        sed -i 's/urxvt/termite/' /home/"${USERNAME}"/.config/sxhkd/sxhkdrc &> /dev/null & PID=$!; _progress $PID
         ;;
       "Awesome")
         _print_title "AWESOME WM"
@@ -1069,8 +1074,12 @@ _install_desktop() {
         _package_install "awesome dmenu arandr nitrogen picom \
         lxappearance thunar termite xarchiver network-manager-applet"
         _print_subtitle "Configure"
-        _print_action "Coping" "rc.lua"
-        mkdir -p /home/"${USERNAME}"/.config/awesome && cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
+        _print_action "Create" "directories"
+        mkdir -p /home/"${USERNAME}"/.config/awesome &> /dev/null & PID=$!; _progress $PID
+        _print_action "Coping" "rc.lua into awesome folder"
+        cp /etc/xdg/awesome/rc.lua /home/"${USERNAME}"/.config/awesome/ & PID=$!; _progress $PID
+        _print_action "Running" "sed -i 's/terminal = \"xterm\"/terminal = \"termite\"/g' /home/${USERNAME}/.config/awesome/rc.lua"
+        sed -i 's/terminal = \"xterm\"/terminal = \"termite\"/g' /home/"${USERNAME}"/.config/awesome/rc.lua &> /dev/null & PID=$!; _progress $PID
         ;;
       "Openbox")
         _print_title "OPENBOX"
@@ -1124,7 +1133,7 @@ _install_desktop() {
             localectl set-x11-keymap "${KEYMAP_LAYOUT}" & PID=$!; _progress $PID
           fi
           if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
-            if grep "XKB_DEFAULT_LAYOUT" < /etc/profile; then
+            if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile; then
               _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
               echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYMAP_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
             fi
