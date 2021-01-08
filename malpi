@@ -292,14 +292,14 @@ _format_partitions() {
     _print_action "Create subvolume" "@snapshots"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
-    _print_action "Mount" "@"
+    _print_action "Mount" "@ at /"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
     mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
-    _print_action "Mount" "@home"
+    _print_action "Mount" "@home at /home"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@pkgs"
+    _print_action "Mount" "@pkgs at /var/cache/pacman/pkg"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@pkgs "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "@snapshots"
+    _print_action "Mount" "@snapshots at /.snapshots"
     mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
     ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
@@ -328,18 +328,18 @@ _format_partitions() {
         _print_action "Format" "${EFI_PARTITION}"
         mkfs.fat -F32 "${EFI_PARTITION}" &> /dev/null & PID=$!; _progress $PID
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-        _print_action "Mount" "${EFI_PARTITION}"
+        _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
         mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
       else
         echo
         mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-        _print_action "Mount" "${EFI_PARTITION}"
+        _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
         mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
       fi
     else
       echo
       mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-      _print_action "Mount" "${EFI_PARTITION}"
+      _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
       mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
     fi
     _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
@@ -764,13 +764,13 @@ _finish_install() {
   _print_item "Hostname" "${NEW_HOSTNAME}"
   _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
   echo
-  _print_action "Coping" "mirrorlist.backup"
+  _print_action "Coping" "mirrorlist.backup to /etc/pacman.d/"
   cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
   echo
   _read_input_option "Save a copy of this script in root directory? [Y/n]: "
   echo
   if [ "$OPTION" != "n" ] && [ "$OPTION" != "N" ]; then
-    _print_action "Coping" "malpi"
+    _print_action "Downloading" "malpi to /root"
     curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
     echo
   fi
@@ -874,11 +874,10 @@ _install_extra_pkgs() {
   FILESYSTEM_PKGS="ntfs-3g autofs mtpfs"
   SOUND_PKGS="alsa-utils pulseaudio"
   echo
-  _print_item "Utilities" "${UTILITIES_PKGS}"
-  echo
-  _print_item "Compression tools" "${COMPRESSION_PKGS}"
-  _print_item "Filesystem tools" "${FILESYSTEM_PKGS}"
-  _print_item "Sound tools" "${SOUND_PKGS}"
+  _print_items "Utilities" "${UTILITIES_PKGS}"
+  _print_items "Compression tools" "${COMPRESSION_PKGS}"
+  _print_items "Filesystem tools" "${FILESYSTEM_PKGS}"
+  _print_items "Sound tools" "${SOUND_PKGS}"
   _print_line
   EXTRA_PKGS_STATUS="${BRED}No${RESET}"
   _read_input_option "Install extra packages? [Y/n]: "
@@ -1240,8 +1239,8 @@ _print_title() {
   COLS_APP_VERSION=${#APP_VERSION}
   COLS_APP_TITLE=${#APP_TITLE}
   COLS_TITLE=${#1}
-  echo -ne "${BBLACK}[${RESET}${BGREEN}  $1  ${RESET}${BBLACK}]${RESET}"
-  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 8 )) | tr -d "[:digit:]")${RESET}"
+  echo -ne "${BBLACK}[${RESET}${BGREEN} $1 ${RESET}${BBLACK}]${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 6 )) | tr -d "[:digit:]")${RESET}"
   echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
 }
 
