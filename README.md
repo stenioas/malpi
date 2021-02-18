@@ -14,8 +14,9 @@
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
 <h4 align="center">Demo</h4>
+<p align="center"><img src="./imgs/start-screen.png" alt="Start screen image" width="640px"></p>
 
-<p align="center">Assista ao vídeo clicando <a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank">aqui.</a></p>
+<p align="center"><a href="https://youtu.be/plAaZUxDaeU" target="_blank">Assista ao vídeo de demonstração.</a></p>
 
 ## Notas
 * É aconselhável que você já saiba como instalar o Arch da forma tradicional, seguindo o [**guia de instalação**](https://wiki.archlinux.org/index.php/Installation_guide_(Português)) disponível na ArchWiki, o objetivo deste script é acelerar as minhas instalações e não pular etapas no aprendizado.

@@ -13,8 +13,10 @@
   <img src="https://img.shields.io/github/issues/stenioas/malpi?color=violet&style=for-the-badge">
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
-<br>
-<center><p><a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank"><img src="http://img.youtube.com/vi/OKmuv7xQKqw/0.jpg" alt="Video thumbnail" width="640px" style="border: 5px solid #414141"></a></p></center>
+<h4 align="center">Demo</h4>
+<p align="center"><img src="./imgs/start-screen.png" alt="Start screen image" width="640px"></p>
+
+<p align="center"><a href="https://youtu.be/plAaZUxDaeU" target="_blank">Watch the demo video.</a></p>
 
 ## Notes
 * It is advisable that you already know how to install Arch in the traditional way, following the [**installation guide**](https://wiki.archlinux.org/index.php/Installation_guide) available on ArchWiki, the purpose of this script is to speed up my installations and not skip steps in learning.
