@@ -6,13 +6,15 @@
   <a href="https://www.archlinux.org">Arch Linux</a> + Btrfs + Luks
 </h3>
 <p align="center">A shell script, simple and amateur, to install Arch Linux on my personal computers. You can use and modify it as you like.</p>
-
+<br>
 <p align="center">
   <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
   <img src="https://img.shields.io/github/license/stenioas/malpi?style=for-the-badge">
   <img src="https://img.shields.io/github/issues/stenioas/malpi?color=violet&style=for-the-badge">
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
+<br>
+<p align="center"><a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank"><img src="http://img.youtube.com/vi/OKmuv7xQKqw/0.jpg" alt="Video thumbnail" width="640px" style="border: 5px solid #414141"></a></p>
 
 ## Notes
 * It is advisable that you already know how to install Arch in the traditional way, following the [**installation guide**](https://wiki.archlinux.org/index.php/Installation_guide) available on ArchWiki, the purpose of this script is to speed up my installations and not skip steps in learning.
