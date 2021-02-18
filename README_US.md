@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
 <br>
-<center><a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank"><img src="http://img.youtube.com/vi/OKmuv7xQKqw/0.jpg" alt="Video thumbnail" width="640px" style="border: 5px solid #414141"></a></p></center>
+<center><p><a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank"><img src="http://img.youtube.com/vi/OKmuv7xQKqw/0.jpg" alt="Video thumbnail" width="640px" style="border: 5px solid #414141"></a></p></center>
 
 ## Notes
 * It is advisable that you already know how to install Arch in the traditional way, following the [**installation guide**](https://wiki.archlinux.org/index.php/Installation_guide) available on ArchWiki, the purpose of this script is to speed up my installations and not skip steps in learning.
