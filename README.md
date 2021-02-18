@@ -13,9 +13,7 @@
   <img src="https://img.shields.io/github/issues/stenioas/malpi?color=violet&style=for-the-badge">
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
-<br>
 <h4 align="center">Demo</h4>
-<p align="center" style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 900px"><img src="./imgs/start-screen.png" alt="Start screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/readme.png" alt="Readme screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/font-size.png" alt="Font screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/mirrors.png" alt="Mirrors screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/formatting.png" alt="Format screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/install-base.png" alt="Start screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"></p>
 
 <p align="center">Assista ao vídeo clicando <a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank">aqui.</a></p>
 
