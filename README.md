@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
 <br>
-<center><img src="./imgs/start-screen.png" alt="Start screen image" width="640px" style="border: 5px solid #414141"></center>
+<p align="center"><img src="./imgs/start-screen.png" alt="Start screen image" width="640px" style="border: 5px solid #414141"></p>
 
 <center><p><a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank"><img src="http://img.youtube.com/vi/OKmuv7xQKqw/0.jpg" alt="Video thumbnail" width="640px" style="border: 5px solid #414141"></a></p></center>
 
