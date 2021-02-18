@@ -14,9 +14,10 @@
   <img src="https://img.shields.io/github/stars/stenioas/malpi?style=for-the-badge">
 </p>
 <br>
-<p align="center"><img src="./imgs/start-screen.png" alt="Start screen image" width="640px" style="border: 5px solid #414141"></p>
+<h4 align="center">Demo</h4>
+<p align="center" style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 900px"><img src="./imgs/start-screen.png" alt="Start screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/readme.png" alt="Readme screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/font-size.png" alt="Font screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/mirrors.png" alt="Mirrors screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/formatting.png" alt="Format screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"><img src="./imgs/install-base.png" alt="Start screen image" width="240px" style="border: 5px solid #414141; margin: 10px;"></p>
 
-<center><p><a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank"><img src="http://img.youtube.com/vi/OKmuv7xQKqw/0.jpg" alt="Video thumbnail" width="640px" style="border: 5px solid #414141"></a></p></center>
+<p align="center">Assista ao vídeo clicando <a href="https://www.youtube.com/watch?v=OKmuv7xQKqw" target="_blank">aqui.</a></p>
 
 ## Notas
 * É aconselhável que você já saiba como instalar o Arch da forma tradicional, seguindo o [**guia de instalação**](https://wiki.archlinux.org/index.php/Installation_guide_(Português)) disponível na ArchWiki, o objetivo deste script é acelerar as minhas instalações e não pular etapas no aprendizado.
