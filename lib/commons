@@ -1,0 +1,137 @@
+# ============================================================================
+# COMMON FUNCTIONS
+# ----------------------------------------------------------------------------
+
+_print_title() {
+  clear
+  T_COLS=$(tput cols)
+  BORDER_COLOR=${BBLACK}
+  COLS_APP_VERSION=${#APP_VERSION}
+  COLS_APP_TITLE=${#APP_TITLE}
+  COLS_TITLE=${#1}
+  _print_dline
+  echo -ne "${BBLACK}${RESET}${BYELLOW} $1 ${RESET}"
+  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 4 )) | tr -d "[:digit:]")${RESET}"
+  echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  _print_dline
+}
+
+_print_subtitle() {
+  echo -e "\n${BWHITE}:: $1${RESET}\n"
+}
+
+_print_select() {
+  echo -e "\n${BWHITE}$1${RESET}\n"
+}
+
+_print_item() {
+  REM_COLS=$(( 23 - ${#1} ))
+  echo -ne "${BBLACK}$1:${RESET}"
+  echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
+  echo -e "${WHITE}$2${RESET}"
+}
+
+_print_items() {
+  T_COLS=$(tput cols)
+  echo -e "${BBLACK}$1:${RESET}"
+  echo -e "${WHITE}$2${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_info() {
+  T_COLS=$(tput cols)
+  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_warning() {
+  T_COLS=$(tput cols)
+  echo -e "${BYELLOW}WARNING:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_danger() {
+  T_COLS=$(tput cols)
+  echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+}
+
+_print_action() {
+  echo -ne "${BBLACK}$1 ${RESET}${WHITE}$2 ${RESET}"
+  tput sc
+}
+
+_print_done() {
+  tput rc
+  echo -e "${BGREEN}done${RESET}"
+}
+
+_print_error() {
+  tput rc
+  echo -e "${BRED}error${RESET}"
+}
+
+_print_line() {
+  T_COLS=$(tput cols)
+  echo -e "${BBLACK}$(seq -s '-' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
+}
+
+_print_dline() {
+  T_COLS=$(tput cols)
+  echo -e "${BBLACK}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
+}
+
+_progress() {
+  tput civis
+  _spinny() {
+    local spin="/-\|"
+    tput cuf 2
+    echo -ne "\b${BBLACK}${spin:i++%${#spin}:1}${RESET}"
+  }
+  while true; do
+    if kill -0 "$PID" &> /dev/null; then
+      tput rc
+      _spinny
+      sleep 0.2
+    else
+      wait "$PID"
+      RETCODE=$?
+      if [ $RETCODE == 0 ] || [ $RETCODE == 255 ]; then
+        _print_done
+      else
+        _print_error
+      fi
+      break
+    fi
+  done
+  tput cnorm
+}
+
+_print_exit() {
+  _print_line
+  echo -e "\n${BGREEN}Script encerrado!${RESET}\n"
+}
+
+_read_input_text() {
+  printf "%s" "${BGREEN}$1 ${RESET}"
+}
+
+_read_input_option() {
+  printf "%s" "${BGREEN}$1${RESET}"
+  read -r OPTION
+}
+
+_contains_element() {
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && break; done;
+}
+
+_invalid_option() {
+  echo
+  _print_warning "Invalid option. Try again..."
+}
+
+_pause_function() {
+  echo
+  _print_line
+  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
+}
+
+_umount_partitions() {
+  umount -R "${ROOT_MOUNTPOINT}" &> /dev/null
+}
