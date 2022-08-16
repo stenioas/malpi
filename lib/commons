@@ -6,13 +6,13 @@ _print_title() {
   clear
   T_COLS=$(tput cols)
   BORDER_COLOR=${BBLACK}
-  COLS_APP_VERSION=${#APP_VERSION}
-  COLS_APP_TITLE=${#APP_TITLE}
+  COLS_APP_VERSION=${#SCRIPT_VERSION}
+  COLS_APP_TITLE=${#SCRIPT_TITLE}
   COLS_TITLE=${#1}
   _print_dline
-  echo -ne "${BBLACK}${RESET}${BYELLOW} $1 ${RESET}"
+  echo -ne "${BBLACK}${RESET}${BWHITE} $1 ${RESET}"
   echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 4 )) | tr -d "[:digit:]")${RESET}"
-  echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
+  echo -e "${WHITE} ${SCRIPT_TITLE} ${SCRIPT_VERSION}${RESET}"
   _print_dline
 }
 
@@ -53,7 +53,7 @@ _print_danger() {
 }
 
 _print_action() {
-  echo -e "[ ] ${WHITE}$1 ${RESET}${BLUE}$2 ${RESET}"
+  echo -e "[ ] ${CYAN}$1 ${RESET}${BWHITE}$2 ${RESET}"
   tput cuu1
   tput sc
 }
@@ -61,23 +61,23 @@ _print_action() {
 _print_done() {
   tput rc
   tput cuf 1
-  echo -e "${BGREEN}✔${RESET}"
+  echo -e "${BGREEN}*${RESET}"
 }
 
 _print_error() {
   tput rc
   tput cuf 1
-  echo -e "${BRED}✗${RESET}"
+  echo -e "${BRED}x${RESET}"
 }
 
 _print_line() {
   T_COLS=$(tput cols)
-  echo -e "${BBLACK}$(seq -s '-' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
+  echo -e "${CYAN}$(seq -s '-' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
 _print_dline() {
   T_COLS=$(tput cols)
-  echo -e "${BBLACK}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
+  echo -e "${CYAN}$(seq -s '=' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
 }
 
 _progress() {

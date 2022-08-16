@@ -119,7 +119,7 @@ _is_package_installed() {
 _set_font() {
   _package_install "terminus-font"
   _print_action "Configurando" "fonte do tty"
-  setfont ter-116b &> /dev/null & PID=$!; _progress $PID
+  setfont ter-124n &> /dev/null & PID=$!; _progress $PID
 }
 
 # ============================================================================
@@ -213,27 +213,27 @@ _format_partitions() {
     _print_action "Formatando" "${ROOT_DEVICE}"
     mkfs.btrfs -f -L Archlinux "${ROOT_DEVICE}" &> /dev/null & PID=$!; _progress $PID
     mount "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null
-    _print_action "Criando" "subvolume ${MAGENTA}@${RESET}"
+    _print_action "Criando" "subvolume ${BWHITE}@${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
-    _print_action "Criando" "subvolume ${MAGENTA}@home${RESET}"
+    _print_action "Criando" "subvolume ${BWHITE}@home${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Criando" "subvolume ${MAGENTA}@log${RESET}"
+    _print_action "Criando" "subvolume ${BWHITE}@log${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@log &> /dev/null & PID=$!; _progress $PID
-    _print_action "Criando" "subvolume ${MAGENTA}@pkg${RESET}"
+    _print_action "Criando" "subvolume ${BWHITE}@pkg${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@pkg &> /dev/null & PID=$!; _progress $PID
-    _print_action "Criando" "subvolume ${MAGENTA}@snapshots${RESET}"
+    _print_action "Criando" "subvolume ${BWHITE}@snapshots${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
-    _print_action "Montando" "${MAGENTA}@${RESET} em /"
+    _print_action "Montando" "${BWHITE}@${RESET} em /"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
     mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/log,var/cache/pacman/pkg,.snapshots} &> /dev/null
-    _print_action "Montando" "${MAGENTA}@home${RESET} em /home"
+    _print_action "Montando" "${BWHITE}@home${RESET} em /home"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Montando" "${MAGENTA}@log${RESET} em /var/log"
+    _print_action "Montando" "${BWHITE}@log${RESET} em /var/log"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@log "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/log &> /dev/null & PID=$!; _progress $PID
-    _print_action "Montando" "${MAGENTA}@pkg${RESET} em /var/cache/pacman/pkg"
+    _print_action "Montando" "${BWHITE}@pkg${RESET} em /var/cache/pacman/pkg"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@pkg "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
-    _print_action "Montando" "${MAGENTA}@snapshots${RESET} em /.snapshots"
+    _print_action "Montando" "${BWHITE}@snapshots${RESET} em /.snapshots"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
     ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
@@ -291,16 +291,6 @@ _format_partitions() {
   done
   _format_root_partition
   _format_efi_partition
-  _pause_function
-}
-
-_rank_mirrors() {
-  _print_subtitle "Espelhos de rede"
-  _print_action "Executando" "reflector --score 10 --save /etc/pacman.d/mirrorlist"
-  [[ ! -f /etc/pacman.d/mirrorlist.backup ]] && cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-  reflector --score 10 --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
-  _print_subtitle "Atualizando"
-  pacman -Syy
   _pause_function
 }
 
@@ -364,15 +354,15 @@ _set_locale() {
   _print_title "CONFIGURANDO O LOCALE"
   echo
   _print_item "Locale" "${LOCALE}"
-  _print_item "Keymap" "${KAYMAP}"
+  _print_item "Keymap" "${KEYMAP}"
   echo
   sed -i "s/#\(${LOCALE}\)/\1/" ${ROOT_MOUNTPOINT}/etc/locale.gen
   _print_action "Executando" "locale-gen"
   arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null & PID=$!; _progress $PID
   _print_action "Executando" "echo \"LANG=${LOCALE}.UTF-8\" > /etc/locale.conf"
   echo -e "LANG=${LOCALE}.UTF-8" > "${ROOT_MOUNTPOINT}"/etc/locale.conf & PID=$!; _progress $PID
-  _print_action "Running" "echo \"KEYMAP=${KAYMAP}\" > /etc/vconsole.conf"
-  echo -e "KEYMAP=${KAYMAP}" > "${ROOT_MOUNTPOINT}"/etc/vconsole.conf & PID=$!; _progress $PID
+  _print_action "Running" "echo \"KEYMAP=${KEYMAP}\" > /etc/vconsole.conf"
+  echo -e "KEYMAP=${KEYMAP}" > "${ROOT_MOUNTPOINT}"/etc/vconsole.conf & PID=$!; _progress $PID
   _pause_function
 }
 
@@ -408,7 +398,7 @@ _set_bootloader() {
   _print_title "BOOTLOADER"
   _print_item "Bootloader" "${BOOTLOADER}"
   case "${BOOTLOADER}" in
-    "Grub")
+    "grub")
       _print_subtitle "Instalando pacotes"
       _pacstrap_install "grub grub-btrfs efibootmgr"
       echo
@@ -426,7 +416,7 @@ _set_bootloader() {
       arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
       _pause_function
       ;;
-    "Systemd-boot")
+    "systemd-boot")
       _print_subtitle "Configurando systemd-boot"
       arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
       if [[ $LUKS -eq 1 ]]; then
@@ -493,7 +483,7 @@ _install_finish() {
   _print_item "Timezone" "${ZONE}/${SUBZONE}"
   _print_item "Relógio do Hardware" "${CLOCK_CHOICE}"
   _print_item "Locale" "${LOCALE}"
-  _print_item "Keymap" "${KAYMAP}"
+  _print_item "Keymap" "${KEYMAP}"
   _print_item "Hostname" "${NEW_HOSTNAME}"
   _print_item "Bootloader" "${BOOTLOADER}"
   echo

@@ -19,13 +19,15 @@
 # TESTS
 # ----------------------------------------------------------------------------
 
+_print_title "Arch Linux - Script de instalação"
 _check_archlinux
 _check_root
 _check_uefimode
 _check_connection
 _check_pacman_blocked
 _set_font
-_pause_function
+_print_line
+read -e -sn 1 -p "${BGREEN}Precione qualquer tecla para iniciar!${RESET}"
 
 # ============================================================================
 # EXECUTION
@@ -33,7 +35,6 @@ _pause_function
 
 _select_disk
 _format_partitions
-_rank_mirrors
 _install_base
 _generate_fstab
 _set_timezone
