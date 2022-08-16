@@ -1,79 +1,6 @@
-#!/usr/bin/env bash
-#
-# My Arch Linux Personal Installer (malpi)
-# ----------------------------------------------------------------------#
-#
-# author    : stenioas
-#             https://github.com/stenioas
-# project   : https://github.com/stenioas/malpi
-#
-# ----------------------------------------------------------------------#
-# 
-# MIT License
-# 
-# Copyright (c) 2020 Stenio Almeida da Silveira
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#
-# ----------------------------------------------------------------------#
-#
-# -------------------- GLOBAL VARIABLES
 
-  # --- COLORS
-    BOLD=$(tput bold)
-    RESET=$(tput sgr0)
 
-    # Regular Colors
-    BLACK=$(tput setaf 0)
-    RED=$(tput setaf 1)
-    GREEN=$(tput setaf 2)
-    YELLOW=$(tput setaf 3)
-    BLUE=$(tput setaf 4)
-    PURPLE=$(tput setaf 5)
-    CYAN=$(tput setaf 6)
-    WHITE=$(tput setaf 7)
 
-    # Bold Colors
-    BBLACK=${BOLD}${BLACK}
-    BRED=${BOLD}${RED}
-    BGREEN=${BOLD}${GREEN}
-    BYELLOW=${BOLD}${YELLOW}
-    BBLUE=${BOLD}${BLUE}
-    BPURPLE=${BOLD}${PURPLE}
-    BCYAN=${BOLD}${CYAN}
-    BWHITE=${BOLD}${WHITE}
-
-  # --- ESSENTIALS
-    APP_TITLE="malpi"
-    APP_VERSION="0.04"
-    IS_XORG=0
-    IS_WAYLAND=0
-    T_COLS=$(tput cols) #NUMBER OF SCREEN COLUMNS
-    SPIN="/-\|" #SPINNER POSITION
-
-  # --- MOUNTPOINTS - You may change
-    EFI_MOUNTPOINT="/boot"
-    ROOT_MOUNTPOINT="/mnt"
-    CRYPT_NAME="cryptluks"
-
-  # --- PROMPT
-    PS3="${BGREEN}> ${RESET}"
 
 # ----------------------------------------------------------------------#
 
@@ -81,7 +8,6 @@
 
 _setup_install(){
   _set_font
-  _readme
   _rank_mirrors
   _select_disk
   _format_partitions
@@ -112,672 +38,6 @@ _setup_post(){
 
 # ----------------------------------------------------------------------#
 
-# -------------------- BASE FUNCTIONS
-
-# -------------------- INSTALL SECTION
-
-_readme() {
-  T_COLS=$(tput cols)
-  _print_title "README"
-cat <<EOF
-
-- This script assumes that you know your keymap and it will already be loaded.
-
-- Only ${BYELLOW}UEFI${RESET} mode is supported.
-
-- This script uses only two partitions, ${BYELLOW}ESP${RESET} and ${BYELLOW}ROOT${RESET}.
-
-- The root partition will be formatted with the ${BYELLOW}BTRFS${RESET} filesystem.
-
-- This script will create 4 subvolumes:
-      ${BYELLOW}@${RESET} for /
-      ${BYELLOW}@home${RESET} for /home
-      ${BYELLOW}@pkgs${RESET} for /var/cache/pacman/pkgs
-      ${BYELLOW}@snapshots${RESET} for /.snapshots
-
-- The EFI partition can be formatted in FAT32 if the user wants to.
-
-- ${BYELLOW}SWAP${RESET} is not supported..
-
-- ${BYELLOW}NetworkManager${RESET} is installed by default.
-
-- Only ${BYELLOW}Grub${RESET} and ${BYELLOW}Systemd-boot${RESET} are available.
-
-- This script can be cancelled at any time with ${BYELLOW}CTRL+C${RESET}.
-
-${BRED}- THIS SCRIPT IS NOT YET COMPLETE!${RESET}
-  
-${BWHITE}- Btw, thank's for your time!${RESET}
-EOF
-  _pause_function
-}
-
-_rank_mirrors() {
-  _print_title "MIRRORS"
-  #COUNTRIES_LIST=("Australia" "Austria" "Bangladesh" "Belarus" "Belgium" "Bosnia and Herzegovina" "Brazil" "Bulgaria" "Canada" "Chile" "China" "Colombia" "Croatia" "Czechia" "Denmark" "Ecuador" "Finland" "France" "Georgia" "Germany" "Greece" "Hong Kong" "Hungary" "Iceland" "India" "Indonesia" "Iran" "Ireland" "Israel" "Italy" "Japan" "Kazakhstan" "Kenya" "Latvia" "Lithuania" "Luxembourg" "Moldova" "Netherlands" "New Caledonia" "New Zealand" "North Macedonia" "Norway" "Pakistan" "Paraguay" "Philippines" "Poland" "Portugal" "Romania" "Russia" "Serbia" "Singapore" "Slovakia" "Slovenia" "South Africa" "South Korea" "Spain" "Sweden" "Switzerland" "Taiwan" "Thailand" "Turkey" "Ukraine" "United Kingdom" "United States" "Vietnam")
-  items=$(reflector --list-countries | sed '1,2d' | sed 's/[0-9]//g' | sed 's/\s*$//g' | sed -r 's/(.*) /\1./' | cut -d '.' -f 1 | sed 's/\s*$//g')
-  COUNTRIES_LIST=()
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  for item in ${items}; do
-    COUNTRIES_LIST+=("${item}")
-  done
-  IFS=$SAVEIFS
-  _print_select "Select country:"
-  select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
-    if _contains_element "${COUNTRY_CHOICE}" "${COUNTRIES_LIST[@]}"; then
-      echo
-      _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
-      reflector -c "${COUNTRY_CHOICE}" --sort score --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
-      echo
-      _read_input_option "Edit mirrorlist file? [y/N]: "
-      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-        nano /etc/pacman.d/mirrorlist
-        _print_title "MIRRORS"
-      fi
-      _print_subtitle "Update"
-      pacman -Syy
-      break
-    else
-      _invalid_option
-    fi
-  done
-  if ! [ -f /etc/pacman.d/mirrorlist.backup ]; then
-    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-  fi
-  _pause_function
-}
-
-_select_disk() {
-  _print_title "PARTITION THE DISKS"
-  items=$(lsblk -d -p -n -l -o NAME,SIZE -e 7,11)
-  DISKS_LIST=()
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  for item in ${items}; do
-    DISKS_LIST+=("${item}")
-  done
-  IFS=$SAVEIFS
-  _print_select "Select disk:"
-  select DISK in "${DISKS_LIST[@]}"; do
-    if _contains_element "${DISK}" "${DISKS_LIST[@]}"; then
-      break
-    else
-      _invalid_option
-    fi
-  done
-  INSTALL_DISK=${DISK%%\ *}
-  echo
-  _print_line
-  _read_input_option "Edit disk partitions? [y/N]: "
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    cfdisk "${INSTALL_DISK}"
-    _print_title "PARTITION THE DISKS"
-    echo
-    _print_item "Selected disk" "${INSTALL_DISK}"
-    _pause_function
-  fi
-}
-
-_format_partitions() {
-  _format_root_partition() {
-    _print_title "FORMAT THE PARTITIONS - MOUNT THE FILE SYSTEMS"
-    _print_select "Select ${BYELLOW}ROOT${RESET}${BCYAN} partition:${RESET}"
-    _print_danger "All data on the partition will be LOST!"
-    echo
-    _umount_partitions
-    # Luks volumes open?
-    items=$(lsblk | awk '{print $6}' | grep 'crypt')
-    LUKS_VOLUMES=()
-    SAVEIFS=$IFS
-    IFS=$'\n'
-    for item in ${items}; do
-      LUKS_VOLUMES+=("${item}")
-    done
-    IFS=$SAVEIFS
-    if ! [ ${#LUKS_VOLUMES[@]} -eq 0 ]; then # Close luks volumes!
-      items=$(dmsetup ls --target crypt | awk '{print $1}')
-      LUKS_OPEN=()
-      SAVEIFS=$IFS
-      IFS=$'\n'
-      for item in ${items}; do
-        LUKS_OPEN+=("${item}")
-      done
-      IFS=$SAVEIFS
-      for item in "${LUKS_OPEN[@]}"; do
-        cryptsetup close /dev/mapper/"${item}"
-      done
-    fi
-    select PARTITION in "${PARTITIONS_LIST[@]}"; do
-      if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
-        PARTITION_NUMBER=$((REPLY -1))
-        ROOT_PARTITION="$PARTITION"
-        ROOT_DEVICE="$PARTITION"
-        LUKS=0
-        break;
-      else
-        _invalid_option
-      fi
-    done
-    echo
-    _read_input_option "Do you want to encrypt the root partition? [y/N]: "
-    if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-      echo
-      _read_input_option "${BRED}Are you sure? [y/N]: ${RESET}"
-      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-        _print_subtitle "luksFormat"
-        cryptsetup luksFormat "$ROOT_PARTITION" && _print_subtitle "luksOpen" && cryptsetup open "${ROOT_PARTITION}" "${CRYPT_NAME}" && LUKS=1 && ROOT_DEVICE="/dev/mapper/${CRYPT_NAME}"
-      fi
-    fi
-    echo
-    _print_action "Format" "${ROOT_DEVICE}"
-    mkfs.btrfs -f -L Archlinux "${ROOT_DEVICE}" &> /dev/null & PID=$!; _progress $PID
-    mount "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null
-    _print_action "Creating" "subvolume ${PURPLE}@${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating" "subvolume ${PURPLE}@home${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating" "subvolume ${PURPLE}@pkgs${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@pkgs &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating" "subvolume ${PURPLE}@snapshots${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
-    _umount_partitions
-    _print_action "Mount" "${PURPLE}@${RESET} at /"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
-    mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
-    _print_action "Mount" "${PURPLE}@home${RESET} at /home"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "${PURPLE}@pkgs${RESET} at /var/cache/pacman/pkg"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@pkgs "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "${PURPLE}@snapshots${RESET} at /.snapshots"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
-    _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
-    ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
-    _pause_function
-  }
-
-  _format_efi_partition() {
-    _print_title "FORMAT THE PARTITIONS - MOUNT THE FILE SYSTEMS"
-    _print_select "Select ${BYELLOW}EFI${RESET}${BCYAN} partition:${RESET}"
-    select PARTITION in "${PARTITIONS_LIST[@]}"; do
-      if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
-        PARTITION_NUMBER=$((REPLY -1))
-        EFI_PARTITION="${PARTITION}"
-        break;
-      else
-        _invalid_option
-      fi
-    done
-    echo
-    _read_input_option "Format EFI partition? [y/N]: "
-    if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-      echo
-      _read_input_option "${BRED}All data will be LOST! Confirm format EFI partition? [y/N]: ${RESET}"
-      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-        echo
-        _print_action "Format" "${EFI_PARTITION}"
-        mkfs.fat -F32 "${EFI_PARTITION}" &> /dev/null & PID=$!; _progress $PID
-        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-        _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
-        mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
-      else
-        echo
-        mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-        _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
-        mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
-      fi
-    else
-      echo
-      mkdir -p ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null
-      _print_action "Mount" "${EFI_PARTITION} at ${EFI_MOUNTPOINT}"
-      mount -t vfat "${EFI_PARTITION}" ${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT} &> /dev/null & PID=$!; _progress $PID
-    fi
-    _check_mountpoint "${EFI_PARTITION}" "${ROOT_MOUNTPOINT}${EFI_MOUNTPOINT}"
-  }
-
-  _disable_partition() {
-    unset PARTITIONS_LIST["${PARTITION_NUMBER}"]
-    PARTITIONS_LIST=("${PARTITIONS_LIST[@]}")
-  }
-
-  _check_mountpoint() {
-    if mount | grep "$2" &> /dev/null; then
-      echo
-      _print_info "Partition(s) successfully mounted!"
-      _disable_partition "$1"
-    else
-      echo
-      _print_warning "Partition(s) not successfully mounted!"
-    fi
-  }
-  items=$(lsblk -p -l | grep 'part' | awk '{print $1}')
-  PARTITIONS_LIST=()
-  for item in ${items}; do
-    PARTITIONS_LIST+=("${item}")
-  done
-  _format_root_partition
-  _format_efi_partition
-  _pause_function
-}
-
-_install_base() {
-  _print_title "BASE"
-  _print_select "Select ${BYELLOW}KERNEL${RESET}${BCYAN} version:${RESET}"
-  KERNEL_LIST=("Linux" "Linux-lts" "Linux-zen" "Linux-hardened" "None")
-  select KERNEL_CHOICE in "${KERNEL_LIST[@]}"; do
-    if _contains_element "${KERNEL_CHOICE}" "${KERNEL_LIST[@]}"; then
-      KERNEL_CHOICE="${KERNEL_CHOICE}"
-      break;
-    else
-      _invalid_option
-    fi
-  done
-  case $KERNEL_CHOICE in
-    "Linux")
-      KERNEL_VERSION="linux"
-      ;;
-    "Linux-lts")
-      KERNEL_VERSION="linux-lts"
-      ;;
-    "Linux-zen")
-      KERNEL_VERSION="linux-zen"
-      ;;
-    "Linux-hardened")
-      KERNEL_VERSION="linux-hardened"
-      ;;
-    "None")
-      KERNEL_VERSION="None"
-      ;;
-  esac
-  _print_title "BASE"
-  _print_select "Select microcode:${RESET}"
-  MICROCODE_LIST=("amd-ucode" "intel-ucode" "None")
-  select MICROCODE_CHOICE in "${MICROCODE_LIST[@]}"; do
-    if _contains_element "${MICROCODE_CHOICE}" "${MICROCODE_LIST[@]}"; then
-      MICROCODE_CHOICE="${MICROCODE_CHOICE}"
-      break;
-    else
-      _invalid_option
-    fi
-  done
-  case ${MICROCODE_CHOICE} in
-    "amd-ucode")
-      MICROCODE_VERSION="amd-ucode"
-      ;;
-    "intel-ucode")
-      MICROCODE_VERSION="intel-ucode"
-      ;;
-    "None")
-      MICROCODE_VERSION="None"
-      ;;
-  esac
-  _print_title "BASE"
-  echo
-  _print_item "Kernel version" "${KERNEL_VERSION}"
-  _print_item "Microcode" "${MICROCODE_VERSION}"
-  _print_subtitle "Packages"
-  _pacstrap_install "base base-devel"
-  if [[ "${KERNEL_VERSION}" != "None" ]]; then
-    _pacstrap_install "${KERNEL_VERSION}"
-    _pacstrap_install "${KERNEL_VERSION}-headers"
-    _pacstrap_install "linux-firmware"
-  fi
-  if [[ "${MICROCODE_VERSION}" != "None" ]]; then
-    _pacstrap_install "${MICROCODE_VERSION}"
-  fi
-  _pacstrap_install "btrfs-progs nano"
-  _pacstrap_install "networkmanager"
-  _print_subtitle "Services"
-  _print_action "Enabling" "NetworkManager"
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable NetworkManager &> /dev/null & PID=$!; _progress $PID
-  _pause_function
-}
-
-_fstab_generate() {
-  _print_title "FSTAB"
-  echo
-  _print_action "Running" "genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab"
-  genfstab -U ${ROOT_MOUNTPOINT} > ${ROOT_MOUNTPOINT}/etc/fstab & PID=$!; _progress $PID
-  echo
-  _print_line
-  _read_input_option "Edit fstab file? [y/N]: "
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    nano ${ROOT_MOUNTPOINT}/etc/fstab
-  fi
-}
-
-_set_timezone() {
-  _print_title "TIME ZONE - SYSTEM CLOCK"
-  # ZONE SECTION
-  local items=""
-  items=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
-  ZONE_LIST=()
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  for item in ${items}; do
-    ZONE_LIST+=("${item}")
-  done
-  IFS=$SAVEIFS
-  _print_select "Select zone:"
-  select ZONE in "${ZONE_LIST[@]}"; do
-    if _contains_element "$ZONE" "${ZONE_LIST[@]}"; then
-      items=$(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///')
-      SUBZONE_LIST=()
-      SAVEIFS=$IFS
-      IFS=$'\n'
-      for item in ${items}; do
-        SUBZONE_LIST+=("${item}")
-      done
-      IFS=$SAVEIFS
-      _print_title "TIME ZONE - SYSTEM CLOCK"
-      _print_select "Select subzone:"
-      select SUBZONE in "${SUBZONE_LIST[@]}"; do
-        if _contains_element "$SUBZONE" "${SUBZONE_LIST[@]}"; then
-          break
-        else
-          _invalid_option
-        fi
-      done
-      break
-    else
-      _invalid_option
-    fi
-  done
-  _print_title "TIME ZONE - SYSTEM CLOCK"
-  CLOCK_LIST=("UTC" "Localtime")
-  _print_select "Select time standard:"
-  select CLOCK_CHOICE in "${CLOCK_LIST[@]}"; do
-    if _contains_element "${CLOCK_CHOICE}" "${CLOCK_LIST[@]}"; then
-      CLOCK_CHOICE="${CLOCK_CHOICE}"
-      break;
-    else
-      _invalid_option
-    fi
-  done
-  _print_title "TIME ZONE - SYSTEM CLOCK"
-  echo
-  _print_item "Timezone" "${ZONE}/${SUBZONE}"
-  _print_item "Hardware Clock" "${CLOCK_CHOICE}"
-  echo
-  _print_action "Running" "timedatectl set-ntp true"
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
-  _print_action "Running" "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
-  arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/"${ZONE}"/"${SUBZONE}" /etc/localtime &> /dev/null & PID=$!; _progress $PID
-  arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
-  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf 
-  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
-  if [[ "${CLOCK_CHOICE}" = "UTC" ]]; then
-    _print_action "Running" "hwclock --systohc --utc"
-    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --utc &> /dev/null & PID=$!; _progress $PID
-  else
-    _print_action "Running" "hwclock --systohc --localtime"
-    arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --localtime &> /dev/null & PID=$!; _progress $PID
-  fi
-  _pause_function
-}
-
-_set_localization() {
-  _print_title "LOCALIZATION"
-  local items=""
-  items=$(grep UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
-  LOCALE_LIST=()
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  for item in ${items}; do
-    LOCALE_LIST+=("${item}")
-  done
-  IFS=$SAVEIFS
-  _print_select "Select locale:"
-  select LOCALE in "${LOCALE_LIST[@]}"; do
-    if _contains_element "$LOCALE" "${LOCALE_LIST[@]}"; then
-      LOCALE_UTF8="${LOCALE}.UTF-8"
-      break
-    else
-      _invalid_option
-    fi
-  done
-  _print_title "LOCALIZATION"
-  local items=""
-  items=$(find /usr/share/kbd/keymaps/ -type f -printf "%f\n" | sort -V | sed 's/.map.gz//g')
-	KEYMAP_LIST=()
-  KEYMAP_CHOICE="br-abnt2"
-  SAVEIFS=$IFS
-  IFS=$'\n'
-  for item in ${items}; do
-    KEYMAP_LIST+=("${item}")
-  done
-  IFS=$SAVEIFS
-  echo
-  _print_info "The default keymap will be set to 'br-abnt2' in vconsole.conf"
-  echo
-  _read_input_option "Change default keymap? [y/N]: "
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    echo
-    _read_input_text "Type a keymap:"
-    read -r KEYMAP_CHOICE
-    while ! _contains_element "${KEYMAP_CHOICE}" "${KEYMAP_LIST[@]}"; do
-      _print_title "LOCALIZATION"
-      echo
-      _print_warning "This option is not available!"
-      echo
-      _read_input_text "Type a keymap:"
-      read -r KEYMAP_CHOICE
-    done
-  fi
-  _print_title "LOCALIZATION"
-  echo
-  _print_item "Locale" "${LOCALE}"
-  _print_item "Keymap" "${KEYMAP_CHOICE}"
-  echo
-  sed -i "s/#\(${LOCALE}\)/\1/" ${ROOT_MOUNTPOINT}/etc/locale.gen
-  _print_action "Running" "locale-gen"
-  arch-chroot ${ROOT_MOUNTPOINT} locale-gen &> /dev/null & PID=$!; _progress $PID
-  _print_action "Running" "echo \"LANG=${LOCALE_UTF8}\" > /etc/locale.conf"
-  echo -e "LANG=${LOCALE_UTF8}" > "${ROOT_MOUNTPOINT}"/etc/locale.conf & PID=$!; _progress $PID
-  _print_action "Running" "echo \"KEYMAP=${KEYMAP_CHOICE}\" > /etc/vconsole.conf"
-  echo -e "KEYMAP=${KEYMAP_CHOICE}" > "${ROOT_MOUNTPOINT}"/etc/vconsole.conf & PID=$!; _progress $PID
-  _pause_function
-}
-
-_set_network() {
-  _print_title "NETWORK CONFIGURATION"
-  echo
-  _read_input_text "Type a hostname:"
-  read -r NEW_HOSTNAME
-  echo
-  while [[ "${NEW_HOSTNAME}" = "" ]]; do
-    _print_title "NETWORK CONFIGURATION"
-    echo
-    _print_warning "You must type a hostname!"
-    echo
-    _read_input_text "Type a hostname:"
-    read -r NEW_HOSTNAME
-    echo
-  done
-  NEW_HOSTNAME=$(echo "$NEW_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-  _print_action "Setting" "hostname file"
-  echo "${NEW_HOSTNAME}" > ${ROOT_MOUNTPOINT}/etc/hostname & PID=$!; _progress $PID
-  _print_action "Setting" "hosts file"
-  echo -e "127.0.0.1 localhost.localdomain localhost" > ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "::1 localhost.localdomain localhost" >> ${ROOT_MOUNTPOINT}/etc/hosts
-  echo -e "127.0.1.1 ${NEW_HOSTNAME}.localdomain ${NEW_HOSTNAME}" >> ${ROOT_MOUNTPOINT}/etc/hosts & PID=$!; _progress $PID
-  _pause_function  
-}
-
-_mkinitcpio_generate() {
-  _print_title "INITRAMFS"
-  [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/modconf block filesystems keyboard/keyboard keymap modconf block encrypt filesystems/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
-  echo
-  _read_input_option "Edit mkinitcpio.conf file? [y/N]: "
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    nano ${ROOT_MOUNTPOINT}/etc/mkinitcpio.conf
-  fi
-  _print_title "INITRAMFS"
-  echo
-  arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
-  _pause_function
-}
-
-_root_passwd() {
-  PASSWD_CHECK=0
-  _print_title "ROOT PASSWORD"
-  echo
-  arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
-  while [[ $PASSWD_CHECK == 0 ]]; do
-    _print_title "ROOT PASSWORD"
-    echo
-    _print_warning "The password does not match!"
-    echo
-    arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
-  done
-  _pause_function
-}
-
-_set_bootloader() {
-  _print_title "BOOTLOADER"
-  BOOTLOADER_LIST=("Grub" "Systemd-boot" "None")
-  _print_select "Select bootloader:"
-  select BOOTLOADER_CHOICE in "${BOOTLOADER_LIST[@]}"; do
-    if _contains_element "${BOOTLOADER_CHOICE}" "${BOOTLOADER_LIST[@]}"; then
-      BOOTLOADER_CHOICE="${BOOTLOADER_CHOICE}"
-      break;
-    else
-      _invalid_option
-    fi
-  done
-  case "${BOOTLOADER_CHOICE}" in
-    "Grub")
-      _print_title "BOOTLOADER"
-      echo
-      _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-      echo
-      _read_input_text "Type a grub name entry:"
-      read -r BOOTLOADER_NAME
-      while [[ "${BOOTLOADER_NAME}" = "" ]]; do
-        _print_title "BOOTLOADER"
-        echo
-        _print_warning "You must type a grub name entry!"
-        echo
-        _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-        echo
-        _read_input_text "Type a grub name entry:"
-        read -r BOOTLOADER_NAME
-      done
-      _print_subtitle "Packages"
-      _pacstrap_install "grub grub-btrfs efibootmgr"
-      echo
-      _read_input_option "Install os-prober? [y/N]: "
-      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-        echo
-        _pacstrap_install "os-prober"
-      fi
-      if [[ $LUKS -eq 1 ]]; then
-        sed -i -e "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${ROOT_UUID}:${CRYPT_NAME} root=\/dev\/mapper\/${CRYPT_NAME} rootflags=subvol=@ rw\"/g" ${ROOT_MOUNTPOINT}/etc/default/grub
-      fi
-      _print_subtitle "Grub install"
-      arch-chroot ${ROOT_MOUNTPOINT} grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id="${BOOTLOADER_NAME}" --recheck
-      _print_subtitle "Grub configuration file"
-      arch-chroot ${ROOT_MOUNTPOINT} grub-mkconfig -o /boot/grub/grub.cfg
-      _pause_function
-      ;;
-    "Systemd-boot")
-      _print_title "BOOTLOADER"
-      echo
-      _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-      echo
-      _read_input_text "Type a systemd-boot name entry:"
-      read -r BOOTLOADER_NAME
-      while [[ "${BOOTLOADER_NAME}" = "" ]]; do
-        _print_title "BOOTLOADER"
-        echo
-        _print_warning "You must type a systemd-boot name entry!"
-        echo
-        _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-        echo
-        _read_input_text "Type a systemd-boot name entry:"
-        read -r BOOTLOADER_NAME
-      done
-      _print_subtitle "Systemd-boot install"
-      arch-chroot "${ROOT_MOUNTPOINT}" bootctl --path="${EFI_MOUNTPOINT}" install
-      if [[ $LUKS -eq 1 ]]; then
-        {
-          echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
-          if ! [ "${MICROCODE_VERSION}" = "" ]; then
-            echo -e "initrd\t/${MICROCODE_VERSION}.img"
-          fi
-          echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\tcryptdevice=UUID=${ROOT_UUID}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME} rootflags=subvol=@ rw"
-        } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-      else
-        {
-          echo -e "title\t${BOOTLOADER_NAME}\nlinux\t/vmlinuz-${KERNEL_VERSION}"
-          if ! [ "${MICROCODE_VERSION}" = "None" ]; then
-            echo -e "initrd\t/${MICROCODE_VERSION}.img"
-          fi
-          echo -e "initrd\t/initramfs-${KERNEL_VERSION}.img"
-          echo -e "options\troot=UUID=${ROOT_UUID} rootflags=subvol=@ rw"
-        } >> "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-      fi
-      echo -e "default  arch\ntimeout  3" > "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
-      _pause_function
-      nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/entries/arch.conf
-      nano "${ROOT_MOUNTPOINT}""${EFI_MOUNTPOINT}"/loader/loader.conf
-      ;;
-    "None")
-      echo
-      _print_info "Nothing has been changed!"
-      _pause_function
-      ;;
-  esac
-}
-
-_finish_install() {
-  _print_title "FIRST STEP FINISHED"
-  echo
-  _print_info "Your new system has been installed!"
-  echo
-  _print_item "Disk" "${INSTALL_DISK}"
-  _print_item "Root partition" "${ROOT_PARTITION}"
-  if [[ $LUKS -eq 1 ]]; then
-    _print_item "Root encryption" "${BGREEN}Yes${RESET}"
-  else
-    _print_item "Root encryption" "${BRED}No${RESET}"
-  fi
-  _print_item "EFI partition" "${EFI_PARTITION}"
-  _print_item "Kernel version" "${KERNEL_VERSION}"
-  _print_item "Microcode" "${MICROCODE_VERSION}"
-  _print_item "Timezone" "${ZONE}/${SUBZONE}"
-  _print_item "Hardware Clock" "${CLOCK_CHOICE}"
-  _print_item "Locale" "${LOCALE}"
-  _print_item "Keymap" "${KEYMAP_CHOICE}"
-  _print_item "Hostname" "${NEW_HOSTNAME}"
-  _print_item "Bootloader" "${BOOTLOADER_CHOICE}"
-  echo
-  _print_action "Coping" "mirrorlist.backup to /etc/pacman.d/"
-  cp /etc/pacman.d/mirrorlist.backup ${ROOT_MOUNTPOINT}/etc/pacman.d/mirrorlist.backup &> /dev/null & PID=$!; _progress $PID
-  echo
-  _read_input_option "Save a copy of this script in root directory? [Y/n]: "
-  echo
-  if [ "$OPTION" != "n" ] && [ "$OPTION" != "N" ]; then
-    _print_action "Downloading" "malpi to /root"
-    curl -L stenioas.github.io/malpi/malpi > ${ROOT_MOUNTPOINT}/root/malpi 2> /dev/null & PID=$!; _progress $PID
-  fi
-  echo
-  _print_line
-  _read_input_option "${BRED}Reboot system now? [y/N]: ${RESET}"
-  if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
-    clear
-    setfont
-    reboot
-  else
-    setfont
-    clear
-    _print_bye
-    exit 0
-  fi
-}
-
 # -------------------- END INSTALL SECTION
 
 # -------------------- POST INSTALL SECTION
@@ -787,7 +47,7 @@ _create_new_user() {
   echo
   _read_input_text "Type username:"
   read -r USERNAME
-  while [ "${USERNAME}" = "" ]; do
+  while [[ "${USERNAME}" = "" ]]; do
     _print_title "NEW USER"
     echo
     _print_warning "You must type a username!"
@@ -796,7 +56,7 @@ _create_new_user() {
     read -r USERNAME
   done
   USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
-  if [ "$(grep "${USERNAME}" /etc/passwd)" = "" ]; then
+  if [[ "$(grep "${USERNAME}" /etc/passwd)" = "" ]]; then
     echo
     _print_action "Creating" "user ${USERNAME}"
     useradd -m -g users -G wheel "${USERNAME}" & PID=$!; _progress $PID
@@ -824,7 +84,7 @@ _create_new_user() {
   _print_title "USER PASSWORD"
   echo
   passwd "${USERNAME}" && PASSWD_CHECK=1;
-  while [ $PASSWD_CHECK = 0 ]; do
+  while [[ $PASSWD_CHECK = 0 ]]; do
     _print_title "USER PASSWORD"
     echo
     _print_warning "The password does not match!"
@@ -837,7 +97,7 @@ _create_new_user() {
 _enable_multilib(){
   _print_title "MULTILIB"
   ARCHI=$(uname -m)
-  if [ "$ARCHI" = "x86_64" ]; then
+  if [[ "$ARCHI" = "x86_64" ]]; then
     local has_multilib=""
     has_multilib=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
     if [[ -z $has_multilib ]]; then
@@ -892,9 +152,9 @@ _install_xorg() {
 
 _install_vga() {
   _print_title "VIDEO DRIVER"
-  VIDEO_CARD_LIST=("Intel" "Virtualbox" "None")
+  VIDEO_CARD_LIST=("Intel" "Nvidia" "Virtualbox" "None")
   echo
-  _print_info "AMD and NVIDIA will be available soon!"
+  _print_info "AMD will be available soon!"
   _print_select "Select ${BYELLOW}VIDEO${RESET}${BCYAN} driver:${RESET}"
   select VIDEO_CARD in "${VIDEO_CARD_LIST[@]}"; do
     if _contains_element "${VIDEO_CARD}" "${VIDEO_CARD_LIST[@]}"; then
@@ -909,7 +169,7 @@ _install_vga() {
   elif [[ "$VIDEO_CARD" = "AMD" ]]; then
     _print_warning "It's not working yet..."
   elif [[ "$VIDEO_CARD" = "Nvidia" ]]; then
-    _print_warning "It's not working yet..."
+    _package_install "nvidia-dkms nvidia-utils nvidia-settings"
   elif [[ "$VIDEO_CARD" = "Virtualbox" ]]; then
     _print_subtitle "Packages"
     _package_install "virtualbox-guest-utils virtualbox-guest-dkms libvdpau-va-gl"
@@ -1016,7 +276,7 @@ _install_desktop() {
       "None")
         echo
         _read_input_option "${BRED}Are you sure about that? [y/N]: ${RESET}"
-        if [ "$OPTION" != "y" ] && [ "$OPTION" != "Y" ]; then
+        if [[ ${OPTION,,} != "y" ]]; then
           _select_desktop
         fi
         ;;
@@ -1024,7 +284,7 @@ _install_desktop() {
     _pause_function
   }
   _set_keyboard_layout() {
-    if [ $IS_XORG == 1 ] || [ $IS_WAYLAND == 1 ]; then
+    if [[ $IS_XORG -eq 1 ]] || [[ $IS_WAYLAND -eq 1 ]]; then
       _print_title "KEYBOARD LAYOUT"
       local items=""
       items=$(localectl list-x11-keymap-layouts)
@@ -1039,7 +299,7 @@ _install_desktop() {
       _print_info "Keyboard layout will be set to 'br' if not modified!"
       echo
       _read_input_option "Do you want to change keyboard layout now? [y/N]: "
-      if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
+      if [[ ${OPTION,,} == "y" ]]; then
         _print_title "KEYBOARD LAYOUT"
         _print_select "Select keyboard layout for display server(s):"
         select KEYBOARD_LAYOUT in "${KEYBOARD_LAYOUTS_LIST[@]}"; do
@@ -1047,11 +307,11 @@ _install_desktop() {
             if [[ "$KEYBOARD_LAYOUT" != "Cancel" ]]; then
               _print_title "KEYBOARD LAYOUT"
               echo
-              if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
+              if [[ $IS_XORG -eq 1 ]] && [[ "${DESKTOP}" != "None" ]]; then
                 _print_action "Running" "localectl set-x11-keymap \"${KEYBOARD_LAYOUT}\""
                 localectl set-x11-keymap "${KEYBOARD_LAYOUT}" &> /dev/null & PID=$!; _progress $PID
               fi
-              if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
+              if [[ $IS_WAYLAND -eq 1 ]] && [[ "${DESKTOP}" != "None" ]]; then
                 if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
                   _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
                   echo -e "export XKB_DEFAULT_LAYOUT=\"${KEYBOARD_LAYOUT}\"" >> /etc/profile & PID=$!; _progress $PID
@@ -1067,11 +327,11 @@ _install_desktop() {
         done
       else
         echo
-        if [ $IS_XORG == 1 ] && [ "${DESKTOP}" != "None" ]; then
+        if [[ $IS_XORG -eq 1 ]] && [[ "${DESKTOP}" != "None" ]]; then
           _print_action "Running" "localectl set-x11-keymap \"br\" \"\" \"abnt2\""
           localectl set-x11-keymap "br" "" "abnt2" &> /dev/null & PID=$!; _progress $PID
         fi
-        if [ $IS_WAYLAND == 1 ] && [ "${DESKTOP}" != "None" ]; then
+        if [[ $IS_WAYLAND -eq 1 ]] && [[ "${DESKTOP}" != "None" ]]; then
           if ! grep "XKB_DEFAULT_LAYOUT" < /etc/profile &> /dev/null; then
             _print_action "Including" "XKB_DEFAULT_LAYOUT variable into /etc/profile"
             echo -e "export XKB_DEFAULT_LAYOUT=\"br\"" >> /etc/profile & PID=$!; _progress $PID
@@ -1259,224 +519,13 @@ _finish_post() {
   else
     setfont
     clear
-    _print_bye
+    _print_exit
     exit 0
   fi
   exit 0
 }
 
 # --- END POST INSTALL SECTION --- >
-
-# ----------- COMMOM FUNCTIONS
-
-_print_line() {
-  T_COLS=$(tput cols)
-  echo -e "${BBLACK}$(seq -s '-' $(( T_COLS + 1 )) | tr -d "[:digit:]")${RESET}"
-}
-
-_print_title() {
-  clear
-  T_COLS=$(tput cols)
-  BORDER_COLOR=${BBLACK}
-  COLS_APP_VERSION=${#APP_VERSION}
-  COLS_APP_TITLE=${#APP_TITLE}
-  COLS_TITLE=${#1}
-  echo -ne "${BBLACK}[${RESET}${BGREEN} $1 ${RESET}${BBLACK}]${RESET}"
-  echo -ne "${BORDER_COLOR}$(seq -s ' ' $(( T_COLS - COLS_APP_TITLE - COLS_APP_VERSION - COLS_TITLE - 6 )) | tr -d "[:digit:]")${RESET}"
-  echo -e "${BBLACK} ${APP_TITLE} ${APP_VERSION}${RESET}"
-}
-
-_print_subtitle() {
-  echo -e "\n${BWHITE}:: $1${RESET}\n"
-}
-
-_print_select() {
-  echo -e "\n${BWHITE}$1${RESET}\n"
-}
-
-_print_item() {
-  REM_COLS=$(( 23 - ${#1} ))
-  echo -ne "${BBLACK}$1:${RESET}"
-  echo -ne "${BBLACK}$(seq -s ' ' $REM_COLS | tr -d "[:digit:]")${RESET}"
-  echo -e "${WHITE}$2${RESET}"
-}
-
-_print_items() {
-  echo -e "${BBLACK}$1:${RESET}"
-  echo -e "${WHITE}$2${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_info() {
-  T_COLS=$(tput cols)
-  echo -e "${BBLUE}INFO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_warning() {
-  T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_danger() {
-  T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
-}
-
-_print_action() {
-  echo -ne "${BBLACK}$1 ${RESET}${WHITE}$2 ${RESET}"
-  tput sc
-}
-
-_print_ok() {
-  tput rc
-  echo -e "${BGREEN}done${RESET}"
-}
-
-_print_error() {
-  tput rc
-  echo -e "${BRED}error${RESET}"
-}
-
-_progress() {
-  _spinny() {
-    tput cuf 2
-    echo -ne "\b${BBLACK}${SPIN:i++%${#SPIN}:1}${RESET}"
-  }
-  tput civis
-  while true; do
-    if kill -0 "$PID" &> /dev/null; then
-    #if [[ $? == 0 ]]; then
-      tput rc
-      _spinny
-      sleep 0.2
-    else
-      wait "$PID"
-      RETCODE=$?
-      if [ $RETCODE == 0 ] || [ $RETCODE == 255 ]; then
-        _print_ok
-      else
-        _print_error
-      fi
-      break
-    fi
-  done
-  tput cnorm
-}
-
-_print_bye() {
-  echo -e "\n${BGREEN}Bye!${RESET}\n"
-}
-
-_read_input_text() {
-  printf "%s" "${BGREEN}$1 ${RESET}"
-}
-
-_read_input_option() {
-  printf "%s" "${BGREEN}$1${RESET}"
-  read -r OPTION
-}
-
-_contains_element() {
-  for e in "${@:2}"; do [[ "$e" = "$1" ]] && break; done;
-}
-
-_invalid_option() {
-  echo
-  _print_warning "Invalid option. Try again..."
-}
-
-_pause_function() {
-  echo
-  _print_line
-  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
-}
-
-_umount_partitions() {
-  umount -R "${ROOT_MOUNTPOINT}" &> /dev/null
-}
-
-_is_package_installed() {
-  for PKG in $1; do
-    pacman -Q "$PKG" &> /dev/null && return 0;
-  done
-  return 1
-}
-
-_package_install() { # Install pacman packages
-  for PKG in $1; do
-    if ! _is_package_installed "${PKG}"; then
-      _print_action "Installing" "${PKG}"
-      if [[ $(id -u) == 0 ]]; then
-        pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!; _progress $PID
-      else
-        sudo pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!; _progress $PID
-      fi
-    else
-      _print_action "Installing" "${PKG}"
-      tput rc
-      echo -e "${YELLOW}exists${RESET}"
-    fi
-  done
-}
-
-_pacstrap_install() { # Install pacstrap packages
-  for PKG in $1; do
-    _print_action "Installing" "${PKG}"
-    pacstrap "${ROOT_MOUNTPOINT}" "${PKG}" &> /dev/null & PID=$!; _progress $PID
-  done
-}
-
-_set_font() {
-  _select_consolefont() {
-    _print_title "SCRIPT FONT SIZE"
-    _print_select "Select script font size:"
-    echo -e "1) Very small  12"
-    echo -e "2) Small       14"
-    echo -e "3) Small bold  14"
-    echo -e "4) Medium      16"
-    echo -e "5) Medium bold 16"
-    echo -e "6) Large       18 - (Recommended)"
-    echo -e "7) Very large  20"
-    echo -e "8) Very large  22"
-    echo -e "9) Default archiso font"
-    printf "%s" "${BYELLOW}> ${RESET}"
-    read -r FONT_CHOICE
-    case $FONT_CHOICE in
-      "1")
-        setfont ter-112n
-        ;;
-      "2")
-        setfont ter-114n
-        ;;
-      "3")
-        setfont ter-114b
-        ;;
-      "4")
-        setfont ter-116n
-        ;;
-      "5")
-        setfont ter-116b
-        ;;
-      "6")
-        setfont ter-118b
-        ;;
-      "7")
-        setfont ter-120b
-        ;;
-      "8")
-        setfont ter-122b
-        ;;
-      "9")
-        setfont
-        ;;
-      *)
-        _invalid_option
-        _pause_function
-        _select_consolefont
-        ;;
-    esac
-  }
-  _select_consolefont
-}
 
 usage() {
   cat <<EOF
@@ -1488,131 +537,10 @@ usage: ${0##*/} [flags]
   --install | -i         First step, only root user.
   --post    | -p         Second step, only root user.
 
-${APP_TITLE} ${APP_VERSION}
+${SCRIPT_TITLE} ${SCRIPT_VERSION}
 
 EOF
 }
-
-_start() {
-  pacman -Sy --needed --noconfirm terminus-font &> /dev/null
-  clear
-  setfont ter-118b
-  T_COLS=$(tput cols)
-  COLS_LOGO=47
-  echo -e "\n\n\n\n\n"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}┌─────────────────────────────────────────────┐${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}   __   __  _______  ___      _______  ___ ${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |  |_|  ||   _   ||   |    |       ||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||  |_|  ||   |    |    _  ||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||       ||   |    |   |_| ||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |       ||       ||   |___ |    ___||   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  | ||_|| ||   _   ||       ||   |    |   |${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│${RESET}${BBLACK}  |_|   |_||__| |__||_______||___|    |___|${RESET}${BGREEN}  │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}│                                             │${RESET}"
-  tput cuf $(( (T_COLS - COLS_LOGO)/2 )); echo "${BGREEN}└───── ${BGREEN}My Personal Arch Linux Installer${RESET}${BGREEN} ──────┘${RESET}"
-  echo
-  tput cuf $(( (T_COLS - 18)/2 )); echo -e "${BPURPLE}By Stenio Silveira${RESET}"
-  echo -e "\n\n\n"
-  tput cuf $(( (T_COLS - 23)/2 )); read -e -sn 1 -p "${BWHITE}Press any key to start!${RESET}"
-  _print_title "CHECKING REQUIREMENTS"
-  echo
-  _check_archlinux
-  _check_uefimode
-  _check_connection
-  _check_root
-  _check_hostname
-  _check_pacman_blocked
-  _print_action "Synchronizing" "Pacman database"
-  pacman -Syy &> /dev/null & PID=$!; _progress $PID
-  _print_action "Running" "timedatectl set-ntp true"
-  timedatectl set-ntp true & PID=$!; _progress $PID
-  _pause_function
-}
-
-# ----------- TEST FUNCTIONS
-
-_check_archlinux() {
-  _print_action "Checking" "Arch Linux Release"
-  if [ -e /etc/arch-release ]; then
-    _print_ok
-  else
-    _print_error
-    echo
-    _print_warning "You must execute the script on ${BYELLOW}Arch Linux${RESET}."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_uefimode() {
-  _print_action "Checking" "UEFI mode"
-  if [ -d "/sys/firmware/efi/" ]; then
-    _print_ok
-  else
-    _print_error
-    echo
-    _print_warning "You must execute the script in ${BYELLOW}UEFI${RESET} mode."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_connection() {
-  _connection_test() {
-    ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
-  }
-  _print_action "Checking" "Internet connection"
-  if ! _connection_test; then
-    _print_ok
-  else
-    _print_error
-    echo
-    _print_warning "You must be connected to the internet to execute the script."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_root() {
-  _print_action "Checking" "Root user"
-  if [ "$(id -u)" == "0" ]; then
-    _print_ok
-  else
-    _print_error
-    echo
-    _print_warning "You must execute the script as 'root' user."
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_hostname() {
-  _print_action "Checking" "Hostname"
-  if [ "${HOSTNAME// /}" != "" ]; then
-    _print_ok
-  else
-    _print_error
-    echo
-    _print_warning "Hostname must be configured!"
-    _print_bye
-    exit 1
-  fi
-}
-
-_check_pacman_blocked() {
-  _print_action "Checking" "Pacman lock"
-  if [ ! -f /var/lib/pacman/db.lck ]; then
-    _print_ok
-  else
-    _print_error
-    echo
-    _print_warning "Pacman is blocked. If not running remove /var/lib/pacman/db.lck."
-    _print_bye
-    exit 1
-  fi
-}
-
-# ----------------------------------------------------------------------#
 
 ### EXECUTION
 
@@ -1620,8 +548,6 @@ _check_pacman_blocked() {
     usage
     exit 1
 }
-
-_start
 
 while [[ "$1" ]]; do
   case "$1" in
@@ -1631,6 +557,6 @@ while [[ "$1" ]]; do
   shift
   setfont
   clear
-  _print_bye
+  _print_exit
   exit 0
 done
