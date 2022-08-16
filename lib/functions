@@ -1,4 +1,11 @@
 # ============================================================================
+# LIBS
+# ----------------------------------------------------------------------------
+
+[[ -e ./lib/colors ]] && source ./lib/colors
+[[ -e ./lib/commons ]] && source ./lib/commons || { echo "O arquivo commons está faltando."; exit 1; }
+
+# ============================================================================
 # VARIABLES
 # ----------------------------------------------------------------------------
 
@@ -7,13 +14,6 @@ SCRIPT_VERSION="0.0.1"
 
 # prompt
 PS3="${BGREEN}> ${RESET}"
-
-# ============================================================================
-# LIBS
-# ----------------------------------------------------------------------------
-
-[[ -e ./lib/colors ]] && source ./lib/colors
-[[ -e ./lib/commons ]] && source ./lib/commons || { echo "O arquivo commons está faltando."; exit 1; }
 
 # ============================================================================
 # TEST FUNCTIONS
@@ -78,7 +78,7 @@ _check_pacman_blocked() {
   _print_action "Verificando" "bloqueio do Pacman"
   if [[ ! -f "/var/lib/pacman/db.lck" ]]; then
     _print_done
-  else_select_disk
+  else
     _print_error
     echo
     _print_warning "O Pacman está bloqueado. Se não estiver sendo executado, remova o arquivo /var/lib/pacman/db.lck."
@@ -129,7 +129,7 @@ _set_font() {
 
 _select_disk() {
   local title="SELECIONAR DISCO DE INSTALAÇÃO"
-  _print_title ${title}
+  _print_title "${title}"
   items=$(lsblk -d -p -n -l -o NAME,SIZE -e 7,11)
   DISKS_LIST=()
   SAVEIFS=$IFS
@@ -152,7 +152,7 @@ _select_disk() {
   _read_input_option "Editar a tabela de partições? [s/N]: "
   if [[ ${OPTION,,} == "s" ]]; then
     cfdisk "${INSTALL_DISK}"
-    _print_title ${title}
+    _print_title "${title}"
     echo
     _print_item "Disco selecionado" "${INSTALL_DISK}"
     _pause_function
@@ -162,8 +162,8 @@ _select_disk() {
 _format_partitions() {
   local title="FORMATAR E MONTAR PARTIÇÕES"
   _format_root_partition() {
-    _print_title ${title}
-    _print_select "Selecione a partição ${BYELLOW}ROOT${RESET}${BCYAN}:${RESET}"
+    _print_title "${title}"
+    _print_select "Selecione a partição ${BYELLOW}RAIZ${RESET}${BCYAN}:${RESET}"
     _print_danger "Todos os dados nesta partição serão deletados!"
     echo
     _umount_partitions
@@ -231,7 +231,7 @@ _format_partitions() {
     _print_action "Montando" "${MAGENTA}@home${RESET} em /home"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
     _print_action "Montando" "${MAGENTA}@log${RESET} em /var/log"
-    mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@log "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
+    mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@log "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/log &> /dev/null & PID=$!; _progress $PID
     _print_action "Montando" "${MAGENTA}@pkg${RESET} em /var/cache/pacman/pkg"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@pkg "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
     _print_action "Montando" "${MAGENTA}@snapshots${RESET} em /.snapshots"
@@ -242,7 +242,7 @@ _format_partitions() {
   }
 
   _format_efi_partition() {
-    _print_title ${title}
+    _print_title "${title}"
     _print_select "Selecione a partição ${BYELLOW}EFI${RESET}${BCYAN}:${RESET}"
     select PARTITION in "${PARTITIONS_LIST[@]}"; do
       if _contains_element "${PARTITION}" "${PARTITIONS_LIST[@]}"; then
@@ -306,10 +306,14 @@ _rank_mirrors() {
 }
 
 _install_base() {
-  local title="INSTALANDO A BASE"
-  _print_title ${title}
-  echo
-  _rank_mirrors
+  _print_title "INSTALANDO A BASE"
+  _print_subtitle "Configurando lista de espelhos"
+  _print_action "Executando" "reflector --score 10 --save /etc/pacman.d/mirrorlist"
+  [[ ! -f /etc/pacman.d/mirrorlist.bak ]] && cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+  reflector --score 6 --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
+  _print_subtitle "Atualizando base de dados"
+  pacman -Syy
+
   _print_item "Versão do kernel" "${KERNEL_VERSION}"
   _print_item "Versão do microcode" "${MICROCODE_VERSION}"
   _print_subtitle "Instalando pacotes base"
@@ -342,12 +346,16 @@ _generate_fstab() {
 _set_timezone() {
   _print_title "CONFIGURANDO O FUSO HORÁRIO"
   _print_item "Timezone" "${TIMEZONE}"
-  _print_item "Relógio do Hardware" "${CLOCK_CHOICE}"
+  _print_item "Relógio do Hardware" "${HWCLOCK}"
   echo
-  _print_action "Executando" "timedatectl set-ntp true"
-  arch-chroot ${ROOT_MOUNTPOINT} timedatectl set-ntp true &> /dev/null & PID=$!; _progress $PID
   _print_action "Executando" "ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime"
   arch-chroot ${ROOT_MOUNTPOINT} ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime &> /dev/null & PID=$!; _progress $PID
+  _print_action "Configurando" "timesyncd.conf"
+  arch-chroot ${ROOT_MOUNTPOINT} sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf
+  arch-chroot ${ROOT_MOUNTPOINT} sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf
+  arch-chroot ${ROOT_MOUNTPOINT} echo \"FallbackNTP=a.st1.ntp.br b.st1.ntp.br 0.br.pool.ntp.org\" >> /etc/systemd/timesyncd.conf
+  _print_action "Habilitando" "systemd-timesyncd.service"
+  arch-chroot ${ROOT_MOUNTPOINT} systemctl enable systemd-timesyncd.service &> /dev/null
   _print_action "Executando" "hwclock --systohc --${HWCLOCK,,}"
   arch-chroot ${ROOT_MOUNTPOINT} hwclock --systohc --${HWCLOCK,,} &> /dev/null & PID=$!; _progress $PID
   _pause_function
@@ -384,14 +392,14 @@ _set_network() {
 
 _generate_mkinitcpio() {
   local title="GERANDO O INITRAMFS"
-  _print_title ${title}
+  _print_title "${title}"
   [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/modconf block filesystems keyboard/keyboard keymap modconf block encrypt filesystems/' "${ROOT_MOUNTPOINT}"/etc/mkinitcpio.conf
   echo
   _read_input_option "Editar mkinitcpio.conf? [s/N]: "
   if [[ ${OPTION,,} == "s" ]]; then
     nano ${ROOT_MOUNTPOINT}/etc/mkinitcpio.conf
   fi
-  _print_title ${title}
+  _print_title "${title}"
   echo
   arch-chroot ${ROOT_MOUNTPOINT} mkinitcpio -P
   _pause_function
@@ -456,12 +464,12 @@ _set_bootloader() {
 
 _set_root_passwd() {
   local title="SENHA DE ROOT"
-  _print_title ${title}
+  _print_title "${title}"
   local PASSWD_CHECK=0
   echo
   arch-chroot ${ROOT_MOUNTPOINT} passwd && PASSWD_CHECK=1;
   while [[ $PASSWD_CHECK == 0 ]]; do
-    _print_title ${title}
+    _print_title "${title}"
     echo
     _print_warning "A senha não é a mesma, tente novamente!"
     echo

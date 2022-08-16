@@ -17,7 +17,7 @@ _print_title() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BWHITE}:: $1${RESET}\n"
+  echo -e "\n${BWHITE}==> $1${RESET}"
 }
 
 _print_select() {
@@ -44,12 +44,12 @@ _print_info() {
 
 _print_warning() {
   T_COLS=$(tput cols)
-  echo -e "${BYELLOW}WARNING:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BYELLOW}ALERTA:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_danger() {
   T_COLS=$(tput cols)
-  echo -e "${BRED}DANGER:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
+  echo -e "${BRED}ATENÇÃO:${RESET}${WHITE} $1${RESET}" | fold -sw $(( T_COLS - 1 ))
 }
 
 _print_action() {
@@ -123,13 +123,13 @@ _contains_element() {
 
 _invalid_option() {
   echo
-  _print_warning "Invalid option. Try again..."
+  _print_warning "Opção inválida! Tente novamente..."
 }
 
 _pause_function() {
   echo
   _print_line
-  read -e -sn 1 -p "${BGREEN}Press any key to continue...${RESET}"
+  read -e -sn 1 -p "${BGREEN}Precione qualquer tecla para continuar...${RESET}"
 }
 
 _umount_partitions() {
