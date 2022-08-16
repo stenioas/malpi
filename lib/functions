@@ -97,8 +97,7 @@ _package_install() { # Install pacman packages
     if ! _is_package_installed "${PKG}"; then
       pacman -S --noconfirm --needed "${PKG}" &> /dev/null & PID=$!; _progress $PID
     else
-      tput rc
-      echo -e "${YELLOW}existe${RESET}"
+      _print_done
     fi
   done
 }

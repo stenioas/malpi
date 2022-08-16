@@ -17,7 +17,7 @@ _print_title() {
 }
 
 _print_subtitle() {
-  echo -e "\n${BWHITE}==> $1${RESET}"
+  echo -e "\n${BWHITE}:: $1${RESET}"
 }
 
 _print_select() {
@@ -53,18 +53,21 @@ _print_danger() {
 }
 
 _print_action() {
-  echo -ne "${BBLACK}$1 ${RESET}${WHITE}$2 ${RESET}"
+  echo -e "[ ] ${WHITE}$1 ${RESET}${BLUE}$2 ${RESET}"
+  tput cuu1
   tput sc
 }
 
 _print_done() {
   tput rc
-  echo -e "${BGREEN}done${RESET}"
+  tput cuf 1
+  echo -e "${BGREEN}✔${RESET}"
 }
 
 _print_error() {
   tput rc
-  echo -e "${BRED}error${RESET}"
+  tput cuf 1
+  echo -e "${BRED}✗${RESET}"
 }
 
 _print_line() {
