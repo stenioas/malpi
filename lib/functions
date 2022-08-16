@@ -128,7 +128,7 @@ _set_font() {
 # ----------------------------------------------------------------------------
 
 _select_disk() {
-  local title="SELECIONAR DISCO DE INSTALAÇÃO"
+  local title="DISCO DE INSTALAÇÃO"
   _print_title "${title}"
   items=$(lsblk -d -p -n -l -o NAME,SIZE -e 7,11)
   DISKS_LIST=()
@@ -227,11 +227,11 @@ _format_partitions() {
     _umount_partitions
     _print_action "Montando" "${MAGENTA}@${RESET} em /"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
-    mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
+    mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/log,var/cache/pacman/pkg,.snapshots} &> /dev/null
     _print_action "Montando" "${MAGENTA}@home${RESET} em /home"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
     _print_action "Montando" "${MAGENTA}@log${RESET} em /var/log"
-    mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@log "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/log &> /dev/null & PID=$!; _progress $PID
+    mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@log "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/log &> /dev/null & PID=$!; _progress $PID
     _print_action "Montando" "${MAGENTA}@pkg${RESET} em /var/cache/pacman/pkg"
     mount -o noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@pkg "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
     _print_action "Montando" "${MAGENTA}@snapshots${RESET} em /.snapshots"
