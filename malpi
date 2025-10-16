@@ -291,7 +291,7 @@ _format_partitions() {
     _print_action "Mount" "${PURPLE}@${RESET} at /"
     mount -o ${BTRFS_OPTS},subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
 
-    mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
+    mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/log,var/cache/pacman/pkg,.snapshots} &> /dev/null
 
     _print_action "Mount" "${PURPLE}@home${RESET} at /home"
     mount -o ${BTRFS_OPTS},subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
