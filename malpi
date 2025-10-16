@@ -167,8 +167,8 @@ _rank_mirrors() {
   select COUNTRY_CHOICE in "${COUNTRIES_LIST[@]}"; do
     if _contains_element "${COUNTRY_CHOICE}" "${COUNTRIES_LIST[@]}"; then
       echo
-      _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --sort score --save /etc/pacman.d/mirrorlist"
-      reflector -c "${COUNTRY_CHOICE}" --sort score --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
+      _print_action "Running" "reflector -c ${COUNTRY_CHOICE} --latest 5 --sort rate --save /etc/pacman.d/mirrorlist"
+      reflector -c "${COUNTRY_CHOICE}" --latest 5 --sort rate --save /etc/pacman.d/mirrorlist &> /dev/null & PID=$!; _progress $PID
       echo
       _read_input_option "Edit mirrorlist file? [y/N]: "
       if [ "$OPTION" = "y" ] || [ "$OPTION" = "Y" ]; then
@@ -277,20 +277,34 @@ _format_partitions() {
     btrfs su cr ${ROOT_MOUNTPOINT}/@ &> /dev/null & PID=$!; _progress $PID
     _print_action "Creating" "subvolume ${PURPLE}@home${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Creating" "subvolume ${PURPLE}@pkgs${RESET}"
-    btrfs su cr ${ROOT_MOUNTPOINT}/@pkgs &> /dev/null & PID=$!; _progress $PID
+    _print_action "Creating" "subvolume ${PURPLE}@log${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@log &> /dev/null & PID=$!; _progress $PID
+    _print_action "Creating" "subvolume ${PURPLE}@pkg${RESET}"
+    btrfs su cr ${ROOT_MOUNTPOINT}/@pkg &> /dev/null & PID=$!; _progress $PID
     _print_action "Creating" "subvolume ${PURPLE}@snapshots${RESET}"
     btrfs su cr ${ROOT_MOUNTPOINT}/@snapshots &> /dev/null & PID=$!; _progress $PID
     _umount_partitions
     _print_action "Mount" "${PURPLE}@${RESET} at /"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
+    
+    local BTRFS_OPTS="noatime,compress=zstd:3,space_cache=v2,commit=120" 
+
+    _print_action "Mount" "${PURPLE}@${RESET} at /"
+    mount -o ${BTRFS_OPTS},subvol=@ "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}" &> /dev/null & PID=$!; _progress $PID
+
     mkdir -p "${ROOT_MOUNTPOINT}"/{home,var/cache/pacman/pkg,.snapshots} &> /dev/null
+
     _print_action "Mount" "${PURPLE}@home${RESET} at /home"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
-    _print_action "Mount" "${PURPLE}@pkgs${RESET} at /var/cache/pacman/pkg"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@pkgs "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
+    mount -o ${BTRFS_OPTS},subvol=@home "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/home &> /dev/null & PID=$!; _progress $PID
+
+    _print_action "Mount" "${PURPLE}@log${RESET} at /var/log"
+    mount -o ${BTRFS_OPTS},subvol=@log "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/log &> /dev/null & PID=$!; _progress $PID
+
+    _print_action "Mount" "${PURPLE}@pkg${RESET} at /var/cache/pacman/pkg"
+    mount -o ${BTRFS_OPTS},subvol=@pkg "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/var/cache/pacman/pkg &> /dev/null & PID=$!; _progress $PID
+
     _print_action "Mount" "${PURPLE}@snapshots${RESET} at /.snapshots"
-    mount -o noatime,compress=lzo,space_cache,commit=120,subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
+    mount -o ${BTRFS_OPTS},subvol=@snapshots "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"/.snapshots &> /dev/null & PID=$!; _progress $PID
+
     _check_mountpoint "${ROOT_DEVICE}" "${ROOT_MOUNTPOINT}"
     ROOT_UUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
     _pause_function
